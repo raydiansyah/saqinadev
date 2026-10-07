@@ -1,0 +1,220 @@
+@import "tailwindcss";
+
+/*
+ * Saqina Dev tokens. Dark graphite by default: the product is a developer tool used next to
+ * editors and terminals. One accent (signal green) marks progress and the primary action;
+ * blue, amber and red are reserved for status meaning only.
+ */
+:root {
+  --background: oklch(0.17 0.006 250);
+  --surface: oklch(0.205 0.007 250);
+  --surface-raised: oklch(0.235 0.008 250);
+  --foreground: oklch(0.96 0.004 250);
+  --muted-foreground: oklch(0.74 0.012 250);
+  --subtle-foreground: oklch(0.64 0.012 250);
+  --border: oklch(0.31 0.008 250);
+  --border-strong: oklch(0.42 0.01 250);
+  --primary: oklch(0.82 0.15 158);
+  --primary-foreground: oklch(0.2 0.03 158);
+  --info: oklch(0.76 0.11 240);
+  --warning: oklch(0.83 0.13 80);
+  --error: oklch(0.72 0.16 25);
+  --ring: oklch(0.82 0.15 158);
+  --radius: 6px;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-subtle-foreground: var(--subtle-foreground);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-success: var(--primary);
+  --color-info: var(--info);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-ring: var(--ring);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --radius-sm: 4px;
+  --radius-md: var(--radius);
+  --radius-lg: 10px;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    @apply bg-background text-foreground font-sans antialiased;
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 35%, transparent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+/*
+ * Motion system. Vocabulary: reveal, connect, split/merge, morph, progress, pin.
+ * The story is pinned only on large screens that allow motion; everywhere else it is a
+ * vertical narrative where every visual shows its final state.
+ */
+@custom-variant pinned (@media (min-width: 1024px) and (prefers-reduced-motion: no-preference));
+@custom-variant stacked (
+  @media not all and (min-width: 1024px) and (prefers-reduced-motion: no-preference)
+);
+
+@layer components {
+  /* Scroll reveal: content is visible by default; motion only applies once JS marks it. */
+  [data-reveal="pending"] {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  [data-reveal="shown"] {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 500ms ease-out,
+      transform 500ms ease-out;
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  /* Hero load timeline: each element sets --d (delay) from the hero timeline. */
+  .intro {
+    animation: intro-in 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: var(--d, 0ms);
+  }
+
+  /* Connect: SVG paths draw with local chapter progress (--p, defaults to fully drawn). */
+  .connect {
+    stroke-dasharray: 1;
+    stroke-dashoffset: calc(1 - var(--p, 1));
+  }
+
+  /* Story layout. Stacked by default; pinned stage on capable screens. */
+  .story-track {
+    position: relative;
+  }
+  @variant pinned {
+    .story-track {
+      height: calc(100vh * 8);
+    }
+    .story-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      padding-top: 4rem;
+    }
+    .story-frame {
+      display: grid;
+      grid-template-columns: 9.5rem minmax(0, 0.85fr) minmax(0, 1.25fr);
+      grid-template-areas: "rail text stage";
+      align-items: center;
+      column-gap: 3rem;
+      height: min(42rem, calc(100vh - 7rem));
+    }
+    .chapter {
+      display: contents;
+    }
+    .chapter-text,
+    .chapter-visual {
+      grid-row: 1;
+      transition:
+        opacity 450ms ease,
+        transform 450ms ease,
+        visibility 0s linear 450ms;
+    }
+    .chapter-text {
+      grid-area: text;
+    }
+    .chapter-visual {
+      grid-area: stage;
+    }
+    .chapter:not([data-active]) > .chapter-text,
+    .chapter:not([data-active]) > .chapter-visual {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(20px);
+    }
+    .chapter[data-active] > .chapter-text,
+    .chapter[data-active] > .chapter-visual {
+      transition-delay: 0s;
+    }
+  }
+}
+
+@keyframes intro-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes node-morph {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* Navbar: tightens and turns solid as the page scrolls, where scroll timelines exist. */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .nav-shell {
+      animation: nav-settle linear both;
+      animation-timeline: scroll();
+      animation-range: 0 160px;
+    }
+  }
+}
+
+@keyframes nav-settle {
+  from {
+    background-color: color-mix(in oklch, var(--background) 0%, transparent);
+    border-color: transparent;
+  }
+  to {
+    background-color: var(--background);
+    border-color: var(--border);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  [data-reveal="pending"],
+  [data-reveal="shown"] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .intro {
+    animation: none;
+  }
+}
