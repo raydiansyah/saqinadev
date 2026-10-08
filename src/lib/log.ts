@@ -6,6 +6,8 @@
 type Level = "info" | "warn" | "error";
 export type LogFields = Record<string, unknown>;
 
+import { scrubSecrets } from "@/lib/secrets/scan";
+
 const SECRET_KEY = /pass(word)?|secret|token|api[-_]?key|authorization|cookie|credential/i;
 const MAX_DEPTH = 4;
 
@@ -21,6 +23,8 @@ export function redact(value: unknown, depth = 0): unknown {
       ]),
     );
   }
+  // Values that look like keys are hidden even under harmless field names.
+  if (typeof value === "string") return scrubSecrets(value);
   return value;
 }
 

@@ -31,7 +31,13 @@ export const PROJECT_NAV = [
       { key: "documents", path: "/documents" },
     ],
   },
-  { group: "build", items: [{ key: "agents", path: "/agents" }] },
+  {
+    group: "build",
+    items: [
+      { key: "agents", path: "/agents" },
+      { key: "integrations", path: "/integrations" },
+    ],
+  },
   {
     group: null,
     items: [

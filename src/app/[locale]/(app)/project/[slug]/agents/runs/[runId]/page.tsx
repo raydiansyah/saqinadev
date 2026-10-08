@@ -27,12 +27,15 @@ export default async function RunPage({
   if (!detail) notFound();
   const [t, locale] = await Promise.all([getTranslations("assistant.agents.run"), getLocale()]);
   const { run, agentName, agentType, taskTitle, events } = detail;
+  // Saqina's agents run simulated unless a model planned the run (recorded in the output).
   const simulated = agentType === "saqina";
   const canWrite = can(access.role, "content:write");
   const agents = canWrite ? await agentOptions(access) : [];
 
   const output = (run.output ?? {}) as Record<string, unknown>;
   const summary = typeof output.summary === "string" ? output.summary : null;
+  const model = output.model as { label: string; fallbackUsed: boolean } | undefined;
+  const handoffId = (run.metadata as { handoffId?: string | null }).handoffId ?? null;
   const issues = strings(output.issues);
   const recommendations = strings(output.recommendations);
   const artifacts = Array.isArray(output.artifacts)
@@ -83,7 +86,24 @@ export default async function RunPage({
         ) : null}
       </div>
 
-      {simulated ? <Notice tone="info">{t("simulatedNotice")}</Notice> : null}
+      {simulated && !output.model ? <Notice tone="info">{t("simulatedNotice")}</Notice> : null}
+      {model ? (
+        <p className="font-mono text-xs text-subtle-foreground">
+          {t("planned", { model: model.label })}
+          {model.fallbackUsed ? t("fallback") : ""}
+        </p>
+      ) : null}
+      {handoffId ? (
+        <Notice tone="info">
+          {run.status === "waiting" ? `${t("external")} ` : ""}
+          <Link
+            href={`/project/${slug}/agents/handoffs/${handoffId}`}
+            className="underline underline-offset-2"
+          >
+            {t("handoff")}
+          </Link>
+        </Notice>
+      ) : null}
       {run.status === "failed" ? (
         <Notice tone="error">
           <span className="font-medium">{t("failedTitle")}: </span>

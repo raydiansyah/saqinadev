@@ -17,6 +17,8 @@ export interface MessageView {
   content: string;
   status: MessageStatus;
   blocks: Block[];
+  /** Which model answered (assistant messages). */
+  model: AssistantMetadata["model"] | null;
   createdAt: Date;
 }
 
@@ -134,6 +136,7 @@ function toMessageView(row: typeof messages.$inferSelect): MessageView {
     content: row.content,
     status: row.status,
     blocks: meta.success ? meta.data.blocks : [],
+    model: meta.success ? (meta.data.model ?? null) : null,
     createdAt: row.createdAt,
   };
 }

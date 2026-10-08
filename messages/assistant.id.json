@@ -136,7 +136,9 @@
         "APPEND_PRD": "Bagian PRD",
         "CREATE_MEMORY": "Memory baru",
         "CREATE_DECISION": "Keputusan baru",
-        "ASSIGN_AGENT": "Tugaskan agent"
+        "ASSIGN_AGENT": "Tugaskan agent",
+        "RUN_TOOL": "Jalankan tool",
+        "CREATE_HANDOFF": "Serahkan ke agent"
       },
       "fields": {
         "title": "Judul",
@@ -158,7 +160,33 @@
       },
       "taskStep": "task baru \"{title}\"",
       "approved": "Disetujui. Perubahan diterapkan.",
-      "failed": "Usulan ini tidak bisa diterapkan."
+      "failed": "Usulan ini tidak bisa diterapkan.",
+      "tool": {
+        "source": {
+          "internal": "Saqina",
+          "git": "Repository",
+          "mcp": "MCP"
+        },
+        "files": "File",
+        "branch": "Branch",
+        "results": "Hasil tool",
+        "succeeded": "Selesai",
+        "failed": "Gagal",
+        "skipped": "Tidak dijalankan",
+        "gitFailed": "Operasi repository gagal. Tidak ada perubahan lanjutan.",
+        "mcpFailed": "Tool MCP tidak tersedia. Tool tidak dijalankan.",
+        "skippedNote": "Tidak dijalankan karena langkah sebelumnya gagal.",
+        "pr": "Pull request",
+        "commit": "Commit"
+      },
+      "handoff": {
+        "files": "Akan menerima",
+        "task": "Task",
+        "open": "Buka handoff",
+        "sent": "Terkirim ke agent",
+        "export": "Siap diekspor",
+        "failed": "Handoff gagal: tidak ada yang terkirim"
+      }
     },
     "run": {
       "title": "Run agent",
@@ -206,11 +234,11 @@
     },
     "agents": {
       "team": "Tim",
-      "teamHint": "Agen spesialis Saqina. Pada fase ini mereka berjalan sebagai simulasi dan hanya mengusulkan perubahan.",
+      "teamHint": "Agent spesialis Saqina. Dengan model yang dikonfigurasi mereka merencanakan sungguhan dan mengusulkan perubahan; tanpa model mereka berjalan sebagai simulasi berlabel.",
       "tools": "Agen alat",
       "toolsHint": "Alat coding eksternal. Belum terhubung.",
       "provider": "Penyedia",
-      "simulated": "Disimulasikan pada fase ini",
+      "simulated": "Simulasi kecuali ada model yang dikonfigurasi",
       "activeRuns": "{count, plural, other {# run aktif}}",
       "capabilitiesHeading": "Kemampuan",
       "capabilitiesHint": "Keahliannya",
@@ -251,7 +279,10 @@
         "write_requirements": "mengusulkan kebutuhan",
         "git_push": "push ke repositori",
         "deploy": "deploy",
-        "delete_project": "menghapus proyek"
+        "delete_project": "menghapus proyek",
+        "read_repository": "membaca repository",
+        "write_branch": "menulis ke branch kerjanya",
+        "use_mcp_tools": "memakai tool MCP yang diaktifkan"
       },
       "runs": "Run",
       "runsHint": "Semua run agen di proyek ini, terbaru lebih dulu.",
@@ -286,7 +317,11 @@
           "context_loaded": "Memuat konteks proyek",
           "prd_analyzed": "Membaca PRD",
           "execution_started": "Mulai mengerjakan tugas",
-          "proposal_generated": "Menyiapkan usulan"
+          "proposal_generated": "Menyiapkan usulan",
+          "model_planned": "Direncanakan dengan model yang terpilih",
+          "repository_read": "Membaca repository lewat tool yang diizinkan",
+          "handoff_created": "Paket handoff dibuat",
+          "handoff_sent": "Handoff terkirim ke agent"
         },
         "result": "Hasil",
         "noResult": "Belum ada hasil.",
@@ -310,7 +345,11 @@
         "submitReassign": "Alihkan dan mulai",
         "close": "Tutup",
         "cancelledNote": "Tidak ada proses eksternal yang berjalan; run ditandai dibatalkan.",
-        "readOnly": "Hanya editor dan pemilik yang dapat mengontrol run."
+        "readOnly": "Hanya editor dan pemilik yang dapat mengontrol run.",
+        "handoff": "Buka handoff",
+        "planned": "Direncanakan oleh {model}",
+        "fallback": " (fallback)",
+        "external": "Menunggu agent eksternal melapor. Saqina tidak menjalankannya."
       }
     },
     "overview": {
@@ -323,6 +362,21 @@
       "allRuns": "Semua run",
       "noRuns": "Belum ada aktivitas agen.",
       "needAttention": "{count, plural, other {# perlu perhatian}}"
-    }
+    },
+    "sources": {
+      "prd": "PRD",
+      "requirements": "Requirement",
+      "tasks": "Task",
+      "memory": "Memory",
+      "decision": "Keputusan",
+      "recommendation": "Rekomendasi",
+      "repository": "Repository",
+      "git_branch": "Branch Git",
+      "project": "Proyek"
+    },
+    "sourceLabel": "Sumber: {source}",
+    "modelLine": "Dijawab oleh {model}",
+    "modelRules": "Ditulis dari data proyek (tanpa model AI)",
+    "fallbackLine": "{requested} tidak tersedia; fallback dipakai."
   }
 }

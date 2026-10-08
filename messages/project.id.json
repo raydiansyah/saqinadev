@@ -76,7 +76,8 @@
         "documents": "Dokumen",
         "agents": "Agent",
         "activity": "Aktivitas",
-        "settings": "Pengaturan"
+        "settings": "Pengaturan",
+        "integrations": "Integrasi"
       },
       "pending": "menunggu"
     },

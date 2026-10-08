@@ -1,5 +1,5 @@
 import "server-only";
-import { and, desc, eq, lt, or } from "drizzle-orm";
+import { and, desc, eq, lt, or, sql } from "drizzle-orm";
 import { db, type Executor } from "@/lib/db/client";
 import { activities, projectMembers, projects, users } from "@/lib/db/schema";
 import type { ActivityType } from "@/lib/domain/enums";
@@ -14,6 +14,20 @@ export interface ActivityInput {
   entityId?: string | null;
   metadata?: ActivityMetadata;
 }
+
+const CONTEXT_TYPES = [
+  "project",
+  "interview",
+  "requirement",
+  "recommendation",
+  "document",
+  "task",
+  "milestone",
+  "memory",
+  "decision",
+  "stack",
+];
+const changesContext = (type: string) => CONTEXT_TYPES.includes(type.split(".")[0]);
 
 let lastTick = 0;
 const tick = () => {
@@ -38,7 +52,13 @@ export async function recordActivity(executor: Executor, input: ActivityInput): 
   });
   await executor
     .update(projects)
-    .set({ updatedAt: new Date() })
+    .set({
+      updatedAt: new Date(),
+      // Only changes to what agents read move the context version (not runs, tools, handoffs).
+      ...(changesContext(input.type)
+        ? { contextRevision: sql`${projects.contextRevision} + 1` }
+        : {}),
+    })
     .where(eq(projects.id, input.projectId));
 }
 

@@ -129,6 +129,16 @@ export function MessageItem({
           })}
         </div>
       ) : null}
+      {!mine && message.model && message.status === "completed" ? (
+        <p className="mt-1 font-mono text-[0.6875rem] text-subtle-foreground">
+          {message.model.source === "rules"
+            ? t("modelRules")
+            : t("modelLine", { model: message.model.label })}
+          {message.model.fallbackUsed && message.model.requested
+            ? ` · ${t("fallbackLine", { requested: message.model.requested })}`
+            : ""}
+        </p>
+      ) : null}
       {message.status === "cancelled" ? (
         <p className="mt-1 text-xs text-subtle-foreground">{t("statuses.cancelled")}</p>
       ) : null}

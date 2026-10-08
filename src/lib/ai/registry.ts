@@ -1,5 +1,5 @@
 import "server-only";
-import { AnthropicProvider } from "./anthropic";
+import { anthropicAdapter } from "./adapters/anthropic";
 import { MockAiProvider } from "./mock";
 import type { AiProvider } from "./provider";
 
@@ -13,7 +13,11 @@ export function getAiProvider(options: { model?: string | null; override?: AiPro
   if (options.override) return options.override;
   const key = process.env.ANTHROPIC_API_KEY;
   if (!key || process.env.NODE_ENV === "test") return new MockAiProvider() as AiProvider;
-  return new AnthropicProvider(key, options.model || process.env.AI_MODEL || DEFAULT_MODEL);
+  return anthropicAdapter.createClient(
+    { baseUrl: null, configuration: {} },
+    key,
+    options.model || process.env.AI_MODEL || DEFAULT_MODEL,
+  );
 }
 
 export function isModelEnabled(): boolean {

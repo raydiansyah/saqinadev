@@ -29,6 +29,9 @@ export const INTENTS = [
   "ASSIGN_AGENT",
   "RUN_AGENT",
   "REQUEST_APPROVAL",
+  "HANDOFF_AGENT",
+  "ASK_REPOSITORY",
+  "ANALYZE_REPOSITORY",
   "HELP",
 ] as const;
 export type Intent = (typeof INTENTS)[number];
@@ -44,6 +47,8 @@ export const intentEntities = z.object({
   feature: z.string().trim().max(160).optional(),
   topic: z.string().trim().max(160).optional(),
   target: z.enum(TARGETS).optional(),
+  /** External agent named in the message ("kirim ke Codex"). */
+  agent: z.string().trim().max(60).optional(),
 });
 export type IntentEntities = z.infer<typeof intentEntities>;
 

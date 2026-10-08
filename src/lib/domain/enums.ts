@@ -196,6 +196,22 @@ export const ACTIVITY_TYPES = [
   "proposal.revision_requested",
   "proposal.cancelled",
   "settings.updated",
+  "model.selected",
+  "model.fallback_used",
+  "mcp.connected",
+  "mcp.disconnected",
+  "tool.executed",
+  "tool.trust_changed",
+  "agent.connected",
+  "agent.disconnected",
+  "agent.handoff_created",
+  "agent.result_imported",
+  "repository.connected",
+  "repository.disconnected",
+  "branch.created",
+  "commit.created",
+  "pull_request.created",
+  "stack.updated",
 ] as const;
 export type ActivityType = (typeof ACTIVITY_TYPES)[number];
 
@@ -293,6 +309,9 @@ export const AGENT_PERMISSIONS = [
   "write_memory",
   "write_documents",
   "write_requirements",
+  "read_repository",
+  "write_branch",
+  "use_mcp_tools",
   "git_push",
   "deploy",
   "delete_project",
@@ -302,3 +321,140 @@ export type AgentPermission = (typeof AGENT_PERMISSIONS)[number];
 /** Default role agents every project gets (provider saqina, simulated execution in Phase 3). */
 export const AGENT_ROLES = ["general", "planner", "frontend", "backend", "qa", "docs"] as const;
 export type AgentRole = (typeof AGENT_ROLES)[number];
+
+// ── Phase 4: control plane, tools, MCP, external agents and Git ─────────────────────────
+
+export const PLATFORM_ROLES = ["user", "owner"] as const;
+export type PlatformRole = (typeof PLATFORM_ROLES)[number];
+
+export const CREDENTIAL_SCOPES = ["platform", "project", "user"] as const;
+export type CredentialScope = (typeof CREDENTIAL_SCOPES)[number];
+
+export const CREDENTIAL_KINDS = ["ai_provider", "git", "mcp", "agent"] as const;
+export type CredentialKind = (typeof CREDENTIAL_KINDS)[number];
+
+export const CONNECTION_STATUSES = [
+  "connected",
+  "disconnected",
+  "error",
+  "unauthorized",
+  "expired",
+  "disabled",
+  "untested",
+] as const;
+export type ConnectionStatus = (typeof CONNECTION_STATUSES)[number];
+
+export const PROVIDER_TYPES = ["managed", "custom", "gateway"] as const;
+export type ProviderType = (typeof PROVIDER_TYPES)[number];
+
+/** Which adapter talks to the provider. New providers add an adapter, not a code path. */
+export const PROVIDER_ADAPTERS = [
+  "anthropic",
+  "anthropic_compatible",
+  "openai",
+  "openai_compatible",
+  "gemini",
+  "vercel_gateway",
+] as const;
+export type ProviderAdapterId = (typeof PROVIDER_ADAPTERS)[number];
+
+export const MODEL_STATUSES = [
+  "available",
+  "disabled",
+  "unavailable",
+  "configuration_error",
+] as const;
+export type ModelStatus = (typeof MODEL_STATUSES)[number];
+
+/** Declared by the Owner per model; never guessed from the model name. */
+export const MODEL_CAPABILITIES = [
+  "text",
+  "reasoning",
+  "vision",
+  "structured_output",
+  "tool_calling",
+  "streaming",
+  "coding",
+  "long_context",
+] as const;
+export type ModelCapability = (typeof MODEL_CAPABILITIES)[number];
+
+export const MODEL_SOURCES = [
+  "agent_override",
+  "project_override",
+  "platform_default",
+  "fallback",
+] as const;
+export type ModelSource = (typeof MODEL_SOURCES)[number];
+
+export const AI_OPERATIONS = [
+  "conversation",
+  "intent",
+  "structured_analysis",
+  "document_generation",
+  "agent_run",
+  "tool_call",
+  "context_generation",
+  "connection_test",
+] as const;
+export type AiOperation = (typeof AI_OPERATIONS)[number];
+
+export const TOOL_RISKS = ["low", "medium", "high", "critical"] as const;
+export type ToolRisk = (typeof TOOL_RISKS)[number];
+
+export const TOOL_SOURCES = ["internal", "mcp", "git"] as const;
+export type ToolSource = (typeof TOOL_SOURCES)[number];
+
+/** New tools start as discovered and do nothing until someone enables them. */
+export const TOOL_TRUST = ["discovered", "enabled", "disabled"] as const;
+export type ToolTrust = (typeof TOOL_TRUST)[number];
+
+export const TOOL_EXECUTION_STATUSES = [
+  "pending_approval",
+  "running",
+  "succeeded",
+  "failed",
+  "denied",
+] as const;
+export type ToolExecutionStatus = (typeof TOOL_EXECUTION_STATUSES)[number];
+
+export const MCP_SERVER_TYPES = ["remote", "local_dev", "custom", "managed"] as const;
+export type McpServerType = (typeof MCP_SERVER_TYPES)[number];
+
+export const MCP_AUTH_TYPES = ["none", "bearer", "header"] as const;
+export type McpAuthType = (typeof MCP_AUTH_TYPES)[number];
+
+export const AGENT_STRATEGIES = ["handoff", "manual", "webhook", "api", "cli", "mcp"] as const;
+export type AgentStrategy = (typeof AGENT_STRATEGIES)[number];
+
+export const HANDOFF_STATUSES = [
+  "pending_approval",
+  "generated",
+  "sent",
+  "acknowledged",
+  "result_imported",
+  "completed",
+  "failed",
+  "cancelled",
+] as const;
+export type HandoffStatus = (typeof HANDOFF_STATUSES)[number];
+
+export const HANDOFF_FORMATS = ["markdown", "json", "prompt"] as const;
+export type HandoffFormat = (typeof HANDOFF_FORMATS)[number];
+
+export const GIT_PROVIDERS = ["github", "gitlab", "bitbucket", "custom_local"] as const;
+export type GitProvider = (typeof GIT_PROVIDERS)[number];
+
+export const STACK_KEYS = [
+  "frontend",
+  "backend",
+  "database",
+  "auth",
+  "hosting",
+  "repository",
+  "ai",
+] as const;
+export type StackKey = (typeof STACK_KEYS)[number];
+
+export const STACK_SOURCES = ["recommended", "user", "detected"] as const;
+export type StackSource = (typeof STACK_SOURCES)[number];

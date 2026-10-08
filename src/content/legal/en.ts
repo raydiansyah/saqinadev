@@ -10,7 +10,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
     title: "Privacy Policy",
     description:
       "How Saqina Dev handles your data: your account, your projects, what stays in your browser and your rights.",
-    updated: "2026-10-08",
+    updated: "2026-10-09",
     intro:
       "This policy explains how Saqina Dev handles personal data on this website: the public pages and preview, your account and the project workspaces you create.",
     sections: [
@@ -35,6 +35,9 @@ export const en: Record<LegalDocId, LegalDocument> = {
           },
           {
             p: "Conversations with Saqina. Your messages to the in-app assistant, its replies, the changes it proposes and the logs of agent runs are stored with the project. Conversations are visible only to you; changes they lead to appear in the project's activity log, which every project member can see.",
+          },
+          {
+            p: "Integrations. If you connect a repository, an MCP server or an external agent, we store its address and an access token or signing secret, encrypted. We read repository files only when a task needs them (we do not copy your repository), write only to agent branches after a project member approves the change, and never merge or deploy. MCP servers you connect receive the inputs of tools you enable. External agents receive only the context package you review and approve, with recognisable secrets removed.",
           },
           {
             p: "Sessions and security. We store your active sessions with the IP address and browser type used to sign in, so you can stay signed in and so we can protect accounts.",
@@ -73,7 +76,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
               "We do not use analytics, advertising or social media trackers.",
               "We do not sell or rent personal data.",
               "We do not load fonts or scripts from third-party servers; fonts are served from our own domain.",
-              "We do not send your project data to an AI provider unless the optional AI assistant is enabled for the service. Without it, recommendations, documents and Saqina's answers come from deterministic rules on our servers. When it is enabled, only the project context needed to answer a message is sent to [AI PROVIDER] [CONFIRM: the provider's data retention and model-training terms]. Changes to your project are always validated by our own rules before they are applied.",
+              "We do not send your project data to an AI provider unless the platform owner has configured one. When a provider is configured, only the project context needed for a request is sent to it ([AI PROVIDER], [CONFIRM: each provider's data retention and model-training terms]). Without one, answers come from deterministic rules on our servers. Changes to your project are always validated by our own rules before they are applied.",
             ],
           },
         ],
@@ -95,7 +98,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
         heading: "Who receives data",
         blocks: [
           {
-            p: "Data is processed on our behalf by [HOSTING PROVIDER] (hosting), [DATABASE PROVIDER] (database), [EMAIL PROVIDER] (transactional email) and, only when the AI assistant is enabled, [AI PROVIDER] (language model), as data processors. If you sign in with Google, Google processes that sign-in under its own terms. We disclose data to authorities only when Indonesian law requires it.",
+            p: "Data is processed on our behalf by [HOSTING PROVIDER] (hosting), [DATABASE PROVIDER] (database), [EMAIL PROVIDER] (transactional email), the AI providers configured by the platform owner ([AI PROVIDER]), and the Git hosts, MCP servers and agents you connect yourself, as data processors or on your instruction. If you sign in with Google, Google processes that sign-in under its own terms. We disclose data to authorities only when Indonesian law requires it.",
           },
           {
             p: "These providers may store data outside Indonesia, in [HOSTING REGION]. Where data leaves Indonesia, we rely on the safeguards required by UU PDP for cross-border transfers.",
@@ -165,7 +168,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
     title: "Terms and Conditions",
     description:
       "The terms for using Saqina Dev: your account, your projects, what the service is and is not, and the rules that apply.",
-    updated: "2026-10-08",
+    updated: "2026-10-09",
     intro:
       "These terms apply to your use of the Saqina Dev website and service. By creating an account or using the website you agree to them. If you do not agree, please do not use Saqina Dev.",
     sections: [
@@ -186,7 +189,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
             p: "Saqina Dev turns a project idea into a structured project workspace: an interview, requirements, recommendations, a PRD, a plan, tasks, project memory, decisions, an assistant (Saqina) that can answer questions and propose or apply changes, an approval queue and agent assignments.",
           },
           {
-            p: "Agent runs are simulated in this phase: Saqina prepares proposals from your project data, but no code is generated, no repository is touched and nothing is deployed. Features labelled Planned, such as connected AI agents, Git, CI/CD, MCP and deployment, are not available yet.",
+            p: "Saqina's agents may plan work with an AI model configured by the platform owner and propose changes, including commits to a working branch of your connected repository. Nothing is applied to your project or repository until a project member approves it, Saqina never merges or deploys, and external agents (Claude, Codex and others) are not run by Saqina: you hand work to them and import their result.",
           },
           { p: "There are no subscriptions or payments at this time." },
         ],

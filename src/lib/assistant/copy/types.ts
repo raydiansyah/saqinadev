@@ -115,8 +115,30 @@ export interface AssistantCopy {
   clarifications: Record<"refund" | "payment" | "auth" | "roles", Clarification>;
   requirementUpdate: { question: (title: string) => string; noMatch: (topic: string) => string };
 
+  repository: {
+    title: string;
+    notConnected: string;
+    summary: (name: string, branch: string, head: string) => string;
+    readNow: string;
+    readFailed: (code: string) => string;
+    detected: (key: string, value: string) => string;
+    intended: (key: string, value: string) => string;
+    mismatch: (key: string, project: string, repo: string) => string;
+    mismatchFound: (n: number) => string;
+    noMismatch: string;
+    resolveHint: string;
+  };
+  handoff: {
+    needsTask: string;
+    unknownAgent: (name: string, list: string) => string;
+    title: (agent: string, task: string) => string;
+    describe: string;
+  };
+
   agent: {
     summary: (role: string, task: string) => string;
+    handoffReady: (agent: string) => string;
+    handoffSent: (agent: string) => string;
     failedSummary: string;
     unavailable: string;
     simulated: string;

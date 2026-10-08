@@ -26,6 +26,16 @@ export interface ExecutionResult {
   items: ExecutedItem[];
   /** Agent assignments created, to be started after the transaction commits. */
   runs: string[];
+  /** Approved tool calls. External side effects run after commit, never inside the transaction. */
+  toolCalls: { tool: string; input: Record<string, unknown>; idempotencyKey: string }[];
+  /** Approved handoffs; packages are built and sent after commit. */
+  handoffs: {
+    key: string;
+    agentId: string;
+    taskId: string | null;
+    instructions: string;
+    format: "markdown" | "json" | "prompt";
+  }[];
 }
 
 /** Assigning agents lives in the agent orchestrator; it is injected to keep layers one-way. */
@@ -54,9 +64,18 @@ export async function executeActionsTx(
   if (!can(access.role, "content:write")) throw new AppError("AUTHORIZATION_ERROR");
   const base = `/project/${access.project.slug}`;
   const created: Record<string, string> = {};
-  const result: ExecutionResult = { items: [], runs: [] };
+  const result: ExecutionResult = { items: [], runs: [], toolCalls: [], handoffs: [] };
 
   for (const action of actions) {
+    if (action.type === "CREATE_HANDOFF") {
+      result.handoffs.push({ key: action.key, ...action.payload });
+      continue;
+    }
+    if (action.type === "RUN_TOOL") {
+      // Permission, risk and input are checked again by the tool executor when it runs.
+      result.toolCalls.push(action.payload);
+      continue;
+    }
     const tool = toolForAction(action.type);
     if (!tool.available) throw new AppError("AUTHORIZATION_ERROR", `Tool ${tool.name} unavailable`);
     if (trace.via === "agent" && tool.agentPermission) {

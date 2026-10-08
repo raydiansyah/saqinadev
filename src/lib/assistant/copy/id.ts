@@ -143,7 +143,8 @@ export const id: AssistantCopy = {
     describeDelete: "Menghapus permanen task di bawah ini. Tidak bisa dibatalkan.",
     describeRequirement:
       "Mengubah requirement yang ada. Nilai lama ditampilkan untuk perbandingan.",
-    describeAssign: "Menyerahkan task ke agent. Run disimulasikan pada fase ini.",
+    describeAssign:
+      "Menyerahkan task ke agent. Agent Saqina merencanakan dengan model yang dikonfigurasi (atau simulasi berlabel tanpa model); agent eksternal mendapat handoff untuk Anda ekspor.",
     agentResult: (a, t) => `Hasil ${a} untuk "${t}"`,
   },
 
@@ -184,9 +185,40 @@ export const id: AssistantCopy = {
       `Saya tidak menemukan requirement tentang ${topic}. Cek halaman Requirements untuk nama persisnya.`,
   },
 
+  repository: {
+    title: "Repository",
+    notConnected:
+      "Belum ada repository yang terhubung ke proyek ini. Hubungkan di Settings agar saya bisa membacanya.",
+    summary: (name: string, branch: string, head: string) => `${name} di ${branch}, head ${head}.`,
+    readNow: "Saya baru saja membaca file manifest repository.",
+    readFailed: (code: string) =>
+      `Saya tidak bisa membaca repository (${code}). Jawaban ini memakai kondisi sinkron terakhir.`,
+    detected: (key: string, value: string) => `${key} di repository: ${value}`,
+    intended: (key: string, value: string) => `${key} di proyek: ${value}`,
+    mismatch: (key: string, project: string, repo: string) =>
+      `Potensi ketidakcocokan pada ${key}: proyek menyebut ${project}, repository memakai ${repo}.`,
+    mismatchFound: (n: number) =>
+      `Saya menemukan ${n} perbedaan antara rencana proyek dan repository.`,
+    noMismatch: "Rencana proyek dan repository sejalan untuk semua hal yang disebut keduanya.",
+    resolveHint:
+      "Selesaikan tiap perbedaan di overview proyek: pertahankan rencana atau ikuti repository.",
+  },
+  handoff: {
+    needsTask:
+      "Task mana yang ingin diserahkan? Buka task-nya dulu atau tanyakan dari task tersebut.",
+    unknownAgent: (name: string, list: string) =>
+      `Tidak ada agent bernama ${name} di proyek ini. Tersedia: ${list}.`,
+    title: (agent: string, task: string) => `Serahkan "${task}" ke ${agent}`,
+    describe:
+      "Membuat paket konteks dari kondisi proyek saat ini dan menyerahkannya ke agent. Hanya file yang tercantum yang disertakan.",
+  },
+
   agent: {
     summary: (role, t) =>
       `${role} meninjau "${t}" terhadap PRD dan requirement, lalu menyiapkan perubahan di bawah.`,
+    handoffReady: (agent) =>
+      `Handoff untuk ${agent} siap. Ekspor dari halaman run, lalu tempel hasilnya kembali.`,
+    handoffSent: (agent) => `Handoff terkirim ke ${agent}. Menunggu laporannya.`,
     failedSummary: "Run tidak bisa diselesaikan.",
     unavailable:
       "Lingkungan eksekusi tidak tersedia: agent ini belum terhubung ke Saqina, jadi tidak ada yang dijalankan.",

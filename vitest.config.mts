@@ -24,6 +24,11 @@ export default defineConfig({
     env: {
       // Service tests talk to the dedicated test database, never the dev one.
       DATABASE_URL: process.env.DATABASE_URL_TEST ?? "",
+      // Test-only encryption key (not a secret: it protects nothing outside the test database).
+      SAQINA_ENCRYPTION_KEY: "dGVzdC1vbmx5LWtleS1kby1ub3QtdXNlLWFueXdoZXI=",
+      ALLOW_LOCAL_GIT: "1",
+      PLATFORM_OWNER_EMAILS: "",
+      ANTHROPIC_API_KEY: "",
     },
   },
 });

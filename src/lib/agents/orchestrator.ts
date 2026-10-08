@@ -23,7 +23,8 @@ import type { ProjectEventType, Trace } from "@/lib/events/types";
 import { log } from "@/lib/log";
 import { createProposalTx } from "@/lib/proposals/repository";
 import { parse } from "@/lib/validation";
-import { type AgentExecutionResult, executorFor } from "./executor";
+import { executeAgent } from "./execute-agent";
+import type { AgentExecutionResult } from "./executor";
 import { assertTransition, InvalidTransitionError } from "./state";
 
 export type RunRow = typeof agentRuns.$inferSelect;
@@ -321,7 +322,7 @@ export async function startRun(access: ProjectAccess, runId: string): Promise<vo
 
   let result: AgentExecutionResult;
   try {
-    result = await executorFor(agent.type).execute(input);
+    result = await executeAgent(access, run, agent, input);
   } catch (error) {
     log.error("agent.executor_failed", { runId, error: String(error) });
     result = {
@@ -355,6 +356,21 @@ export async function startRun(access: ProjectAccess, runId: string): Promise<vo
       output,
     };
 
+    if (result.status === "waiting_external") {
+      const next = await transition(tx, current, "waiting", {
+        ...withInput,
+        metadata: { ...current.metadata, handoffId: result.handoffId ?? null },
+      });
+      await recordRunEvent(
+        tx,
+        next,
+        "AGENT_WAITING",
+        meta(agent, taskTitle, { reason: "external" }),
+        access.actor.id,
+        finish,
+      );
+      return;
+    }
     if (result.status === "failed") {
       const next = await transition(tx, current, "failed", {
         ...withInput,

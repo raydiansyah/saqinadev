@@ -134,7 +134,8 @@ export const en: AssistantCopy = {
     describeFeature: "Adds a requirement, a PRD section and tasks for implementation and testing.",
     describeDelete: "Permanently deletes the tasks listed below. This cannot be undone.",
     describeRequirement: "Changes an existing requirement. The old value is shown for comparison.",
-    describeAssign: "Hands the task to an agent. The run is simulated in this phase.",
+    describeAssign:
+      "Hands the task to an agent. Saqina's agents plan with the configured model (or a labelled simulation without one); external agents get a handoff you export.",
     agentResult: (a, t) => `${a} result for "${t}"`,
   },
 
@@ -175,9 +176,41 @@ export const en: AssistantCopy = {
       `I can't find a requirement about ${topic}. Check the Requirements page for the exact name.`,
   },
 
+  repository: {
+    title: "Repository",
+    notConnected:
+      "No repository is connected to this project. Connect one in Settings to let me read it.",
+    summary: (name: string, branch: string, head: string) => `${name} on ${branch}, head ${head}.`,
+    readNow: "I read the repository manifests just now.",
+    readFailed: (code: string) =>
+      `I could not read the repository (${code}). This answer uses the last synced state.`,
+    detected: (key: string, value: string) => `Repository ${key}: ${value}`,
+    intended: (key: string, value: string) => `Project ${key}: ${value}`,
+    mismatch: (key: string, project: string, repo: string) =>
+      `Potential mismatch in ${key}: the project says ${project}, the repository uses ${repo}.`,
+    mismatchFound: (n: number) =>
+      n === 1
+        ? "I found 1 difference between the project plan and the repository."
+        : `I found ${n} differences between the project plan and the repository.`,
+    noMismatch: "The project plan and the repository agree on everything both of them state.",
+    resolveHint:
+      "Resolve each difference on the project overview: keep the plan or adopt the repository.",
+  },
+  handoff: {
+    needsTask: "Which task should I hand off? Open it first or ask from the task itself.",
+    unknownAgent: (name: string, list: string) =>
+      `There is no agent called ${name} in this project. Available: ${list}.`,
+    title: (agent: string, task: string) => `Hand "${task}" to ${agent}`,
+    describe:
+      "Builds a context package from the current project state and hands it to the agent. Only the files listed are included.",
+  },
+
   agent: {
     summary: (role, t) =>
       `${role} reviewed "${t}" against the PRD and requirements and prepared the changes below.`,
+    handoffReady: (agent) =>
+      `Handoff for ${agent} is ready. Export it from the run page, then paste the result back.`,
+    handoffSent: (agent) => `Handoff sent to ${agent}. Waiting for its report.`,
     failedSummary: "The run could not finish.",
     unavailable:
       "Execution environment unavailable: this agent is not connected to Saqina yet, so nothing was run.",

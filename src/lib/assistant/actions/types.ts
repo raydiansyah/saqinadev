@@ -109,6 +109,36 @@ export const plannedAction = z.discriminatedUnion("type", [
       .refine((d) => d.options.includes(d.selected), { path: ["selected"] }),
   }),
   z.object({
+    type: z.literal("CREATE_HANDOFF"),
+    key: z.string().min(1).max(8),
+    payload: z.object({
+      agentId: id,
+      taskId: id.nullable(),
+      instructions: z.string().trim().max(4000).default(""),
+      format: z.enum(["markdown", "json", "prompt"]).default("prompt"),
+    }),
+    display: z.object({
+      agent: z.string().max(80),
+      task: z.string().max(200).nullable(),
+      files: z.array(z.string().max(40)).max(12),
+    }),
+  }),
+  z.object({
+    type: z.literal("RUN_TOOL"),
+    key: z.string().min(1).max(8),
+    payload: z.object({
+      tool: z.string().min(1).max(200),
+      input: z.record(z.string(), z.unknown()),
+      idempotencyKey: z.string().min(8).max(200),
+    }),
+    /** For the review card only; the executor re-reads the tool from the registry. */
+    display: z.object({
+      name: z.string().max(80),
+      source: z.string().max(20),
+      risk: z.string().max(20),
+    }),
+  }),
+  z.object({
     type: z.literal("ASSIGN_AGENT"),
     key: z.string().min(1).max(8),
     /** Optional steps can be switched off in the proposal before approving. */
@@ -164,6 +194,13 @@ export const ACTION_POLICY: Record<ActionType, ActionPolicy> = {
     editable: ["title", "content"],
   },
   CREATE_DECISION: { category: "write", risk: "low", autoEligible: true, editable: ["reason"] },
+  RUN_TOOL: { category: "external", risk: "high", autoEligible: false, editable: [] },
+  CREATE_HANDOFF: {
+    category: "external",
+    risk: "medium",
+    autoEligible: false,
+    editable: ["instructions"],
+  },
   ASSIGN_AGENT: {
     category: "agent",
     risk: "medium",

@@ -115,3 +115,31 @@ export async function reassignRun(actor: Actor, slug: string, input: unknown) {
   await startRun(access, runId);
   return { runId };
 }
+
+/** Closes a run that waited on an external agent, once its result is imported or marked. */
+export async function finishExternalRun(
+  access: ProjectAccess,
+  runId: string,
+  succeeded: boolean,
+  result: { summary: string; issues: string[]; changes: string[] } | null,
+) {
+  const batch = new EventBatch();
+  await db.transaction(async (tx) => {
+    const { run, agent, taskTitle } = await lockRun(tx, access, runId);
+    if (run.status !== "waiting") return;
+    const output = { ...(run.output ?? {}), external: result ?? null, simulated: false };
+    const next = await transition(tx, run, succeeded ? "completed" : "failed", {
+      output,
+      ...(succeeded ? {} : { error: "external_failed" }),
+    });
+    await recordRunEvent(
+      tx,
+      next,
+      succeeded ? "AGENT_COMPLETED" : "AGENT_FAILED",
+      meta(agent, taskTitle, { reason: "external" }),
+      access.actor.id,
+      batch,
+    );
+  });
+  batch.flush();
+}

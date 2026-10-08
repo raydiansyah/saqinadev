@@ -12,6 +12,7 @@ export interface UIMessage {
   content: string;
   status: MessageStatus;
   blocks: Block[];
+  model?: { label: string; source: string; fallbackUsed: boolean; requested: string | null } | null;
   createdAt: Date | string;
 }
 

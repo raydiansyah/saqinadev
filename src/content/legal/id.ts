@@ -10,7 +10,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
     title: "Kebijakan Privasi",
     description:
       "Cara Saqina Dev menangani data Anda: akun, proyek, apa yang tetap di browser, dan hak Anda.",
-    updated: "2026-10-08",
+    updated: "2026-10-09",
     intro:
       "Kebijakan ini menjelaskan cara Saqina Dev menangani data pribadi di situs ini: halaman publik dan pratinjau, akun Anda, serta workspace proyek yang Anda buat.",
     sections: [
@@ -35,6 +35,9 @@ export const id: Record<LegalDocId, LegalDocument> = {
           },
           {
             p: "Percakapan dengan Saqina. Pesan Anda ke asisten di aplikasi, balasannya, perubahan yang diusulkannya, dan log run agent disimpan bersama proyek. Percakapan hanya terlihat oleh Anda; perubahan yang dihasilkannya tercatat di log aktivitas proyek yang bisa dilihat semua anggota proyek.",
+          },
+          {
+            p: "Integrasi. Jika Anda menghubungkan repository, server MCP, atau agent eksternal, kami menyimpan alamatnya serta access token atau signing secret dalam bentuk terenkripsi. Kami membaca file repository hanya saat sebuah task membutuhkannya (repository Anda tidak disalin), menulis hanya ke branch agent setelah anggota proyek menyetujui perubahannya, dan tidak pernah melakukan merge atau deploy. Server MCP yang Anda hubungkan menerima input dari tool yang Anda aktifkan. Agent eksternal hanya menerima paket konteks yang Anda periksa dan setujui, dengan secret yang dikenali sudah dihapus.",
           },
           {
             p: "Sesi dan keamanan. Kami menyimpan sesi aktif Anda beserta alamat IP dan jenis browser yang dipakai untuk masuk, agar Anda tetap masuk dan agar akun dapat dilindungi.",
@@ -73,7 +76,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
               "Kami tidak memakai analitik, iklan, atau pelacak media sosial.",
               "Kami tidak menjual atau menyewakan data pribadi.",
               "Kami tidak memuat font atau skrip dari server pihak ketiga; font disajikan dari domain kami sendiri.",
-              "Kami tidak mengirim data proyek Anda ke penyedia AI kecuali asisten AI opsional diaktifkan untuk layanan ini. Tanpa itu, rekomendasi, dokumen, dan jawaban Saqina berasal dari aturan deterministik di server kami. Jika diaktifkan, hanya konteks proyek yang diperlukan untuk menjawab sebuah pesan yang dikirim ke [PENYEDIA AI] [KONFIRMASI: ketentuan penyimpanan data dan pelatihan model dari penyedia]. Perubahan pada proyek Anda selalu divalidasi oleh aturan kami sendiri sebelum diterapkan.",
+              "Kami tidak mengirim data proyek Anda ke penyedia AI kecuali owner platform telah mengonfigurasinya. Jika penyedia dikonfigurasi, hanya konteks proyek yang diperlukan untuk sebuah permintaan yang dikirim ([PENYEDIA AI], [KONFIRMASI: ketentuan penyimpanan data dan pelatihan model dari tiap penyedia]). Tanpa itu, jawaban berasal dari aturan deterministik di server kami. Perubahan pada proyek Anda selalu divalidasi oleh aturan kami sendiri sebelum diterapkan.",
             ],
           },
         ],
@@ -95,7 +98,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Siapa yang menerima data",
         blocks: [
           {
-            p: "Data diproses atas nama kami oleh [PENYEDIA HOSTING] (hosting), [PENYEDIA DATABASE] (database), [PENYEDIA EMAIL] (email transaksional), dan, hanya jika asisten AI diaktifkan, [PENYEDIA AI] (model bahasa) sebagai prosesor data. Jika Anda masuk dengan Google, Google memproses proses masuk itu berdasarkan ketentuannya sendiri. Kami mengungkapkan data kepada otoritas hanya jika diwajibkan hukum Indonesia.",
+            p: "Data diproses atas nama kami oleh [PENYEDIA HOSTING] (hosting), [PENYEDIA DATABASE] (database), [PENYEDIA EMAIL] (email transaksional), penyedia AI yang dikonfigurasi owner platform ([PENYEDIA AI]), serta host Git, server MCP, dan agent yang Anda hubungkan sendiri, sebagai prosesor data atau atas instruksi Anda. Jika Anda masuk dengan Google, Google memproses proses masuk itu berdasarkan ketentuannya sendiri. Kami mengungkapkan data kepada otoritas hanya jika diwajibkan hukum Indonesia.",
           },
           {
             p: "Penyedia ini dapat menyimpan data di luar Indonesia, di [WILAYAH HOSTING]. Jika data keluar dari Indonesia, kami mengandalkan perlindungan yang diwajibkan UU PDP untuk transfer lintas negara.",
@@ -165,7 +168,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
     title: "Syarat dan Ketentuan",
     description:
       "Ketentuan penggunaan Saqina Dev: akun, proyek, apa layanan ini dan apa yang bukan, serta aturan yang berlaku.",
-    updated: "2026-10-08",
+    updated: "2026-10-09",
     intro:
       "Ketentuan ini berlaku untuk penggunaan situs dan layanan Saqina Dev. Dengan membuat akun atau memakai situs, Anda menyetujuinya. Jika tidak setuju, mohon jangan memakai Saqina Dev.",
     sections: [
@@ -186,7 +189,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
             p: "Saqina Dev mengubah ide proyek menjadi workspace proyek yang terstruktur: interview, requirement, rekomendasi, PRD, plan, task, memory proyek, keputusan, asisten (Saqina) yang bisa menjawab pertanyaan serta mengusulkan atau menerapkan perubahan, antrean persetujuan, dan penugasan agent.",
           },
           {
-            p: "Run agent pada fase ini disimulasikan: Saqina menyiapkan usulan dari data proyek Anda, tetapi tidak ada kode yang dibuat, tidak ada repository yang disentuh, dan tidak ada yang di-deploy. Fitur berlabel Direncanakan, seperti agent AI yang terhubung, Git, CI/CD, MCP, dan deployment, belum tersedia.",
+            p: "Agent Saqina dapat merencanakan pekerjaan dengan model AI yang dikonfigurasi owner platform dan mengusulkan perubahan, termasuk commit ke branch kerja di repository yang Anda hubungkan. Tidak ada yang diterapkan ke proyek atau repository sampai anggota proyek menyetujuinya, Saqina tidak pernah melakukan merge atau deploy, dan agent eksternal (Claude, Codex, dan lainnya) tidak dijalankan oleh Saqina: Anda menyerahkan pekerjaan ke mereka dan mengimpor hasilnya.",
           },
           { p: "Saat ini tidak ada langganan atau pembayaran." },
         ],

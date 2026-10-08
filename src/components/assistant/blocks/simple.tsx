@@ -24,6 +24,7 @@ export function FactBadge({ label }: { label: FactLabel }) {
 export const CARD = "rounded-md border border-border bg-surface";
 
 export function AnalysisBlock({ block }: { block: Extract<Block, { type: "analysis" }> }) {
+  const t = useTranslations("assistant");
   if (block.findings.length === 0) return null;
   return (
     <section className={cn(CARD, "p-3")} aria-label={block.title}>
@@ -42,6 +43,11 @@ export function AnalysisBlock({ block }: { block: Extract<Block, { type: "analys
             ) : (
               <span className="text-pretty">{f.text}</span>
             )}
+            {f.source ? (
+              <span className="ml-auto shrink-0 font-mono text-[0.6875rem] text-subtle-foreground">
+                {t("sourceLabel", { source: t(`sources.${f.source}`) })}
+              </span>
+            ) : null}
           </li>
         ))}
       </ul>

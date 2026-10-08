@@ -1,0 +1,1 @@
+ALTER TABLE "agent_handoffs" ADD COLUMN "package" text DEFAULT '' NOT NULL;

@@ -238,8 +238,6 @@ export function TechnicalForm({
               {text("domain", t("domain"), save.fields.domain ? t("invalidDomain") : undefined)}
             </>
           )}
-          {text("aiProvider", t("aiProvider"))}
-          {text("aiModel", t("aiModel"))}
         </div>
       </Section>
       {canEdit ? (

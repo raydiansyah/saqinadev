@@ -2,6 +2,7 @@ import type app from "../messages/app.en.json";
 import type assistant from "../messages/assistant.en.json";
 import type auth from "../messages/auth.en.json";
 import type en from "../messages/en.json";
+import type platform from "../messages/platform.en.json";
 import type project from "../messages/project.en.json";
 import type workspace from "../messages/workspace.en.json";
 import type { routing } from "./i18n/routing";
@@ -15,6 +16,7 @@ declare module "next-intl" {
       typeof app &
       typeof project &
       typeof workspace &
-      typeof assistant;
+      typeof assistant &
+      typeof platform;
   }
 }

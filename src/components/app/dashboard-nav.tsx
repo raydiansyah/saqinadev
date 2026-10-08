@@ -11,13 +11,15 @@ const ITEMS = [
   { key: "settings", href: "/dashboard/settings" },
 ] as const;
 
-export function DashboardNav() {
+export function DashboardNav({ isOwner = false }: { isOwner?: boolean }) {
   const t = useTranslations("app.nav");
   const pathname = usePathname();
+  // The AI control plane is visible to platform owners only (the pages check again).
+  const items = isOwner ? [...ITEMS, { key: "ai" as const, href: "/dashboard/ai" }] : ITEMS;
   return (
     <nav aria-label={t("label")} className="border-b border-border">
       <ul className="-mb-px flex gap-1 overflow-x-auto px-4 sm:px-6">
-        {ITEMS.map((item) => {
+        {items.map((item) => {
           const active =
             item.href === "/dashboard" ? pathname === item.href : pathname.startsWith(item.href);
           return (

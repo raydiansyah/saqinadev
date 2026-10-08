@@ -18,6 +18,20 @@ const ACTIVITY_FOR: Partial<Record<ProjectEventType, ActivityType>> = {
   AGENT_COMPLETED: "agent.completed",
   AGENT_FAILED: "agent.failed",
   AGENT_CANCELLED: "agent.cancelled",
+  MODEL_FALLBACK_USED: "model.fallback_used",
+  MCP_CONNECTED: "mcp.connected",
+  MCP_DISCONNECTED: "mcp.disconnected",
+  MCP_TOOL_EXECUTED: "tool.executed",
+  TOOL_EXECUTED: "tool.executed",
+  AGENT_CONNECTED: "agent.connected",
+  AGENT_DISCONNECTED: "agent.disconnected",
+  AGENT_HANDOFF_CREATED: "agent.handoff_created",
+  AGENT_RESULT_IMPORTED: "agent.result_imported",
+  REPOSITORY_CONNECTED: "repository.connected",
+  REPOSITORY_DISCONNECTED: "repository.disconnected",
+  BRANCH_CREATED: "branch.created",
+  COMMIT_CREATED: "commit.created",
+  PULL_REQUEST_CREATED: "pull_request.created",
 };
 
 type Listener = (event: ProjectEvent) => void;

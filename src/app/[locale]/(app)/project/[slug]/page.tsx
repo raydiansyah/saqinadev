@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { MismatchPanel } from "@/components/integrations/project-ai-forms";
 import { ActivityList } from "@/components/project/activity-list";
 import { AgentActivityPanel, AttentionPanel } from "@/components/project/attention-panels";
 import { ContextMap } from "@/components/project/context-map";
@@ -8,10 +9,12 @@ import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { listActivity } from "@/lib/activity/service";
 import { listRuns } from "@/lib/agents/runs";
+import { can } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
 import { projectPageAccess, projectSnapshot } from "@/lib/projects/page";
 import { getNextProjectAction, pipelineStages } from "@/lib/projects/progress";
 import { contextCounts } from "@/lib/projects/repository";
+import { projectStackMismatches } from "@/lib/projects/stack";
 import { listRecommendations } from "@/lib/recommendations/service";
 
 export async function generateMetadata({
@@ -34,6 +37,7 @@ export default async function ProjectOverviewPage({
     listActivity(project.id, { limit: 5 }),
     listRuns(access, { limit: 5 }),
   ]);
+  const mismatches = await projectStackMismatches(access);
   const t = await getTranslations("project");
   const docs = await getTranslations("documents.statuses");
   const next = getNextProjectAction(snapshot);
@@ -43,6 +47,11 @@ export default async function ProjectOverviewPage({
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
       <div className="min-w-0 space-y-8">
+        <MismatchPanel
+          slug={slug}
+          mismatches={mismatches}
+          canEdit={can(access.role, "content:write")}
+        />
         <section
           aria-labelledby="next-heading"
           className="rounded-lg border border-primary/40 bg-surface p-5"

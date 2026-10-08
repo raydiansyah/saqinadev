@@ -28,7 +28,8 @@
       "overview": "Overview",
       "projects": "Projects",
       "activity": "Activity",
-      "settings": "Settings"
+      "settings": "Settings",
+      "ai": "AI & Models"
     },
     "greeting": {
       "morning": "Good morning, {name}.",

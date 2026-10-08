@@ -34,7 +34,8 @@ export interface AgentArtifact {
 }
 
 export interface AgentExecutionResult {
-  status: "completed" | "failed";
+  /** `waiting_external`: work was handed to an external agent; its own report closes the run. */
+  status: "completed" | "failed" | "waiting_external";
   summary: string;
   /** Proposed project changes. Applied only after a person approves them. */
   changes: PlannedAction[];
@@ -47,6 +48,9 @@ export interface AgentExecutionResult {
   /** Timeline steps recorded as AGENT_THINKING events. */
   steps: string[];
   error?: string;
+  handoffId?: string;
+  /** Model that planned the work, when one did. */
+  model?: { label: string; source: string; fallbackUsed: boolean } | null;
 }
 
 export interface AgentExecutor {

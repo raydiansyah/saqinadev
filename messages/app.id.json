@@ -28,7 +28,8 @@
       "overview": "Ringkasan",
       "projects": "Proyek",
       "activity": "Aktivitas",
-      "settings": "Pengaturan"
+      "settings": "Pengaturan",
+      "ai": "AI & Model"
     },
     "greeting": {
       "morning": "Selamat pagi, {name}.",

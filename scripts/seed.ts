@@ -24,7 +24,10 @@ const DEMO = { email: "demo@saqina.test", password: "saqina-demo-2026", name: "D
 
 async function demoActor(): Promise<Actor> {
   const [existing] = await db.select().from(users).where(eq(users.email, DEMO.email));
-  if (existing) return { id: existing.id, name: existing.name, email: existing.email, image: null };
+  if (existing) {
+    await db.update(users).set({ platformRole: "owner" }).where(eq(users.id, existing.id));
+    return { id: existing.id, name: existing.name, email: existing.email, image: null };
+  }
   // Better Auth hashes the password; the account is marked verified so it can sign in.
   await auth.api.signUpEmail({ body: DEMO });
   const [created] = await db
@@ -32,6 +35,8 @@ async function demoActor(): Promise<Actor> {
     .set({ emailVerified: true })
     .where(eq(users.email, DEMO.email))
     .returning();
+  // The demo account manages the AI control plane in development.
+  await db.update(users).set({ platformRole: "owner" }).where(eq(users.id, created.id));
   return { id: created.id, name: created.name, email: created.email, image: null };
 }
 

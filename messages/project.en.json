@@ -76,7 +76,8 @@
         "documents": "Documents",
         "agents": "Agents",
         "activity": "Activity",
-        "settings": "Settings"
+        "settings": "Settings",
+        "integrations": "Integrations"
       },
       "pending": "waiting"
     },

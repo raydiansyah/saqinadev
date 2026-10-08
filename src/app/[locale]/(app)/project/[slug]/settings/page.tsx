@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { PageHeading } from "@/components/app/states";
+import { ProjectAiForm, TechStackForm } from "@/components/integrations/project-ai-forms";
 import { AssistantSettingsForm } from "@/components/settings/assistant-settings-form";
 import {
   DangerZone,
   GeneralForm,
   TechnicalForm,
 } from "@/components/settings/project-settings-forms";
+import { projectAiView } from "@/lib/ai/project-settings";
 import { DEFAULT_MODEL, isModelEnabled } from "@/lib/ai/registry";
 import { can } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
 import { projectPageAccess } from "@/lib/projects/page";
 import { getSettings } from "@/lib/projects/repository";
+import { getTechStack } from "@/lib/projects/stack";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("project.settings");
@@ -66,6 +69,12 @@ export default async function ProjectSettingsPage({
           policy={settings?.approvalPolicy ?? "auto_low_risk"}
           model={isModelEnabled() ? process.env.AI_MODEL || DEFAULT_MODEL : null}
           canEdit={canEdit}
+        />
+        <ProjectAiForm slug={slug} view={await projectAiView(access)} canEdit={canEdit} />
+        <TechStackForm
+          slug={slug}
+          stack={await getTechStack(access)}
+          canEdit={can(role, "content:write")}
         />
         <TechnicalForm slug={slug} values={values} canEdit={canEdit} />
         {can(role, "project:delete") ? (

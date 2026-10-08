@@ -33,13 +33,24 @@ export function analyzeRequirements(
     if (r.status === "conflicting")
       findings.push({
         label: "unknown",
+        source: "requirements",
         text: copy.analysis.conflictingRequirement(r.title),
         href,
       });
     else if (r.status === "unknown")
-      findings.push({ label: "unknown", text: copy.analysis.unknownRequirement(r.title), href });
+      findings.push({
+        label: "unknown",
+        source: "requirements",
+        text: copy.analysis.unknownRequirement(r.title),
+        href,
+      });
     else if (r.status === "inferred")
-      findings.push({ label: "inferred", text: copy.analysis.inferredRequirement(r.title), href });
+      findings.push({
+        label: "inferred",
+        source: "requirements",
+        text: copy.analysis.inferredRequirement(r.title),
+        href,
+      });
   }
   return findings;
 }
@@ -60,20 +71,28 @@ export function analyzePrd(
   copy: AssistantCopy,
   hrefs: { prd: string; requirements: string },
 ): Finding[] {
-  if (!prd) return [{ label: "unknown", text: copy.analysis.noPrd, href: hrefs.prd }];
+  if (!prd)
+    return [{ label: "unknown", source: "prd", text: copy.analysis.noPrd, href: hrefs.prd }];
   const findings: Finding[] = [];
   if (prd.status !== "approved")
-    findings.push({ label: "confirmed", text: copy.analysis.prdNotApproved, href: hrefs.prd });
+    findings.push({
+      label: "confirmed",
+      source: "prd",
+      text: copy.analysis.prdNotApproved,
+      href: hrefs.prd,
+    });
   for (const s of sections(prd.content)) {
     if (!s.body || /^(tbd|todo|-)$/i.test(s.body))
       findings.push({
         label: "unknown",
+        source: "prd",
         text: copy.analysis.prdPlaceholder(s.heading),
         href: hrefs.prd,
       });
     else if (INFERRED_MARKS.some((m) => s.body.includes(m)))
       findings.push({
         label: "inferred",
+        source: "prd",
         text: copy.analysis.prdPlaceholder(s.heading),
         href: hrefs.prd,
       });
@@ -86,6 +105,7 @@ export function analyzePrd(
     if (!lower.includes(r.title.toLowerCase()))
       findings.push({
         label: "confirmed",
+        source: "prd",
         text: copy.analysis.prdMissing(r.title),
         href: hrefs.requirements,
       });
@@ -105,6 +125,7 @@ export function analyzeTasks(
     if (t.status === "blocked")
       findings.push({
         label: "confirmed",
+        source: "tasks",
         text: copy.analysis.taskBlocked(t.title),
         href: taskHref(t.id),
       });
@@ -113,12 +134,14 @@ export function analyzeTasks(
     if (t.status === "in_progress" && days >= STALE_DAYS)
       findings.push({
         label: "confirmed",
+        source: "tasks",
         text: copy.analysis.taskStale(t.title, days),
         href: taskHref(t.id),
       });
     if (t.status === "review")
       findings.push({
         label: "confirmed",
+        source: "tasks",
         text: copy.analysis.taskInReview(t.title),
         href: taskHref(t.id),
       });
@@ -166,6 +189,7 @@ export function explainChoice(
     if (matches(`${d.question} ${d.selected} ${d.context} ${d.options.join(" ")}`))
       findings.push({
         label: "confirmed",
+        source: "decision",
         text: copy.decision.found(d.number, d.question, d.selected, d.reason),
         href: hrefs.decisions,
       });
@@ -174,6 +198,7 @@ export function explainChoice(
     if (matches(`${r.value.label} ${r.value.detail ?? ""} ${r.key}`))
       findings.push({
         label: r.source === "user" ? "confirmed" : "recommended",
+        source: "recommendation",
         text: copy.decision.recommendation(r.key.replace("_", " "), r.value.label, r.reason),
         href: hrefs.plan,
       });
@@ -182,6 +207,7 @@ export function explainChoice(
     if (matches(`${m.title} ${m.content}`))
       findings.push({
         label: "confirmed",
+        source: "memory",
         text: copy.decision.memory(m.title, m.content),
         href: hrefs.memory,
       });

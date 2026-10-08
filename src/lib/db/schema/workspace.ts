@@ -15,9 +15,11 @@ import type {
   AgentPermission,
   AgentRole,
   AgentStatus,
+  AgentStrategy,
   AgentType,
   AnswerSource,
   Confidence,
+  ConnectionStatus,
   DecisionStatus,
   DocumentStatus,
   DocumentType,
@@ -213,11 +215,23 @@ export const agents = pgTable(
     priority: integer("priority").notNull().default(0),
     /** Non-secret settings only. Credentials will live in a separate encrypted store. */
     configuration: jsonb("configuration").$type<Record<string, string>>().notNull().default({}),
+    /** How Saqina reaches the agent. Handoff (copy/export) works for every agent. */
+    connectionStrategy: text("connection_strategy")
+      .$type<AgentStrategy>()
+      .notNull()
+      .default("handoff"),
+    endpoint: text("endpoint"),
+    /** Webhook signing secret or API token, stored encrypted in `credentials`. */
+    credentialId: uuid("credential_id"),
+    connectionStatus: text("connection_status")
+      .$type<ConnectionStatus>()
+      .notNull()
+      .default("untested"),
     lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
-  (t) => [uniqueIndex("agents_project_type_role_idx").on(t.projectId, t.type, t.role)],
+  (t) => [uniqueIndex("agents_project_name_idx").on(t.projectId, t.name)],
 );
 
 /**

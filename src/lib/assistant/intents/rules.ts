@@ -50,6 +50,22 @@ const result = (
 
 const RULES: Rule[] = [
   {
+    test: /\b(kirim|kirimkan|send|hand ?off|serahkan|teruskan|forward)\b.*\b(ke|to)\s+(codex|claude|cursor|kiro|hermes|antigravity|openclaw|[a-z][\w-]{1,30})\b/,
+    build: (text, m) =>
+      result("HANDOFF_AGENT", 0.9, {
+        agent: m[3],
+        target: THIS.test(text) ? "current" : undefined,
+      }),
+  },
+  {
+    test: /\b(analisa|analisis|analyze|analyse|cek|check|bandingkan|compare)\b.*\b(repo|repository|repositori|codebase|kode)\b|\b(mismatch|tidak cocok|beda)\b.*\b(repo|repository|stack)\b/,
+    build: () => result("ANALYZE_REPOSITORY", 0.9),
+  },
+  {
+    test: /\b(repo|repository|repositori|codebase|branch)\b/,
+    build: () => result("ASK_REPOSITORY", 0.75),
+  },
+  {
     test: /\b(hapus|delete|remove|buang)\b.*\b(task|tasks|tugas)\b/,
     build: (text) =>
       result("DELETE_TASKS", 0.9, {
@@ -170,7 +186,7 @@ export function classifyWithRules(
     if (!match) continue;
     const out = rule.build(text, match, ctx);
     // Keep original casing for captured names ("PostgreSQL", "Google").
-    for (const key of ["title", "role", "feature", "topic", "description"] as const) {
+    for (const key of ["title", "role", "feature", "topic", "description", "agent"] as const) {
       const value = out.entities[key];
       if (!value) continue;
       const index = message.toLowerCase().indexOf(value.toLowerCase());

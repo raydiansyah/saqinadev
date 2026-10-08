@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   boolean,
   index,
+  integer,
   jsonb,
   pgTable,
   primaryKey,
@@ -19,8 +20,15 @@ import type {
   MemberRole,
   ProjectStatus,
   RepoProvider,
+  StackKey,
+  StackSource,
 } from "@/lib/domain/enums";
 import { users } from "./auth";
+
+/** `acknowledged` = a repository value the user already reviewed for this field. */
+export type TechStack = Partial<
+  Record<StackKey, { value: string; source: StackSource; acknowledged?: string }>
+>;
 
 const createdAt = () => timestamp("created_at", { withTimezone: true }).defaultNow().notNull();
 const updatedAt = () =>
@@ -50,6 +58,8 @@ export const projects = pgTable(
     /** Language the generated documents were written in. */
     locale: text("locale").notNull().default("en"),
     isDemo: boolean("is_demo").notNull().default(false),
+    /** Bumped on every recorded change; agent context packages carry it as their version. */
+    contextRevision: integer("context_revision").notNull().default(0),
     archivedAt: timestamp("archived_at", { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
@@ -87,6 +97,11 @@ export const projectSettings = pgTable("project_settings", {
   aiProvider: text("ai_provider"),
   aiModel: text("ai_model"),
   /** Whether low-risk assistant writes run immediately or always wait for approval. */
+  /** Project model preferences, applied only when the platform policy allows it. */
+  preferredModelId: uuid("preferred_model_id"),
+  allowAgentOverrides: boolean("allow_agent_overrides").notNull().default(true),
+  allowedModelIds: jsonb("allowed_model_ids").$type<string[] | null>(),
+  techStack: jsonb("tech_stack").$type<TechStack>().notNull().default({}),
   approvalPolicy: text("approval_policy")
     .$type<ApprovalPolicy>()
     .notNull()

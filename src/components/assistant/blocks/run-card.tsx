@@ -26,7 +26,9 @@ export function RunStatusChip({ status }: { status: RunStatus }) {
 /** Compact agent run summary inside a conversation; the run page has the full timeline. */
 export function RunCard({ slug, view }: { slug: string; view: RunView }) {
   const t = useTranslations("assistant.run");
-  const simulated = view.agentType === "saqina";
+  // A run is simulated only when its result says so (model-planned runs are not).
+  const simulated =
+    (view.run.output as { simulated?: boolean } | null)?.simulated ?? view.agentType === "saqina";
   return (
     <section
       className={cn(CARD, "flex flex-wrap items-center gap-2 px-3 py-2.5")}

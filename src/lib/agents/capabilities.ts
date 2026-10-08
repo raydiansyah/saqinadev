@@ -36,25 +36,37 @@ export const ROLE_TEMPLATES: RoleTemplate[] = [
   {
     role: "planner",
     capabilities: ["planning", "research", "documentation"],
-    permissions: [...READ_PERMISSIONS, "write_tasks", "write_documents"],
+    permissions: [...READ_PERMISSIONS, "read_repository", "write_tasks", "write_documents"],
     priority: 3,
   },
   {
     role: "frontend",
     capabilities: ["frontend", "testing", "code_review", "browser"],
-    permissions: [...READ_PERMISSIONS, "write_tasks", "write_memory"],
+    permissions: [
+      ...READ_PERMISSIONS,
+      "read_repository",
+      "write_branch",
+      "write_tasks",
+      "write_memory",
+    ],
     priority: 2,
   },
   {
     role: "backend",
     capabilities: ["backend", "database", "security", "testing"],
-    permissions: [...READ_PERMISSIONS, "write_tasks", "write_memory"],
+    permissions: [
+      ...READ_PERMISSIONS,
+      "read_repository",
+      "write_branch",
+      "write_tasks",
+      "write_memory",
+    ],
     priority: 2,
   },
   {
     role: "qa",
     capabilities: ["testing", "code_review", "browser", "security"],
-    permissions: [...READ_PERMISSIONS, "write_tasks", "write_memory"],
+    permissions: [...READ_PERMISSIONS, "read_repository", "write_tasks", "write_memory"],
     priority: 1,
   },
   {
@@ -116,3 +128,6 @@ export function inferRequiredCapabilities(task: {
   if (found.size === 0) found.add("planning");
   return [...found];
 }
+
+/** External tool agents read the project and repository by default; nothing more. */
+export const TOOL_AGENT_PERMISSIONS: AgentPermission[] = [...READ_PERMISSIONS, "read_repository"];

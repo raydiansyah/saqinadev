@@ -2,6 +2,7 @@ import "server-only";
 import { and, eq } from "drizzle-orm";
 import * as z from "zod";
 import type { Locale } from "@/i18n/locales";
+import { createHandoff } from "@/lib/agents/handoff";
 import { assignAgentTx, resolveRunReviewTx, startRun } from "@/lib/agents/orchestrator";
 import { executeActionsTx } from "@/lib/assistant/actions/execute";
 import { applyEdits } from "@/lib/assistant/actions/policies";
@@ -9,12 +10,13 @@ import { type PlannedAction, plannedActions } from "@/lib/assistant/actions/type
 import type { ExecutedItem } from "@/lib/assistant/blocks";
 import { getAssistantCopy } from "@/lib/assistant/copy";
 import type { Actor } from "@/lib/auth/actor";
-import { loadProjectAccess } from "@/lib/auth/permissions";
+import { loadProjectAccess, type ProjectAccess } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
 import { agentRuns, agents, conversations, messages, proposals } from "@/lib/db/schema";
 import type { AgentPermission } from "@/lib/domain/enums";
-import { AppError } from "@/lib/errors";
+import { AppError, isAppError } from "@/lib/errors";
 import { EventBatch } from "@/lib/events/emitter";
+import { executeTool } from "@/lib/tools/executor";
 import { parse } from "@/lib/validation";
 import { type ProposalRow, toView } from "./repository";
 
@@ -62,7 +64,12 @@ export async function approveProposal(
   actor: Actor,
   slug: string,
   input: unknown,
-): Promise<{ items: ExecutedItem[]; runs: string[] }> {
+): Promise<{
+  items: ExecutedItem[];
+  runs: string[];
+  tools: ToolOutcome[];
+  handoffs: HandoffOutcome[];
+}> {
   const { proposalId, edits } = parse(approveInput, input);
   const batch = new EventBatch();
   const { access, result } = await db.transaction(async (tx) => {
@@ -108,8 +115,126 @@ export async function approveProposal(
     return { access, result };
   });
   batch.flush();
+  const tools = await runApprovedTools(access, proposalId, result.toolCalls);
+  const handoffs = await createApprovedHandoffs(actor, slug, proposalId, result.handoffs);
   for (const runId of result.runs) await startRun(access, runId);
-  return result;
+  return { items: result.items, runs: result.runs, tools, handoffs };
+}
+
+export interface HandoffOutcome {
+  id: string | null;
+  dispatched: boolean;
+  code: string;
+}
+
+/** Builds and sends (or prepares for export) each approved handoff. Failures are reported. */
+async function createApprovedHandoffs(
+  actor: Actor,
+  slug: string,
+  proposalId: string,
+  handoffs: {
+    key: string;
+    agentId: string;
+    taskId: string | null;
+    instructions: string;
+    format: "markdown" | "json" | "prompt";
+  }[],
+): Promise<HandoffOutcome[]> {
+  if (handoffs.length === 0) return [];
+  const outcomes: HandoffOutcome[] = [];
+  for (const h of handoffs) {
+    try {
+      const { key, ...rest } = h;
+      const created = await createHandoff(actor, slug, {
+        ...rest,
+        idempotencyKey: `proposal:${proposalId}:${key}`,
+      });
+      outcomes.push({ id: created.id, dispatched: created.dispatched, code: created.code });
+    } catch (error) {
+      outcomes.push({
+        id: null,
+        dispatched: false,
+        code: isAppError(error) ? error.code : "failed",
+      });
+    }
+  }
+  const [row] = await db
+    .select({ result: proposals.result })
+    .from(proposals)
+    .where(eq(proposals.id, proposalId));
+  await db
+    .update(proposals)
+    .set({ result: { ...(row?.result ?? {}), handoffs: outcomes } as Record<string, unknown> })
+    .where(eq(proposals.id, proposalId));
+  return outcomes;
+}
+
+export interface ToolOutcome {
+  tool: string;
+  status: "succeeded" | "failed" | "skipped";
+  code?: string;
+  output?: Record<string, unknown>;
+}
+
+/**
+ * Runs approved tool calls in order, after the approval committed. The first failure stops
+ * the rest (they are reported as skipped), so a half-done Git sequence is never hidden.
+ */
+async function runApprovedTools(
+  access: ProjectAccess,
+  proposalId: string,
+  calls: { tool: string; input: Record<string, unknown>; idempotencyKey: string }[],
+): Promise<ToolOutcome[]> {
+  if (calls.length === 0) return [];
+  const [proposal] = await db.select().from(proposals).where(eq(proposals.id, proposalId));
+  const agent = proposal?.runId
+    ? (
+        await db
+          .select({ id: agents.id, name: agents.name, permissions: agents.permissions })
+          .from(agentRuns)
+          .innerJoin(agents, eq(agents.id, agentRuns.agentId))
+          .where(eq(agentRuns.id, proposal.runId))
+      )[0]
+    : undefined;
+  const outcomes: ToolOutcome[] = [];
+  let stopped = false;
+  for (const call of calls) {
+    if (stopped) {
+      outcomes.push({ tool: call.tool, status: "skipped" });
+      continue;
+    }
+    try {
+      const result = await executeTool({
+        access,
+        tool: call.tool,
+        input: call.input,
+        idempotencyKey: call.idempotencyKey,
+        actor: agent
+          ? { kind: "agent", agentId: agent.id, name: agent.name, permissions: agent.permissions }
+          : { kind: "member" },
+        runId: proposal?.runId ?? null,
+        approvedProposalId: proposalId,
+      });
+      outcomes.push({
+        tool: call.tool,
+        status: "succeeded",
+        output: result.status === "succeeded" ? result.output : undefined,
+      });
+    } catch (error) {
+      stopped = true;
+      const fields = isAppError(error) ? error.fields : undefined;
+      outcomes.push({
+        tool: call.tool,
+        status: "failed",
+        code: Object.values(fields ?? {})[0] ?? (isAppError(error) ? error.code : "failed"),
+      });
+    }
+  }
+  await db
+    .update(proposals)
+    .set({ result: { ...(proposal?.result ?? {}), tools: outcomes } as Record<string, unknown> })
+    .where(eq(proposals.id, proposalId));
+  return outcomes;
 }
 
 const reviewInput = z.object({

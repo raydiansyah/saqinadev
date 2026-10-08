@@ -136,7 +136,9 @@
         "APPEND_PRD": "PRD section",
         "CREATE_MEMORY": "New memory",
         "CREATE_DECISION": "New decision",
-        "ASSIGN_AGENT": "Assign agent"
+        "ASSIGN_AGENT": "Assign agent",
+        "RUN_TOOL": "Run tool",
+        "CREATE_HANDOFF": "Hand off to agent"
       },
       "fields": {
         "title": "Title",
@@ -158,7 +160,33 @@
       },
       "taskStep": "the new task \"{title}\"",
       "approved": "Approved. Changes applied.",
-      "failed": "Could not apply this proposal."
+      "failed": "Could not apply this proposal.",
+      "tool": {
+        "source": {
+          "internal": "Saqina",
+          "git": "Repository",
+          "mcp": "MCP"
+        },
+        "files": "Files",
+        "branch": "Branch",
+        "results": "Tool results",
+        "succeeded": "Done",
+        "failed": "Failed",
+        "skipped": "Not run",
+        "gitFailed": "Repository operation failed. No further changes were made.",
+        "mcpFailed": "MCP tool unavailable. The tool was not run.",
+        "skippedNote": "Not run because an earlier step failed.",
+        "pr": "Pull request",
+        "commit": "Commit"
+      },
+      "handoff": {
+        "files": "Will receive",
+        "task": "Task",
+        "open": "Open handoff",
+        "sent": "Sent to the agent",
+        "export": "Ready to export",
+        "failed": "Handoff failed: nothing was sent"
+      }
     },
     "run": {
       "title": "Agent run",
@@ -206,11 +234,11 @@
     },
     "agents": {
       "team": "Team",
-      "teamHint": "Saqina's specialist agents. In this phase they run as a simulation and only propose changes.",
+      "teamHint": "Saqina's specialist agents. With a configured model they plan for real and propose changes; without one they run as a labelled simulation.",
       "tools": "Tool agents",
       "toolsHint": "External coding tools. They are not connected yet.",
       "provider": "Provider",
-      "simulated": "Simulated in this phase",
+      "simulated": "Simulated unless a model is configured",
       "activeRuns": "{count, plural, one {# active run} other {# active runs}}",
       "capabilitiesHeading": "Capabilities",
       "capabilitiesHint": "What it is good at",
@@ -251,7 +279,10 @@
         "write_requirements": "propose requirements",
         "git_push": "push to repository",
         "deploy": "deploy",
-        "delete_project": "delete project"
+        "delete_project": "delete project",
+        "read_repository": "read the repository",
+        "write_branch": "write to its working branch",
+        "use_mcp_tools": "use enabled MCP tools"
       },
       "runs": "Runs",
       "runsHint": "Every agent run in this project, newest first.",
@@ -286,7 +317,11 @@
           "context_loaded": "Loaded the project context",
           "prd_analyzed": "Read the PRD",
           "execution_started": "Started working on the task",
-          "proposal_generated": "Prepared a proposal"
+          "proposal_generated": "Prepared a proposal",
+          "model_planned": "Planned with the resolved model",
+          "repository_read": "Read the repository through allowed tools",
+          "handoff_created": "Handoff package created",
+          "handoff_sent": "Handoff sent to the agent"
         },
         "result": "Result",
         "noResult": "No result yet.",
@@ -310,7 +345,11 @@
         "submitReassign": "Reassign and start",
         "close": "Close",
         "cancelledNote": "No external process was running; the run is marked cancelled.",
-        "readOnly": "Only editors and owners can control runs."
+        "readOnly": "Only editors and owners can control runs.",
+        "handoff": "Open handoff",
+        "planned": "Planned by {model}",
+        "fallback": " (fallback)",
+        "external": "Waiting for the external agent to report back. Saqina did not run it."
       }
     },
     "overview": {
@@ -323,6 +362,21 @@
       "allRuns": "All runs",
       "noRuns": "No agent activity yet.",
       "needAttention": "{count, plural, one {# needs attention} other {# need attention}}"
-    }
+    },
+    "sources": {
+      "prd": "PRD",
+      "requirements": "Requirements",
+      "tasks": "Tasks",
+      "memory": "Memory",
+      "decision": "Decision",
+      "recommendation": "Recommendation",
+      "repository": "Repository",
+      "git_branch": "Git branch",
+      "project": "Project"
+    },
+    "sourceLabel": "Source: {source}",
+    "modelLine": "Answered by {model}",
+    "modelRules": "Written from project data (no AI model involved)",
+    "fallbackLine": "{requested} was unavailable; fallback used."
   }
 }

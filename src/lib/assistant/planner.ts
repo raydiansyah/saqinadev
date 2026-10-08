@@ -1,3 +1,4 @@
+import { packageFilesFor } from "@/lib/context/package-files";
 import type { PlannedAction } from "./actions/types";
 import { analyzePrd, analyzeRequirements, analyzeTasks, explainChoice } from "./analysis";
 import type { Block, Finding } from "./blocks";
@@ -5,6 +6,7 @@ import type { AssistantContext } from "./context-builder";
 import type { AssistantCopy, Clarification } from "./copy/types";
 import { clarificationFor, featurePlan, pickAgent } from "./feature-plan";
 import type { IntentClassification, PendingIntent } from "./intents/types";
+import { repositoryAnswer } from "./repository-answer";
 
 /**
  * Turns an intent plus project context into an outcome. Pure: it reads the loaded context and
@@ -20,11 +22,13 @@ export interface PlannerLabels {
   status: string;
   next: string;
   executableTypes: readonly string[];
+  /** Result of reading the repository in this turn: true, an error code, or null (not tried). */
+  repositoryRead?: true | string | null;
 }
 
 const NOT_STARTED = new Set(["backlog", "todo"]);
 
-function answer(draft: string, blocks: Block[] = []): PlanOutcome {
+export function answer(draft: string, blocks: Block[] = []): PlanOutcome {
   return { kind: "answer", draft, blocks };
 }
 
@@ -403,6 +407,47 @@ export function plan(
         },
       ]);
     }
+
+    case "HANDOFF_AGENT": {
+      const external = (ctx.agents ?? []).filter(
+        (a) => a.type !== "saqina" && a.status !== "disabled",
+      );
+      const wanted = e.agent?.toLowerCase();
+      if (!wanted || wanted === "agent")
+        return plan({ ...c, intent: "ASSIGN_AGENT" }, ctx, copy, labels);
+      if (!task) return answer(copy.handoff.needsTask);
+      const agent = external.find((a) => a.name.toLowerCase() === wanted || a.type === wanted);
+      if (!agent)
+        return answer(
+          copy.handoff.unknownAgent(e.agent ?? "", external.map((a) => a.name).join(", ")),
+        );
+      return act(copy.handoff.title(agent.name, task.title), copy.handoff.describe, [
+        {
+          type: "CREATE_HANDOFF",
+          key: "h1",
+          payload: {
+            agentId: agent.id,
+            taskId: task.id,
+            instructions: copy.plan.instructions(task.title),
+            format: "prompt",
+          },
+          display: {
+            agent: agent.name,
+            task: task.title,
+            files: packageFilesFor(agent.permissions, {
+              task: true,
+              repository: Boolean(
+                ctx.repository?.view && ctx.repository.view.status !== "disconnected",
+              ),
+            }),
+          },
+        },
+      ]);
+    }
+
+    case "ASK_REPOSITORY":
+    case "ANALYZE_REPOSITORY":
+      return repositoryAnswer(ctx, copy, labels, href);
 
     case "ASSIGN_AGENT":
     case "RUN_AGENT": {

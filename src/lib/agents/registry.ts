@@ -4,7 +4,7 @@ import type { ProjectAccess } from "@/lib/auth/permissions";
 import { db, type Executor } from "@/lib/db/client";
 import { agentRuns, agents } from "@/lib/db/schema";
 import type { AgentRole, AgentType } from "@/lib/domain/enums";
-import { ROLE_TEMPLATES, TOOL_CAPABILITIES } from "./capabilities";
+import { ROLE_TEMPLATES, TOOL_AGENT_PERMISSIONS, TOOL_CAPABILITIES } from "./capabilities";
 import { ACTIVE_RUN_STATUSES } from "./state";
 
 export type AgentRow = typeof agents.$inferSelect;
@@ -41,6 +41,29 @@ export async function ensureTeamAgents(executor: Executor, projectId: string): P
       })),
     )
     .onConflictDoNothing();
+  // Team templates are system-owned: keep stored permissions in line with them.
+  for (const t of ROLE_TEMPLATES)
+    await executor
+      .update(agents)
+      .set({ permissions: t.permissions, capabilities: t.capabilities })
+      .where(
+        and(
+          eq(agents.projectId, projectId),
+          eq(agents.type, "saqina"),
+          eq(agents.role, t.role),
+          sql`${agents.permissions} <> ${JSON.stringify(t.permissions)}::jsonb`,
+        ),
+      );
+  await executor
+    .update(agents)
+    .set({ permissions: TOOL_AGENT_PERMISSIONS })
+    .where(
+      and(
+        eq(agents.projectId, projectId),
+        eq(agents.role, "general"),
+        sql`${agents.permissions} = '[]'::jsonb`,
+      ),
+    );
   // Tool agents from Phase 2 have no capabilities stored; describe what they could do.
   for (const [type, capabilities] of Object.entries(TOOL_CAPABILITIES)) {
     await executor

@@ -4,9 +4,9 @@ import * as z from "zod";
 import { LOCALES, type Locale } from "@/i18n/locales";
 import { assignAgentTx, startRun } from "@/lib/agents/orchestrator";
 import { EXECUTABLE_TYPES } from "@/lib/agents/registry";
+import { runAi } from "@/lib/ai/gateway";
 import { MockAiProvider } from "@/lib/ai/mock";
 import type { AiProvider } from "@/lib/ai/provider";
-import { getAiProvider } from "@/lib/ai/registry";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess, type ProjectAccess } from "@/lib/auth/permissions";
 import {
@@ -20,6 +20,7 @@ import { conversations, messages } from "@/lib/db/schema";
 import { CONVERSATION_CONTEXTS } from "@/lib/domain/enums";
 import { errorRef, isAppError } from "@/lib/errors";
 import { EventBatch } from "@/lib/events/emitter";
+import { syncRepository } from "@/lib/git/service";
 import { log } from "@/lib/log";
 import { getNextProjectAction } from "@/lib/projects/progress";
 import { createProposalTx } from "@/lib/proposals/repository";
@@ -169,19 +170,27 @@ export async function handleMessage(
 
   try {
     emit({ type: "status", stage: "analyzing" });
-    const provider = options.provider ?? getAiProvider();
     const pending = (await lastPending(conversation.id, user.id)) ?? null;
-    const classified = mergePending(
-      await classifyIntent(input.content, { entity }, provider, options.signal),
-      pending,
-      input.content,
-    );
+    // Intent: the resolved model when one supports structured output, rules otherwise.
+    const intent = await runAi({
+      access,
+      operation: "intent",
+      required: ["structured_output"],
+      override: options.provider,
+      run: (client) => classifyIntent(input.content, { entity }, client, options.signal),
+    });
+    const classified = mergePending(intent.value, pending, input.content);
     meta.intent = classified.intent;
     meta.confidence = classified.confidence;
-    meta.provider = provider.config.provider;
 
     emit({ type: "status", stage: "context" });
     const summary = await refreshSummary(conversation);
+    // Repository questions read the repository now, so the reply can truthfully say so.
+    let repositoryRead: true | string | null = null;
+    if (classified.intent === "ASK_REPOSITORY" || classified.intent === "ANALYZE_REPOSITORY") {
+      const synced = await syncRepository(actor, slug).catch(() => null);
+      repositoryRead = synced ? (synced.ok ? true : synced.code) : null;
+    }
     const ctx = await buildContext(access, classified.intent, entity, summary);
     const pm = PROJECT_MESSAGES[input.locale];
     const outcome = plan(classified, ctx, copy, {
@@ -189,6 +198,7 @@ export async function handleMessage(
         pm.statuses[access.project.status as keyof typeof pm.statuses] ?? access.project.status,
       next: pm.nextActions[getNextProjectAction(ctx.snapshot).kind],
       executableTypes: EXECUTABLE_TYPES,
+      repositoryRead,
     });
 
     emit({ type: "status", stage: "preparing" });
@@ -204,33 +214,44 @@ export async function handleMessage(
     });
 
     emit({ type: "status", stage: "writing" });
-    // Only read-only answers are phrased by a model; action results stay exactly as executed.
-    if (outcome.kind === "answer" && !provider.deterministic) {
-      text = await streamModel(
-        provider,
-        {
-          system: SYSTEM(input.locale),
-          segments: contextSegments(ctx),
-          history: await recentHistory(conversation.id),
-          userMessage: input.content,
-          draft,
-          signal: options.signal,
-        },
-        emit,
-        copy.modelFallback,
-        draft,
-      );
+    // Only read-only answers are phrased by a model; action results and questions stay exactly
+    // as the application wrote them, so they are labelled as rules.
+    if (outcome.kind === "answer") {
+      const history = await recentHistory(conversation.id);
+      const answer = await runAi({
+        access,
+        operation: "conversation",
+        required: ["text"],
+        override: options.provider,
+        run: (client) =>
+          client.deterministic
+            ? streamDraft(draft, emit, options.signal)
+            : streamModel(
+                client,
+                {
+                  system: SYSTEM(input.locale),
+                  segments: contextSegments(ctx),
+                  history,
+                  userMessage: input.content,
+                  draft,
+                  signal: options.signal,
+                },
+                emit,
+                copy.modelFallback,
+              ),
+      });
+      text = answer.value;
+      meta.provider = answer.deterministic ? "rules" : answer.actual.label;
+      meta.model = {
+        label: answer.actual.label,
+        source: answer.deterministic ? "rules" : answer.source,
+        fallbackUsed: answer.fallbackUsed,
+        requested: answer.requested?.label ?? null,
+      };
     } else {
-      for await (const part of new MockAiProvider().stream({
-        system: "",
-        segments: [],
-        userMessage: "",
-        draft,
-        signal: options.signal,
-      })) {
-        text += part;
-        emit({ type: "delta", text: part });
-      }
+      text = await streamDraft(draft, emit, options.signal);
+      meta.provider = "rules";
+      meta.model = { label: "rules", source: "rules", fallbackUsed: false, requested: null };
     }
     if (options.signal?.aborted) throw new AbortError();
 
@@ -261,12 +282,30 @@ export async function handleMessage(
 
 class AbortError extends Error {}
 
+async function streamDraft(draft: string, emit: Emit, signal?: AbortSignal): Promise<string> {
+  let text = "";
+  for await (const part of new MockAiProvider().stream({
+    system: "",
+    segments: [],
+    userMessage: "",
+    draft,
+    signal,
+  })) {
+    text += part;
+    emit({ type: "delta", text: part });
+  }
+  return text;
+}
+
+/**
+ * Streams a model reply. Failing before the first token throws, so the gateway can try the
+ * fallback model; failing mid-stream keeps what arrived and says the model dropped out.
+ */
 async function streamModel(
   provider: AiProvider,
   request: Parameters<AiProvider["stream"]>[0],
   emit: Emit,
   fallbackNote: string,
-  draft: string,
 ): Promise<string> {
   let text = "";
   try {
@@ -274,15 +313,16 @@ async function streamModel(
       text += part;
       emit({ type: "delta", text: part });
     }
-    if (!text.trim()) throw new Error("empty");
-    return text;
   } catch (error) {
     if (request.signal?.aborted) throw new AbortError();
-    log.warn("assistant.model_fallback", { error: String(error) });
-    const rest = text ? `\n\n${fallbackNote}` : `${draft}\n\n${fallbackNote}`;
-    emit({ type: "delta", text: rest });
-    return text + rest;
+    if (!text) throw error;
+    log.warn("assistant.model_interrupted", { error: String(error) });
+    const note = `\n\n${fallbackNote}`;
+    emit({ type: "delta", text: note });
+    return text + note;
   }
+  if (!text.trim()) throw new Error("empty model reply");
+  return text;
 }
 
 /** Runs or stores the plan and returns the reply draft. Mutations re-check write access. */

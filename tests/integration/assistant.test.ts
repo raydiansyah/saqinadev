@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { cancelRun, retryRun } from "@/lib/agents/controls";
+import { setHandoffStatus } from "@/lib/agents/handoff";
 import { listAgentRegistry } from "@/lib/agents/registry";
 import { getRunDetail, listRuns } from "@/lib/agents/runs";
 import { MockAiProvider } from "@/lib/ai/mock";
@@ -13,6 +14,7 @@ import { listConversations, loadMessages } from "@/lib/conversations/service";
 import { db } from "@/lib/db/client";
 import {
   activities,
+  agentHandoffs,
   agentRuns,
   agents,
   projectMembers,
@@ -339,7 +341,7 @@ describe("agents", () => {
     );
   });
 
-  it("fails honestly for an unconnected agent, retries without duplicates, and cancels", async () => {
+  it("hands work to an external agent instead of faking it, retries without duplicates, and cancels", async () => {
     const task = await createTask(owner, slug, { title: "Refactor login form" });
     const [claude] = await db
       .select()
@@ -356,7 +358,16 @@ describe("agents", () => {
       edits: { a1: { agentId: claude.id } },
     });
     const [run] = (await listRuns(access)).filter((r) => r.run.taskId === task.id);
-    expect(run.run).toMatchObject({ status: "failed", error: "execution_unavailable" });
+    // Nothing was executed remotely: the run waits on a handoff the user exports.
+    expect(run.run.status).toBe("waiting");
+    const handoffId = (run.run.metadata as { handoffId?: string }).handoffId as string;
+    const [handoff] = await db.select().from(agentHandoffs).where(eq(agentHandoffs.id, handoffId));
+    expect(handoff).toMatchObject({ status: "generated", taskId: task.id });
+    expect(handoff.package).toContain("TASK.md");
+
+    // The agent reported failure through the user: the run fails, then retries once.
+    await setHandoffStatus(owner, slug, { handoffId, status: "cancelled" });
+    expect((await getRunDetail(access, run.run.id))?.run.status).toBe("failed");
     expect(getNextProjectAction(await loadSnapshot(db, access.project)).kind).toBe(
       "inspectAgentFailure",
     );
@@ -364,7 +375,7 @@ describe("agents", () => {
     await retryRun(owner, slug, { runId: run.run.id });
     const after = await db.select().from(agentRuns).where(eq(agentRuns.taskId, task.id));
     expect(after).toHaveLength(1);
-    expect(after[0]).toMatchObject({ attempt: 2, status: "failed" });
+    expect(after[0]).toMatchObject({ attempt: 2, status: "waiting" });
 
     await cancelRun(owner, slug, { runId: run.run.id });
     expect((await getRunDetail(access, run.run.id))?.run.status).toBe("cancelled");

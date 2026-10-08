@@ -6,12 +6,16 @@ import type { PromptSegment } from "@/lib/ai/provider";
 import type { ProjectAccess } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
 import { decisions, documents, memories, requirements, tasks } from "@/lib/db/schema";
+import type { TechStack } from "@/lib/db/schema/projects";
 import { type DecisionView, listDecisions } from "@/lib/decisions/service";
 import type { ConversationContext } from "@/lib/domain/enums";
 import { AppError } from "@/lib/errors";
+import { getRepository, type RepositoryView, toRepositoryView } from "@/lib/git/service";
+import type { StackMismatch } from "@/lib/git/stack";
 import { listMemories, type MemoryView } from "@/lib/memory/service";
 import type { ProjectSnapshot } from "@/lib/projects/progress";
 import { getSettings, loadSnapshot } from "@/lib/projects/repository";
+import { getTechStack, projectStackMismatches } from "@/lib/projects/stack";
 import { listRecommendations, type StoredRecommendation } from "@/lib/recommendations/service";
 import { listRequirements, type RequirementView } from "@/lib/requirements/service";
 import { listTasks, type TaskView } from "@/lib/tasks/service";
@@ -39,7 +43,8 @@ type Slice =
   | "memory"
   | "recommendations"
   | "activity"
-  | "agents";
+  | "agents"
+  | "repository";
 
 /** Only what each intent needs. Nothing project-wide rides along by default. */
 const NEEDS: Record<Intent, Slice[]> = {
@@ -69,6 +74,9 @@ const NEEDS: Record<Intent, Slice[]> = {
   ASSIGN_AGENT: ["tasks", "agents"],
   RUN_AGENT: ["tasks", "agents"],
   REQUEST_APPROVAL: [],
+  HANDOFF_AGENT: ["tasks", "agents", "repository"],
+  ASK_REPOSITORY: ["repository"],
+  ANALYZE_REPOSITORY: ["repository"],
   HELP: [],
 };
 
@@ -88,6 +96,12 @@ export interface AssistantContext {
   activity?: ActivityView[];
   agents?: AgentRow[];
   agentLoad?: Record<string, number>;
+  /** Repository view, stack and mismatches, loaded only for repository questions. */
+  repository?: {
+    view: RepositoryView | null;
+    stack: TechStack;
+    mismatches: StackMismatch[];
+  };
 }
 
 /**
@@ -193,6 +207,14 @@ export async function buildContext(
       listRecommendations(access).then((r) => (ctx.recommendations = r)),
     needs.has("activity") &&
       listActivity(access.project.id, { limit: 10 }).then((r) => (ctx.activity = r.items)),
+    needs.has("repository") &&
+      Promise.all([
+        getRepository(access),
+        getTechStack(access),
+        projectStackMismatches(access),
+      ]).then(([row, stack, mismatches]) => {
+        ctx.repository = { view: row ? toRepositoryView(row) : null, stack, mismatches };
+      }),
     needs.has("agents") &&
       listAgentRegistry(access).then((r) => {
         ctx.agents = r.agents;

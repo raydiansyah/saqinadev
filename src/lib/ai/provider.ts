@@ -50,8 +50,15 @@ export interface AiRequest {
   signal?: AbortSignal;
 }
 
+export interface AiUsage {
+  input: number | null;
+  output: number | null;
+}
+
 export interface AiProvider {
   readonly config: AiProviderConfig;
+  /** Token usage of the most recent call, when the provider reports it. */
+  usage?: AiUsage;
   /** True when answers are produced by rules rather than a language model. */
   readonly deterministic: boolean;
   generate(request: AiRequest): Promise<string>;

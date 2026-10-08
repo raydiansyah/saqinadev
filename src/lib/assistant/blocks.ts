@@ -9,8 +9,22 @@ import { pendingIntent } from "./intents/types";
 export const FACT_LABELS = ["confirmed", "inferred", "recommended", "unknown"] as const;
 export type FactLabel = (typeof FACT_LABELS)[number];
 
+/** Where a statement came from, shown next to it. */
+export const FACT_SOURCES = [
+  "prd",
+  "requirements",
+  "tasks",
+  "memory",
+  "decision",
+  "recommendation",
+  "repository",
+  "git_branch",
+  "project",
+] as const;
+
 export const finding = z.object({
   label: z.enum(FACT_LABELS),
+  source: z.enum(FACT_SOURCES).optional(),
   text: z.string().max(500),
   href: z.string().max(200).optional(),
 });
@@ -53,7 +67,16 @@ export const assistantMetadata = z.object({
   blocks: z.array(block).max(20).default([]),
   intent: z.string().max(40).optional(),
   confidence: z.number().optional(),
-  provider: z.string().max(40).optional(),
+  provider: z.string().max(120).optional(),
+  /** Which model answered and why; shown with the reply so fallbacks are never silent. */
+  model: z
+    .object({
+      label: z.string().max(160),
+      source: z.string().max(40),
+      fallbackUsed: z.boolean(),
+      requested: z.string().max(160).nullable(),
+    })
+    .optional(),
   pending: pendingIntent.optional(),
   context: z
     .object({
