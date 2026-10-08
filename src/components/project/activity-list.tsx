@@ -35,7 +35,15 @@ export async function ActivityList({
           title: String(meta.title ?? ""),
           number: String(meta.number ?? "").padStart(3, "0"),
           file: `${String(meta.slug ?? "doc").toUpperCase()}.md`,
+          agent: String(meta.agent ?? ""),
         });
+        // Changes made through chat or an agent say so, so nobody mistakes them for manual edits.
+        const via =
+          meta.via === "assistant"
+            ? t("viaAssistant")
+            : meta.via === "agent"
+              ? t("viaAgent")
+              : null;
         return (
           <li key={item.id} className="flex gap-3 text-sm">
             <span
@@ -46,6 +54,7 @@ export async function ActivityList({
               <p className="text-pretty">{text}</p>
               <p className="mt-0.5 text-xs text-subtle-foreground">
                 {showProject && item.projectName ? `${item.projectName} · ` : ""}
+                {via ? `${via} · ` : ""}
                 <time dateTime={item.createdAt.toISOString()}>
                   {formatRelative(item.createdAt, locale)}
                 </time>

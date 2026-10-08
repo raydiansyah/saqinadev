@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { TaskBoard } from "@/components/tasks/task-board";
+import { openRunsByTask } from "@/lib/agents/runs";
 import { can } from "@/lib/auth/permissions";
 import { projectPageAccess } from "@/lib/projects/page";
 import { listMilestones, listTasks } from "@/lib/tasks/service";
@@ -13,12 +14,17 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function TasksPage({ params }: PageProps<"/[locale]/project/[slug]/tasks">) {
   const { slug } = await params;
   const access = await projectPageAccess(slug);
-  const [tasks, milestones] = await Promise.all([listTasks(access), listMilestones(access)]);
+  const [tasks, milestones, runs] = await Promise.all([
+    listTasks(access),
+    listMilestones(access),
+    openRunsByTask(access),
+  ]);
 
   return (
     <TaskBoard
       slug={slug}
       canEdit={can(access.role, "content:write")}
+      runs={runs}
       milestones={milestones.map((m) => ({ id: m.id, title: m.title }))}
       tasks={tasks.map((task) => ({
         id: task.id,

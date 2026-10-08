@@ -4,10 +4,11 @@ import * as z from "zod";
 import { recordActivity } from "@/lib/activity/service";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess, type ProjectAccess } from "@/lib/auth/permissions";
-import { db } from "@/lib/db/client";
+import { db, type Tx } from "@/lib/db/client";
 import { decisions, projects } from "@/lib/db/schema";
 import { DECISION_STATUSES } from "@/lib/domain/enums";
 import { AppError } from "@/lib/errors";
+import { type Trace, traceMetadata, USER_TRACE } from "@/lib/events/types";
 import { parse } from "@/lib/validation";
 
 export type DecisionView = typeof decisions.$inferSelect;
@@ -20,7 +21,7 @@ export async function listDecisions(access: ProjectAccess): Promise<DecisionView
     .orderBy(desc(decisions.number));
 }
 
-const createInput = z
+export const createDecisionInput = z
   .object({
     question: z.string().trim().min(5).max(300),
     context: z.string().trim().max(2000).default(""),
@@ -29,45 +30,56 @@ const createInput = z
     reason: z.string().trim().min(3).max(2000),
   })
   .refine((d) => d.options.includes(d.selected), { path: ["selected"], message: "notAnOption" });
+export type CreateDecisionData = z.infer<typeof createDecisionInput>;
 
 /** Decisions record why something was chosen; numbers are sequential per project. */
+export async function createDecisionTx(
+  tx: Tx,
+  access: ProjectAccess,
+  data: CreateDecisionData,
+  trace: Trace = USER_TRACE,
+): Promise<DecisionView> {
+  const { project, actor } = access;
+  // Lock the project row so two concurrent decisions cannot take the same number.
+  await tx
+    .select({ id: projects.id })
+    .from(projects)
+    .where(eq(projects.id, project.id))
+    .for("update");
+  const [{ last }] = await tx
+    .select({ last: max(decisions.number) })
+    .from(decisions)
+    .where(eq(decisions.projectId, project.id));
+  const [row] = await tx
+    .insert(decisions)
+    .values({
+      projectId: project.id,
+      number: (last ?? 0) + 1,
+      ...data,
+      status: "accepted",
+      createdBy: actor.id,
+    })
+    .returning();
+  await recordActivity(tx, {
+    projectId: project.id,
+    actorId: actor.id,
+    type: "decision.created",
+    entityType: "decision",
+    entityId: row.id,
+    metadata: { number: row.number, selected: row.selected, ...traceMetadata(trace) },
+  });
+  return row;
+}
+
 export async function createDecision(
   actor: Actor,
   slug: string,
   input: unknown,
 ): Promise<DecisionView> {
-  const data = parse(createInput, input);
+  const data = parse(createDecisionInput, input);
   return db.transaction(async (tx) => {
-    const { project } = await loadProjectAccess(actor, { slug }, "content:write", tx);
-    // Lock the project row so two concurrent decisions cannot take the same number.
-    await tx
-      .select({ id: projects.id })
-      .from(projects)
-      .where(eq(projects.id, project.id))
-      .for("update");
-    const [{ last }] = await tx
-      .select({ last: max(decisions.number) })
-      .from(decisions)
-      .where(eq(decisions.projectId, project.id));
-    const [row] = await tx
-      .insert(decisions)
-      .values({
-        projectId: project.id,
-        number: (last ?? 0) + 1,
-        ...data,
-        status: "accepted",
-        createdBy: actor.id,
-      })
-      .returning();
-    await recordActivity(tx, {
-      projectId: project.id,
-      actorId: actor.id,
-      type: "decision.created",
-      entityType: "decision",
-      entityId: row.id,
-      metadata: { number: row.number, selected: row.selected },
-    });
-    return row;
+    const access = await loadProjectAccess(actor, { slug }, "content:write", tx);
+    return createDecisionTx(tx, access, data);
   });
 }
 

@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { AskSaqinaButton } from "@/components/assistant/command-center";
 import type { DecisionView } from "@/lib/decisions/service";
 import { cn } from "@/lib/utils";
 import { DecisionStatusToggle } from "./decision-buttons";
@@ -47,9 +48,12 @@ export async function DecisionCard({
             {d.question}
           </h2>
         </div>
-        {canEdit ? (
-          <DecisionStatusToggle slug={slug} id={d.id} number={number} status={d.status} />
-        ) : null}
+        <div className="flex flex-wrap items-center gap-1">
+          <AskSaqinaButton context={{ type: "decision", id: d.id, label: `#${number}` }} />
+          {canEdit ? (
+            <DecisionStatusToggle slug={slug} id={d.id} number={number} status={d.status} />
+          ) : null}
+        </div>
       </div>
 
       <dl className="mt-4 space-y-4 text-sm">

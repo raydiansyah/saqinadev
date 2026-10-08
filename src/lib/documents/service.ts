@@ -4,10 +4,11 @@ import * as z from "zod";
 import { recordActivity } from "@/lib/activity/service";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess, type ProjectAccess } from "@/lib/auth/permissions";
-import { db } from "@/lib/db/client";
+import { db, type Tx } from "@/lib/db/client";
 import { documents, documentVersions } from "@/lib/db/schema";
 import { DOCUMENT_STATUSES } from "@/lib/domain/enums";
 import { AppError } from "@/lib/errors";
+import { type Trace, traceMetadata } from "@/lib/events/types";
 import { slugify } from "@/lib/interview/rules/profile";
 import { parse } from "@/lib/validation";
 
@@ -104,6 +105,45 @@ export async function saveDocument(actor: Actor, slug: string, input: unknown) {
     });
     return row;
   });
+}
+
+/**
+ * Appends a markdown section as a new version. Used for approved assistant and agent changes:
+ * appending never overwrites what a person wrote, so it is safe even if the document moved on
+ * since the proposal was made.
+ */
+export async function appendDocumentSectionTx(
+  tx: Tx,
+  access: ProjectAccess,
+  input: { docSlug: string; heading: string; body: string },
+  trace: Trace,
+): Promise<{ version: number }> {
+  const { project, actor } = access;
+  const [doc] = await tx
+    .select()
+    .from(documents)
+    .where(and(eq(documents.projectId, project.id), eq(documents.slug, input.docSlug)))
+    .for("update");
+  if (!doc) throw new AppError("NOT_FOUND");
+  const content = `${doc.content.trimEnd()}\n\n## ${input.heading}\n\n${input.body.trim()}\n`;
+  if (content.length > MAX_CONTENT) throw new AppError("VALIDATION_ERROR", "Document too long");
+  const version = doc.version + 1;
+  await tx
+    .update(documents)
+    .set({ content, version, updatedBy: actor.id })
+    .where(eq(documents.id, doc.id));
+  await tx
+    .insert(documentVersions)
+    .values({ documentId: doc.id, version, content, createdBy: actor.id });
+  await recordActivity(tx, {
+    projectId: project.id,
+    actorId: actor.id,
+    type: "document.updated",
+    entityType: "document",
+    entityId: doc.id,
+    metadata: { slug: doc.slug, version, ...traceMetadata(trace) },
+  });
+  return { version };
 }
 
 export async function setDocumentStatus(actor: Actor, slug: string, input: unknown) {

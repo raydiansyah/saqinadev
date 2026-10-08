@@ -8,6 +8,7 @@ import {
   setDocumentStatusAction,
 } from "@/app/[locale]/(app)/project/[slug]/documents/actions";
 import { SaveIndicator, type SaveState } from "@/components/app/save-indicator";
+import { AskSaqinaButton } from "@/components/assistant/command-center";
 import { Button } from "@/components/ui/button";
 import { FIELD_CLASS, Notice } from "@/components/ui/form";
 import { useRouter } from "@/i18n/navigation";
@@ -153,6 +154,13 @@ export function DocumentWorkspace({
           </span>
         </div>
         <div className="flex flex-wrap items-center gap-1">
+          <AskSaqinaButton
+            context={{
+              type: doc.slug === "prd" ? "prd" : "document",
+              id: doc.slug,
+              label: file,
+            }}
+          />
           <div
             role="group"
             aria-label={file}

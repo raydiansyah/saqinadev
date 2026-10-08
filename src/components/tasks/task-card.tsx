@@ -2,17 +2,21 @@
 
 import { useTranslations } from "next-intl";
 import { useId } from "react";
+import { RunStatusChip } from "@/components/assistant/blocks/run-card";
 import { Button } from "@/components/ui/button";
 import { FIELD_CLASS } from "@/components/ui/form";
+import { Link } from "@/i18n/navigation";
 import { TASK_STATUSES, type TaskStatus } from "@/lib/domain/enums";
 import { cn } from "@/lib/utils";
 import { PriorityBadge } from "./task-badges";
-import type { TaskItem } from "./types";
+import type { TaskItem, TaskRun } from "./types";
 
 /** One task with keyboard-friendly controls: a status select instead of drag and drop. */
 export function TaskCard({
   task,
   milestoneTitle,
+  slug,
+  run,
   canEdit,
   moved,
   onMove,
@@ -20,6 +24,9 @@ export function TaskCard({
 }: {
   task: TaskItem;
   milestoneTitle: string | null;
+  slug: string;
+  /** Open agent run on this task, if any. */
+  run: TaskRun | null;
   canEdit: boolean;
   /** True right after this card changed status; plays the entry motion once. */
   moved: boolean;
@@ -55,6 +62,18 @@ export function TaskCard({
           </>
         ) : null}
       </div>
+      {run ? (
+        <Link
+          href={`/project/${slug}/agents/runs/${run.runId}`}
+          className="mt-2 flex min-h-9 items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
+        >
+          <span aria-hidden="true" className="text-info">
+            ●
+          </span>
+          <span className="min-w-0 truncate">{run.agentName}</span>
+          <RunStatusChip status={run.status} />
+        </Link>
+      ) : null}
 
       {canEdit ? (
         <div className="mt-3 space-y-2">

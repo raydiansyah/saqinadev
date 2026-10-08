@@ -8,6 +8,7 @@ import { loadProjectAccess } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
 import { activities, projectMembers, projectSettings, projects } from "@/lib/db/schema";
 import {
+  APPROVAL_POLICIES,
   BUILD_STRATEGIES,
   DEPLOY_PROVIDERS,
   PROJECT_STATUSES,
@@ -221,6 +222,28 @@ export async function updateProjectSettings(actor: Actor, slug: string, input: u
       type: "settings.updated",
       entityType: "project",
       entityId: project.id,
+    });
+  });
+}
+
+const approvalInput = z.object({ approvalPolicy: z.enum(APPROVAL_POLICIES) });
+
+/** Whether Saqina may apply low-risk changes right away or must always ask first. */
+export async function updateApprovalPolicy(actor: Actor, slug: string, input: unknown) {
+  const { approvalPolicy } = parse(approvalInput, input);
+  await db.transaction(async (tx) => {
+    const { project } = await loadProjectAccess(actor, { slug }, "project:update", tx);
+    await tx
+      .insert(projectSettings)
+      .values({ projectId: project.id, approvalPolicy })
+      .onConflictDoUpdate({ target: projectSettings.projectId, set: { approvalPolicy } });
+    await recordActivity(tx, {
+      projectId: project.id,
+      actorId: actor.id,
+      type: "settings.updated",
+      entityType: "project",
+      entityId: project.id,
+      metadata: { approvalPolicy },
     });
   });
 }

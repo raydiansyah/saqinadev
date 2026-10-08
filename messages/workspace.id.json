@@ -30,8 +30,22 @@
       "decision_created": "{actor} mencatat keputusan #{number}.",
       "decision_updated": "{actor} memperbarui keputusan #{number}.",
       "agent_updated": "{actor} memperbarui pengaturan agent.",
-      "settings_updated": "{actor} memperbarui pengaturan proyek."
-    }
+      "settings_updated": "{actor} memperbarui pengaturan proyek.",
+      "task_deleted": "{actor} menghapus task “{title}”.",
+      "agent_assigned": "{actor} menugaskan {agent} ke “{title}”.",
+      "agent_started": "{agent} mulai mengerjakan “{title}”.",
+      "agent_waiting": "{agent} menunggu review untuk “{title}”.",
+      "agent_completed": "{agent} menyelesaikan “{title}”.",
+      "agent_failed": "{agent} gagal pada “{title}”.",
+      "agent_cancelled": "{actor} membatalkan run {agent} pada “{title}”.",
+      "proposal_created": "Usulan baru: “{title}”.",
+      "proposal_approved": "{actor} menyetujui “{title}”.",
+      "proposal_rejected": "{actor} menolak “{title}”.",
+      "proposal_revision_requested": "{actor} meminta perubahan pada “{title}”.",
+      "proposal_cancelled": "Usulan “{title}” dibatalkan."
+    },
+    "viaAssistant": "lewat Saqina",
+    "viaAgent": "lewat agent"
   },
   "requirements": {
     "metaTitle": "Requirement",
@@ -73,7 +87,9 @@
       "user": "Pengguna",
       "inferred": "Disimpulkan",
       "imported": "Diimpor",
-      "system": "Sistem"
+      "system": "Sistem",
+      "assistant": "Saqina",
+      "agent": "Agent"
     },
     "confidences": {
       "high": "Tinggi",
@@ -166,7 +182,30 @@
     "source": {
       "plan": "Dari plan",
       "user": "Ditambahkan",
-      "agent": "Agent"
+      "agent": "Agent",
+      "assistant": "Saqina"
+    },
+    "agent": {
+      "title": "Agent",
+      "assign": "Tugaskan agent",
+      "assignHint": "Pilih siapa yang mengerjakan task ini. Klik Anda adalah persetujuannya; run langsung dimulai.",
+      "loading": "Mencari agent yang cocok...",
+      "none": "Tidak ada agent di proyek ini yang punya kemampuan untuk task ini.",
+      "needs": "Butuh: {list}",
+      "reasons": {
+        "covers": "Punya {list}",
+        "missing": "Tidak punya {list}",
+        "busy": "{count} run aktif",
+        "preferred": "Agent pilihan",
+        "executable": "Berjalan di sini (simulasi)",
+        "notExecutable": "Belum terhubung: run akan gagal secara jujur",
+        "disabled": "Nonaktif"
+      },
+      "instructions": "Instruksi (opsional)",
+      "submit": "Tugaskan dan mulai",
+      "assigned": "Ditugaskan. Buka run",
+      "current": "Run saat ini",
+      "openRun": "Buka run"
     }
   },
   "memory": {
@@ -203,7 +242,8 @@
       "interview": "Interview",
       "recommendation": "Rekomendasi proyek",
       "user": "Anda",
-      "agent": "Agent"
+      "agent": "Agent",
+      "assistant": "Saqina"
     }
   },
   "decisions": {

@@ -7,14 +7,17 @@
  *   email:    demo@saqina.test
  *   password: saqina-demo-2026
  */
+import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
+import { handleMessage } from "../src/lib/assistant/service";
 import type { Actor } from "../src/lib/auth/actor";
 import { auth } from "../src/lib/auth/config";
 import { db } from "../src/lib/db/client";
-import { projects, tasks, users } from "../src/lib/db/schema";
+import { agents, projects, proposals, tasks, users } from "../src/lib/db/schema";
 import { setDocumentStatus } from "../src/lib/documents/service";
 import { completeInterview, saveAnswers } from "../src/lib/interviews/service";
 import { startProject } from "../src/lib/projects/service";
+import { approveProposal } from "../src/lib/proposals/service";
 import { updateTask } from "../src/lib/tasks/service";
 
 const DEMO = { email: "demo@saqina.test", password: "saqina-demo-2026", name: "Demo Owner" };
@@ -81,6 +84,77 @@ async function restaurantPos(actor: Actor) {
     .limit(1);
   if (first) await updateTask(actor, slug, { id: first.tasks.id, status: "done" });
   return slug;
+}
+
+/** Sends a message the way the chat does and returns the proposal it produced, if any. */
+async function say(
+  actor: Actor,
+  slug: string,
+  content: string,
+  extra: Record<string, unknown> = {},
+) {
+  let proposalId: string | null = null;
+  let conversationId: string | null = null;
+  await handleMessage(
+    actor,
+    slug,
+    { clientId: randomUUID(), content, locale: "en", ...extra },
+    (e) => {
+      if (e.type === "started") conversationId = e.conversationId;
+      if (e.type === "block" && e.block.type === "proposal") proposalId = e.block.proposalId;
+    },
+  );
+  return {
+    proposalId: proposalId as string | null,
+    conversationId: conversationId as string | null,
+  };
+}
+
+/**
+ * Phase 3 demo state on the POS project: a refund proposal waiting for approval, a completed
+ * simulated agent run, and a failed run on an agent that is not connected.
+ */
+async function restaurantAssistant(actor: Actor, slug: string) {
+  const ask = await say(actor, slug, "Add a refund system.", { fresh: true });
+  await say(actor, slug, "Always needs manager approval", { conversationId: ask.conversationId });
+
+  const open = await db
+    .select({ id: tasks.id, projectId: tasks.projectId })
+    .from(tasks)
+    .innerJoin(projects, eq(projects.id, tasks.projectId))
+    .where(and(eq(projects.slug, slug), eq(tasks.status, "todo")))
+    .limit(2);
+  const [first, second] = open;
+  if (first) {
+    const { proposalId } = await say(actor, slug, "Assign this task to an agent", {
+      context: { type: "task", id: first.id },
+      fresh: true,
+    });
+    if (proposalId) await approveProposal(actor, slug, { proposalId });
+    const [result] = await db
+      .select({ id: proposals.id })
+      .from(proposals)
+      .where(
+        and(
+          eq(proposals.projectId, first.projectId),
+          eq(proposals.type, "agent_result"),
+          eq(proposals.status, "pending"),
+        ),
+      );
+    if (result) await approveProposal(actor, slug, { proposalId: result.id });
+  }
+  if (second) {
+    const [claude] = await db
+      .select({ id: agents.id })
+      .from(agents)
+      .where(and(eq(agents.projectId, second.projectId), eq(agents.type, "claude")));
+    const { proposalId } = await say(actor, slug, "Assign this task to an agent", {
+      context: { type: "task", id: second.id },
+      fresh: true,
+    });
+    if (proposalId && claude)
+      await approveProposal(actor, slug, { proposalId, edits: { a1: { agentId: claude.id } } });
+  }
 }
 
 async function marketplace(actor: Actor) {
@@ -193,8 +267,10 @@ async function main() {
   const actor = await demoActor();
   await resetDemo(actor);
   if (process.argv.includes("--reset-demo")) return;
+  const pos = await restaurantPos(actor);
+  await restaurantAssistant(actor, pos);
   const created = [
-    await restaurantPos(actor),
+    pos,
     await marketplace(actor),
     await learningPlatform(actor),
     await agencyPortfolio(actor),

@@ -5,6 +5,8 @@ import { en as siteEn } from "@/content/site/en";
 import { id as siteId } from "@/content/site/id";
 import appEn from "../messages/app.en.json";
 import appId from "../messages/app.id.json";
+import assistantEn from "../messages/assistant.en.json";
+import assistantId from "../messages/assistant.id.json";
 import authEn from "../messages/auth.en.json";
 import authId from "../messages/auth.id.json";
 import enMessages from "../messages/en.json";
@@ -37,6 +39,7 @@ describe.each([
   ["app messages", appEn, appId],
   ["project messages", projectEn, projectId],
   ["workspace messages", workspaceEn, workspaceId],
+  ["assistant messages", assistantEn, assistantId],
   ["site content", siteEn, siteId],
   ["legal documents", legalEn, legalId],
 ])("%s", (_, en, id) => {
@@ -62,7 +65,7 @@ describe.each([
 
 describe("message files", () => {
   it("never define the same top-level namespace twice", () => {
-    const names = [enMessages, authEn, appEn, projectEn, workspaceEn].flatMap((m) =>
+    const names = [enMessages, authEn, appEn, projectEn, workspaceEn, assistantEn].flatMap((m) =>
       Object.keys(m),
     );
     expect(new Set(names).size).toBe(names.length);

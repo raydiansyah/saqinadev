@@ -1,0 +1,328 @@
+{
+  "assistant": {
+    "ask": "Tanya Saqina",
+    "askShort": "Tanya",
+    "askAbout": "Tanya Saqina tentang ini",
+    "open": "Buka Saqina",
+    "close": "Tutup Saqina",
+    "label": "Pusat perintah Saqina",
+    "placeholder": "Tanya Saqina atau minta Saqina melakukan sesuatu...",
+    "send": "Kirim",
+    "stop": "Hentikan",
+    "newConversation": "Percakapan baru",
+    "history": "Riwayat percakapan",
+    "openFull": "Buka tampilan penuh",
+    "composerHint": "Enter untuk kirim, Shift + Enter untuk baris baru",
+    "you": "Anda",
+    "saqina": "Saqina",
+    "contextLabel": "Tentang",
+    "contextClear": "Tanya tentang seluruh proyek saja",
+    "contexts": {
+      "project": "Proyek",
+      "task": "Task",
+      "requirement": "Requirement",
+      "decision": "Keputusan",
+      "document": "Dokumen",
+      "prd": "PRD",
+      "memory": "Memory"
+    },
+    "stages": {
+      "analyzing": "Memahami permintaan Anda...",
+      "context": "Membaca konteks proyek...",
+      "preparing": "Menyiapkan aksi...",
+      "writing": "Menulis balasan..."
+    },
+    "statuses": {
+      "queued": "Antre",
+      "processing": "Bekerja",
+      "completed": "Selesai",
+      "failed": "Gagal",
+      "cancelled": "Dihentikan"
+    },
+    "empty": {
+      "title": "Tanyakan tentang proyek ini atau minta Saqina mengubah sesuatu",
+      "body": "Saqina membaca proyek sebelum menjawab. Perubahan requirement, PRD, atau agent menunggu persetujuan Anda.",
+      "examples": [
+        "Apakah PRD kita sudah konsisten?",
+        "Buatkan task untuk login Google",
+        "Analisa task yang sedang blocked",
+        "Kenapa kita memilih PostgreSQL?"
+      ]
+    },
+    "loadOlder": "Muat pesan sebelumnya",
+    "loading": "Memuat percakapan...",
+    "errors": {
+      "generic": "Saqina tidak bisa menyelesaikan balasan ini.",
+      "RATE_LIMIT": "Terlalu banyak pesan. Tunggu satu menit lalu coba lagi.",
+      "AUTHENTICATION_ERROR": "Sesi Anda berakhir. Masuk lagi.",
+      "AUTHORIZATION_ERROR": "Anda tidak bisa melakukan itu di proyek ini.",
+      "NOT_FOUND": "Item itu sudah tidak ada di proyek ini.",
+      "VALIDATION_ERROR": "Pesan tidak bisa diproses. Persingkat lalu coba lagi.",
+      "CONFLICT": "Seseorang sudah mengubah ini. Muat ulang lalu coba lagi.",
+      "CANCELLED": "Dihentikan.",
+      "INTERNAL_ERROR": "Terjadi kesalahan di sisi kami.",
+      "network": "Koneksi terputus. Periksa jaringan lalu coba lagi.",
+      "ref": "Referensi: {ref}",
+      "retry": "Coba lagi"
+    },
+    "labels": {
+      "confirmed": "Terkonfirmasi",
+      "inferred": "Disimpulkan",
+      "recommended": "Direkomendasikan",
+      "unknown": "Belum diketahui"
+    },
+    "action": {
+      "title": "Diterapkan",
+      "created": "Dibuat",
+      "updated": "Diubah",
+      "deleted": "Dihapus",
+      "kinds": {
+        "task": "Task",
+        "requirement": "Requirement",
+        "memory": "Memory",
+        "decision": "Keputusan",
+        "document": "Dokumen"
+      },
+      "view": "Lihat"
+    },
+    "question": {
+      "title": "Saqina butuh jawaban",
+      "or": "Atau ketik jawaban Anda sendiri di bawah."
+    },
+    "proposal": {
+      "title": "Usulan Saqina",
+      "agentTitle": "Hasil agent",
+      "changes": "Perubahan",
+      "risk": "Risiko",
+      "risks": {
+        "low": "Rendah",
+        "medium": "Sedang",
+        "high": "Tinggi"
+      },
+      "categories": {
+        "read": "Baca",
+        "write": "Tulis",
+        "destructive": "Destruktif",
+        "external": "Eksternal",
+        "agent": "Agent"
+      },
+      "approve": "Setujui",
+      "reject": "Tolak",
+      "requestChanges": "Minta perubahan",
+      "edit": "Ubah",
+      "doneEditing": "Selesai mengubah",
+      "notePlaceholder": "Apa yang perlu diubah?",
+      "sendRevision": "Kirim permintaan",
+      "cancel": "Batal",
+      "statuses": {
+        "pending": "Menunggu persetujuan",
+        "approved": "Disetujui",
+        "rejected": "Ditolak",
+        "revision_requested": "Diminta perubahan",
+        "cancelled": "Dibatalkan",
+        "expired": "Kedaluwarsa"
+      },
+      "reviewedBy": "{status} oleh {name}",
+      "applied": "Yang diterapkan",
+      "notApplied": "Belum ada yang diterapkan.",
+      "skip": "Sertakan langkah ini",
+      "optional": "Opsional",
+      "types": {
+        "CREATE_TASK": "Task baru",
+        "UPDATE_TASK": "Ubah task",
+        "DELETE_TASK": "Hapus task",
+        "CREATE_REQUIREMENT": "Requirement baru",
+        "UPDATE_REQUIREMENT": "Ubah requirement",
+        "APPEND_PRD": "Bagian PRD",
+        "CREATE_MEMORY": "Memory baru",
+        "CREATE_DECISION": "Keputusan baru",
+        "ASSIGN_AGENT": "Tugaskan agent"
+      },
+      "fields": {
+        "title": "Judul",
+        "priority": "Prioritas",
+        "description": "Deskripsi",
+        "body": "Isi",
+        "agent": "Agent",
+        "content": "Isi",
+        "instructions": "Instruksi",
+        "reason": "Alasan"
+      },
+      "before": "Sebelum",
+      "after": "Sesudah",
+      "priorities": {
+        "critical": "Kritis",
+        "high": "Tinggi",
+        "medium": "Sedang",
+        "low": "Rendah"
+      },
+      "taskStep": "task baru \"{title}\"",
+      "approved": "Disetujui. Perubahan diterapkan.",
+      "failed": "Usulan ini tidak bisa diterapkan."
+    },
+    "run": {
+      "title": "Run agent",
+      "simulated": "Simulasi",
+      "open": "Buka run",
+      "statuses": {
+        "queued": "Antre",
+        "running": "Berjalan",
+        "waiting": "Menunggu review",
+        "blocked": "Terblokir",
+        "paused": "Dijeda",
+        "completed": "Selesai",
+        "failed": "Gagal",
+        "cancelled": "Dibatalkan"
+      }
+    },
+    "page": {
+      "title": "Saqina",
+      "description": "Bicara dengan Saqina tentang proyek ini. Jawaban berasal dari data proyek; perubahan tercatat di Aktivitas.",
+      "conversations": "Percakapan",
+      "noConversations": "Belum ada percakapan.",
+      "newConversation": "Percakapan baru",
+      "untitled": "Tanpa judul"
+    },
+    "model": {
+      "rules": "Jawaban dari aturan proyek",
+      "model": "Jawaban oleh {model}"
+    },
+    "pages": {
+      "metaTitle": "Saqina",
+      "conversationsCount": "Percakapan ({count})",
+      "draft": "Percakapan baru (belum tersimpan)",
+      "current": "Percakapan saat ini"
+    },
+    "approvals": {
+      "metaTitle": "Persetujuan",
+      "title": "Persetujuan",
+      "description": "Perubahan yang diusulkan Saqina dan agennya. Tidak ada yang diterapkan sebelum disetujui.",
+      "waiting": "Menunggu persetujuan",
+      "history": "Riwayat",
+      "emptyTitle": "Tidak ada yang menunggu persetujuan",
+      "emptyBody": "Saat Saqina atau agen mengusulkan perubahan, usulan itu muncul di sini untuk ditinjau.",
+      "noHistory": "Belum ada usulan yang diputuskan.",
+      "readOnly": "Anda dapat melihat usulan. Hanya editor dan pemilik yang dapat menyetujuinya."
+    },
+    "agents": {
+      "team": "Tim",
+      "teamHint": "Agen spesialis Saqina. Pada fase ini mereka berjalan sebagai simulasi dan hanya mengusulkan perubahan.",
+      "tools": "Agen alat",
+      "toolsHint": "Alat coding eksternal. Belum terhubung.",
+      "provider": "Penyedia",
+      "simulated": "Disimulasikan pada fase ini",
+      "activeRuns": "{count, plural, other {# run aktif}}",
+      "capabilitiesHeading": "Kemampuan",
+      "capabilitiesHint": "Keahliannya",
+      "permissionsHeading": "Izin",
+      "permissionsHint": "Apa yang boleh disentuhnya",
+      "can": "Boleh: {list}",
+      "never": "Tidak pernah pada fase ini: {list}",
+      "roles": {
+        "general": "Umum",
+        "planner": "Perencana",
+        "frontend": "Frontend",
+        "backend": "Backend",
+        "qa": "QA",
+        "docs": "Dokumentasi"
+      },
+      "capabilities": {
+        "planning": "Perencanaan",
+        "research": "Riset",
+        "frontend": "Frontend",
+        "backend": "Backend",
+        "database": "Basis data",
+        "testing": "Pengujian",
+        "security": "Keamanan",
+        "documentation": "Dokumentasi",
+        "code_review": "Tinjauan kode",
+        "browser": "Peramban",
+        "filesystem": "Sistem berkas",
+        "git": "Git"
+      },
+      "permissions": {
+        "read_project": "membaca proyek",
+        "read_prd": "membaca PRD",
+        "read_tasks": "membaca tugas",
+        "read_memory": "membaca memori",
+        "write_tasks": "mengusulkan tugas",
+        "write_memory": "mengusulkan memori",
+        "write_documents": "mengusulkan dokumen",
+        "write_requirements": "mengusulkan kebutuhan",
+        "git_push": "push ke repositori",
+        "deploy": "deploy",
+        "delete_project": "menghapus proyek"
+      },
+      "runs": "Run",
+      "runsHint": "Semua run agen di proyek ini, terbaru lebih dulu.",
+      "noRuns": "Belum ada run agen. Minta Saqina menugaskan sebuah tugas ke agen.",
+      "attempt": "Percobaan {n}",
+      "noTask": "Tanpa tugas",
+      "openRun": "Buka run",
+      "run": {
+        "metaTitle": "Run agen",
+        "back": "Kembali ke agen",
+        "task": "Tugas",
+        "started": "Dimulai {time}",
+        "simulatedNotice": "Simulasi: tidak ada kode, repositori, atau deployment yang disentuh.",
+        "failedTitle": "Penyebab gagal",
+        "execution_unavailable": "Lingkungan eksekusi tidak tersedia: agen ini belum terhubung ke Saqina, jadi tidak ada yang dijalankan.",
+        "failedGeneric": "Agen tidak dapat menyelesaikan run ini. Coba lagi atau serahkan tugas ke agen lain.",
+        "timeline": "Linimasa",
+        "noEvents": "Belum ada kejadian yang tercatat.",
+        "events": {
+          "AGENT_ASSIGNED": "Ditugaskan ke agen",
+          "AGENT_STARTED": "Run dimulai",
+          "AGENT_THINKING": "Sedang bekerja",
+          "AGENT_WAITING": "Menunggu tinjauan Anda",
+          "AGENT_BLOCKED": "Terhambat",
+          "AGENT_PAUSED": "Dijeda",
+          "AGENT_COMPLETED": "Selesai",
+          "AGENT_FAILED": "Gagal",
+          "AGENT_CANCELLED": "Dibatalkan",
+          "other": "Kejadian"
+        },
+        "steps": {
+          "context_loaded": "Memuat konteks proyek",
+          "prd_analyzed": "Membaca PRD",
+          "execution_started": "Mulai mengerjakan tugas",
+          "proposal_generated": "Menyiapkan usulan"
+        },
+        "result": "Hasil",
+        "noResult": "Belum ada hasil.",
+        "summary": "Ringkasan",
+        "issues": "Masalah",
+        "recommendations": "Rekomendasi",
+        "artifacts": "Artefak",
+        "simulatedResult": "Hasil ini dibuat oleh simulasi.",
+        "proposal": "Tinjau perubahan yang diusulkan di Persetujuan",
+        "controls": "Kontrol",
+        "retry": "Coba lagi",
+        "cancel": "Batalkan run",
+        "pause": "Jeda",
+        "resume": "Lanjutkan",
+        "reassign": "Alihkan",
+        "reassignTitle": "Serahkan tugas ini ke agen lain",
+        "agent": "Agen",
+        "notConnected": "belum terhubung",
+        "instructions": "Instruksi (opsional)",
+        "instructionsHint": "Beri tahu agen apa yang perlu dilakukan berbeda.",
+        "submitReassign": "Alihkan dan mulai",
+        "close": "Tutup",
+        "cancelledNote": "Tidak ada proses eksternal yang berjalan; run ditandai dibatalkan.",
+        "readOnly": "Hanya editor dan pemilik yang dapat mengontrol run."
+      }
+    },
+    "overview": {
+      "attention": "Perlu perhatian",
+      "approvals": "{count, plural, other {# usulan menunggu persetujuan}}",
+      "failedRuns": "{count, plural, other {# run agen gagal}}",
+      "blockedTasks": "{count, plural, other {# tugas terhambat}}",
+      "nothing": "Tidak ada yang perlu Anda tangani saat ini.",
+      "agentActivity": "Aktivitas agen",
+      "allRuns": "Semua run",
+      "noRuns": "Belum ada aktivitas agen.",
+      "needAttention": "{count, plural, other {# perlu perhatian}}"
+    }
+  }
+}

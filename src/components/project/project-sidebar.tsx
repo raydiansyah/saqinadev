@@ -9,6 +9,8 @@ export interface SidebarProject {
   slug: string;
   name: string;
   statusLabel: string;
+  /** Proposals waiting for review; shown as a count next to Approvals. */
+  pendingApprovals?: number;
 }
 
 /** Project-aware navigation. The current page is marked with aria-current and a bar. */
@@ -64,6 +66,12 @@ export function ProjectSidebarNav({
                       )}
                     >
                       {t(`items.${item.key}`)}
+                      {item.key === "approvals" && project.pendingApprovals ? (
+                        <span className="ml-auto rounded-md border border-warning/50 px-1.5 font-mono text-xs text-warning">
+                          {project.pendingApprovals}
+                          <span className="sr-only"> {t("pending")}</span>
+                        </span>
+                      ) : null}
                     </Link>
                   </li>
                 );

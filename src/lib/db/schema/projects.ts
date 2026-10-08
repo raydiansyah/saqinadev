@@ -12,6 +12,7 @@ import {
 } from "drizzle-orm/pg-core";
 import type {
   AnswerSource,
+  ApprovalPolicy,
   BuildStrategy,
   DeployProvider,
   InterviewStatus,
@@ -85,6 +86,11 @@ export const projectSettings = pgTable("project_settings", {
   domain: text("domain"),
   aiProvider: text("ai_provider"),
   aiModel: text("ai_model"),
+  /** Whether low-risk assistant writes run immediately or always wait for approval. */
+  approvalPolicy: text("approval_policy")
+    .$type<ApprovalPolicy>()
+    .notNull()
+    .default("auto_low_risk"),
   updatedAt: updatedAt(),
 });
 

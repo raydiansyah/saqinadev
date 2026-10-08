@@ -10,7 +10,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
     title: "Privacy Policy",
     description:
       "How Saqina Dev handles your data: your account, your projects, what stays in your browser and your rights.",
-    updated: "2026-10-07",
+    updated: "2026-10-08",
     intro:
       "This policy explains how Saqina Dev handles personal data on this website: the public pages and preview, your account and the project workspaces you create.",
     sections: [
@@ -32,6 +32,9 @@ export const en: Record<LegalDocId, LegalDocument> = {
           },
           {
             p: "Projects. Everything you enter in a project is stored in our database so it is there when you come back: interview answers, requirements, documents such as the PRD and plan, tasks, memory, decisions, agent preferences, project settings and a log of changes (who changed what and when).",
+          },
+          {
+            p: "Conversations with Saqina. Your messages to the in-app assistant, its replies, the changes it proposes and the logs of agent runs are stored with the project. Conversations are visible only to you; changes they lead to appear in the project's activity log, which every project member can see.",
           },
           {
             p: "Sessions and security. We store your active sessions with the IP address and browser type used to sign in, so you can stay signed in and so we can protect accounts.",
@@ -70,7 +73,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
               "We do not use analytics, advertising or social media trackers.",
               "We do not sell or rent personal data.",
               "We do not load fonts or scripts from third-party servers; fonts are served from our own domain.",
-              "We do not send your project data to any AI provider. Recommendations and generated documents come from deterministic rules running on our servers.",
+              "We do not send your project data to an AI provider unless the optional AI assistant is enabled for the service. Without it, recommendations, documents and Saqina's answers come from deterministic rules on our servers. When it is enabled, only the project context needed to answer a message is sent to [AI PROVIDER] [CONFIRM: the provider's data retention and model-training terms]. Changes to your project are always validated by our own rules before they are applied.",
             ],
           },
         ],
@@ -92,7 +95,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
         heading: "Who receives data",
         blocks: [
           {
-            p: "Data is processed on our behalf by [HOSTING PROVIDER] (hosting), [DATABASE PROVIDER] (database) and [EMAIL PROVIDER] (transactional email), as data processors. If you sign in with Google, Google processes that sign-in under its own terms. We disclose data to authorities only when Indonesian law requires it.",
+            p: "Data is processed on our behalf by [HOSTING PROVIDER] (hosting), [DATABASE PROVIDER] (database), [EMAIL PROVIDER] (transactional email) and, only when the AI assistant is enabled, [AI PROVIDER] (language model), as data processors. If you sign in with Google, Google processes that sign-in under its own terms. We disclose data to authorities only when Indonesian law requires it.",
           },
           {
             p: "These providers may store data outside Indonesia, in [HOSTING REGION]. Where data leaves Indonesia, we rely on the safeguards required by UU PDP for cross-border transfers.",
@@ -151,7 +154,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
         heading: "Changes to this policy",
         blocks: [
           {
-            p: "AI features, integrations with services such as GitHub or Vercel, and payments arrive in later phases and will change what we process. We will update this policy before those features go live and show the new date at the top of this page.",
+            p: "Real agent execution, integrations with services such as GitHub or Vercel, and payments arrive in later phases and will change what we process. We will update this policy before those features go live and show the new date at the top of this page.",
           },
         ],
       },
@@ -162,7 +165,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
     title: "Terms and Conditions",
     description:
       "The terms for using Saqina Dev: your account, your projects, what the service is and is not, and the rules that apply.",
-    updated: "2026-10-07",
+    updated: "2026-10-08",
     intro:
       "These terms apply to your use of the Saqina Dev website and service. By creating an account or using the website you agree to them. If you do not agree, please do not use Saqina Dev.",
     sections: [
@@ -180,10 +183,10 @@ export const en: Record<LegalDocId, LegalDocument> = {
         heading: "What the service is",
         blocks: [
           {
-            p: "Saqina Dev turns a project idea into a structured project workspace: an interview, requirements, recommendations, a PRD, a plan, tasks, project memory, decisions and an agent context preview.",
+            p: "Saqina Dev turns a project idea into a structured project workspace: an interview, requirements, recommendations, a PRD, a plan, tasks, project memory, decisions, an assistant (Saqina) that can answer questions and propose or apply changes, an approval queue and agent assignments.",
           },
           {
-            p: "Features labelled Planned, such as building with AI agents, Git, CI/CD, MCP, approvals and deployment, are not available yet. No code is generated, no repository is created and nothing is deployed.",
+            p: "Agent runs are simulated in this phase: Saqina prepares proposals from your project data, but no code is generated, no repository is touched and nothing is deployed. Features labelled Planned, such as connected AI agents, Git, CI/CD, MCP and deployment, are not available yet.",
           },
           { p: "There are no subscriptions or payments at this time." },
         ],
@@ -202,7 +205,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
         heading: "Recommendations are not professional advice",
         blocks: [
           {
-            p: "Recommendations and generated documents come from a deterministic rule engine. They are a starting point for planning, not legal, financial, security or engineering advice, and they may be incomplete or wrong for your situation.",
+            p: "Recommendations, generated documents, Saqina's answers and agent results come from a deterministic rule engine and, where enabled, an AI model. They are a starting point for planning, not legal, financial, security or engineering advice, and they may be incomplete or wrong for your situation. Changes that need approval are applied only after a project member approves them.",
           },
           {
             p: "You remain responsible for decisions you make and for checking any recommendation before you rely on it.",
@@ -291,7 +294,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
         heading: "Changes to these terms",
         blocks: [
           {
-            p: "We will update these terms before payments, AI features or integrations become available, show the new date at the top of this page and tell account holders by email about material changes.",
+            p: "We will update these terms before payments, real agent execution or integrations become available, show the new date at the top of this page and tell account holders by email about material changes.",
           },
         ],
       },

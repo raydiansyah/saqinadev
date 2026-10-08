@@ -33,7 +33,9 @@
       "startFirstTask": "Start First Task",
       "reviewWork": "Review Work",
       "continueBuilding": "Continue Building",
-      "restoreProject": "Restore Project"
+      "restoreProject": "Restore Project",
+      "reviewProposal": "Review pending approvals",
+      "inspectAgentFailure": "Inspect agent failure"
     },
     "nextActionHints": {
       "continueInterview": "A few answers are still missing before the project can be structured.",
@@ -45,7 +47,9 @@
       "startFirstTask": "The plan is approved. Move the first task to in progress.",
       "reviewWork": "Work is waiting for review.",
       "continueBuilding": "Pick up the next task.",
-      "restoreProject": "This project is archived. Restore it to keep working."
+      "restoreProject": "This project is archived. Restore it to keep working.",
+      "reviewProposal": "Saqina or an agent prepared changes that wait for your approval. Nothing is applied until you approve.",
+      "inspectAgentFailure": "An agent run failed. See why, then retry, reassign or cancel it."
     },
     "sidebar": {
       "label": "Project",
@@ -60,6 +64,8 @@
       },
       "items": {
         "overview": "Overview",
+        "assistant": "Saqina",
+        "approvals": "Approvals",
         "interview": "Interview",
         "requirements": "Requirements",
         "prd": "PRD",
@@ -71,7 +77,8 @@
         "agents": "Agents",
         "activity": "Activity",
         "settings": "Settings"
-      }
+      },
+      "pending": "waiting"
     },
     "header": {
       "updated": "Last updated {time}",
@@ -259,7 +266,19 @@
       "deleteConfirmLabel": "Type the project name to confirm",
       "deleteMismatch": "The name does not match.",
       "invalidUrl": "Enter a full URL starting with https://",
-      "invalidDomain": "Enter a domain such as app.example.com"
+      "invalidDomain": "Enter a domain such as app.example.com",
+      "assistant": "Assistant",
+      "assistantHint": "How Saqina handles changes it makes from a conversation.",
+      "approvalPolicy": "Approval policy",
+      "policies": {
+        "auto_low_risk": "Run low-risk changes right away (tasks, memory, decisions); always ask for requirements, the PRD, deletions and agents",
+        "always": "Ask me before every change"
+      },
+      "aiMode": "Answers come from",
+      "aiRules": "Project rules (no AI provider configured)",
+      "aiModelActive": "Claude ({model})",
+      "aiModeHint": "Configured on the server. Keys are never shown here.",
+      "managedDeploy": "Managed by Saqina: previews and production deploy to {domain}."
     }
   }
 }

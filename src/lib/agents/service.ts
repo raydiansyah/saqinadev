@@ -48,12 +48,20 @@ export async function setPreferredAgent(actor: Actor, slug: string, input: unkno
     const [target] = await tx
       .select({ id: agents.id })
       .from(agents)
-      .where(and(eq(agents.projectId, project.id), eq(agents.type, type)));
+      .where(
+        and(eq(agents.projectId, project.id), eq(agents.type, type), eq(agents.role, "general")),
+      );
     if (!target) throw new AppError("NOT_FOUND");
     await tx
       .update(agents)
       .set({ status: "available" })
-      .where(and(eq(agents.projectId, project.id), eq(agents.status, "pending")));
+      .where(
+        and(
+          eq(agents.projectId, project.id),
+          eq(agents.status, "pending"),
+          eq(agents.role, "general"),
+        ),
+      );
     await tx.update(agents).set({ status: "pending" }).where(eq(agents.id, target.id));
     await tx
       .update(projects)
@@ -80,7 +88,9 @@ export async function updateAgentConfiguration(actor: Actor, slug: string, input
     const [row] = await tx
       .update(agents)
       .set({ configuration })
-      .where(and(eq(agents.projectId, project.id), eq(agents.type, type)))
+      .where(
+        and(eq(agents.projectId, project.id), eq(agents.type, type), eq(agents.role, "general")),
+      )
       .returning({ id: agents.id });
     if (!row) throw new AppError("NOT_FOUND");
     await recordActivity(tx, {

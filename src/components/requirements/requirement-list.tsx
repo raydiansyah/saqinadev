@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { deleteRequirementAction } from "@/app/[locale]/(app)/project/[slug]/requirements/actions";
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
 import { EmptyState } from "@/components/app/states";
+import { AskSaqinaButton } from "@/components/assistant/command-center";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/form";
 import {
@@ -127,35 +128,40 @@ export function RequirementList({
                           </p>
                         ) : null}
                       </div>
-                      {canEdit ? (
-                        <div className="flex shrink-0 gap-1">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            aria-label={`${states("edit")}: ${r.title}`}
-                            onClick={() =>
-                              setEditing({
-                                id: r.id,
-                                group: r.group,
-                                title: r.title,
-                                description: r.description,
-                                priority: r.priority,
-                                status: r.status,
-                              })
-                            }
-                          >
-                            {states("edit")}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            aria-label={`${states("delete")}: ${r.title}`}
-                            onClick={() => setDeleting(r)}
-                          >
-                            {states("delete")}
-                          </Button>
-                        </div>
-                      ) : null}
+                      <div className="flex shrink-0 flex-wrap gap-1">
+                        <AskSaqinaButton
+                          context={{ type: "requirement", id: r.id, label: r.title }}
+                        />
+                        {canEdit ? (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              aria-label={`${states("edit")}: ${r.title}`}
+                              onClick={() =>
+                                setEditing({
+                                  id: r.id,
+                                  group: r.group,
+                                  title: r.title,
+                                  description: r.description,
+                                  priority: r.priority,
+                                  status: r.status,
+                                })
+                              }
+                            >
+                              {states("edit")}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              aria-label={`${states("delete")}: ${r.title}`}
+                              onClick={() => setDeleting(r)}
+                            >
+                              {states("delete")}
+                            </Button>
+                          </>
+                        ) : null}
+                      </div>
                     </div>
                     <dl className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs">
                       <div className="flex gap-1">

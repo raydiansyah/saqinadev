@@ -2,16 +2,18 @@ import "server-only";
 import { and, count, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 import type { Executor } from "@/lib/db/client";
 import {
+  agentRuns,
   documents,
   interviews,
   projectMembers,
   projectSettings,
   projects,
+  proposals,
   requirements,
   tasks,
 } from "@/lib/db/schema";
 import type { TaskStatus } from "@/lib/domain/enums";
-import { EMPTY_TASK_COUNTS, type ProjectSnapshot } from "./progress";
+import { EMPTY_TASK_COUNTS, NO_ATTENTION, type ProjectSnapshot } from "./progress";
 
 export type ProjectRow = typeof projects.$inferSelect;
 export type ProjectSettingsRow = typeof projectSettings.$inferSelect;
@@ -43,7 +45,7 @@ export async function loadSnapshots(
   const result = new Map<string, ProjectSnapshot>();
   if (ids.length === 0) return result;
 
-  const [interviewRows, reqRows, prdRows, taskRows] = await Promise.all([
+  const [interviewRows, reqRows, prdRows, taskRows, proposalRows, runRows] = await Promise.all([
     executor
       .selectDistinctOn([interviews.projectId], {
         projectId: interviews.projectId,
@@ -71,6 +73,22 @@ export async function loadSnapshots(
       .from(tasks)
       .where(inArray(tasks.projectId, ids))
       .groupBy(tasks.projectId, tasks.status),
+    executor
+      .select({ projectId: proposals.projectId, n: count() })
+      .from(proposals)
+      .where(and(inArray(proposals.projectId, ids), eq(proposals.status, "pending")))
+      .groupBy(proposals.projectId),
+    executor
+      .select({ projectId: agentRuns.projectId, status: agentRuns.status, n: count() })
+      .from(agentRuns)
+      .where(
+        and(
+          inArray(agentRuns.projectId, ids),
+          // Failed runs count only until someone retries or cancels them.
+          inArray(agentRuns.status, ["queued", "running", "waiting", "paused", "failed"]),
+        ),
+      )
+      .groupBy(agentRuns.projectId, agentRuns.status),
   ]);
 
   for (const p of list) {
@@ -82,7 +100,19 @@ export async function loadSnapshots(
       conflictingRequirements: 0,
       prdStatus: null,
       tasks: { ...EMPTY_TASK_COUNTS },
+      attention: { ...NO_ATTENTION },
     });
+  }
+  for (const r of proposalRows) {
+    const a = result.get(r.projectId)?.attention;
+    if (a) a.pendingProposals = r.n;
+  }
+  for (const r of runRows) {
+    const a = result.get(r.projectId)?.attention;
+    if (!a) continue;
+    if (r.status === "failed") a.failedRuns += r.n;
+    else if (r.status === "waiting") a.waitingRuns += r.n;
+    else a.activeRuns += r.n;
   }
   for (const r of interviewRows) {
     const s = result.get(r.projectId);

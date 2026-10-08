@@ -8,6 +8,7 @@ import { requireActor } from "@/lib/auth/server";
 import {
   deleteProject,
   setProjectArchived,
+  updateApprovalPolicy,
   updateProjectGeneral,
   updateProjectSettings,
 } from "@/lib/projects/service";
@@ -24,6 +25,13 @@ export async function updateGeneralAction(slug: string, input: unknown) {
 export async function updateSettingsAction(slug: string, input: unknown) {
   return runAction("project.settings", { slug }, async () => {
     await updateProjectSettings(await requireActor(), slug, input);
+    refresh();
+  });
+}
+
+export async function updateApprovalPolicyAction(slug: string, input: unknown) {
+  return runAction("project.approvalPolicy", { slug }, async () => {
+    await updateApprovalPolicy(await requireActor(), slug, input);
     refresh();
   });
 }

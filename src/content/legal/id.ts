@@ -10,7 +10,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
     title: "Kebijakan Privasi",
     description:
       "Cara Saqina Dev menangani data Anda: akun, proyek, apa yang tetap di browser, dan hak Anda.",
-    updated: "2026-10-07",
+    updated: "2026-10-08",
     intro:
       "Kebijakan ini menjelaskan cara Saqina Dev menangani data pribadi di situs ini: halaman publik dan pratinjau, akun Anda, serta workspace proyek yang Anda buat.",
     sections: [
@@ -32,6 +32,9 @@ export const id: Record<LegalDocId, LegalDocument> = {
           },
           {
             p: "Proyek. Semua yang Anda masukkan ke proyek disimpan di database kami agar tetap ada saat Anda kembali: jawaban interview, requirement, dokumen seperti PRD dan plan, task, memory, keputusan, preferensi agent, pengaturan proyek, dan catatan perubahan (siapa mengubah apa dan kapan).",
+          },
+          {
+            p: "Percakapan dengan Saqina. Pesan Anda ke asisten di aplikasi, balasannya, perubahan yang diusulkannya, dan log run agent disimpan bersama proyek. Percakapan hanya terlihat oleh Anda; perubahan yang dihasilkannya tercatat di log aktivitas proyek yang bisa dilihat semua anggota proyek.",
           },
           {
             p: "Sesi dan keamanan. Kami menyimpan sesi aktif Anda beserta alamat IP dan jenis browser yang dipakai untuk masuk, agar Anda tetap masuk dan agar akun dapat dilindungi.",
@@ -70,7 +73,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
               "Kami tidak memakai analitik, iklan, atau pelacak media sosial.",
               "Kami tidak menjual atau menyewakan data pribadi.",
               "Kami tidak memuat font atau skrip dari server pihak ketiga; font disajikan dari domain kami sendiri.",
-              "Kami tidak mengirim data proyek Anda ke penyedia AI mana pun. Rekomendasi dan dokumen yang dibuat berasal dari aturan deterministik yang berjalan di server kami.",
+              "Kami tidak mengirim data proyek Anda ke penyedia AI kecuali asisten AI opsional diaktifkan untuk layanan ini. Tanpa itu, rekomendasi, dokumen, dan jawaban Saqina berasal dari aturan deterministik di server kami. Jika diaktifkan, hanya konteks proyek yang diperlukan untuk menjawab sebuah pesan yang dikirim ke [PENYEDIA AI] [KONFIRMASI: ketentuan penyimpanan data dan pelatihan model dari penyedia]. Perubahan pada proyek Anda selalu divalidasi oleh aturan kami sendiri sebelum diterapkan.",
             ],
           },
         ],
@@ -92,7 +95,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Siapa yang menerima data",
         blocks: [
           {
-            p: "Data diproses atas nama kami oleh [PENYEDIA HOSTING] (hosting), [PENYEDIA DATABASE] (database), dan [PENYEDIA EMAIL] (email transaksional) sebagai prosesor data. Jika Anda masuk dengan Google, Google memproses proses masuk itu berdasarkan ketentuannya sendiri. Kami mengungkapkan data kepada otoritas hanya jika diwajibkan hukum Indonesia.",
+            p: "Data diproses atas nama kami oleh [PENYEDIA HOSTING] (hosting), [PENYEDIA DATABASE] (database), [PENYEDIA EMAIL] (email transaksional), dan, hanya jika asisten AI diaktifkan, [PENYEDIA AI] (model bahasa) sebagai prosesor data. Jika Anda masuk dengan Google, Google memproses proses masuk itu berdasarkan ketentuannya sendiri. Kami mengungkapkan data kepada otoritas hanya jika diwajibkan hukum Indonesia.",
           },
           {
             p: "Penyedia ini dapat menyimpan data di luar Indonesia, di [WILAYAH HOSTING]. Jika data keluar dari Indonesia, kami mengandalkan perlindungan yang diwajibkan UU PDP untuk transfer lintas negara.",
@@ -151,7 +154,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Perubahan kebijakan ini",
         blocks: [
           {
-            p: "Fitur AI, integrasi dengan layanan seperti GitHub atau Vercel, dan pembayaran hadir di fase berikutnya dan akan mengubah data yang kami proses. Kami akan memperbarui kebijakan ini sebelum fitur tersebut aktif dan menampilkan tanggal baru di bagian atas halaman ini.",
+            p: "Eksekusi agent sungguhan, integrasi dengan layanan seperti GitHub atau Vercel, dan pembayaran hadir di fase berikutnya dan akan mengubah data yang kami proses. Kami akan memperbarui kebijakan ini sebelum fitur tersebut aktif dan menampilkan tanggal baru di bagian atas halaman ini.",
           },
         ],
       },
@@ -162,7 +165,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
     title: "Syarat dan Ketentuan",
     description:
       "Ketentuan penggunaan Saqina Dev: akun, proyek, apa layanan ini dan apa yang bukan, serta aturan yang berlaku.",
-    updated: "2026-10-07",
+    updated: "2026-10-08",
     intro:
       "Ketentuan ini berlaku untuk penggunaan situs dan layanan Saqina Dev. Dengan membuat akun atau memakai situs, Anda menyetujuinya. Jika tidak setuju, mohon jangan memakai Saqina Dev.",
     sections: [
@@ -180,10 +183,10 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Apa layanan ini",
         blocks: [
           {
-            p: "Saqina Dev mengubah ide proyek menjadi workspace proyek yang terstruktur: interview, requirement, rekomendasi, PRD, plan, task, memory proyek, keputusan, dan pratinjau konteks agent.",
+            p: "Saqina Dev mengubah ide proyek menjadi workspace proyek yang terstruktur: interview, requirement, rekomendasi, PRD, plan, task, memory proyek, keputusan, asisten (Saqina) yang bisa menjawab pertanyaan serta mengusulkan atau menerapkan perubahan, antrean persetujuan, dan penugasan agent.",
           },
           {
-            p: "Fitur berlabel Direncanakan, seperti membangun dengan agent AI, Git, CI/CD, MCP, persetujuan, dan deployment, belum tersedia. Tidak ada kode yang dibuat, tidak ada repository yang dibuat, dan tidak ada yang di-deploy.",
+            p: "Run agent pada fase ini disimulasikan: Saqina menyiapkan usulan dari data proyek Anda, tetapi tidak ada kode yang dibuat, tidak ada repository yang disentuh, dan tidak ada yang di-deploy. Fitur berlabel Direncanakan, seperti agent AI yang terhubung, Git, CI/CD, MCP, dan deployment, belum tersedia.",
           },
           { p: "Saat ini tidak ada langganan atau pembayaran." },
         ],
@@ -202,7 +205,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Rekomendasi bukan nasihat profesional",
         blocks: [
           {
-            p: "Rekomendasi dan dokumen yang dibuat berasal dari mesin aturan deterministik. Itu adalah titik awal perencanaan, bukan nasihat hukum, keuangan, keamanan, atau teknik, dan bisa saja tidak lengkap atau tidak tepat untuk situasi Anda.",
+            p: "Rekomendasi, dokumen yang dibuat, jawaban Saqina, dan hasil agent berasal dari mesin aturan deterministik dan, jika diaktifkan, model AI. Itu adalah titik awal perencanaan, bukan nasihat hukum, keuangan, keamanan, atau teknik, dan bisa saja tidak lengkap atau tidak tepat untuk situasi Anda. Perubahan yang perlu persetujuan hanya diterapkan setelah anggota proyek menyetujuinya.",
           },
           {
             p: "Anda tetap bertanggung jawab atas keputusan yang Anda ambil dan untuk memeriksa rekomendasi sebelum mengandalkannya.",
@@ -291,7 +294,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Perubahan ketentuan ini",
         blocks: [
           {
-            p: "Kami akan memperbarui ketentuan ini sebelum pembayaran, fitur AI, atau integrasi tersedia, menampilkan tanggal baru di bagian atas halaman ini, dan memberi tahu pemilik akun melalui email tentang perubahan yang material.",
+            p: "Kami akan memperbarui ketentuan ini sebelum pembayaran, eksekusi agent sungguhan, atau integrasi tersedia, menampilkan tanggal baru di bagian atas halaman ini, dan memberi tahu pemilik akun melalui email tentang perubahan yang material.",
           },
         ],
       },

@@ -12,6 +12,7 @@ const LOADERS: Record<Locale, () => Promise<Record<string, unknown>[]>> = {
       import("../../messages/app.en.json"),
       import("../../messages/project.en.json"),
       import("../../messages/workspace.en.json"),
+      import("../../messages/assistant.en.json"),
     ]).then((files) => files.map((f) => f.default)),
   id: () =>
     Promise.all([
@@ -20,6 +21,7 @@ const LOADERS: Record<Locale, () => Promise<Record<string, unknown>[]>> = {
       import("../../messages/app.id.json"),
       import("../../messages/project.id.json"),
       import("../../messages/workspace.id.json"),
+      import("../../messages/assistant.id.json"),
     ]).then((files) => files.map((f) => f.default)),
 };
 

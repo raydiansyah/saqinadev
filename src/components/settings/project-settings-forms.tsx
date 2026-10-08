@@ -141,6 +141,9 @@ export function TechnicalForm({
   const states = useTranslations("app.states");
   const id = useId();
   const save = useSave();
+  const [strategy, setStrategy] = useState(values.buildStrategy);
+  // Building with Saqina always deploys to <slug>.saqina.dev: nothing to configure.
+  const managedDeploy = strategy === "saqina";
   const text = (name: keyof SettingsValues, label: string, error?: string) => (
     <Field
       id={`${id}-${name}`}
@@ -162,9 +165,12 @@ export function TechnicalForm({
             repoProvider: form.get("repoProvider") || null,
             repoUrl: form.get("repoUrl") ?? "",
             defaultBranch: form.get("defaultBranch") ?? "",
-            deployProvider: form.get("deployProvider") || null,
-            environment: form.get("environment") ?? "",
-            domain: form.get("domain") ?? "",
+            // Hidden deploy fields keep their stored values instead of being cleared.
+            deployProvider: managedDeploy
+              ? values.deployProvider || null
+              : form.get("deployProvider") || null,
+            environment: managedDeploy ? values.environment : (form.get("environment") ?? ""),
+            domain: managedDeploy ? values.domain : (form.get("domain") ?? ""),
             aiProvider: form.get("aiProvider") ?? "",
             aiModel: form.get("aiModel") ?? "",
           }),
@@ -176,7 +182,8 @@ export function TechnicalForm({
           id={`${id}-strategy`}
           name="buildStrategy"
           label={t("buildStrategy")}
-          defaultValue={values.buildStrategy}
+          value={strategy}
+          onChange={(e) => setStrategy(e.target.value as typeof strategy)}
           disabled={!canEdit}
         >
           {BUILD_STRATEGIES.map((s) => (
@@ -204,22 +211,33 @@ export function TechnicalForm({
           </Select>
           {text("repoUrl", t("repoUrl"), save.fields.repoUrl ? t("invalidUrl") : undefined)}
           {text("defaultBranch", t("defaultBranch"))}
-          <Select
-            id={`${id}-deployProvider`}
-            name="deployProvider"
-            label={t("deployProvider")}
-            defaultValue={values.deployProvider}
-            disabled={!canEdit}
-          >
-            <option value="">{t("notSet")}</option>
-            {DEPLOY_PROVIDERS.map((p) => (
-              <option key={p} value={p}>
-                {p === "vercel" ? "Vercel" : p === "self-hosted" ? "Self-hosted" : "Other"}
-              </option>
-            ))}
-          </Select>
-          {text("environment", t("environment"))}
-          {text("domain", t("domain"), save.fields.domain ? t("invalidDomain") : undefined)}
+          {managedDeploy ? (
+            <div className="sm:col-span-2">
+              <p className="text-sm font-medium">{t("deployProvider")}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t("managedDeploy", { domain: `${slug}.saqina.dev` })}
+              </p>
+            </div>
+          ) : (
+            <>
+              <Select
+                id={`${id}-deployProvider`}
+                name="deployProvider"
+                label={t("deployProvider")}
+                defaultValue={values.deployProvider}
+                disabled={!canEdit}
+              >
+                <option value="">{t("notSet")}</option>
+                {DEPLOY_PROVIDERS.map((p) => (
+                  <option key={p} value={p}>
+                    {p === "vercel" ? "Vercel" : p === "self-hosted" ? "Self-hosted" : "Other"}
+                  </option>
+                ))}
+              </Select>
+              {text("environment", t("environment"))}
+              {text("domain", t("domain"), save.fields.domain ? t("invalidDomain") : undefined)}
+            </>
+          )}
           {text("aiProvider", t("aiProvider"))}
           {text("aiModel", t("aiModel"))}
         </div>

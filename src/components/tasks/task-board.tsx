@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useMemo, useOptimistic, useState, useTransition } from "react";
+import { useEffect, useMemo, useOptimistic, useRef, useState, useTransition } from "react";
 import { updateTaskAction } from "@/app/[locale]/(app)/project/[slug]/tasks/actions";
 import { EmptyState, PageHeading } from "@/components/app/states";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { StatusFilter } from "./status-filter";
 import { TaskCard } from "./task-card";
 import { TaskDialog } from "./task-dialog";
-import type { MilestoneOption, TaskDraft, TaskItem } from "./types";
+import type { MilestoneOption, TaskDraft, TaskItem, TaskRun } from "./types";
 
 type Move = { id: string; status: TaskStatus };
 
@@ -21,6 +21,24 @@ const parseStatus = (value: string | null): TaskStatus | null =>
 
 const applyMove = (state: TaskItem[], move: Move) =>
   state.map((task) => (task.id === move.id ? { ...task, status: move.status } : task));
+
+const toDraft = (task: TaskItem): TaskDraft => ({
+  id: task.id,
+  title: task.title,
+  description: task.description,
+  priority: task.priority,
+  status: task.status,
+  milestoneId: task.milestoneId,
+});
+
+/** Rewrites the query string in place; Next re-renders useSearchParams consumers. */
+function setParam(name: string, value: string | null) {
+  const url = new URL(window.location.href);
+  if (url.searchParams.get(name) === value) return;
+  if (value) url.searchParams.set(name, value);
+  else url.searchParams.delete(name);
+  window.history.replaceState(null, "", url);
+}
 
 /**
  * Columns per status on desktop, a grouped list below lg. Status changes apply immediately
@@ -31,18 +49,25 @@ export function TaskBoard({
   slug,
   tasks,
   milestones,
+  runs,
   canEdit,
 }: {
   slug: string;
   tasks: TaskItem[];
   milestones: MilestoneOption[];
+  /** Open agent runs keyed by task id. */
+  runs: Record<string, TaskRun>;
   canEdit: boolean;
 }) {
   const t = useTranslations("tasks");
   const [optimistic, addMove] = useOptimistic(tasks, applyMove);
   const [, startTransition] = useTransition();
   // The URL is the source of truth so next-action links like ?status=blocked just work.
-  const filter = parseStatus(useSearchParams().get("status"));
+  const params = useSearchParams();
+  const filter = parseStatus(params.get("status"));
+  // ?task=<id> opens that task, e.g. from a link Saqina posted after creating it.
+  const linkedId = params.get("task");
+  const openedLink = useRef<string | null>(null);
   const [failed, setFailed] = useState(false);
   const [movedId, setMovedId] = useState<string | null>(null);
   const [draft, setDraft] = useState<TaskDraft | null>(null);
@@ -64,12 +89,21 @@ export function TaskBoard({
     number
   >;
 
-  function changeFilter(next: TaskStatus | null) {
-    // Next syncs useSearchParams with native history updates, so this re-renders the board.
-    const url = new URL(window.location.href);
-    if (next) url.searchParams.set("status", next);
-    else url.searchParams.delete("status");
-    window.history.replaceState(null, "", url);
+  useEffect(() => {
+    if (!linkedId || openedLink.current === linkedId) return;
+    const task = tasks.find((item) => item.id === linkedId);
+    if (!task) return;
+    openedLink.current = linkedId;
+    setDraft(toDraft(task));
+  }, [linkedId, tasks]);
+
+  // Next syncs useSearchParams with native history updates, so this re-renders the board.
+  const changeFilter = (next: TaskStatus | null) => setParam("status", next);
+
+  function closeDialog() {
+    setDraft(null);
+    openedLink.current = null;
+    setParam("task", null);
   }
 
   function move(task: TaskItem, status: TaskStatus) {
@@ -91,15 +125,7 @@ export function TaskBoard({
       status: filter ?? "todo",
       milestoneId: null,
     });
-  const openEdit = (task: TaskItem) =>
-    setDraft({
-      id: task.id,
-      title: task.title,
-      description: task.description,
-      priority: task.priority,
-      status: task.status,
-      milestoneId: task.milestoneId,
-    });
+  const openEdit = (task: TaskItem) => setDraft(toDraft(task));
 
   const addButton = canEdit ? <Button onClick={openCreate}>{t("add")}</Button> : null;
   const visible = filter ? [filter] : TASK_STATUSES;
@@ -155,6 +181,8 @@ export function TaskBoard({
                                 ? (milestoneTitles.get(task.milestoneId) ?? null)
                                 : null
                             }
+                            slug={slug}
+                            run={runs[task.id] ?? null}
                             canEdit={canEdit}
                             moved={movedId === task.id}
                             onMove={move}
@@ -176,7 +204,9 @@ export function TaskBoard({
           slug={slug}
           initial={draft}
           milestones={milestones}
-          onClose={() => setDraft(null)}
+          canEdit={canEdit}
+          run={draft.id ? (runs[draft.id] ?? null) : null}
+          onClose={closeDialog}
         />
       ) : null}
     </>

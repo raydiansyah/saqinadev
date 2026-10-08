@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { ActivityList } from "@/components/project/activity-list";
+import { AgentActivityPanel, AttentionPanel } from "@/components/project/attention-panels";
 import { ContextMap } from "@/components/project/context-map";
 import { Pipeline } from "@/components/project/pipeline";
 import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { listActivity } from "@/lib/activity/service";
+import { listRuns } from "@/lib/agents/runs";
 import { db } from "@/lib/db/client";
 import { projectPageAccess, projectSnapshot } from "@/lib/projects/page";
 import { getNextProjectAction, pipelineStages } from "@/lib/projects/progress";
@@ -26,10 +28,11 @@ export default async function ProjectOverviewPage({
   const access = await projectPageAccess(slug);
   const { project, actor } = access;
   const snapshot = await projectSnapshot(slug);
-  const [counts, recs, activity] = await Promise.all([
+  const [counts, recs, activity, runs] = await Promise.all([
     contextCounts(db, project.id),
     listRecommendations(access),
     listActivity(project.id, { limit: 5 }),
+    listRuns(access, { limit: 5 }),
   ]);
   const t = await getTranslations("project");
   const docs = await getTranslations("documents.statuses");
@@ -111,6 +114,8 @@ export default async function ProjectOverviewPage({
       </div>
 
       <aside className="space-y-8">
+        <AttentionPanel slug={slug} snapshot={snapshot} />
+        <AgentActivityPanel slug={slug} runs={runs} />
         <section aria-labelledby="about-heading">
           <h2 id="about-heading" className="mb-2 font-medium">
             {t("overview.about")}

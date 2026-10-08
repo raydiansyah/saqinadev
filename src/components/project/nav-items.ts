@@ -1,6 +1,13 @@
 /** Project navigation, grouped the way work flows: understand → plan → context → build. */
 export const PROJECT_NAV = [
-  { group: null, items: [{ key: "overview", path: "" }] },
+  {
+    group: null,
+    items: [
+      { key: "overview", path: "" },
+      { key: "assistant", path: "/assistant" },
+      { key: "approvals", path: "/approvals" },
+    ],
+  },
   {
     group: "understand",
     items: [

@@ -33,7 +33,9 @@
       "startFirstTask": "Mulai Membangun",
       "reviewWork": "Review Pekerjaan",
       "continueBuilding": "Lanjut Membangun",
-      "restoreProject": "Pulihkan Proyek"
+      "restoreProject": "Pulihkan Proyek",
+      "reviewProposal": "Review usulan yang menunggu",
+      "inspectAgentFailure": "Periksa kegagalan agent"
     },
     "nextActionHints": {
       "continueInterview": "Masih ada jawaban yang kurang sebelum proyek bisa disusun.",
@@ -45,7 +47,9 @@
       "startFirstTask": "Plan sudah disetujui. Pindahkan task pertama ke in progress.",
       "reviewWork": "Ada pekerjaan yang menunggu review.",
       "continueBuilding": "Lanjutkan task berikutnya.",
-      "restoreProject": "Proyek ini diarsipkan. Pulihkan untuk melanjutkan."
+      "restoreProject": "Proyek ini diarsipkan. Pulihkan untuk melanjutkan.",
+      "reviewProposal": "Saqina atau agent menyiapkan perubahan yang menunggu persetujuan Anda. Tidak ada yang diterapkan sebelum Anda setujui.",
+      "inspectAgentFailure": "Sebuah run agent gagal. Lihat penyebabnya, lalu ulangi, alihkan, atau batalkan."
     },
     "sidebar": {
       "label": "Proyek",
@@ -60,6 +64,8 @@
       },
       "items": {
         "overview": "Ringkasan",
+        "assistant": "Saqina",
+        "approvals": "Persetujuan",
         "interview": "Interview",
         "requirements": "Requirement",
         "prd": "PRD",
@@ -71,7 +77,8 @@
         "agents": "Agent",
         "activity": "Aktivitas",
         "settings": "Pengaturan"
-      }
+      },
+      "pending": "menunggu"
     },
     "header": {
       "updated": "Terakhir diperbarui {time}",
@@ -259,7 +266,19 @@
       "deleteConfirmLabel": "Ketik nama proyek untuk konfirmasi",
       "deleteMismatch": "Nama tidak sama.",
       "invalidUrl": "Masukkan URL lengkap yang diawali https://",
-      "invalidDomain": "Masukkan domain seperti app.example.com"
+      "invalidDomain": "Masukkan domain seperti app.example.com",
+      "assistant": "Asisten",
+      "assistantHint": "Cara Saqina menangani perubahan yang dibuatnya dari percakapan.",
+      "approvalPolicy": "Kebijakan persetujuan",
+      "policies": {
+        "auto_low_risk": "Jalankan perubahan berisiko rendah langsung (task, memory, keputusan); selalu tanyakan untuk requirement, PRD, penghapusan, dan agent",
+        "always": "Tanyakan saya sebelum setiap perubahan"
+      },
+      "aiMode": "Jawaban berasal dari",
+      "aiRules": "Aturan proyek (tidak ada penyedia AI yang dikonfigurasi)",
+      "aiModelActive": "Claude ({model})",
+      "aiModeHint": "Diatur di server. Kunci tidak pernah ditampilkan di sini.",
+      "managedDeploy": "Dikelola Saqina: preview dan production di-deploy ke {domain}."
     }
   }
 }

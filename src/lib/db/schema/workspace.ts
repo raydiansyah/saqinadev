@@ -9,7 +9,11 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import type {
+  ActionCategory,
   ActivityType,
+  AgentCapability,
+  AgentPermission,
+  AgentRole,
   AgentStatus,
   AgentType,
   AnswerSource,
@@ -25,6 +29,7 @@ import type {
   RecommendationSource,
   RequirementGroup,
   RequirementStatus,
+  RiskLevel,
   TaskSource,
   TaskStatus,
 } from "@/lib/domain/enums";
@@ -195,32 +200,55 @@ export const agents = pgTable(
     projectId: projectRef(),
     name: text("name").notNull(),
     type: text("type").$type<AgentType>().notNull(),
+    /** `general` for tool agents (Claude, Codex, ...); a specialist role for Saqina agents. */
+    role: text("role").$type<AgentRole>().notNull().default("general"),
     provider: text("provider").notNull(),
+    model: text("model"),
     status: text("status").$type<AgentStatus>().notNull().default("available"),
+    /** Skills the agent has. Used for matching, never for authorization. */
+    capabilities: jsonb("capabilities").$type<AgentCapability[]>().notNull().default([]),
+    /** What the agent may touch in this project. Checked before any agent-driven change. */
+    permissions: jsonb("permissions").$type<AgentPermission[]>().notNull().default([]),
+    /** Tie-breaker for selection; higher wins. */
+    priority: integer("priority").notNull().default(0),
     /** Non-secret settings only. Credentials will live in a separate encrypted store. */
     configuration: jsonb("configuration").$type<Record<string, string>>().notNull().default({}),
     lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
-  (t) => [uniqueIndex("agents_project_type_idx").on(t.projectId, t.type)],
+  (t) => [uniqueIndex("agents_project_type_role_idx").on(t.projectId, t.type, t.role)],
 );
 
-/** Future human-approval queue for agent changes. Modelled now, not executed in Phase 2. */
+/**
+ * Human-approval queue. A proposal holds a validated action plan (`payload.actions`) that is
+ * applied only after a member approves it. Source columns keep the trace back to the
+ * conversation or agent run that produced it.
+ */
 export const proposals = pgTable(
   "proposals",
   {
     id: uuid("id").primaryKey().defaultRandom(),
     projectId: projectRef(),
+    /** `assistant` (from chat) or `agent_result` (from an agent run). */
     type: text("type").notNull(),
     title: text("title").notNull(),
     description: text("description").notNull().default(""),
     payload: jsonb("payload").$type<Record<string, unknown>>().notNull().default({}),
+    category: text("category").$type<ActionCategory>().notNull().default("write"),
+    riskLevel: text("risk_level").$type<RiskLevel>().notNull().default("low"),
     status: text("status").$type<ProposalStatus>().notNull().default("pending"),
+    conversationId: uuid("conversation_id"),
+    messageId: uuid("message_id"),
+    runId: uuid("run_id"),
+    revisionNote: text("revision_note"),
+    /** What was actually applied, written in the same transaction as the approval. */
+    result: jsonb("result").$type<Record<string, unknown>>(),
     createdBy: userRef("created_by"),
     reviewedBy: userRef("reviewed_by"),
     reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
     createdAt: createdAt(),
+    updatedAt: updatedAt(),
   },
   (t) => [index("proposals_project_idx").on(t.projectId, t.status)],
 );

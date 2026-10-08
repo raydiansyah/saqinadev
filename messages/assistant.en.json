@@ -1,0 +1,328 @@
+{
+  "assistant": {
+    "ask": "Ask Saqina",
+    "askShort": "Ask",
+    "askAbout": "Ask Saqina about this",
+    "open": "Open Saqina",
+    "close": "Close Saqina",
+    "label": "Saqina command center",
+    "placeholder": "Ask Saqina or tell it what to do...",
+    "send": "Send",
+    "stop": "Stop",
+    "newConversation": "New conversation",
+    "history": "Conversation history",
+    "openFull": "Open full view",
+    "composerHint": "Enter to send, Shift + Enter for a new line",
+    "you": "You",
+    "saqina": "Saqina",
+    "contextLabel": "About",
+    "contextClear": "Ask about the whole project instead",
+    "contexts": {
+      "project": "Project",
+      "task": "Task",
+      "requirement": "Requirement",
+      "decision": "Decision",
+      "document": "Document",
+      "prd": "PRD",
+      "memory": "Memory"
+    },
+    "stages": {
+      "analyzing": "Understanding your request...",
+      "context": "Reading project context...",
+      "preparing": "Preparing actions...",
+      "writing": "Writing reply..."
+    },
+    "statuses": {
+      "queued": "Queued",
+      "processing": "Working",
+      "completed": "Done",
+      "failed": "Failed",
+      "cancelled": "Stopped"
+    },
+    "empty": {
+      "title": "Ask about this project or tell Saqina what to change",
+      "body": "Saqina reads the project before answering. Changes to requirements, the PRD or agents wait for your approval.",
+      "examples": [
+        "Is our PRD consistent?",
+        "Create a task for Google sign-in",
+        "Analyse blocked tasks",
+        "Why did we choose PostgreSQL?"
+      ]
+    },
+    "loadOlder": "Load older messages",
+    "loading": "Loading conversation...",
+    "errors": {
+      "generic": "Saqina could not finish this reply.",
+      "RATE_LIMIT": "Too many messages. Wait a minute and try again.",
+      "AUTHENTICATION_ERROR": "Your session ended. Sign in again.",
+      "AUTHORIZATION_ERROR": "You can't do that in this project.",
+      "NOT_FOUND": "That item no longer exists in this project.",
+      "VALIDATION_ERROR": "That message could not be processed. Shorten it and try again.",
+      "CONFLICT": "Someone already changed this. Reload and try again.",
+      "CANCELLED": "Stopped.",
+      "INTERNAL_ERROR": "Something went wrong on our side.",
+      "network": "Connection lost. Check your network and retry.",
+      "ref": "Reference: {ref}",
+      "retry": "Try again"
+    },
+    "labels": {
+      "confirmed": "Confirmed",
+      "inferred": "Inferred",
+      "recommended": "Recommended",
+      "unknown": "Unknown"
+    },
+    "action": {
+      "title": "Applied",
+      "created": "Created",
+      "updated": "Updated",
+      "deleted": "Deleted",
+      "kinds": {
+        "task": "Task",
+        "requirement": "Requirement",
+        "memory": "Memory",
+        "decision": "Decision",
+        "document": "Document"
+      },
+      "view": "View"
+    },
+    "question": {
+      "title": "Saqina needs an answer",
+      "or": "Or type your own answer below."
+    },
+    "proposal": {
+      "title": "Saqina proposes",
+      "agentTitle": "Agent result",
+      "changes": "Changes",
+      "risk": "Risk",
+      "risks": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High"
+      },
+      "categories": {
+        "read": "Read",
+        "write": "Write",
+        "destructive": "Destructive",
+        "external": "External",
+        "agent": "Agent"
+      },
+      "approve": "Approve",
+      "reject": "Reject",
+      "requestChanges": "Request changes",
+      "edit": "Edit",
+      "doneEditing": "Done editing",
+      "notePlaceholder": "What should change?",
+      "sendRevision": "Send request",
+      "cancel": "Cancel",
+      "statuses": {
+        "pending": "Waiting for approval",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "revision_requested": "Changes requested",
+        "cancelled": "Cancelled",
+        "expired": "Expired"
+      },
+      "reviewedBy": "{status} by {name}",
+      "applied": "What was applied",
+      "notApplied": "Nothing has been applied yet.",
+      "skip": "Include this step",
+      "optional": "Optional",
+      "types": {
+        "CREATE_TASK": "New task",
+        "UPDATE_TASK": "Update task",
+        "DELETE_TASK": "Delete task",
+        "CREATE_REQUIREMENT": "New requirement",
+        "UPDATE_REQUIREMENT": "Update requirement",
+        "APPEND_PRD": "PRD section",
+        "CREATE_MEMORY": "New memory",
+        "CREATE_DECISION": "New decision",
+        "ASSIGN_AGENT": "Assign agent"
+      },
+      "fields": {
+        "title": "Title",
+        "priority": "Priority",
+        "description": "Description",
+        "body": "Content",
+        "agent": "Agent",
+        "content": "Content",
+        "instructions": "Instructions",
+        "reason": "Reason"
+      },
+      "before": "Before",
+      "after": "After",
+      "priorities": {
+        "critical": "Critical",
+        "high": "High",
+        "medium": "Medium",
+        "low": "Low"
+      },
+      "taskStep": "the new task \"{title}\"",
+      "approved": "Approved. Changes applied.",
+      "failed": "Could not apply this proposal."
+    },
+    "run": {
+      "title": "Agent run",
+      "simulated": "Simulated",
+      "open": "Open run",
+      "statuses": {
+        "queued": "Queued",
+        "running": "Running",
+        "waiting": "Waiting for review",
+        "blocked": "Blocked",
+        "paused": "Paused",
+        "completed": "Completed",
+        "failed": "Failed",
+        "cancelled": "Cancelled"
+      }
+    },
+    "page": {
+      "title": "Saqina",
+      "description": "Talk to Saqina about this project. Answers come from project data; changes are tracked in Activity.",
+      "conversations": "Conversations",
+      "noConversations": "No conversations yet.",
+      "newConversation": "New conversation",
+      "untitled": "Untitled"
+    },
+    "model": {
+      "rules": "Answers from project rules",
+      "model": "Answers by {model}"
+    },
+    "pages": {
+      "metaTitle": "Saqina",
+      "conversationsCount": "Conversations ({count})",
+      "draft": "New conversation (not saved yet)",
+      "current": "Current conversation"
+    },
+    "approvals": {
+      "metaTitle": "Approvals",
+      "title": "Approvals",
+      "description": "Changes proposed by Saqina and its agents. Nothing is applied until someone approves it.",
+      "waiting": "Waiting for approval",
+      "history": "History",
+      "emptyTitle": "Nothing waiting for approval",
+      "emptyBody": "When Saqina or an agent proposes a change, it appears here for review.",
+      "noHistory": "No decided proposals yet.",
+      "readOnly": "You can view proposals. Only editors and owners can approve them."
+    },
+    "agents": {
+      "team": "Team",
+      "teamHint": "Saqina's specialist agents. In this phase they run as a simulation and only propose changes.",
+      "tools": "Tool agents",
+      "toolsHint": "External coding tools. They are not connected yet.",
+      "provider": "Provider",
+      "simulated": "Simulated in this phase",
+      "activeRuns": "{count, plural, one {# active run} other {# active runs}}",
+      "capabilitiesHeading": "Capabilities",
+      "capabilitiesHint": "What it is good at",
+      "permissionsHeading": "Permissions",
+      "permissionsHint": "What it is allowed to touch",
+      "can": "Can: {list}",
+      "never": "Never in this phase: {list}",
+      "roles": {
+        "general": "General",
+        "planner": "Planner",
+        "frontend": "Frontend",
+        "backend": "Backend",
+        "qa": "QA",
+        "docs": "Documentation"
+      },
+      "capabilities": {
+        "planning": "Planning",
+        "research": "Research",
+        "frontend": "Frontend",
+        "backend": "Backend",
+        "database": "Database",
+        "testing": "Testing",
+        "security": "Security",
+        "documentation": "Documentation",
+        "code_review": "Code review",
+        "browser": "Browser",
+        "filesystem": "File system",
+        "git": "Git"
+      },
+      "permissions": {
+        "read_project": "read the project",
+        "read_prd": "read the PRD",
+        "read_tasks": "read tasks",
+        "read_memory": "read memory",
+        "write_tasks": "propose tasks",
+        "write_memory": "propose memory",
+        "write_documents": "propose documents",
+        "write_requirements": "propose requirements",
+        "git_push": "push to repository",
+        "deploy": "deploy",
+        "delete_project": "delete project"
+      },
+      "runs": "Runs",
+      "runsHint": "Every agent run in this project, newest first.",
+      "noRuns": "No agent runs yet. Ask Saqina to assign a task to an agent.",
+      "attempt": "Attempt {n}",
+      "noTask": "No task",
+      "openRun": "Open run",
+      "run": {
+        "metaTitle": "Agent run",
+        "back": "Back to agents",
+        "task": "Task",
+        "started": "Started {time}",
+        "simulatedNotice": "Simulated: no code, repository or deployment was touched.",
+        "failedTitle": "Why it failed",
+        "execution_unavailable": "Execution environment unavailable: this agent is not connected to Saqina yet, so nothing was run.",
+        "failedGeneric": "The agent could not finish this run. Retry it or hand the task to another agent.",
+        "timeline": "Timeline",
+        "noEvents": "No events recorded yet.",
+        "events": {
+          "AGENT_ASSIGNED": "Assigned to the agent",
+          "AGENT_STARTED": "Run started",
+          "AGENT_THINKING": "Working",
+          "AGENT_WAITING": "Waiting for your review",
+          "AGENT_BLOCKED": "Blocked",
+          "AGENT_PAUSED": "Paused",
+          "AGENT_COMPLETED": "Completed",
+          "AGENT_FAILED": "Failed",
+          "AGENT_CANCELLED": "Cancelled",
+          "other": "Event"
+        },
+        "steps": {
+          "context_loaded": "Loaded the project context",
+          "prd_analyzed": "Read the PRD",
+          "execution_started": "Started working on the task",
+          "proposal_generated": "Prepared a proposal"
+        },
+        "result": "Result",
+        "noResult": "No result yet.",
+        "summary": "Summary",
+        "issues": "Issues",
+        "recommendations": "Recommendations",
+        "artifacts": "Artifacts",
+        "simulatedResult": "This result was produced by a simulation.",
+        "proposal": "Review the proposed changes in Approvals",
+        "controls": "Controls",
+        "retry": "Retry",
+        "cancel": "Cancel run",
+        "pause": "Pause",
+        "resume": "Resume",
+        "reassign": "Reassign",
+        "reassignTitle": "Hand this task to another agent",
+        "agent": "Agent",
+        "notConnected": "not connected",
+        "instructions": "Instructions (optional)",
+        "instructionsHint": "Tell the agent what to do differently.",
+        "submitReassign": "Reassign and start",
+        "close": "Close",
+        "cancelledNote": "No external process was running; the run is marked cancelled.",
+        "readOnly": "Only editors and owners can control runs."
+      }
+    },
+    "overview": {
+      "attention": "Attention",
+      "approvals": "{count, plural, one {# proposal waits for approval} other {# proposals wait for approval}}",
+      "failedRuns": "{count, plural, one {# agent run failed} other {# agent runs failed}}",
+      "blockedTasks": "{count, plural, one {# task is blocked} other {# tasks are blocked}}",
+      "nothing": "Nothing needs you right now.",
+      "agentActivity": "Agent activity",
+      "allRuns": "All runs",
+      "noRuns": "No agent activity yet.",
+      "needAttention": "{count, plural, one {# needs attention} other {# need attention}}"
+    }
+  }
+}

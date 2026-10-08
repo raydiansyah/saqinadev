@@ -30,8 +30,22 @@
       "decision_created": "{actor} recorded decision #{number}.",
       "decision_updated": "{actor} updated decision #{number}.",
       "agent_updated": "{actor} updated the agent setup.",
-      "settings_updated": "{actor} updated project settings."
-    }
+      "settings_updated": "{actor} updated project settings.",
+      "task_deleted": "{actor} deleted the task “{title}”.",
+      "agent_assigned": "{actor} assigned {agent} to “{title}”.",
+      "agent_started": "{agent} started work on “{title}”.",
+      "agent_waiting": "{agent} is waiting for review on “{title}”.",
+      "agent_completed": "{agent} completed “{title}”.",
+      "agent_failed": "{agent} failed on “{title}”.",
+      "agent_cancelled": "{actor} cancelled the {agent} run on “{title}”.",
+      "proposal_created": "New proposal: “{title}”.",
+      "proposal_approved": "{actor} approved “{title}”.",
+      "proposal_rejected": "{actor} rejected “{title}”.",
+      "proposal_revision_requested": "{actor} asked for changes to “{title}”.",
+      "proposal_cancelled": "The proposal “{title}” was cancelled."
+    },
+    "viaAssistant": "via Saqina",
+    "viaAgent": "via agent"
   },
   "requirements": {
     "metaTitle": "Requirements",
@@ -73,7 +87,9 @@
       "user": "User",
       "inferred": "Inferred",
       "imported": "Imported",
-      "system": "System"
+      "system": "System",
+      "assistant": "Saqina",
+      "agent": "Agent"
     },
     "confidences": {
       "high": "High",
@@ -166,7 +182,30 @@
     "source": {
       "plan": "From plan",
       "user": "Added",
-      "agent": "Agent"
+      "agent": "Agent",
+      "assistant": "Saqina"
+    },
+    "agent": {
+      "title": "Agent",
+      "assign": "Assign agent",
+      "assignHint": "Pick who works on this task. Your click is the approval; the run starts right away.",
+      "loading": "Finding matching agents...",
+      "none": "No agent in this project has the skills for this task.",
+      "needs": "Needs: {list}",
+      "reasons": {
+        "covers": "Has {list}",
+        "missing": "Lacks {list}",
+        "busy": "{count, plural, one {# active run} other {# active runs}}",
+        "preferred": "Preferred agent",
+        "executable": "Runs here (simulated)",
+        "notExecutable": "Not connected yet: the run will fail honestly",
+        "disabled": "Disabled"
+      },
+      "instructions": "Instructions (optional)",
+      "submit": "Assign and start",
+      "assigned": "Assigned. Open the run",
+      "current": "Current run",
+      "openRun": "Open run"
     }
   },
   "memory": {
@@ -203,7 +242,8 @@
       "interview": "Interview",
       "recommendation": "Project recommendation",
       "user": "You",
-      "agent": "Agent"
+      "agent": "Agent",
+      "assistant": "Saqina"
     }
   },
   "decisions": {

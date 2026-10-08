@@ -15,6 +15,12 @@ export interface ActivityInput {
   metadata?: ActivityMetadata;
 }
 
+let lastTick = 0;
+const tick = () => {
+  lastTick = Math.max(Date.now(), lastTick + 1);
+  return new Date(lastTick);
+};
+
 /**
  * Records a meaningful project event inside the caller's transaction and bumps the
  * project's updatedAt, so "last updated" always matches the activity feed.
@@ -27,6 +33,8 @@ export async function recordActivity(executor: Executor, input: ActivityInput): 
     entityType: input.entityType,
     entityId: input.entityId ?? null,
     metadata: input.metadata ?? {},
+    // now() is fixed for a whole transaction; a strictly increasing clock keeps events in order.
+    createdAt: tick(),
   });
   await executor
     .update(projects)

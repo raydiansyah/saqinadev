@@ -26,7 +26,14 @@ export const INTERVIEW_STATUSES = ["in_progress", "completed"] as const;
 export type InterviewStatus = (typeof INTERVIEW_STATUSES)[number];
 
 /** Where a piece of project knowledge came from. Inferred data is never treated as confirmed. */
-export const ANSWER_SOURCES = ["user", "inferred", "imported", "system"] as const;
+export const ANSWER_SOURCES = [
+  "user",
+  "inferred",
+  "imported",
+  "system",
+  "assistant",
+  "agent",
+] as const;
 export type AnswerSource = (typeof ANSWER_SOURCES)[number];
 
 export const REQUIREMENT_GROUPS = [
@@ -92,7 +99,7 @@ export const TASK_STATUSES = [
 ] as const;
 export type TaskStatus = (typeof TASK_STATUSES)[number];
 
-export const TASK_SOURCES = ["plan", "user", "agent"] as const;
+export const TASK_SOURCES = ["plan", "user", "agent", "assistant"] as const;
 export type TaskSource = (typeof TASK_SOURCES)[number];
 
 export const MEMORY_CATEGORIES = [
@@ -108,7 +115,13 @@ export const MEMORY_CATEGORIES = [
 ] as const;
 export type MemoryCategory = (typeof MEMORY_CATEGORIES)[number];
 
-export const MEMORY_SOURCES = ["interview", "recommendation", "user", "agent"] as const;
+export const MEMORY_SOURCES = [
+  "interview",
+  "recommendation",
+  "user",
+  "agent",
+  "assistant",
+] as const;
 export type MemorySource = (typeof MEMORY_SOURCES)[number];
 
 export const DECISION_STATUSES = ["proposed", "accepted", "superseded"] as const;
@@ -141,6 +154,7 @@ export const PROPOSAL_STATUSES = [
   "approved",
   "rejected",
   "revision_requested",
+  "cancelled",
   "expired",
 ] as const;
 export type ProposalStatus = (typeof PROPOSAL_STATUSES)[number];
@@ -163,12 +177,24 @@ export const ACTIVITY_TYPES = [
   "task.updated",
   "task.completed",
   "task.reopened",
+  "task.deleted",
   "milestone.updated",
   "memory.created",
   "memory.updated",
   "decision.created",
   "decision.updated",
   "agent.updated",
+  "agent.assigned",
+  "agent.started",
+  "agent.waiting",
+  "agent.completed",
+  "agent.failed",
+  "agent.cancelled",
+  "proposal.created",
+  "proposal.approved",
+  "proposal.rejected",
+  "proposal.revision_requested",
+  "proposal.cancelled",
   "settings.updated",
 ] as const;
 export type ActivityType = (typeof ACTIVITY_TYPES)[number];
@@ -178,3 +204,101 @@ export type RepoProvider = (typeof REPO_PROVIDERS)[number];
 
 export const DEPLOY_PROVIDERS = ["vercel", "other", "self-hosted"] as const;
 export type DeployProvider = (typeof DEPLOY_PROVIDERS)[number];
+
+// ── Phase 3: assistant, proposals and agent orchestration ──────────────────────────────
+
+/** What a conversation is anchored to. `project` means no specific entity. */
+export const CONVERSATION_CONTEXTS = [
+  "project",
+  "task",
+  "requirement",
+  "decision",
+  "document",
+  "prd",
+  "memory",
+] as const;
+export type ConversationContext = (typeof CONVERSATION_CONTEXTS)[number];
+
+export const MESSAGE_ROLES = ["user", "assistant", "system", "tool"] as const;
+export type MessageRole = (typeof MESSAGE_ROLES)[number];
+
+export const MESSAGE_STATUSES = [
+  "queued",
+  "processing",
+  "completed",
+  "failed",
+  "cancelled",
+] as const;
+export type MessageStatus = (typeof MESSAGE_STATUSES)[number];
+
+/** READ never mutates; DESTRUCTIVE, EXTERNAL and AGENT always need a human approval. */
+export const ACTION_CATEGORIES = ["read", "write", "destructive", "external", "agent"] as const;
+export type ActionCategory = (typeof ACTION_CATEGORIES)[number];
+
+export const RISK_LEVELS = ["low", "medium", "high"] as const;
+export type RiskLevel = (typeof RISK_LEVELS)[number];
+
+export const APPROVAL_POLICIES = ["auto_low_risk", "always"] as const;
+export type ApprovalPolicy = (typeof APPROVAL_POLICIES)[number];
+
+export const ASSIGNMENT_STATUSES = [
+  "queued",
+  "assigned",
+  "running",
+  "waiting",
+  "blocked",
+  "paused",
+  "completed",
+  "failed",
+  "cancelled",
+] as const;
+export type AssignmentStatus = (typeof ASSIGNMENT_STATUSES)[number];
+
+export const RUN_STATUSES = [
+  "queued",
+  "running",
+  "waiting",
+  "blocked",
+  "paused",
+  "completed",
+  "failed",
+  "cancelled",
+] as const;
+export type RunStatus = (typeof RUN_STATUSES)[number];
+
+/** What an agent can do (skills). Never implies it is allowed to do it. */
+export const AGENT_CAPABILITIES = [
+  "planning",
+  "research",
+  "frontend",
+  "backend",
+  "database",
+  "testing",
+  "security",
+  "documentation",
+  "code_review",
+  "browser",
+  "filesystem",
+  "git",
+] as const;
+export type AgentCapability = (typeof AGENT_CAPABILITIES)[number];
+
+/** What an agent is allowed to touch in this project. Separate from capabilities. */
+export const AGENT_PERMISSIONS = [
+  "read_project",
+  "read_prd",
+  "read_tasks",
+  "read_memory",
+  "write_tasks",
+  "write_memory",
+  "write_documents",
+  "write_requirements",
+  "git_push",
+  "deploy",
+  "delete_project",
+] as const;
+export type AgentPermission = (typeof AGENT_PERMISSIONS)[number];
+
+/** Default role agents every project gets (provider saqina, simulated execution in Phase 3). */
+export const AGENT_ROLES = ["general", "planner", "frontend", "backend", "qa", "docs"] as const;
+export type AgentRole = (typeof AGENT_ROLES)[number];

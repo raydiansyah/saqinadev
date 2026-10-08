@@ -7,21 +7,30 @@ import {
   updateTaskAction,
 } from "@/app/[locale]/(app)/project/[slug]/tasks/actions";
 import { Dialog } from "@/components/app/dialog";
+import { RunStatusChip } from "@/components/assistant/blocks/run-card";
+import { AskSaqinaButton } from "@/components/assistant/command-center";
 import { Button } from "@/components/ui/button";
 import { Field, Notice, Select, TextArea } from "@/components/ui/form";
+import { Link } from "@/i18n/navigation";
 import { PRIORITIES, TASK_STATUSES } from "@/lib/domain/enums";
-import type { MilestoneOption, TaskDraft } from "./types";
+import { AssignAgent } from "./assign-agent";
+import type { MilestoneOption, TaskDraft, TaskRun } from "./types";
 
 /** Create or edit one task. The server validates again; this only catches the obvious. */
 export function TaskDialog({
   slug,
   initial,
   milestones,
+  canEdit = true,
+  run = null,
   onClose,
 }: {
   slug: string;
   initial: TaskDraft | null;
   milestones: MilestoneOption[];
+  canEdit?: boolean;
+  /** The task's open agent run, if any. */
+  run?: TaskRun | null;
   onClose: () => void;
 }) {
   const t = useTranslations("tasks");
@@ -122,6 +131,26 @@ export function TaskDialog({
           ))}
         </Select>
         {error ? <Notice tone="error">{error}</Notice> : null}
+        {initial.id ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <AskSaqinaButton
+              context={{ type: "task", id: initial.id, label: initial.title }}
+              onBeforeOpen={onClose}
+              className="-ml-2"
+            />
+            {run ? (
+              <Link
+                href={`/project/${slug}/agents/runs/${run.runId}`}
+                className="ml-auto inline-flex min-h-9 items-center gap-2 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <span>
+                  {t("agent.current")}: {run.agentName}
+                </span>
+                <RunStatusChip status={run.status} />
+              </Link>
+            ) : null}
+          </div>
+        ) : null}
         <div className="flex justify-end gap-2 border-t border-border pt-4">
           <Button variant="ghost" onClick={onClose}>
             {states("cancel")}
@@ -131,6 +160,7 @@ export function TaskDialog({
           </Button>
         </div>
       </form>
+      {initial.id && canEdit ? <AssignAgent slug={slug} taskId={initial.id} /> : null}
     </Dialog>
   );
 }

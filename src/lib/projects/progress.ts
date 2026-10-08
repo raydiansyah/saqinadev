@@ -14,6 +14,28 @@ export interface ProjectSnapshot {
   conflictingRequirements: number;
   prdStatus: DocumentStatus | null;
   tasks: Record<TaskStatus, number>;
+  /** Human decisions the orchestration layer is waiting on. Absent means none. */
+  attention?: ProjectAttention;
+}
+
+export interface ProjectAttention {
+  pendingProposals: number;
+  activeRuns: number;
+  waitingRuns: number;
+  failedRuns: number;
+}
+
+export const NO_ATTENTION: ProjectAttention = {
+  pendingProposals: 0,
+  activeRuns: 0,
+  waitingRuns: 0,
+  failedRuns: 0,
+};
+
+/** Items that need a person: approvals, failed agent runs and blocked tasks. */
+export function attentionCount(s: ProjectSnapshot): number {
+  const a = s.attention ?? NO_ATTENTION;
+  return a.pendingProposals + a.failedRuns + s.tasks.blocked;
 }
 
 export const EMPTY_TASK_COUNTS: Record<TaskStatus, number> = {
@@ -74,7 +96,9 @@ export type NextActionKind =
   | "startFirstTask"
   | "reviewWork"
   | "continueBuilding"
-  | "restoreProject";
+  | "restoreProject"
+  | "reviewProposal"
+  | "inspectAgentFailure";
 
 export interface NextAction {
   kind: NextActionKind;
@@ -86,6 +110,10 @@ export interface NextAction {
 export function getNextProjectAction(s: ProjectSnapshot): NextAction {
   if (s.status === "archived") return { kind: "restoreProject", path: "/settings" };
   if (s.interviewStatus !== "completed") return { kind: "continueInterview", path: "/interview" };
+  // Work that is already waiting on a person comes before anything new.
+  const attention = s.attention ?? NO_ATTENTION;
+  if (attention.pendingProposals > 0) return { kind: "reviewProposal", path: "/approvals" };
+  if (attention.failedRuns > 0) return { kind: "inspectAgentFailure", path: "/agents#runs" };
   if (s.tasks.blocked > 0) return { kind: "resolveBlocker", path: "/tasks?status=blocked" };
   if (s.conflictingRequirements > 0)
     return { kind: "resolveConflicts", path: "/requirements#open_questions" };

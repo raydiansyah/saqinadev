@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { PageHeading } from "@/components/app/states";
+import { AssistantSettingsForm } from "@/components/settings/assistant-settings-form";
 import {
   DangerZone,
   GeneralForm,
   TechnicalForm,
 } from "@/components/settings/project-settings-forms";
+import { DEFAULT_MODEL, isModelEnabled } from "@/lib/ai/registry";
 import { can } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
 import { projectPageAccess } from "@/lib/projects/page";
@@ -59,6 +61,12 @@ export default async function ProjectSettingsPage({
             </li>
           </ul>
         </section>
+        <AssistantSettingsForm
+          slug={slug}
+          policy={settings?.approvalPolicy ?? "auto_low_risk"}
+          model={isModelEnabled() ? process.env.AI_MODEL || DEFAULT_MODEL : null}
+          canEdit={canEdit}
+        />
         <TechnicalForm slug={slug} values={values} canEdit={canEdit} />
         {can(role, "project:delete") ? (
           <DangerZone slug={slug} name={project.name} archived={project.status === "archived"} />

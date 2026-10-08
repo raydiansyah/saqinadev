@@ -10,10 +10,13 @@ export async function AppHeader({
   actor,
   locale,
   leading,
+  trailing,
 }: {
   actor: Actor;
   locale: string;
   leading?: ReactNode;
+  /** Project-level actions next to the user menu (Ask Saqina). */
+  trailing?: ReactNode;
 }) {
   const t = await getTranslations("app");
   return (
@@ -60,6 +63,7 @@ export async function AppHeader({
             />
           </svg>
         </Link>
+        {trailing}
         <UserMenu name={actor.name} email={actor.email} />
       </div>
     </header>

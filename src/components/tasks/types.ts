@@ -1,4 +1,11 @@
-import type { Priority, TaskSource, TaskStatus } from "@/lib/domain/enums";
+import type { Priority, RunStatus, TaskSource, TaskStatus } from "@/lib/domain/enums";
+
+/** The open agent run on a task, if any. */
+export interface TaskRun {
+  runId: string;
+  status: RunStatus;
+  agentName: string;
+}
 
 /** The slice of a task the board needs; keeps server-only fields out of client props. */
 export interface TaskItem {
