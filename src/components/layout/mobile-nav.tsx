@@ -9,7 +9,7 @@ import type { ResolvedNavLink } from "./nav-links";
 
 interface MobileNavProps {
   links: ResolvedNavLink[];
-  labels: { open: string; close: string; nav: string; start: string };
+  labels: { open: string; close: string; nav: string; start: string; signIn: string };
 }
 
 /** Disclosure menu below desktop width. Closes on Escape, link click or resize to desktop. */
@@ -70,11 +70,18 @@ export function MobileNav({ links, labels }: MobileNavProps) {
         </nav>
         <LanguageSwitcher className="mt-3 sm:hidden" />
         <Link
-          href="/start"
+          href="/dashboard/new"
           onClick={() => setOpen(false)}
           className={buttonVariants({ className: "mt-4 w-full" })}
         >
           {labels.start}
+        </Link>
+        <Link
+          href="/sign-in"
+          onClick={() => setOpen(false)}
+          className={buttonVariants({ variant: "outline", className: "mt-2 w-full" })}
+        >
+          {labels.signIn}
         </Link>
       </div>
     </div>

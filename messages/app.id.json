@@ -1,0 +1,138 @@
+{
+  "app": {
+    "brandHome": "Dashboard Saqina Dev",
+    "search": {
+      "label": "Cari proyek, task, dan dokumen",
+      "placeholder": "Cari…",
+      "submit": "Cari",
+      "title": "Pencarian",
+      "resultsFor": "Hasil untuk “{query}”",
+      "tooShort": "Ketik minimal 2 karakter.",
+      "empty": "Tidak ada yang cocok dengan “{query}” di proyek Anda.",
+      "kinds": {
+        "project": "Proyek",
+        "requirement": "Requirement",
+        "document": "Dokumen",
+        "task": "Task",
+        "memory": "Memory",
+        "decision": "Keputusan"
+      }
+    },
+    "user": {
+      "menu": "Menu akun",
+      "settings": "Pengaturan akun",
+      "signOut": "Keluar"
+    },
+    "nav": {
+      "label": "Dashboard",
+      "overview": "Ringkasan",
+      "projects": "Proyek",
+      "activity": "Aktivitas",
+      "settings": "Pengaturan"
+    },
+    "greeting": {
+      "morning": "Selamat pagi, {name}.",
+      "afternoon": "Selamat siang, {name}.",
+      "evening": "Selamat malam, {name}."
+    },
+    "dashboard": {
+      "metaTitle": "Dashboard",
+      "continue": "Lanjutkan dari terakhir kali.",
+      "attention": "Perlu perhatian",
+      "recent": "Baru berubah",
+      "allProjects": "Semua proyek",
+      "newProject": "Buat Project",
+      "next": "Berikutnya:",
+      "updated": "Diperbarui {time}",
+      "demo": "Demo",
+      "archived": "Diarsipkan",
+      "showArchived": "Tampilkan arsip",
+      "hideArchived": "Sembunyikan arsip",
+      "noProjectsTitle": "Belum ada proyek",
+      "noProjectsBody": "Jelaskan apa yang ingin Anda bangun. Saqina Dev mengubahnya menjadi requirement, PRD, plan, dan task.",
+      "noArchived": "Tidak ada proyek yang diarsipkan."
+    },
+    "onboarding": {
+      "title": "Selamat datang di Saqina Dev",
+      "question": "Apa yang ingin Anda bangun?",
+      "body": "Jawab interview singkat. Jawaban Anda menjadi proyek terstruktur berisi requirement, PRD, plan, dan task yang bisa dikerjakan oleh Anda dan agent Anda.",
+      "start": "Buat Project baru",
+      "explore": "Jelajahi dashboard",
+      "resumeTitle": "Lanjutkan proyek Anda",
+      "resumeBody": "Progres sebelumnya untuk {name} sudah tersimpan.",
+      "resume": "Lanjutkan Interview",
+      "startNew": "Buat Project baru"
+    },
+    "newProject": {
+      "metaTitle": "Proyek baru",
+      "title": "Apa yang ingin Anda bangun?",
+      "body": "Jelaskan dengan kata-kata Anda sendiri. Semua bisa disempurnakan di interview.",
+      "label": "Ide Anda",
+      "placeholder": "Saya ingin membuat POS untuk restoran kecil dengan pesanan per meja dan laporan penjualan harian.",
+      "examples": "Contoh",
+      "exampleList": [
+        "POS untuk restoran kecil dengan pesanan per meja",
+        "Marketplace tempat pengrajin lokal berjualan ke pembeli",
+        "Sistem booking untuk klinik dokter gigi",
+        "Situs portofolio untuk studio arsitektur"
+      ],
+      "submit": "Mulai interview",
+      "pending": "Membuat proyek…",
+      "tooShort": "Jelaskan ide minimal 10 karakter.",
+      "importTitle": "Lanjutkan dari preview",
+      "importBody": "Anda sudah memulai interview di preview publik. Impor jawaban itu ke proyek ini?",
+      "import": "Impor jawaban",
+      "skipImport": "Mulai dari awal"
+    },
+    "activity": {
+      "metaTitle": "Aktivitas",
+      "title": "Aktivitas di semua proyek",
+      "empty": "Perubahan pada proyek Anda akan muncul di sini."
+    },
+    "settings": {
+      "metaTitle": "Pengaturan akun",
+      "title": "Akun",
+      "profile": "Profil",
+      "name": "Nama",
+      "email": "Email",
+      "session": "Sesi",
+      "sessionBody": "Keluar akan mengakhiri sesi di perangkat ini.",
+      "language": "Bahasa"
+    },
+    "states": {
+      "loading": "Memuat…",
+      "saving": "Menyimpan…",
+      "saved": "Tersimpan",
+      "unsaved": "Ada perubahan belum disimpan",
+      "saveFailed": "Belum tersimpan. Akan dicoba lagi saat Anda mengubah sesuatu.",
+      "retry": "Coba lagi",
+      "cancel": "Batal",
+      "save": "Simpan",
+      "close": "Tutup",
+      "edit": "Ubah",
+      "delete": "Hapus",
+      "copy": "Salin",
+      "copied": "Tersalin",
+      "errorRef": "Referensi error: {ref}",
+      "errorTitle": "Terjadi kesalahan",
+      "errorBody": "Halaman ini tidak bisa dimuat. Coba lagi; jika terus gagal, kirim referensi ini ke tim dukungan.",
+      "notFoundTitle": "Proyek tidak ditemukan",
+      "notFoundBody": "Proyek mungkin sudah dihapus, atau Anda tidak punya akses.",
+      "backToProjects": "Kembali ke proyek",
+      "planned": "Direncanakan",
+      "required": "Wajib"
+    },
+    "errors": {
+      "AUTHENTICATION_ERROR": "Sesi Anda sudah berakhir. Silakan masuk lagi.",
+      "AUTHORIZATION_ERROR": "Anda tidak punya izin untuk melakukan ini.",
+      "VALIDATION_ERROR": "Beberapa kolom perlu diperbaiki.",
+      "NOT_FOUND": "Item ini sudah tidak ada.",
+      "CONFLICT": "Data ini berubah sementara itu. Muat ulang untuk melihat versi terbaru.",
+      "RATE_LIMIT": "Terlalu banyak permintaan. Tunggu sebentar lalu coba lagi.",
+      "INTERNAL_ERROR": "Terjadi kesalahan di sisi kami."
+    },
+    "time": {
+      "justNow": "baru saja"
+    }
+  }
+}

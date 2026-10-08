@@ -26,7 +26,7 @@ export function FinalCta({ content }: { content: SiteContent["finalCta"] }) {
           ))}
         </h2>
         <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
-          <Link href="/start" className={buttonVariants({ size: "lg" })}>
+          <Link href="/dashboard/new" className={buttonVariants({ size: "lg" })}>
             {content.primary}
           </Link>
           <a href="#how-it-works" className={buttonVariants({ size: "lg", variant: "outline" })}>

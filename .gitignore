@@ -40,3 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 graphify-out/
+
+# env template is safe to commit
+!.env.example
+
+# local test report output
+.vitest/

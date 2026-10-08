@@ -1,0 +1,265 @@
+{
+  "project": {
+    "statuses": {
+      "draft": "Draft",
+      "interview": "Interview",
+      "planning": "Planning",
+      "ready": "Ready",
+      "building": "Building",
+      "review": "Review",
+      "paused": "Paused",
+      "completed": "Completed",
+      "archived": "Archived"
+    },
+    "pipeline": {
+      "label": "Project progress",
+      "understand": "Understand",
+      "requirements": "Requirements",
+      "planning": "Planning",
+      "build": "Build",
+      "review": "Review",
+      "deploy": "Deploy",
+      "done": "done",
+      "current": "current",
+      "upcoming": "not started"
+    },
+    "nextActions": {
+      "continueInterview": "Continue Interview",
+      "resolveBlocker": "Resolve Blocker",
+      "resolveConflicts": "Resolve Conflicts",
+      "resolveOpenQuestions": "Resolve Open Questions",
+      "reviewPrd": "Review PRD",
+      "reviewPlan": "Review Plan",
+      "startFirstTask": "Start First Task",
+      "reviewWork": "Review Work",
+      "continueBuilding": "Continue Building",
+      "restoreProject": "Restore Project"
+    },
+    "nextActionHints": {
+      "continueInterview": "A few answers are still missing before the project can be structured.",
+      "resolveBlocker": "A task is blocked. Unblock it before starting new work.",
+      "resolveConflicts": "Some answers contradict each other. Decide which one is right.",
+      "resolveOpenQuestions": "Some requirements are still unknown. Answer them or keep them open on purpose.",
+      "reviewPrd": "Read the generated PRD, edit what is off and approve it.",
+      "reviewPlan": "The plan has no tasks yet. Add the first ones.",
+      "startFirstTask": "The plan is approved. Move the first task to in progress.",
+      "reviewWork": "Work is waiting for review.",
+      "continueBuilding": "Pick up the next task.",
+      "restoreProject": "This project is archived. Restore it to keep working."
+    },
+    "sidebar": {
+      "label": "Project",
+      "allProjects": "All Projects",
+      "open": "Open project navigation",
+      "close": "Close project navigation",
+      "groups": {
+        "understand": "Understand",
+        "plan": "Plan",
+        "context": "Context",
+        "build": "Build"
+      },
+      "items": {
+        "overview": "Overview",
+        "interview": "Interview",
+        "requirements": "Requirements",
+        "prd": "PRD",
+        "plan": "Plan",
+        "tasks": "Tasks",
+        "memory": "Memory",
+        "decisions": "Decisions",
+        "documents": "Documents",
+        "agents": "Agents",
+        "activity": "Activity",
+        "settings": "Settings"
+      }
+    },
+    "header": {
+      "updated": "Last updated {time}",
+      "breadcrumb": "Breadcrumb",
+      "demo": "Demo project"
+    },
+    "overview": {
+      "metaTitle": "Overview",
+      "nextAction": "Next action",
+      "progress": "Progress",
+      "context": "Project context",
+      "contextHint": "Everything an agent needs, in one place. Select a part to open it.",
+      "counts": {
+        "requirements": "{count, plural, =0 {No requirements} one {# requirement} other {# requirements}}",
+        "prd": "{status}",
+        "plan": "{count, plural, =0 {No milestones} one {# milestone} other {# milestones}}",
+        "tasks": "{count, plural, =0 {No tasks} one {# task} other {# tasks}}",
+        "memory": "{count, plural, =0 {No memory} one {# item} other {# items}}",
+        "decisions": "{count, plural, =0 {No decisions} one {# decision} other {# decisions}}"
+      },
+      "approach": "Recommended approach",
+      "buildStrategy": "Build strategy",
+      "recentActivity": "Recent activity",
+      "allActivity": "All activity",
+      "noActivity": "No activity yet.",
+      "about": "About",
+      "interviewPending": "The workspace is created when the interview is complete. Requirements, PRD, plan, tasks, memory and decisions will appear here.",
+      "openQuestions": "{count, plural, one {# open question} other {# open questions}}"
+    },
+    "interview": {
+      "metaTitle": "Interview",
+      "stages": {
+        "idea": "Idea",
+        "users": "Users",
+        "features": "Features",
+        "experience": "Experience",
+        "technical": "Technical",
+        "constraints": "Constraints",
+        "review": "Review"
+      },
+      "progressLabel": "Interview stages",
+      "stageOf": "Stage {current} of {total}: {name}",
+      "skip": "Skip for now",
+      "skipHint": "Skipped questions stay visible as unknown in your requirements.",
+      "back": "Back",
+      "continue": "Continue",
+      "toReview": "Review answers",
+      "completed": "This interview is complete. Its answers now live in the workspace as requirements.",
+      "openRequirements": "Open requirements",
+      "inferred": {
+        "title": "We inferred this",
+        "confirm": "Confirm",
+        "change": "Change",
+        "confirmed": "Confirmed"
+      },
+      "followups": {
+        "title": "A few questions for this type of project",
+        "hint": "These decide scope and the data model. “Not sure” keeps them as open questions.",
+        "yes": "Yes",
+        "no": "No",
+        "unsure": "Not sure"
+      },
+      "platform": {
+        "title": "Where will people use it, and how do they sign in?",
+        "hint": "Choose all that apply.",
+        "platforms": "Platforms",
+        "auth": "Sign-in"
+      },
+      "constraints": {
+        "title": "Anything that limits the project?",
+        "hint": "Deadlines, budget, regulations, existing tools. Optional.",
+        "label": "Constraints",
+        "placeholder": "Must launch before Ramadan. Staff use shared Android tablets.",
+        "timeline": "Timeline"
+      }
+    },
+    "review": {
+      "metaTitle": "Review",
+      "title": "Here is what we understood",
+      "summary": "Project summary",
+      "counts": {
+        "confirmed": "Confirmed",
+        "inferred": "Inferred",
+        "unknown": "Unknown",
+        "conflicting": "Conflicts"
+      },
+      "conflictsTitle": "Potential conflicts",
+      "conflictsHint": "Choose what is correct. Nothing is decided for you.",
+      "openTitle": "Still unknown",
+      "openHint": "Answer now, or keep it open; it stays visible as an open question.",
+      "defineNow": "Define now",
+      "keepOpen": "Keep unresolved",
+      "keptOpen": "Kept as open question",
+      "assumptionsTitle": "Assumptions to confirm",
+      "requirementsTitle": "Requirements",
+      "risksTitle": "Risks",
+      "complexity": "Complexity",
+      "recommendationTitle": "Recommended approach",
+      "recommendationHint": "Every recommendation is editable. Your changes are marked as yours.",
+      "confidence": {
+        "high": "High confidence",
+        "medium": "Medium confidence",
+        "low": "Low confidence"
+      },
+      "source": {
+        "recommended": "Recommended",
+        "user": "Selected"
+      },
+      "why": "Why",
+      "change": "Change",
+      "changeTitle": "Change {label}",
+      "changeLabel": "Your choice",
+      "useRecommended": "Use recommendation",
+      "landingWhyNot": "Other concepts were not chosen because they fit different goals; you can still pick another one later.",
+      "accept": "Accept & Create Project",
+      "editRequirements": "Edit Requirements",
+      "changeRecommendation": "Change Recommendation",
+      "resolveFirst": "Resolve the conflicts above before creating the project.",
+      "creating": {
+        "understanding": "Understanding your project",
+        "structuring": "Structuring requirements",
+        "recommending": "Preparing recommendations",
+        "workspace": "Creating your workspace",
+        "ready": "Project ready"
+      },
+      "readyTitle": "Your project is ready.",
+      "readyBody": "We've created your initial project context:",
+      "created": {
+        "requirements": "Requirements",
+        "prd": "PRD",
+        "plan": "Initial Plan",
+        "memory": "Project Memory",
+        "decisions": "Decision Log"
+      },
+      "nextStep": "Next recommended step:",
+      "open": "Open Project",
+      "recLabels": {
+        "application": "Application",
+        "database": "Database",
+        "deployment": "Deployment",
+        "authentication": "Authentication",
+        "architecture": "Architecture",
+        "build_strategy": "Build strategy",
+        "landing": "Landing concept"
+      }
+    },
+    "settings": {
+      "metaTitle": "Project settings",
+      "general": "General",
+      "name": "Project name",
+      "description": "Description",
+      "members": "Members",
+      "membersHint": "Collaboration is coming later. Roles: owner, admin, editor, viewer.",
+      "roles": {
+        "owner": "Owner",
+        "admin": "Admin",
+        "editor": "Editor",
+        "viewer": "Viewer"
+      },
+      "buildStrategy": "Build strategy",
+      "strategies": {
+        "saqina": "Build in Saqina Dev",
+        "external": "Use your own agent"
+      },
+      "technical": "Technical preferences",
+      "technicalHint": "Stored for later phases. Nothing here connects to an outside service yet.",
+      "repoProvider": "Repository provider",
+      "repoUrl": "Repository URL",
+      "defaultBranch": "Default branch",
+      "deployProvider": "Deployment provider",
+      "environment": "Environment",
+      "domain": "Domain",
+      "aiProvider": "AI provider",
+      "aiModel": "Model",
+      "notSet": "Not set",
+      "danger": "Danger zone",
+      "archive": "Archive project",
+      "archiveBody": "Hide the project from your dashboard. You can restore it any time.",
+      "restore": "Restore project",
+      "restoreBody": "Bring the project back to your dashboard.",
+      "delete": "Delete project",
+      "deleteBody": "Permanently delete the project and everything in it.",
+      "deleteConfirmTitle": "Delete {name}?",
+      "deleteConfirmBody": "This action cannot be undone. Requirements, documents, tasks, memory, decisions and activity are deleted.",
+      "deleteConfirmLabel": "Type the project name to confirm",
+      "deleteMismatch": "The name does not match.",
+      "invalidUrl": "Enter a full URL starting with https://",
+      "invalidDomain": "Enter a domain such as app.example.com"
+    }
+  }
+}

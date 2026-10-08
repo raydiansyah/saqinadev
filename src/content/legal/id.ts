@@ -1,18 +1,18 @@
 import type { LegalDocId, LegalDocument } from "./types";
 
 /**
- * Menjelaskan apa yang benar-benar dilakukan pratinjau Fase 1. Kolom dalam kurung siku
- * adalah placeholder yang wajib diisi operator, dan seluruh teks perlu ditinjau ahli hukum
- * sebelum peluncuran.
+ * Menjelaskan apa yang benar-benar dilakukan Saqina Dev saat ini (akun dan workspace proyek,
+ * tanpa panggilan AI). Kolom dalam kurung siku adalah placeholder yang wajib diisi operator,
+ * dan seluruh teks perlu ditinjau ahli hukum sebelum peluncuran.
  */
 export const id: Record<LegalDocId, LegalDocument> = {
   privacy: {
     title: "Kebijakan Privasi",
     description:
-      "Cara pratinjau Saqina Dev menangani data Anda: apa yang tetap di browser, apa yang sampai ke server, dan hak Anda.",
+      "Cara Saqina Dev menangani data Anda: akun, proyek, apa yang tetap di browser, dan hak Anda.",
     updated: "2026-10-07",
     intro:
-      "Kebijakan ini menjelaskan cara Saqina Dev menangani data pribadi selama pratinjau Fase 1, yang terdiri dari situs ini, demo di landing page dan interview proyek. Belum ada akun pengguna di fase ini.",
+      "Kebijakan ini menjelaskan cara Saqina Dev menangani data pribadi di situs ini: halaman publik dan pratinjau, akun Anda, serta workspace proyek yang Anda buat.",
     sections: [
       {
         id: "who-we-are",
@@ -28,20 +28,37 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Data yang kami proses",
         blocks: [
           {
-            p: "Interview proyek. Jawaban Anda hanya disimpan di session storage browser Anda agar tidak hilang saat halaman dimuat ulang. Jawaban tidak dikirim ke server kami, dan terhapus saat Anda menutup tab atau memilih Mulai Ulang.",
+            p: "Akun. Saat Anda membuat akun, kami menyimpan nama, alamat email, dan hash satu arah dari kata sandi Anda; kata sandinya sendiri tidak pernah kami simpan. Jika Anda masuk dengan Google, kami menerima nama, alamat email, dan foto profil Anda dari Google.",
           },
           {
-            p: "Demo di landing page. Ide yang Anda ketik dibaca oleh engine pratinjau yang berjalan di browser Anda. Tidak ada yang dikirim atau disimpan.",
+            p: "Proyek. Semua yang Anda masukkan ke proyek disimpan di database kami agar tetap ada saat Anda kembali: jawaban interview, requirement, dokumen seperti PRD dan plan, task, memory, keputusan, preferensi agent, pengaturan proyek, dan catatan perubahan (siapa mengubah apa dan kapan).",
           },
           {
-            p: "Salin dan unduh brief. Menyalin brief ke clipboard dan mengunduh file Markdown terjadi di perangkat Anda.",
+            p: "Sesi dan keamanan. Kami menyimpan sesi aktif Anda beserta alamat IP dan jenis browser yang dipakai untuk masuk, agar Anda tetap masuk dan agar akun dapat dilindungi.",
           },
           {
-            p: "Preferensi bahasa. Kami memasang satu cookie, NEXT_LOCALE, yang hanya menyimpan kode bahasa pilihan Anda (en atau id). Cookie ini adalah session cookie dan terhapus saat browser ditutup.",
+            p: "Email. Kami hanya mengirim email transaksional: tautan verifikasi email dan atur ulang kata sandi. Email ini dikirim melalui [PENYEDIA EMAIL].",
           },
           {
-            p: "Log server. Penyedia hosting kami, [PENYEDIA HOSTING], memproses data teknis yang diperlukan untuk menyajikan dan melindungi situs, seperti alamat IP, jenis browser, halaman yang diminta dan waktu permintaan. Log ini disimpan selama [MASA SIMPAN LOG].",
+            p: "Pratinjau publik. Interview di halaman publik /start dan demo di landing page berjalan di browser Anda. Jawabannya tetap di session storage browser sampai tab ditutup, kecuali Anda memilih mengimpornya ke proyek baru setelah masuk.",
           },
+          {
+            p: "Log server. Penyedia hosting kami, [PENYEDIA HOSTING], memproses data teknis yang diperlukan untuk menyajikan dan melindungi situs, seperti alamat IP, jenis browser, halaman yang diminta, dan waktu permintaan. Log ini disimpan selama [MASA SIMPAN LOG].",
+          },
+        ],
+      },
+      {
+        id: "cookies",
+        heading: "Cookie",
+        blocks: [
+          {
+            list: [
+              "Cookie sesi (better-auth.session_token): menjaga Anda tetap masuk. Tidak dapat dibaca oleh skrip di halaman dan berakhir setelah 30 hari atau saat Anda keluar.",
+              "Cookie masuk berumur pendek: hanya dipasang selama proses masuk dengan Google berlangsung, untuk melindungi proses itu.",
+              "Bahasa (NEXT_LOCALE): hanya menyimpan kode bahasa pilihan Anda (en atau id) dan dihapus saat browser ditutup.",
+            ],
+          },
+          { p: "Kami tidak memakai cookie analitik, iklan, atau pelacakan." },
         ],
       },
       {
@@ -50,10 +67,10 @@ export const id: Record<LegalDocId, LegalDocument> = {
         blocks: [
           {
             list: [
-              "Kami tidak memakai analitik, pelacak iklan atau pelacak media sosial di fase ini.",
+              "Kami tidak memakai analitik, iklan, atau pelacak media sosial.",
               "Kami tidak menjual atau menyewakan data pribadi.",
-              "Kami tidak memuat font atau script dari server pihak ketiga; font disajikan dari domain kami sendiri.",
-              "Kami tidak mengirim jawaban interview atau teks demo ke penyedia AI mana pun. Engine pratinjau bersifat deterministik dan berjalan di browser Anda.",
+              "Kami tidak memuat font atau skrip dari server pihak ketiga; font disajikan dari domain kami sendiri.",
+              "Kami tidak mengirim data proyek Anda ke penyedia AI mana pun. Rekomendasi dan dokumen yang dibuat berasal dari aturan deterministik yang berjalan di server kami.",
             ],
           },
         ],
@@ -63,7 +80,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Mengapa kami memproses data",
         blocks: [
           {
-            p: "Kami memproses data log server berdasarkan kepentingan sah kami untuk mengoperasikan dan mengamankan situs, serta untuk memenuhi kewajiban hukum. Data yang tetap di browser Anda diproses atas permintaan Anda dan berada di bawah kendali Anda.",
+            p: "Kami memproses data akun dan proyek untuk menyediakan layanan yang Anda daftarkan, yaitu pemenuhan perjanjian kami dengan Anda. Kami memproses log server dan data sesi atas dasar kepentingan yang sah untuk mengoperasikan dan mengamankan layanan, serta untuk memenuhi kewajiban hukum.",
           },
           {
             p: "Kami menangani data pribadi sesuai Undang-Undang Republik Indonesia Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi (UU PDP) beserta peraturan pelaksananya.",
@@ -75,10 +92,19 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Siapa yang menerima data",
         blocks: [
           {
-            p: "Data log server diproses oleh [PENYEDIA HOSTING] atas nama kami sebagai prosesor data. Kami hanya mengungkapkan data kepada pihak berwenang jika diwajibkan oleh hukum Indonesia.",
+            p: "Data diproses atas nama kami oleh [PENYEDIA HOSTING] (hosting), [PENYEDIA DATABASE] (database), dan [PENYEDIA EMAIL] (email transaksional) sebagai prosesor data. Jika Anda masuk dengan Google, Google memproses proses masuk itu berdasarkan ketentuannya sendiri. Kami mengungkapkan data kepada otoritas hanya jika diwajibkan hukum Indonesia.",
           },
           {
-            p: "Penyedia hosting kami dapat menyimpan log di luar Indonesia, di [WILAYAH HOSTING]. Jika data keluar dari Indonesia, kami menerapkan pelindungan yang disyaratkan UU PDP untuk transfer data lintas negara.",
+            p: "Penyedia ini dapat menyimpan data di luar Indonesia, di [WILAYAH HOSTING]. Jika data keluar dari Indonesia, kami mengandalkan perlindungan yang diwajibkan UU PDP untuk transfer lintas negara.",
+          },
+        ],
+      },
+      {
+        id: "retention",
+        heading: "Berapa lama data disimpan",
+        blocks: [
+          {
+            p: "Data proyek disimpan sampai Anda menghapus proyek; penghapusan di pengaturan proyek berlaku langsung dan permanen. Data akun disimpan selama akun Anda ada. Setelah akun dihapus, salinan sisa di cadangan dihapus dalam [MASA SIMPAN CADANGAN].",
           },
         ],
       },
@@ -86,19 +112,19 @@ export const id: Record<LegalDocId, LegalDocument> = {
         id: "your-rights",
         heading: "Hak Anda",
         blocks: [
-          { p: "Berdasarkan UU PDP, antara lain Anda berhak untuk:" },
+          { p: "Berdasarkan UU PDP, Anda antara lain berhak:" },
           {
             list: [
-              "mengetahui data pribadi apa yang kami simpan tentang Anda dan mendapatkan salinannya;",
+              "menanyakan data pribadi apa yang kami simpan tentang Anda dan menerima salinannya;",
               "meminta kami memperbaiki atau melengkapi data yang tidak akurat;",
               "meminta kami menghapus data atau menghentikan pemrosesannya;",
-              "menarik kembali persetujuan yang telah Anda berikan;",
-              "keberatan atas pemrosesan yang didasarkan pada kepentingan sah kami;",
-              "mengajukan pengaduan kepada lembaga pelindungan data pribadi yang berwenang di Indonesia.",
+              "menarik persetujuan yang pernah Anda berikan;",
+              "menolak pemrosesan yang didasarkan pada kepentingan sah kami;",
+              "mengajukan pengaduan kepada otoritas pelindungan data pribadi yang berwenang di Indonesia.",
             ],
           },
           {
-            p: "Jawaban interview tidak pernah sampai ke kami, jadi Anda bisa menghapusnya sendiri kapan saja dengan menutup tab atau memilih Mulai Ulang. Untuk log server, kirim email ke [EMAIL KONTAK]; kami menanggapi dalam jangka waktu yang ditetapkan peraturan.",
+            p: "Anda dapat mengubah atau menghapus proyek sendiri kapan saja. Penghapusan akun secara mandiri belum tersedia: kirim permintaan ke [EMAIL KONTAK] dan kami akan menghapus akun Anda dalam jangka waktu yang ditetapkan hukum.",
           },
         ],
       },
@@ -107,7 +133,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Keamanan",
         blocks: [
           {
-            p: "Situs disajikan melalui HTTPS [KONFIRMASI SAAT DEPLOYMENT]. Akses ke log server dibatasi hanya untuk orang yang membutuhkannya untuk mengoperasikan layanan.",
+            p: "Situs disajikan melalui HTTPS [KONFIRMASI SAAT DEPLOYMENT]. Kata sandi hanya disimpan sebagai hash satu arah, sesi divalidasi di server pada setiap permintaan, dan setiap operasi proyek memeriksa bahwa Anda adalah anggota proyek itu. Akses ke data produksi dibatasi bagi orang yang memerlukannya untuk mengoperasikan layanan.",
           },
         ],
       },
@@ -116,7 +142,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Anak-anak",
         blocks: [
           {
-            p: "Pratinjau ini ditujukan untuk orang dewasa yang merencanakan proyek software. Jika Anda berusia di bawah 18 tahun, gunakan dengan pendampingan orang tua atau wali.",
+            p: "Saqina Dev ditujukan bagi orang dewasa yang merencanakan proyek perangkat lunak. Jika Anda berusia di bawah 18 tahun, gunakan dengan keterlibatan orang tua atau wali.",
           },
         ],
       },
@@ -125,7 +151,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Perubahan kebijakan ini",
         blocks: [
           {
-            p: "Akun, penyimpanan proyek dan integrasi hadir di fase berikutnya dan akan mengubah data yang kami proses. Kami akan memperbarui kebijakan ini sebelum fitur tersebut aktif dan menampilkan tanggal terbaru di bagian atas halaman ini.",
+            p: "Fitur AI, integrasi dengan layanan seperti GitHub atau Vercel, dan pembayaran hadir di fase berikutnya dan akan mengubah data yang kami proses. Kami akan memperbarui kebijakan ini sebelum fitur tersebut aktif dan menampilkan tanggal baru di bagian atas halaman ini.",
           },
         ],
       },
@@ -135,31 +161,40 @@ export const id: Record<LegalDocId, LegalDocument> = {
   terms: {
     title: "Syarat dan Ketentuan",
     description:
-      "Ketentuan penggunaan pratinjau Saqina Dev: apa layanan ini, apa yang bukan, dan aturan yang berlaku.",
+      "Ketentuan penggunaan Saqina Dev: akun, proyek, apa layanan ini dan apa yang bukan, serta aturan yang berlaku.",
     updated: "2026-10-07",
     intro:
-      "Ketentuan ini berlaku untuk penggunaan situs Saqina Dev selama pratinjau Fase 1. Dengan menggunakan situs ini, Anda menyetujuinya. Jika tidak setuju, mohon jangan menggunakan situs ini.",
+      "Ketentuan ini berlaku untuk penggunaan situs dan layanan Saqina Dev. Dengan membuat akun atau memakai situs, Anda menyetujuinya. Jika tidak setuju, mohon jangan memakai Saqina Dev.",
     sections: [
       {
         id: "operator",
         heading: "Penyedia layanan",
         blocks: [
           {
-            p: 'Situs ini disediakan oleh [NAMA PERUSAHAAN], [ALAMAT TERDAFTAR], Indonesia ("kami"). Kontak: [EMAIL KONTAK].',
+            p: 'Layanan disediakan oleh [NAMA PERUSAHAAN], [ALAMAT TERDAFTAR], Indonesia ("kami"). Kontak: [EMAIL KONTAK].',
           },
         ],
       },
       {
-        id: "preview",
-        heading: "Apa itu pratinjau ini",
+        id: "service",
+        heading: "Apa layanan ini",
         blocks: [
           {
-            p: "Fase 1 adalah pratinjau publik. Anda dapat membaca tentang produk, mencoba demo di landing page dan menyelesaikan interview proyek yang menghasilkan rekomendasi dan brief Markdown.",
+            p: "Saqina Dev mengubah ide proyek menjadi workspace proyek yang terstruktur: interview, requirement, rekomendasi, PRD, plan, task, memory proyek, keputusan, dan pratinjau konteks agent.",
           },
           {
-            p: "Fitur berlabel Direncanakan atau Demo, seperti pembangunan aplikasi, Git, CI/CD, MCP, persetujuan dan deployment, adalah ilustrasi fungsi masa depan. Fitur tersebut belum tersedia, dan tidak ada proyek, repository atau deployment yang dibuat.",
+            p: "Fitur berlabel Direncanakan, seperti membangun dengan agent AI, Git, CI/CD, MCP, persetujuan, dan deployment, belum tersedia. Tidak ada kode yang dibuat, tidak ada repository yang dibuat, dan tidak ada yang di-deploy.",
           },
-          { p: "Belum ada akun, langganan atau pembayaran di fase ini." },
+          { p: "Saat ini tidak ada langganan atau pembayaran." },
+        ],
+      },
+      {
+        id: "account",
+        heading: "Akun Anda",
+        blocks: [
+          {
+            p: "Anda wajib memberikan informasi yang akurat dan menjaga kata sandi Anda. Anda bertanggung jawab atas aktivitas di akun Anda. Beri tahu kami di [EMAIL KONTAK] jika Anda yakin akun Anda diakses tanpa izin.",
+          },
         ],
       },
       {
@@ -167,19 +202,22 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Rekomendasi bukan nasihat profesional",
         blocks: [
           {
-            p: "Rekomendasi berasal dari engine aturan deterministik yang berjalan di browser Anda. Rekomendasi adalah titik awal perencanaan, bukan nasihat hukum, keuangan, keamanan atau rekayasa, dan bisa tidak lengkap atau tidak tepat untuk situasi Anda.",
+            p: "Rekomendasi dan dokumen yang dibuat berasal dari mesin aturan deterministik. Itu adalah titik awal perencanaan, bukan nasihat hukum, keuangan, keamanan, atau teknik, dan bisa saja tidak lengkap atau tidak tepat untuk situasi Anda.",
           },
           {
-            p: "Anda tetap bertanggung jawab atas keputusan yang Anda ambil dan untuk memeriksa setiap rekomendasi sebelum mengandalkannya.",
+            p: "Anda tetap bertanggung jawab atas keputusan yang Anda ambil dan untuk memeriksa rekomendasi sebelum mengandalkannya.",
           },
         ],
       },
       {
         id: "your-content",
-        heading: "Ide dan brief Anda",
+        heading: "Proyek dan konten Anda",
         blocks: [
           {
-            p: "Apa yang Anda ketik di interview atau demo tetap milik Anda. Isinya tetap di browser Anda dan tidak dikirim ke kami. Brief Markdown yang Anda salin atau unduh bebas Anda gunakan, ubah dan bagikan.",
+            p: "Apa yang Anda masukkan ke Saqina Dev tetap milik Anda. Anda memberi kami izin untuk menyimpan, memproses, dan menampilkannya hanya sejauh diperlukan untuk menyediakan layanan kepada Anda. Anda dapat mengekspornya dengan menyalin dokumen dan konteks agent, dan menghapusnya dengan menghapus proyek.",
+          },
+          {
+            p: "Jangan mengunggah konten yang tidak berhak Anda pakai, atau data pribadi orang lain tanpa dasar hukum yang sah.",
           },
         ],
       },
@@ -188,7 +226,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Konten kami",
         blocks: [
           {
-            p: "Desain, teks, kode situs dan nama Saqina Dev adalah milik [NAMA PERUSAHAAN] atau pemberi lisensinya. Anda boleh melihat dan membagikan situs untuk keperluan pribadi atau internal bisnis. Jangan menyalin, menjual kembali atau mengakuinya sebagai milik Anda.",
+            p: "Desain, teks, kode situs, dan nama Saqina Dev milik [NAMA PERUSAHAAN] atau pemberi lisensinya. Anda boleh memakai layanan untuk keperluan pribadi atau internal bisnis. Jangan menyalin, menjual kembali, atau mengakuinya sebagai milik Anda.",
           },
         ],
       },
@@ -196,13 +234,16 @@ export const id: Record<LegalDocId, LegalDocument> = {
         id: "acceptable-use",
         heading: "Penggunaan yang diperbolehkan",
         blocks: [
-          { p: "Saat menggunakan situs, jangan:" },
+          { p: "Saat memakai Saqina Dev, jangan:" },
           {
             list: [
-              "mencoba mengganggu, membebani atau mendapatkan akses tanpa izin ke situs atau infrastrukturnya;",
-              "memakai alat otomatis dengan cara yang merusak ketersediaan situs;",
-              "memakai situs untuk tujuan yang melanggar hukum Indonesia.",
+              "mencoba mengganggu, membebani, atau mengakses tanpa izin layanan, akun lain, atau infrastrukturnya;",
+              "memakai alat otomatis dengan cara yang merugikan ketersediaan layanan;",
+              "memakai layanan untuk hal yang melanggar hukum Indonesia.",
             ],
+          },
+          {
+            p: "Kami dapat menangguhkan akun yang melanggar aturan ini dan akan memberi tahu alasannya kecuali dilarang hukum.",
           },
         ],
       },
@@ -211,7 +252,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Nama pihak ketiga",
         blocks: [
           {
-            p: "Situs ini menyebut produk seperti Claude, Codex, Cursor, Kiro, Hermes, Antigravity, OpenClaw, Vercel, Supabase, GitHub, GitLab dan Bitbucket untuk menjelaskan kompatibilitas. Nama-nama tersebut milik pemiliknya masing-masing. Penyebutannya tidak berarti mereka mendukung atau berafiliasi dengan Saqina Dev. Saat Anda memakai layanan tersebut, ketentuan mereka sendiri yang berlaku.",
+            p: "Situs ini menyebut produk seperti Claude, Codex, Cursor, Kiro, Hermes, Antigravity, OpenClaw, Vercel, Supabase, GitHub, GitLab, dan Bitbucket untuk menjelaskan kompatibilitas. Nama-nama tersebut milik pemiliknya masing-masing. Penyebutan tersebut tidak berarti mereka mendukung atau berafiliasi dengan Saqina Dev. Saat Anda memakai layanan tersebut, ketentuan mereka sendiri yang berlaku.",
           },
         ],
       },
@@ -220,7 +261,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Ketersediaan dan perubahan",
         blocks: [
           {
-            p: "Pratinjau disediakan sebagaimana adanya dan sebagaimana tersedia. Kami dapat mengubah, menghentikan sementara atau mengakhirinya kapan saja, termasuk interview dan rekomendasinya.",
+            p: "Layanan disediakan sebagaimana adanya dan sebagaimana tersedia selama masih dalam tahap pengembangan awal. Kami dapat mengubah, menjeda, atau menghentikan fitur, dan akan memberi pemberitahuan yang wajar sebelum menghentikan layanan agar Anda dapat menyalin dokumen proyek.",
           },
         ],
       },
@@ -229,7 +270,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Batasan tanggung jawab",
         blocks: [
           {
-            p: "Sejauh diizinkan hukum Indonesia, kami tidak bertanggung jawab atas kerugian tidak langsung atau kerugian lanjutan yang timbul dari penggunaan pratinjau atau dari mengandalkan rekomendasinya. Tidak ada bagian dari ketentuan ini yang membatasi tanggung jawab yang menurut hukum tidak dapat dibatasi.",
+            p: "Sejauh diizinkan hukum Indonesia, kami tidak bertanggung jawab atas kerugian tidak langsung atau konsekuensial yang timbul dari penggunaan layanan atau dari mengandalkan rekomendasinya. Tidak ada dalam ketentuan ini yang membatasi tanggung jawab yang tidak dapat dibatasi menurut hukum.",
           },
         ],
       },
@@ -238,10 +279,10 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Hukum yang berlaku dan sengketa",
         blocks: [
           {
-            p: "Ketentuan ini tunduk pada hukum Republik Indonesia. Setiap sengketa akan lebih dulu diselesaikan secara musyawarah. Jika tidak tercapai kesepakatan, sengketa diselesaikan melalui [PENGADILAN ATAU LEMBAGA ARBITRASE].",
+            p: "Ketentuan ini tunduk pada hukum Republik Indonesia. Kami akan terlebih dahulu berupaya menyelesaikan sengketa secara musyawarah. Jika tidak berhasil, sengketa akan diselesaikan melalui [PENGADILAN ATAU LEMBAGA ARBITRASE].",
           },
           {
-            p: "Ketentuan ini tersedia dalam bahasa Inggris dan bahasa Indonesia. [KONFIRMASI DENGAN AHLI HUKUM: versi bahasa mana yang berlaku jika terdapat perbedaan.]",
+            p: "Ketentuan ini tersedia dalam bahasa Inggris dan Indonesia. [KONFIRMASI DENGAN AHLI HUKUM: versi bahasa mana yang berlaku jika terdapat perbedaan.]",
           },
         ],
       },
@@ -250,7 +291,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
         heading: "Perubahan ketentuan ini",
         blocks: [
           {
-            p: "Kami akan memperbarui ketentuan ini sebelum akun, penyimpanan proyek, pembayaran atau integrasi tersedia, dan menampilkan tanggal terbaru di bagian atas halaman ini.",
+            p: "Kami akan memperbarui ketentuan ini sebelum pembayaran, fitur AI, atau integrasi tersedia, menampilkan tanggal baru di bagian atas halaman ini, dan memberi tahu pemilik akun melalui email tentang perubahan yang material.",
           },
         ],
       },

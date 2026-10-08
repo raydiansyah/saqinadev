@@ -3,8 +3,16 @@ import { en as legalEn } from "@/content/legal/en";
 import { id as legalId } from "@/content/legal/id";
 import { en as siteEn } from "@/content/site/en";
 import { id as siteId } from "@/content/site/id";
+import appEn from "../messages/app.en.json";
+import appId from "../messages/app.id.json";
+import authEn from "../messages/auth.en.json";
+import authId from "../messages/auth.id.json";
 import enMessages from "../messages/en.json";
 import idMessages from "../messages/id.json";
+import projectEn from "../messages/project.en.json";
+import projectId from "../messages/project.id.json";
+import workspaceEn from "../messages/workspace.en.json";
+import workspaceId from "../messages/workspace.id.json";
 
 /** Paths of every string leaf; array indices collapse so lists may differ in length. */
 function shape(value: unknown, path = ""): string[] {
@@ -25,6 +33,10 @@ function strings(value: unknown): string[] {
 
 describe.each([
   ["UI messages", enMessages, idMessages],
+  ["auth messages", authEn, authId],
+  ["app messages", appEn, appId],
+  ["project messages", projectEn, projectId],
+  ["workspace messages", workspaceEn, workspaceId],
   ["site content", siteEn, siteId],
   ["legal documents", legalEn, legalId],
 ])("%s", (_, en, id) => {
@@ -32,8 +44,28 @@ describe.each([
     expect(new Set(shape(id))).toEqual(new Set(shape(en)));
   });
 
+  it("uses no dots in keys (next-intl reserves them for nesting)", () => {
+    for (const path of shape(en))
+      expect(
+        path.split(".").every((k) => k.length > 0),
+        path,
+      ).toBe(true);
+    const keys = (v: unknown): string[] =>
+      v && typeof v === "object" ? Object.entries(v).flatMap(([k, c]) => [k, ...keys(c)]) : [];
+    for (const key of keys(en)) expect(key, key).not.toContain(".");
+  });
+
   it("has no em dashes", () => {
     for (const text of [...strings(en), ...strings(id)]) expect(text).not.toContain("—");
+  });
+});
+
+describe("message files", () => {
+  it("never define the same top-level namespace twice", () => {
+    const names = [enMessages, authEn, appEn, projectEn, workspaceEn].flatMap((m) =>
+      Object.keys(m),
+    );
+    expect(new Set(names).size).toBe(names.length);
   });
 });
 

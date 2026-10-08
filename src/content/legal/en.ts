@@ -1,17 +1,18 @@
 import type { LegalDocId, LegalDocument } from "./types";
 
 /**
- * Describes what the Phase 1 preview actually does. Bracketed fields are placeholders that
- * the operator must fill in, and the whole text needs review by a lawyer before launch.
+ * Describes what Saqina Dev actually does today (accounts and project workspaces, no AI
+ * calls). Bracketed fields are placeholders the operator must fill in, and the whole text
+ * needs review by a lawyer before launch.
  */
 export const en: Record<LegalDocId, LegalDocument> = {
   privacy: {
     title: "Privacy Policy",
     description:
-      "How the Saqina Dev preview handles your data: what stays in your browser, what reaches a server and your rights.",
+      "How Saqina Dev handles your data: your account, your projects, what stays in your browser and your rights.",
     updated: "2026-10-07",
     intro:
-      "This policy explains how Saqina Dev handles personal data during the Phase 1 preview, which consists of this website, the landing page demo and the project interview. There are no user accounts in this phase.",
+      "This policy explains how Saqina Dev handles personal data on this website: the public pages and preview, your account and the project workspaces you create.",
     sections: [
       {
         id: "who-we-are",
@@ -27,20 +28,37 @@ export const en: Record<LegalDocId, LegalDocument> = {
         heading: "What we process",
         blocks: [
           {
-            p: "Project interview. Your answers are stored only in your browser's session storage so a page refresh does not lose them. They are not sent to our servers. They are removed when you close the tab or choose Start Over.",
+            p: "Account. When you create an account we store your name, email address and a one-way hash of your password; we never store the password itself. If you sign in with Google, we receive your name, email address and profile picture from Google.",
           },
           {
-            p: "Landing page demo. The idea you type is read by a preview engine that runs in your browser. Nothing is sent or saved.",
+            p: "Projects. Everything you enter in a project is stored in our database so it is there when you come back: interview answers, requirements, documents such as the PRD and plan, tasks, memory, decisions, agent preferences, project settings and a log of changes (who changed what and when).",
           },
           {
-            p: "Brief copy and download. Copying the brief to your clipboard and downloading the Markdown file happen on your device.",
+            p: "Sessions and security. We store your active sessions with the IP address and browser type used to sign in, so you can stay signed in and so we can protect accounts.",
           },
           {
-            p: "Language preference. We set one cookie, NEXT_LOCALE, that stores only your chosen language code (en or id). It is a session cookie and is deleted when you close your browser.",
+            p: "Email. We send transactional email only: email verification and password reset links. These are sent through [EMAIL PROVIDER].",
+          },
+          {
+            p: "Public preview. The interview on the public /start page and the landing page demo run in your browser. Their answers stay in your browser's session storage until you close the tab, unless you choose to import them into a new project after signing in.",
           },
           {
             p: "Server logs. Our hosting provider, [HOSTING PROVIDER], processes technical data needed to deliver and protect the website, such as IP address, browser type, requested page and time of the request. These logs are kept for [LOG RETENTION PERIOD].",
           },
+        ],
+      },
+      {
+        id: "cookies",
+        heading: "Cookies",
+        blocks: [
+          {
+            list: [
+              "Session cookie (better-auth.session_token): keeps you signed in. It cannot be read by scripts on the page and expires after 30 days or when you sign out.",
+              "Short-lived sign-in cookies: set only while a Google sign-in is in progress, to protect that flow.",
+              "Language (NEXT_LOCALE): stores only your chosen language code (en or id) and is deleted when you close your browser.",
+            ],
+          },
+          { p: "We use no analytics, advertising or tracking cookies." },
         ],
       },
       {
@@ -49,10 +67,10 @@ export const en: Record<LegalDocId, LegalDocument> = {
         blocks: [
           {
             list: [
-              "We do not use analytics, advertising or social media trackers in this phase.",
+              "We do not use analytics, advertising or social media trackers.",
               "We do not sell or rent personal data.",
               "We do not load fonts or scripts from third-party servers; fonts are served from our own domain.",
-              "We do not send your interview answers or demo text to any AI provider. The preview engine is deterministic and runs in your browser.",
+              "We do not send your project data to any AI provider. Recommendations and generated documents come from deterministic rules running on our servers.",
             ],
           },
         ],
@@ -62,7 +80,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
         heading: "Why we process data",
         blocks: [
           {
-            p: "We process server log data on the basis of our legitimate interest in operating and securing the website, and to comply with legal obligations. Data that stays in your browser is processed at your own request and under your control.",
+            p: "We process account and project data to provide the service you signed up for, which is the performance of our agreement with you. We process server logs and session data on the basis of our legitimate interest in operating and securing the service, and to comply with legal obligations.",
           },
           {
             p: "We handle personal data in line with Law of the Republic of Indonesia No. 27 of 2022 on Personal Data Protection (UU PDP) and its implementing regulations.",
@@ -74,10 +92,19 @@ export const en: Record<LegalDocId, LegalDocument> = {
         heading: "Who receives data",
         blocks: [
           {
-            p: "Server log data is processed by [HOSTING PROVIDER] on our behalf as a data processor. We disclose data to authorities only when Indonesian law requires it.",
+            p: "Data is processed on our behalf by [HOSTING PROVIDER] (hosting), [DATABASE PROVIDER] (database) and [EMAIL PROVIDER] (transactional email), as data processors. If you sign in with Google, Google processes that sign-in under its own terms. We disclose data to authorities only when Indonesian law requires it.",
           },
           {
-            p: "Our hosting provider may store logs outside Indonesia, in [HOSTING REGION]. Where data leaves Indonesia, we rely on the safeguards required by UU PDP for cross-border transfers.",
+            p: "These providers may store data outside Indonesia, in [HOSTING REGION]. Where data leaves Indonesia, we rely on the safeguards required by UU PDP for cross-border transfers.",
+          },
+        ],
+      },
+      {
+        id: "retention",
+        heading: "How long we keep data",
+        blocks: [
+          {
+            p: "Project data is kept until you delete the project; deletion in project settings is immediate and permanent. Account data is kept while your account exists. After an account is deleted, residual copies in backups are removed within [BACKUP RETENTION PERIOD].",
           },
         ],
       },
@@ -97,7 +124,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
             ],
           },
           {
-            p: "Interview answers never reach us, so you can delete them yourself at any time by closing the tab or choosing Start Over. For server logs, write to [CONTACT EMAIL]; we respond within the period set by law.",
+            p: "You can edit or delete your projects yourself at any time. Self-service account deletion is not available yet: write to [CONTACT EMAIL] and we will delete your account within the period set by law.",
           },
         ],
       },
@@ -106,7 +133,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
         heading: "Security",
         blocks: [
           {
-            p: "The website is served over HTTPS [CONFIRM AT DEPLOYMENT]. Access to server logs is limited to people who need it to operate the service.",
+            p: "The website is served over HTTPS [CONFIRM AT DEPLOYMENT]. Passwords are stored only as one-way hashes, sessions are validated on the server for every request, and every project operation checks that you are a member of that project. Access to production data is limited to people who need it to operate the service.",
           },
         ],
       },
@@ -115,7 +142,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
         heading: "Children",
         blocks: [
           {
-            p: "The preview is meant for adults planning software projects. If you are under 18, use it with the involvement of a parent or guardian.",
+            p: "Saqina Dev is meant for adults planning software projects. If you are under 18, use it with the involvement of a parent or guardian.",
           },
         ],
       },
@@ -124,7 +151,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
         heading: "Changes to this policy",
         blocks: [
           {
-            p: "Accounts, project storage and integrations arrive in later phases and will change what we process. We will update this policy before those features go live and show the new date at the top of this page.",
+            p: "AI features, integrations with services such as GitHub or Vercel, and payments arrive in later phases and will change what we process. We will update this policy before those features go live and show the new date at the top of this page.",
           },
         ],
       },
@@ -134,31 +161,40 @@ export const en: Record<LegalDocId, LegalDocument> = {
   terms: {
     title: "Terms and Conditions",
     description:
-      "The terms for using the Saqina Dev preview: what it is, what it is not and the rules that apply.",
+      "The terms for using Saqina Dev: your account, your projects, what the service is and is not, and the rules that apply.",
     updated: "2026-10-07",
     intro:
-      "These terms apply to your use of the Saqina Dev website during the Phase 1 preview. By using the website you agree to them. If you do not agree, please do not use the website.",
+      "These terms apply to your use of the Saqina Dev website and service. By creating an account or using the website you agree to them. If you do not agree, please do not use Saqina Dev.",
     sections: [
       {
         id: "operator",
         heading: "Who provides the service",
         blocks: [
           {
-            p: 'The website is provided by [COMPANY NAME], [REGISTERED ADDRESS], Indonesia ("we"). Contact: [CONTACT EMAIL].',
+            p: 'The service is provided by [COMPANY NAME], [REGISTERED ADDRESS], Indonesia ("we"). Contact: [CONTACT EMAIL].',
           },
         ],
       },
       {
-        id: "preview",
-        heading: "What the preview is",
+        id: "service",
+        heading: "What the service is",
         blocks: [
           {
-            p: "Phase 1 is a public preview. You can read about the product, try the landing page demo and complete a project interview that produces a recommendation and a Markdown brief.",
+            p: "Saqina Dev turns a project idea into a structured project workspace: an interview, requirements, recommendations, a PRD, a plan, tasks, project memory, decisions and an agent context preview.",
           },
           {
-            p: "Features labelled Planned or Demo, such as building, Git, CI/CD, MCP, approvals and deployment, are illustrations of future functionality. They are not available yet, and no project, repository or deployment is created.",
+            p: "Features labelled Planned, such as building with AI agents, Git, CI/CD, MCP, approvals and deployment, are not available yet. No code is generated, no repository is created and nothing is deployed.",
           },
-          { p: "There are no accounts, subscriptions or payments in this phase." },
+          { p: "There are no subscriptions or payments at this time." },
+        ],
+      },
+      {
+        id: "account",
+        heading: "Your account",
+        blocks: [
+          {
+            p: "You must give accurate information and keep your password safe. You are responsible for activity under your account. Tell us at [CONTACT EMAIL] if you believe your account has been accessed without permission.",
+          },
         ],
       },
       {
@@ -166,7 +202,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
         heading: "Recommendations are not professional advice",
         blocks: [
           {
-            p: "Recommendations come from a deterministic rule engine running in your browser. They are a starting point for planning, not legal, financial, security or engineering advice, and they may be incomplete or wrong for your situation.",
+            p: "Recommendations and generated documents come from a deterministic rule engine. They are a starting point for planning, not legal, financial, security or engineering advice, and they may be incomplete or wrong for your situation.",
           },
           {
             p: "You remain responsible for decisions you make and for checking any recommendation before you rely on it.",
@@ -175,10 +211,13 @@ export const en: Record<LegalDocId, LegalDocument> = {
       },
       {
         id: "your-content",
-        heading: "Your ideas and briefs",
+        heading: "Your projects and content",
         blocks: [
           {
-            p: "What you type into the interview or the demo stays yours. It stays in your browser and is not sent to us. The Markdown brief you copy or download is yours to use, change and share freely.",
+            p: "What you enter in Saqina Dev stays yours. You give us permission to store, process and display it only as needed to provide the service to you. You can export it by copying documents and agent context, and delete it by deleting the project.",
+          },
+          {
+            p: "Do not upload content you have no right to use, or personal data of other people without a lawful basis.",
           },
         ],
       },
@@ -187,7 +226,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
         heading: "Our content",
         blocks: [
           {
-            p: "The website's design, text, code and the Saqina Dev name belong to [COMPANY NAME] or its licensors. You may view and share the website for personal or internal business use. Do not copy, resell or present it as your own.",
+            p: "The website's design, text, code and the Saqina Dev name belong to [COMPANY NAME] or its licensors. You may use the service for personal or internal business purposes. Do not copy, resell or present it as your own.",
           },
         ],
       },
@@ -195,13 +234,16 @@ export const en: Record<LegalDocId, LegalDocument> = {
         id: "acceptable-use",
         heading: "Acceptable use",
         blocks: [
-          { p: "When using the website, do not:" },
+          { p: "When using Saqina Dev, do not:" },
           {
             list: [
-              "attempt to disrupt, overload or gain unauthorised access to the website or its infrastructure;",
-              "use automated tools in a way that harms the website's availability;",
-              "use the website for anything unlawful under Indonesian law.",
+              "attempt to disrupt, overload or gain unauthorised access to the service, other accounts or its infrastructure;",
+              "use automated tools in a way that harms the service's availability;",
+              "use the service for anything unlawful under Indonesian law.",
             ],
+          },
+          {
+            p: "We may suspend an account that breaks these rules, and will tell you why unless the law prevents us.",
           },
         ],
       },
@@ -219,7 +261,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
         heading: "Availability and changes",
         blocks: [
           {
-            p: "The preview is provided as is and as available. We may change, pause or end it at any time, including the interview and its recommendations.",
+            p: "The service is provided as is and as available while it is in early development. We may change, pause or end features, and will give reasonable notice before ending the service so you can copy your project documents.",
           },
         ],
       },
@@ -228,7 +270,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
         heading: "Limitation of liability",
         blocks: [
           {
-            p: "To the extent permitted by Indonesian law, we are not liable for indirect or consequential losses arising from your use of the preview or reliance on its recommendations. Nothing in these terms limits liability that cannot be limited by law.",
+            p: "To the extent permitted by Indonesian law, we are not liable for indirect or consequential losses arising from your use of the service or reliance on its recommendations. Nothing in these terms limits liability that cannot be limited by law.",
           },
         ],
       },
@@ -249,7 +291,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
         heading: "Changes to these terms",
         blocks: [
           {
-            p: "We will update these terms before accounts, project storage, payments or integrations become available, and show the new date at the top of this page.",
+            p: "We will update these terms before payments, AI features or integrations become available, show the new date at the top of this page and tell account holders by email about material changes.",
           },
         ],
       },

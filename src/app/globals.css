@@ -218,3 +218,123 @@
     animation: none;
   }
 }
+
+/*
+ * Application motion: short and tied to state (a panel opens, a status changes, a list
+ * reorders). Nothing loops and nothing moves without a cause.
+ */
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@layer components {
+  .panel-in {
+    animation: panel-in 220ms ease-out both;
+  }
+  /* Staggered reveal for short lists (recommendations, created artefacts). */
+  .reveal-item {
+    animation: panel-in 260ms ease-out both;
+    animation-delay: calc(var(--i, 0) * 60ms);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .panel-in,
+    .reveal-item {
+      animation: none;
+    }
+  }
+}
+
+/* Markdown documents (PRD.md, PLAN.md, ...): readable, technical, no typography plugin. */
+@layer components {
+  .markdown {
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+  }
+  .markdown > * + * {
+    margin-top: 0.9em;
+  }
+  .markdown h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .markdown h2 {
+    margin-top: 2em;
+    padding-bottom: 0.35em;
+    border-bottom: 1px solid var(--border);
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+  .markdown h3 {
+    margin-top: 1.5em;
+    font-weight: 600;
+  }
+  .markdown ul,
+  .markdown ol {
+    padding-left: 1.25rem;
+  }
+  .markdown ul {
+    list-style: disc;
+  }
+  .markdown ol {
+    list-style: decimal;
+  }
+  .markdown li + li {
+    margin-top: 0.3em;
+  }
+  .markdown li::marker {
+    color: var(--subtle-foreground);
+  }
+  .markdown blockquote {
+    border-left: 2px solid var(--border-strong);
+    padding-left: 1rem;
+    color: var(--muted-foreground);
+  }
+  .markdown code {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    background: var(--surface-raised);
+    border-radius: var(--radius-sm);
+    padding: 0.1em 0.35em;
+  }
+  .markdown pre {
+    overflow-x: auto;
+    background: var(--surface-raised);
+    border-radius: var(--radius-md);
+    padding: 0.85rem 1rem;
+  }
+  .markdown pre code {
+    background: none;
+    padding: 0;
+  }
+  .markdown a {
+    color: var(--primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .markdown strong {
+    font-weight: 600;
+    color: var(--foreground);
+  }
+  .markdown hr {
+    border-color: var(--border);
+  }
+}

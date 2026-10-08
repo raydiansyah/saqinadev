@@ -1,0 +1,138 @@
+{
+  "app": {
+    "brandHome": "Saqina Dev dashboard",
+    "search": {
+      "label": "Search projects, tasks and documents",
+      "placeholder": "Search…",
+      "submit": "Search",
+      "title": "Search",
+      "resultsFor": "Results for “{query}”",
+      "tooShort": "Type at least 2 characters.",
+      "empty": "Nothing matches “{query}” in your projects.",
+      "kinds": {
+        "project": "Project",
+        "requirement": "Requirement",
+        "document": "Document",
+        "task": "Task",
+        "memory": "Memory",
+        "decision": "Decision"
+      }
+    },
+    "user": {
+      "menu": "Account menu",
+      "settings": "Account settings",
+      "signOut": "Sign out"
+    },
+    "nav": {
+      "label": "Dashboard",
+      "overview": "Overview",
+      "projects": "Projects",
+      "activity": "Activity",
+      "settings": "Settings"
+    },
+    "greeting": {
+      "morning": "Good morning, {name}.",
+      "afternoon": "Good afternoon, {name}.",
+      "evening": "Good evening, {name}."
+    },
+    "dashboard": {
+      "metaTitle": "Dashboard",
+      "continue": "Continue where you left off.",
+      "attention": "Needs attention",
+      "recent": "Recently changed",
+      "allProjects": "All projects",
+      "newProject": "New project",
+      "next": "Next:",
+      "updated": "Updated {time}",
+      "demo": "Demo",
+      "archived": "Archived",
+      "showArchived": "Show archived",
+      "hideArchived": "Hide archived",
+      "noProjectsTitle": "No projects yet",
+      "noProjectsBody": "Describe what you want to build. Saqina Dev turns it into requirements, a PRD, a plan and tasks.",
+      "noArchived": "No archived projects."
+    },
+    "onboarding": {
+      "title": "Welcome to Saqina Dev",
+      "question": "What are you building?",
+      "body": "Answer a short interview. Your answers become a structured project with requirements, a PRD, a plan and tasks that you and your agents can work from.",
+      "start": "Start a new project",
+      "explore": "Explore the dashboard",
+      "resumeTitle": "Continue your project",
+      "resumeBody": "Your previous progress on {name} is saved.",
+      "resume": "Continue interview",
+      "startNew": "Start new project"
+    },
+    "newProject": {
+      "metaTitle": "New project",
+      "title": "What do you want to build?",
+      "body": "Describe it in your own words. You can refine everything in the interview.",
+      "label": "Your idea",
+      "placeholder": "I want a POS for my small restaurant with table orders and daily sales reports.",
+      "examples": "Examples",
+      "exampleList": [
+        "A POS for a small restaurant with table orders",
+        "A marketplace where local craftsmen sell to buyers",
+        "A booking system for a dental clinic",
+        "A portfolio site for an architecture studio"
+      ],
+      "submit": "Start interview",
+      "pending": "Creating project…",
+      "tooShort": "Describe the idea in at least 10 characters.",
+      "importTitle": "Continue from the preview",
+      "importBody": "You started the interview on the public preview. Import those answers into this project?",
+      "import": "Import answers",
+      "skipImport": "Start fresh"
+    },
+    "activity": {
+      "metaTitle": "Activity",
+      "title": "Activity across your projects",
+      "empty": "Changes to your projects will appear here."
+    },
+    "settings": {
+      "metaTitle": "Account settings",
+      "title": "Account",
+      "profile": "Profile",
+      "name": "Name",
+      "email": "Email",
+      "session": "Session",
+      "sessionBody": "Signing out ends this session on this device.",
+      "language": "Language"
+    },
+    "states": {
+      "loading": "Loading…",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "unsaved": "Unsaved changes",
+      "saveFailed": "Not saved. Retrying when you make the next change.",
+      "retry": "Retry",
+      "cancel": "Cancel",
+      "save": "Save",
+      "close": "Close",
+      "edit": "Edit",
+      "delete": "Delete",
+      "copy": "Copy",
+      "copied": "Copied",
+      "errorRef": "Error reference: {ref}",
+      "errorTitle": "Something went wrong",
+      "errorBody": "This page could not be loaded. Try again; if it keeps failing, share the reference with support.",
+      "notFoundTitle": "Project not found",
+      "notFoundBody": "It may have been deleted, or you may not have access to it.",
+      "backToProjects": "Back to projects",
+      "planned": "Planned",
+      "required": "Required"
+    },
+    "errors": {
+      "AUTHENTICATION_ERROR": "Your session has ended. Sign in again.",
+      "AUTHORIZATION_ERROR": "You do not have permission to do this.",
+      "VALIDATION_ERROR": "Some fields need attention.",
+      "NOT_FOUND": "This item no longer exists.",
+      "CONFLICT": "This changed in the meantime. Reload to see the latest version.",
+      "RATE_LIMIT": "Too many requests. Wait a moment and try again.",
+      "INTERNAL_ERROR": "Something went wrong on our side."
+    },
+    "time": {
+      "justNow": "just now"
+    }
+  }
+}

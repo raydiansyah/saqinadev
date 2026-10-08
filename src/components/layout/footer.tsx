@@ -65,7 +65,7 @@ export function Footer() {
             </li>
             <li>
               <Link
-                href="/start"
+                href="/dashboard/new"
                 className="inline-flex min-h-11 items-center text-sm text-primary hover:underline"
               >
                 {t("startProject")}

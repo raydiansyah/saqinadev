@@ -1,0 +1,279 @@
+{
+  "activity": {
+    "metaTitle": "Aktivitas",
+    "title": "Aktivitas",
+    "description": "Perubahan penting pada proyek ini: siapa mengubah apa, dan kapan.",
+    "empty": "Perubahan pada requirement, dokumen, task, memory, dan keputusan akan muncul di sini.",
+    "older": "Aktivitas sebelumnya",
+    "you": "Anda",
+    "system": "Saqina Dev",
+    "types": {
+      "project_created": "{actor} membuat proyek.",
+      "project_updated": "{actor} memperbarui detail proyek.",
+      "project_archived": "{actor} mengarsipkan proyek.",
+      "project_restored": "{actor} memulihkan proyek.",
+      "interview_started": "{actor} memulai interview.",
+      "interview_completed": "{actor} menyelesaikan interview.",
+      "requirement_created": "{actor} menambahkan requirement “{title}”.",
+      "requirement_updated": "{actor} memperbarui requirement “{title}”.",
+      "requirement_deleted": "{actor} menghapus requirement “{title}”.",
+      "recommendation_changed": "{actor} mengubah rekomendasi.",
+      "document_created": "{actor} membuat {file}.",
+      "document_updated": "{actor} memperbarui {file}.",
+      "task_created": "{actor} membuat task “{title}”.",
+      "task_updated": "{actor} memperbarui task “{title}”.",
+      "task_completed": "{actor} menyelesaikan task “{title}”.",
+      "task_reopened": "{actor} membuka kembali task “{title}”.",
+      "milestone_updated": "{actor} memperbarui milestone “{title}”.",
+      "memory_created": "{actor} menambahkan “{title}” ke memory.",
+      "memory_updated": "{actor} memperbarui memory “{title}”.",
+      "decision_created": "{actor} mencatat keputusan #{number}.",
+      "decision_updated": "{actor} memperbarui keputusan #{number}.",
+      "agent_updated": "{actor} memperbarui pengaturan agent.",
+      "settings_updated": "{actor} memperbarui pengaturan proyek."
+    }
+  },
+  "requirements": {
+    "metaTitle": "Requirement",
+    "title": "Requirement",
+    "description": "Apa yang harus dilakukan produk, dari mana asalnya, dan seberapa yakin kita.",
+    "add": "Tambah requirement",
+    "addTitle": "Tambah requirement",
+    "editTitle": "Ubah requirement",
+    "deleteConfirm": "Hapus “{title}”? Tindakan ini tidak bisa dibatalkan.",
+    "jump": "Lompat ke grup",
+    "empty": "Belum ada requirement. Selesaikan interview atau tambahkan sendiri.",
+    "groupEmpty": "Belum ada isi.",
+    "fields": {
+      "title": "Judul",
+      "description": "Deskripsi",
+      "group": "Grup",
+      "priority": "Prioritas",
+      "status": "Status"
+    },
+    "meta": {
+      "priority": "Prioritas",
+      "status": "Status",
+      "source": "Sumber",
+      "confidence": "Keyakinan"
+    },
+    "priorities": {
+      "critical": "Kritis",
+      "high": "Tinggi",
+      "medium": "Sedang",
+      "low": "Rendah"
+    },
+    "statuses": {
+      "confirmed": "Terkonfirmasi",
+      "inferred": "Disimpulkan",
+      "unknown": "Belum diketahui",
+      "conflicting": "Bertentangan"
+    },
+    "sources": {
+      "user": "Pengguna",
+      "inferred": "Disimpulkan",
+      "imported": "Diimpor",
+      "system": "Sistem"
+    },
+    "confidences": {
+      "high": "Tinggi",
+      "medium": "Sedang",
+      "low": "Rendah"
+    },
+    "summary": "{confirmed} terkonfirmasi · {inferred} disimpulkan · {unknown} belum diketahui · {conflicting} bertentangan"
+  },
+  "documents": {
+    "metaTitle": "Dokumen",
+    "title": "Dokumen",
+    "description": "Dokumen proyek dalam Markdown. Setiap simpan menyimpan satu versi.",
+    "new": "Dokumen baru",
+    "newTitle": "Dokumen baru",
+    "newLabel": "Judul",
+    "empty": "Belum ada dokumen.",
+    "updated": "Diperbarui {time}",
+    "version": "v{version}",
+    "statuses": {
+      "draft": "Draf",
+      "review": "Direview",
+      "approved": "Disetujui"
+    },
+    "edit": "Ubah",
+    "preview": "Pratinjau",
+    "source": "Markdown",
+    "copy": "Salin",
+    "copied": "Tersalin",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "approve": "Setujui",
+    "markDraft": "Kembalikan ke draf",
+    "editorLabel": "Isi {file}",
+    "stale": "Ada yang menyimpan versi lebih baru. Salin perubahan Anda, lalu muat ulang untuk melanjutkan dari versi terbaru.",
+    "reload": "Muat ulang",
+    "leaveWarning": "Ada perubahan yang belum disimpan.",
+    "history": "Riwayat",
+    "historyItem": "Versi {version} · {time}",
+    "loadingPreview": "Menyiapkan pratinjau…",
+    "prdMetaTitle": "PRD",
+    "prdDescription": "Kebutuhan produk yang dibuat dari interview. Review, ubah, lalu setujui."
+  },
+  "plan": {
+    "metaTitle": "Plan",
+    "title": "Plan",
+    "description": "Tujuan, milestone, dan task di dalamnya. Sengaja dibuat sederhana.",
+    "milestone": "Milestone {n}",
+    "editMilestone": "Ubah milestone",
+    "fields": {
+      "title": "Judul",
+      "goal": "Tujuan"
+    },
+    "tasks": "{done} dari {total} task selesai",
+    "noTasks": "Belum ada task di milestone ini.",
+    "openTasks": "Buka task",
+    "openPlanDoc": "Buka PLAN.md",
+    "empty": "Belum ada plan. Plan dibuat setelah interview selesai."
+  },
+  "tasks": {
+    "metaTitle": "Task",
+    "title": "Task",
+    "description": "Buat, pindahkan, dan selesaikan pekerjaan. Perubahan langsung tersimpan.",
+    "add": "Tambah task",
+    "addTitle": "Tambah task",
+    "editTitle": "Ubah task",
+    "empty": "Belum ada task. Tambahkan yang pertama atau buat dari interview.",
+    "columnEmpty": "Tidak ada task",
+    "fields": {
+      "title": "Judul",
+      "description": "Deskripsi",
+      "priority": "Prioritas",
+      "status": "Status",
+      "milestone": "Milestone",
+      "noMilestone": "Tanpa milestone"
+    },
+    "statuses": {
+      "backlog": "Backlog",
+      "todo": "To do",
+      "in_progress": "In progress",
+      "review": "Review",
+      "done": "Selesai",
+      "blocked": "Terblokir"
+    },
+    "move": "Pindahkan “{title}”",
+    "complete": "Tandai selesai",
+    "reopen": "Buka kembali",
+    "filter": "Tampilkan",
+    "all": "Semua",
+    "failed": "Perubahan tidak bisa disimpan dan sudah dibatalkan.",
+    "source": {
+      "plan": "Dari plan",
+      "user": "Ditambahkan",
+      "agent": "Agent"
+    }
+  },
+  "memory": {
+    "metaTitle": "Memory",
+    "title": "Memory",
+    "description": "Proyek Anda mengingat apa yang sudah Anda putuskan. Agent membacanya sebelum bekerja.",
+    "add": "Tambah memory",
+    "addTitle": "Tambah ke memory",
+    "editTitle": "Ubah memory",
+    "empty": "Belum ada yang diingat. Fakta penting tentang arsitektur, produk, dan preferensi akan muncul di sini.",
+    "filterLabel": "Kategori",
+    "all": "Semua",
+    "today": "Hari ini",
+    "yesterday": "Kemarin",
+    "fields": {
+      "title": "Judul",
+      "content": "Apa yang perlu diingat",
+      "category": "Kategori",
+      "important": "Tandai penting"
+    },
+    "important": "Penting",
+    "categories": {
+      "architecture": "Arsitektur",
+      "product": "Produk",
+      "design": "Desain",
+      "technical": "Teknis",
+      "business": "Bisnis",
+      "user_preference": "Preferensi pengguna",
+      "decision": "Keputusan",
+      "constraint": "Batasan",
+      "integration": "Integrasi"
+    },
+    "sources": {
+      "interview": "Interview",
+      "recommendation": "Rekomendasi proyek",
+      "user": "Anda",
+      "agent": "Agent"
+    }
+  },
+  "decisions": {
+    "metaTitle": "Keputusan",
+    "title": "Keputusan",
+    "description": "Mengapa sesuatu dipilih. Memory adalah apa yang diketahui proyek; keputusan menjelaskan pilihannya.",
+    "add": "Buat keputusan",
+    "addTitle": "Catat keputusan",
+    "empty": "Belum ada keputusan. Keputusan arsitektur atau produk yang penting akan muncul di sini seiring proyek berkembang.",
+    "fields": {
+      "question": "Pertanyaan",
+      "context": "Konteks",
+      "options": "Opsi yang dipertimbangkan",
+      "optionsHint": "Satu opsi per baris.",
+      "selected": "Opsi yang dipilih",
+      "reason": "Alasan"
+    },
+    "labels": {
+      "context": "Konteks",
+      "options": "Opsi",
+      "selected": "Dipilih",
+      "reason": "Alasan"
+    },
+    "statuses": {
+      "proposed": "Diusulkan",
+      "accepted": "Diterima",
+      "superseded": "Digantikan"
+    },
+    "supersede": "Tandai digantikan",
+    "accept": "Tandai diterima",
+    "selectedNotOption": "Opsi yang dipilih harus salah satu dari opsi."
+  },
+  "agents": {
+    "metaTitle": "Agent",
+    "title": "Agent",
+    "description": "Pilih siapa yang membangun. Setiap agent bekerja dari konteks proyek yang sama.",
+    "foundation": "Koneksi agent hadir di fase berikutnya. Saat ini Anda bisa memilih agent utama dan melihat konteks yang akan diterimanya.",
+    "preferred": "Utama",
+    "setPreferred": "Jadikan utama",
+    "configure": "Atur",
+    "configureTitle": "Atur {name}",
+    "configureHint": "Hanya preferensi. Jangan tempel API key atau token di sini; kredensial akan punya penyimpanan aman nanti.",
+    "model": "Model pilihan",
+    "notes": "Catatan untuk agent ini",
+    "secretRejected": "Itu terlihat seperti kredensial. Hapus key dan token dari konfigurasi.",
+    "statuses": {
+      "available": "Tersedia",
+      "connected": "Terhubung",
+      "disconnected": "Terputus",
+      "pending": "Dipilih, belum terhubung",
+      "disabled": "Nonaktif"
+    },
+    "context": {
+      "title": "Konteks agent",
+      "description": "Persis apa yang akan diberikan Saqina Dev kepada {agent}, disusun dari data proyek ini.",
+      "package": "Paket konteks",
+      "preview": "Pratinjau",
+      "copy": "Salin konteks",
+      "copied": "Konteks tersalin",
+      "files": "File",
+      "lines": "{count, plural, other {# baris}}"
+    }
+  },
+  "context": {
+    "project": "Proyek",
+    "requirements": "Requirement",
+    "prd": "PRD",
+    "plan": "Plan",
+    "tasks": "Task",
+    "memory": "Memory",
+    "decisions": "Keputusan"
+  }
+}

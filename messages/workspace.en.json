@@ -1,0 +1,279 @@
+{
+  "activity": {
+    "metaTitle": "Activity",
+    "title": "Activity",
+    "description": "Meaningful changes to this project: who changed what, and when.",
+    "empty": "Changes to requirements, documents, tasks, memory and decisions will appear here.",
+    "older": "Older activity",
+    "you": "You",
+    "system": "Saqina Dev",
+    "types": {
+      "project_created": "{actor} created the project.",
+      "project_updated": "{actor} updated the project details.",
+      "project_archived": "{actor} archived the project.",
+      "project_restored": "{actor} restored the project.",
+      "interview_started": "{actor} started the interview.",
+      "interview_completed": "{actor} completed the interview.",
+      "requirement_created": "{actor} added the requirement “{title}”.",
+      "requirement_updated": "{actor} updated the requirement “{title}”.",
+      "requirement_deleted": "{actor} removed the requirement “{title}”.",
+      "recommendation_changed": "{actor} changed a recommendation.",
+      "document_created": "{actor} created {file}.",
+      "document_updated": "{actor} updated {file}.",
+      "task_created": "{actor} created the task “{title}”.",
+      "task_updated": "{actor} updated the task “{title}”.",
+      "task_completed": "{actor} completed the task “{title}”.",
+      "task_reopened": "{actor} reopened the task “{title}”.",
+      "milestone_updated": "{actor} updated the milestone “{title}”.",
+      "memory_created": "{actor} added “{title}” to memory.",
+      "memory_updated": "{actor} updated the memory “{title}”.",
+      "decision_created": "{actor} recorded decision #{number}.",
+      "decision_updated": "{actor} updated decision #{number}.",
+      "agent_updated": "{actor} updated the agent setup.",
+      "settings_updated": "{actor} updated project settings."
+    }
+  },
+  "requirements": {
+    "metaTitle": "Requirements",
+    "title": "Requirements",
+    "description": "What the product must do, where each item came from and how sure we are.",
+    "add": "Add requirement",
+    "addTitle": "Add requirement",
+    "editTitle": "Edit requirement",
+    "deleteConfirm": "Delete “{title}”? This cannot be undone.",
+    "jump": "Jump to group",
+    "empty": "No requirements yet. Complete the interview or add one yourself.",
+    "groupEmpty": "Nothing here yet.",
+    "fields": {
+      "title": "Title",
+      "description": "Description",
+      "group": "Group",
+      "priority": "Priority",
+      "status": "Status"
+    },
+    "meta": {
+      "priority": "Priority",
+      "status": "Status",
+      "source": "Source",
+      "confidence": "Confidence"
+    },
+    "priorities": {
+      "critical": "Critical",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "statuses": {
+      "confirmed": "Confirmed",
+      "inferred": "Inferred",
+      "unknown": "Unknown",
+      "conflicting": "Conflicting"
+    },
+    "sources": {
+      "user": "User",
+      "inferred": "Inferred",
+      "imported": "Imported",
+      "system": "System"
+    },
+    "confidences": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "summary": "{confirmed} confirmed · {inferred} inferred · {unknown} unknown · {conflicting} conflicting"
+  },
+  "documents": {
+    "metaTitle": "Documents",
+    "title": "Documents",
+    "description": "Project documents in Markdown. Every save keeps a version.",
+    "new": "New document",
+    "newTitle": "New document",
+    "newLabel": "Title",
+    "empty": "No documents yet.",
+    "updated": "Updated {time}",
+    "version": "v{version}",
+    "statuses": {
+      "draft": "Draft",
+      "review": "In review",
+      "approved": "Approved"
+    },
+    "edit": "Edit",
+    "preview": "Preview",
+    "source": "Markdown",
+    "copy": "Copy",
+    "copied": "Copied",
+    "save": "Save",
+    "cancel": "Cancel",
+    "approve": "Approve",
+    "markDraft": "Back to draft",
+    "editorLabel": "{file} content",
+    "stale": "Someone saved a newer version. Copy your changes, then reload to continue from the latest version.",
+    "reload": "Reload",
+    "leaveWarning": "You have unsaved changes.",
+    "history": "History",
+    "historyItem": "Version {version} · {time}",
+    "loadingPreview": "Rendering preview…",
+    "prdMetaTitle": "PRD",
+    "prdDescription": "The product requirements, generated from the interview. Review, edit and approve it."
+  },
+  "plan": {
+    "metaTitle": "Plan",
+    "title": "Plan",
+    "description": "Goal, milestones and the tasks inside them. Simple on purpose.",
+    "milestone": "Milestone {n}",
+    "editMilestone": "Edit milestone",
+    "fields": {
+      "title": "Title",
+      "goal": "Goal"
+    },
+    "tasks": "{done} of {total} tasks done",
+    "noTasks": "No tasks in this milestone.",
+    "openTasks": "Open tasks",
+    "openPlanDoc": "Open PLAN.md",
+    "empty": "No plan yet. It is created when the interview is complete."
+  },
+  "tasks": {
+    "metaTitle": "Tasks",
+    "title": "Tasks",
+    "description": "Create, move and complete work. Changes save immediately.",
+    "add": "Add task",
+    "addTitle": "Add task",
+    "editTitle": "Edit task",
+    "empty": "No tasks yet. Add the first one or generate them from the interview.",
+    "columnEmpty": "No tasks",
+    "fields": {
+      "title": "Title",
+      "description": "Description",
+      "priority": "Priority",
+      "status": "Status",
+      "milestone": "Milestone",
+      "noMilestone": "No milestone"
+    },
+    "statuses": {
+      "backlog": "Backlog",
+      "todo": "To do",
+      "in_progress": "In progress",
+      "review": "Review",
+      "done": "Done",
+      "blocked": "Blocked"
+    },
+    "move": "Move “{title}”",
+    "complete": "Mark done",
+    "reopen": "Reopen",
+    "filter": "Show",
+    "all": "All",
+    "failed": "The change could not be saved and was undone.",
+    "source": {
+      "plan": "From plan",
+      "user": "Added",
+      "agent": "Agent"
+    }
+  },
+  "memory": {
+    "metaTitle": "Memory",
+    "title": "Memory",
+    "description": "Your project remembers what you decided. Agents read this before they work.",
+    "add": "Add memory",
+    "addTitle": "Add to memory",
+    "editTitle": "Edit memory",
+    "empty": "Nothing remembered yet. Important facts about architecture, product and preferences appear here.",
+    "filterLabel": "Category",
+    "all": "All",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "fields": {
+      "title": "Title",
+      "content": "What should be remembered",
+      "category": "Category",
+      "important": "Mark as important"
+    },
+    "important": "Important",
+    "categories": {
+      "architecture": "Architecture",
+      "product": "Product",
+      "design": "Design",
+      "technical": "Technical",
+      "business": "Business",
+      "user_preference": "User preference",
+      "decision": "Decision",
+      "constraint": "Constraint",
+      "integration": "Integration"
+    },
+    "sources": {
+      "interview": "Interview",
+      "recommendation": "Project recommendation",
+      "user": "You",
+      "agent": "Agent"
+    }
+  },
+  "decisions": {
+    "metaTitle": "Decisions",
+    "title": "Decisions",
+    "description": "Why something was chosen. Memory is what the project knows; decisions explain the choices.",
+    "add": "Create decision",
+    "addTitle": "Record a decision",
+    "empty": "No decisions yet. Important architectural or product decisions will appear here as your project evolves.",
+    "fields": {
+      "question": "Question",
+      "context": "Context",
+      "options": "Options considered",
+      "optionsHint": "One option per line.",
+      "selected": "Selected option",
+      "reason": "Reason"
+    },
+    "labels": {
+      "context": "Context",
+      "options": "Options",
+      "selected": "Selected",
+      "reason": "Reason"
+    },
+    "statuses": {
+      "proposed": "Proposed",
+      "accepted": "Accepted",
+      "superseded": "Superseded"
+    },
+    "supersede": "Mark superseded",
+    "accept": "Mark accepted",
+    "selectedNotOption": "The selected option must be one of the options."
+  },
+  "agents": {
+    "metaTitle": "Agents",
+    "title": "Agents",
+    "description": "Choose who builds. Every agent works from the same project context.",
+    "foundation": "Agent connections arrive in a later phase. Today you can choose a preferred agent and preview the context it will receive.",
+    "preferred": "Preferred",
+    "setPreferred": "Set as preferred",
+    "configure": "Configure",
+    "configureTitle": "Configure {name}",
+    "configureHint": "Preferences only. Never paste API keys or tokens here; credentials get a secure store later.",
+    "model": "Preferred model",
+    "notes": "Notes for this agent",
+    "secretRejected": "That looks like a credential. Remove keys and tokens from the configuration.",
+    "statuses": {
+      "available": "Available",
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "pending": "Selected, not connected",
+      "disabled": "Disabled"
+    },
+    "context": {
+      "title": "Agent context",
+      "description": "Exactly what Saqina Dev would hand to {agent}, assembled from this project's data.",
+      "package": "Context package",
+      "preview": "Preview",
+      "copy": "Copy context",
+      "copied": "Context copied",
+      "files": "Files",
+      "lines": "{count, plural, one {# line} other {# lines}}"
+    }
+  },
+  "context": {
+    "project": "Project",
+    "requirements": "Requirements",
+    "prd": "PRD",
+    "plan": "Plan",
+    "tasks": "Tasks",
+    "memory": "Memory",
+    "decisions": "Decisions"
+  }
+}

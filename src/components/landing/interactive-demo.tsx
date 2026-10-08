@@ -94,7 +94,7 @@ export function InteractiveDemo({ content: c }: { content: DemoContent }) {
         projectType: result.answers.projectType,
       },
     });
-    router.push("/start");
+    router.push("/dashboard/new");
   };
 
   return (

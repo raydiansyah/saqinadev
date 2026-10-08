@@ -44,7 +44,13 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           <LanguageSwitcher className="hidden sm:block" />
           <Link
-            href="/start"
+            href="/sign-in"
+            className="hidden min-h-11 items-center rounded-sm px-3 text-sm text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
+          >
+            {t("signIn")}
+          </Link>
+          <Link
+            href="/dashboard/new"
             className={buttonVariants({ size: "sm", className: "hidden sm:inline-flex" })}
           >
             {t("startProject")}
@@ -56,6 +62,7 @@ export function Navbar() {
               close: t("closeMenu"),
               nav: t("mobileNav"),
               start: t("startProject"),
+              signIn: t("signIn"),
             }}
           />
         </div>

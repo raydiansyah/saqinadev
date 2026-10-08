@@ -15,7 +15,7 @@ export default function NotFound() {
           <Link href="/" className={buttonVariants()}>
             {t("notFound.home")}
           </Link>
-          <Link href="/start" className={buttonVariants({ variant: "outline" })}>
+          <Link href="/dashboard/new" className={buttonVariants({ variant: "outline" })}>
             {t("startProject")}
           </Link>
         </div>

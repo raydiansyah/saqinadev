@@ -7,7 +7,7 @@ import { recommendLanding } from "./landing";
 import { complexityOf, isSimpleSite, needsData, slugify } from "./profile";
 
 /** Typical feature sets, offered when the user answers "I don't know yet". */
-const FEATURES_BY_TYPE: Record<ProjectTypeId, FeatureId[]> = {
+export const FEATURES_BY_TYPE: Record<ProjectTypeId, FeatureId[]> = {
   "school-website": ["search", "file-upload", "notification"],
   "company-profile": ["search"],
   pos: ["auth", "pos", "inventory", "reports", "rbac"],

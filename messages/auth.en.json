@@ -1,0 +1,87 @@
+{
+  "auth": {
+    "backHome": "Back to site",
+    "or": "or",
+    "google": "Continue with Google",
+    "googleRedirecting": "Redirecting to Google…",
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "newPassword": "New password",
+      "passwordHint": "At least 8 characters."
+    },
+    "signIn": {
+      "metaTitle": "Sign in",
+      "title": "Welcome back",
+      "submit": "Sign in",
+      "pending": "Signing in…",
+      "forgot": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "createOne": "Create one"
+    },
+    "signUp": {
+      "metaTitle": "Create account",
+      "title": "Create your Saqina Dev account",
+      "submit": "Create account",
+      "pending": "Creating account…",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "terms": "By creating an account you agree to the <terms>Terms</terms> and <privacy>Privacy Policy</privacy>.",
+      "checkEmailTitle": "Check your email",
+      "checkEmailBody": "We sent a confirmation link to {email}. Open it to finish creating your account."
+    },
+    "forgot": {
+      "metaTitle": "Reset password",
+      "title": "Reset your password",
+      "body": "Enter the email you signed up with. If an account exists, we will send a reset link.",
+      "submit": "Send reset link",
+      "pending": "Sending…",
+      "sentTitle": "Check your email",
+      "sentBody": "If an account exists for {email}, a reset link is on its way. The link expires in one hour.",
+      "back": "Back to sign in"
+    },
+    "reset": {
+      "metaTitle": "Choose a new password",
+      "title": "Choose a new password",
+      "submit": "Save new password",
+      "pending": "Saving…",
+      "doneTitle": "Password updated",
+      "doneBody": "Your password has been changed and other sessions were signed out.",
+      "signIn": "Sign in",
+      "invalidTitle": "This link is no longer valid",
+      "invalidBody": "Reset links expire after one hour and work once. Request a new one.",
+      "requestNew": "Request a new link"
+    },
+    "verify": {
+      "metaTitle": "Verify your email",
+      "title": "Confirm your email",
+      "body": "Open the link we emailed you to activate your account. It may take a minute to arrive.",
+      "resend": "Send the link again",
+      "resending": "Sending…",
+      "resent": "A new link is on its way.",
+      "invalidTitle": "This verification link is no longer valid",
+      "invalidBody": "Sign in to receive a new verification link."
+    },
+    "notices": {
+      "sessionExpired": "Your session has ended. Sign in again to continue.",
+      "signedOut": "You have been signed out.",
+      "continueTo": "Sign in to continue to your project."
+    },
+    "errors": {
+      "required": "This field is required.",
+      "invalidEmail": "Enter a valid email address.",
+      "passwordTooShort": "Use at least 8 characters.",
+      "passwordMismatch": "Passwords do not match.",
+      "nameTooShort": "Enter your name.",
+      "invalidCredentials": "Email or password is incorrect.",
+      "emailNotVerified": "Confirm your email before signing in. We can send the link again.",
+      "userExists": "An account with this email already exists. Sign in instead.",
+      "rateLimited": "Too many attempts. Wait a minute and try again.",
+      "network": "We couldn't reach the server. Check your connection and try again.",
+      "oauth": "Google sign-in did not complete. Try again or use email.",
+      "unknown": "Something went wrong. Try again."
+    }
+  }
+}

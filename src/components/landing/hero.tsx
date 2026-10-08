@@ -40,7 +40,7 @@ export function Hero({ content, paths }: HeroProps) {
             {content.body}
           </p>
           <div className="intro mt-9 flex flex-col gap-3 sm:flex-row" style={at(850)}>
-            <Link href="/start" className={buttonVariants({ size: "lg" })}>
+            <Link href="/dashboard/new" className={buttonVariants({ size: "lg" })}>
               {content.primaryCta}
             </Link>
             <a href="#how-it-works" className={buttonVariants({ size: "lg", variant: "outline" })}>

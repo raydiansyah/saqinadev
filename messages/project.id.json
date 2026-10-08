@@ -1,0 +1,265 @@
+{
+  "project": {
+    "statuses": {
+      "draft": "Draf",
+      "interview": "Interview",
+      "planning": "Planning",
+      "ready": "Siap",
+      "building": "Building",
+      "review": "Review",
+      "paused": "Dijeda",
+      "completed": "Selesai",
+      "archived": "Diarsipkan"
+    },
+    "pipeline": {
+      "label": "Progres proyek",
+      "understand": "Pahami",
+      "requirements": "Requirement",
+      "planning": "Planning",
+      "build": "Build",
+      "review": "Review",
+      "deploy": "Deploy",
+      "done": "selesai",
+      "current": "sedang berjalan",
+      "upcoming": "belum dimulai"
+    },
+    "nextActions": {
+      "continueInterview": "Lanjutkan Interview",
+      "resolveBlocker": "Selesaikan Blocker",
+      "resolveConflicts": "Selesaikan Konflik",
+      "resolveOpenQuestions": "Jawab Pertanyaan Terbuka",
+      "reviewPrd": "Buka PRD",
+      "reviewPlan": "Lanjut ke Planning",
+      "startFirstTask": "Mulai Membangun",
+      "reviewWork": "Review Pekerjaan",
+      "continueBuilding": "Lanjut Membangun",
+      "restoreProject": "Pulihkan Proyek"
+    },
+    "nextActionHints": {
+      "continueInterview": "Masih ada jawaban yang kurang sebelum proyek bisa disusun.",
+      "resolveBlocker": "Ada task yang terblokir. Selesaikan sebelum memulai pekerjaan baru.",
+      "resolveConflicts": "Beberapa jawaban saling bertentangan. Tentukan mana yang benar.",
+      "resolveOpenQuestions": "Beberapa requirement belum diketahui. Jawab atau biarkan terbuka dengan sengaja.",
+      "reviewPrd": "Baca PRD yang dibuat, ubah yang kurang tepat, lalu setujui.",
+      "reviewPlan": "Plan belum punya task. Tambahkan yang pertama.",
+      "startFirstTask": "Plan sudah disetujui. Pindahkan task pertama ke in progress.",
+      "reviewWork": "Ada pekerjaan yang menunggu review.",
+      "continueBuilding": "Lanjutkan task berikutnya.",
+      "restoreProject": "Proyek ini diarsipkan. Pulihkan untuk melanjutkan."
+    },
+    "sidebar": {
+      "label": "Proyek",
+      "allProjects": "Semua Proyek",
+      "open": "Buka navigasi proyek",
+      "close": "Tutup navigasi proyek",
+      "groups": {
+        "understand": "Pahami",
+        "plan": "Rencana",
+        "context": "Konteks",
+        "build": "Build"
+      },
+      "items": {
+        "overview": "Ringkasan",
+        "interview": "Interview",
+        "requirements": "Requirement",
+        "prd": "PRD",
+        "plan": "Plan",
+        "tasks": "Task",
+        "memory": "Memory",
+        "decisions": "Keputusan",
+        "documents": "Dokumen",
+        "agents": "Agent",
+        "activity": "Aktivitas",
+        "settings": "Pengaturan"
+      }
+    },
+    "header": {
+      "updated": "Terakhir diperbarui {time}",
+      "breadcrumb": "Breadcrumb",
+      "demo": "Proyek demo"
+    },
+    "overview": {
+      "metaTitle": "Ringkasan",
+      "nextAction": "Langkah berikutnya",
+      "progress": "Progres",
+      "context": "Konteks proyek",
+      "contextHint": "Semua yang dibutuhkan agent, di satu tempat. Pilih bagian untuk membukanya.",
+      "counts": {
+        "requirements": "{count, plural, =0 {Belum ada requirement} other {# requirement}}",
+        "prd": "{status}",
+        "plan": "{count, plural, =0 {Belum ada milestone} other {# milestone}}",
+        "tasks": "{count, plural, =0 {Belum ada task} other {# task}}",
+        "memory": "{count, plural, =0 {Belum ada memory} other {# item}}",
+        "decisions": "{count, plural, =0 {Belum ada keputusan} other {# keputusan}}"
+      },
+      "approach": "Pendekatan yang direkomendasikan",
+      "buildStrategy": "Strategi build",
+      "recentActivity": "Aktivitas terbaru",
+      "allActivity": "Semua aktivitas",
+      "noActivity": "Belum ada aktivitas.",
+      "about": "Tentang",
+      "interviewPending": "Workspace dibuat setelah interview selesai. Requirement, PRD, plan, task, memory, dan keputusan akan muncul di sini.",
+      "openQuestions": "{count, plural, other {# pertanyaan terbuka}}"
+    },
+    "interview": {
+      "metaTitle": "Interview",
+      "stages": {
+        "idea": "Ide",
+        "users": "Pengguna",
+        "features": "Fitur",
+        "experience": "Pengalaman",
+        "technical": "Teknis",
+        "constraints": "Batasan",
+        "review": "Review"
+      },
+      "progressLabel": "Tahap interview",
+      "stageOf": "Tahap {current} dari {total}: {name}",
+      "skip": "Lewati dulu",
+      "skipHint": "Pertanyaan yang dilewati tetap terlihat sebagai belum diketahui di requirement.",
+      "back": "Kembali",
+      "continue": "Lanjut",
+      "toReview": "Review jawaban",
+      "completed": "Interview ini sudah selesai. Jawabannya kini ada di workspace sebagai requirement.",
+      "openRequirements": "Buka requirement",
+      "inferred": {
+        "title": "Kami menyimpulkan ini",
+        "confirm": "Konfirmasi",
+        "change": "Ubah",
+        "confirmed": "Terkonfirmasi"
+      },
+      "followups": {
+        "title": "Beberapa pertanyaan untuk jenis proyek ini",
+        "hint": "Ini menentukan cakupan dan model data. “Belum tahu” akan menjadi pertanyaan terbuka.",
+        "yes": "Ya",
+        "no": "Tidak",
+        "unsure": "Belum tahu"
+      },
+      "platform": {
+        "title": "Di mana orang memakainya, dan bagaimana mereka login?",
+        "hint": "Pilih semua yang sesuai.",
+        "platforms": "Platform",
+        "auth": "Login"
+      },
+      "constraints": {
+        "title": "Ada yang membatasi proyek ini?",
+        "hint": "Tenggat, anggaran, regulasi, alat yang sudah dipakai. Opsional.",
+        "label": "Batasan",
+        "placeholder": "Harus rilis sebelum Ramadan. Staf memakai tablet Android bersama.",
+        "timeline": "Timeline"
+      }
+    },
+    "review": {
+      "metaTitle": "Review",
+      "title": "Ini yang kami pahami",
+      "summary": "Ringkasan proyek",
+      "counts": {
+        "confirmed": "Terkonfirmasi",
+        "inferred": "Disimpulkan",
+        "unknown": "Belum diketahui",
+        "conflicting": "Konflik"
+      },
+      "conflictsTitle": "Potensi konflik",
+      "conflictsHint": "Pilih yang benar. Tidak ada yang diputuskan diam-diam.",
+      "openTitle": "Masih belum diketahui",
+      "openHint": "Jawab sekarang, atau biarkan terbuka; tetap terlihat sebagai pertanyaan terbuka.",
+      "defineNow": "Jawab sekarang",
+      "keepOpen": "Biarkan terbuka",
+      "keptOpen": "Disimpan sebagai pertanyaan terbuka",
+      "assumptionsTitle": "Asumsi untuk dikonfirmasi",
+      "requirementsTitle": "Requirement",
+      "risksTitle": "Risiko",
+      "complexity": "Kompleksitas",
+      "recommendationTitle": "Pendekatan yang direkomendasikan",
+      "recommendationHint": "Setiap rekomendasi bisa diubah. Perubahan Anda ditandai sebagai pilihan Anda.",
+      "confidence": {
+        "high": "Keyakinan tinggi",
+        "medium": "Keyakinan sedang",
+        "low": "Keyakinan rendah"
+      },
+      "source": {
+        "recommended": "Direkomendasikan",
+        "user": "Dipilih"
+      },
+      "why": "Alasan",
+      "change": "Ubah",
+      "changeTitle": "Ubah {label}",
+      "changeLabel": "Pilihan Anda",
+      "useRecommended": "Pakai rekomendasi",
+      "landingWhyNot": "Konsep lain tidak dipilih karena cocok untuk tujuan berbeda; Anda tetap bisa memilih yang lain nanti.",
+      "accept": "Terima & Buat Project",
+      "editRequirements": "Ubah Requirement",
+      "changeRecommendation": "Ubah Rekomendasi",
+      "resolveFirst": "Selesaikan konflik di atas sebelum membuat proyek.",
+      "creating": {
+        "understanding": "Memahami proyek Anda",
+        "structuring": "Menyusun requirement",
+        "recommending": "Menyiapkan rekomendasi",
+        "workspace": "Membuat workspace",
+        "ready": "Proyek siap"
+      },
+      "readyTitle": "Proyek Anda sudah siap.",
+      "readyBody": "Kami sudah membuat konteks awal proyek Anda:",
+      "created": {
+        "requirements": "Requirement",
+        "prd": "PRD",
+        "plan": "Plan Awal",
+        "memory": "Memory Proyek",
+        "decisions": "Log Keputusan"
+      },
+      "nextStep": "Langkah berikutnya yang disarankan:",
+      "open": "Buka Project",
+      "recLabels": {
+        "application": "Aplikasi",
+        "database": "Database",
+        "deployment": "Deployment",
+        "authentication": "Autentikasi",
+        "architecture": "Arsitektur",
+        "build_strategy": "Strategi build",
+        "landing": "Konsep landing"
+      }
+    },
+    "settings": {
+      "metaTitle": "Pengaturan proyek",
+      "general": "Umum",
+      "name": "Nama proyek",
+      "description": "Deskripsi",
+      "members": "Anggota",
+      "membersHint": "Kolaborasi hadir nanti. Peran: owner, admin, editor, viewer.",
+      "roles": {
+        "owner": "Owner",
+        "admin": "Admin",
+        "editor": "Editor",
+        "viewer": "Viewer"
+      },
+      "buildStrategy": "Strategi build",
+      "strategies": {
+        "saqina": "Bangun di Saqina Dev",
+        "external": "Pakai agent sendiri"
+      },
+      "technical": "Preferensi teknis",
+      "technicalHint": "Disimpan untuk fase berikutnya. Belum ada yang terhubung ke layanan luar.",
+      "repoProvider": "Penyedia repository",
+      "repoUrl": "URL repository",
+      "defaultBranch": "Branch utama",
+      "deployProvider": "Penyedia deployment",
+      "environment": "Environment",
+      "domain": "Domain",
+      "aiProvider": "Penyedia AI",
+      "aiModel": "Model",
+      "notSet": "Belum diatur",
+      "danger": "Zona berbahaya",
+      "archive": "Arsipkan proyek",
+      "archiveBody": "Sembunyikan proyek dari dashboard. Bisa dipulihkan kapan saja.",
+      "restore": "Pulihkan proyek",
+      "restoreBody": "Kembalikan proyek ke dashboard.",
+      "delete": "Hapus proyek",
+      "deleteBody": "Hapus proyek dan seluruh isinya secara permanen.",
+      "deleteConfirmTitle": "Hapus {name}?",
+      "deleteConfirmBody": "Tindakan ini tidak bisa dibatalkan. Requirement, dokumen, task, memory, keputusan, dan aktivitas ikut terhapus.",
+      "deleteConfirmLabel": "Ketik nama proyek untuk konfirmasi",
+      "deleteMismatch": "Nama tidak sama.",
+      "invalidUrl": "Masukkan URL lengkap yang diawali https://",
+      "invalidDomain": "Masukkan domain seperti app.example.com"
+    }
+  }
+}

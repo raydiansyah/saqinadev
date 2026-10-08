@@ -1,0 +1,87 @@
+{
+  "auth": {
+    "backHome": "Kembali ke situs",
+    "or": "atau",
+    "google": "Lanjutkan dengan Google",
+    "googleRedirecting": "Mengalihkan ke Google…",
+    "fields": {
+      "name": "Nama",
+      "email": "Email",
+      "password": "Kata sandi",
+      "confirmPassword": "Konfirmasi kata sandi",
+      "newPassword": "Kata sandi baru",
+      "passwordHint": "Minimal 8 karakter."
+    },
+    "signIn": {
+      "metaTitle": "Masuk",
+      "title": "Selamat datang kembali",
+      "submit": "Masuk",
+      "pending": "Sedang masuk…",
+      "forgot": "Lupa kata sandi?",
+      "noAccount": "Belum punya akun?",
+      "createOne": "Buat akun"
+    },
+    "signUp": {
+      "metaTitle": "Buat akun",
+      "title": "Buat akun Saqina Dev",
+      "submit": "Buat akun",
+      "pending": "Membuat akun…",
+      "haveAccount": "Sudah punya akun?",
+      "signIn": "Masuk",
+      "terms": "Dengan membuat akun, Anda menyetujui <terms>Syarat dan Ketentuan</terms> serta <privacy>Kebijakan Privasi</privacy>.",
+      "checkEmailTitle": "Cek email Anda",
+      "checkEmailBody": "Kami mengirim tautan konfirmasi ke {email}. Buka tautan itu untuk menyelesaikan pembuatan akun."
+    },
+    "forgot": {
+      "metaTitle": "Atur ulang kata sandi",
+      "title": "Atur ulang kata sandi",
+      "body": "Masukkan email yang Anda pakai saat mendaftar. Jika akunnya ada, kami kirim tautan atur ulang.",
+      "submit": "Kirim tautan",
+      "pending": "Mengirim…",
+      "sentTitle": "Cek email Anda",
+      "sentBody": "Jika akun untuk {email} ada, tautan atur ulang sedang dikirim. Tautan berlaku satu jam.",
+      "back": "Kembali ke halaman masuk"
+    },
+    "reset": {
+      "metaTitle": "Buat kata sandi baru",
+      "title": "Buat kata sandi baru",
+      "submit": "Simpan kata sandi baru",
+      "pending": "Menyimpan…",
+      "doneTitle": "Kata sandi diperbarui",
+      "doneBody": "Kata sandi Anda sudah diganti dan sesi lain sudah dikeluarkan.",
+      "signIn": "Masuk",
+      "invalidTitle": "Tautan ini sudah tidak berlaku",
+      "invalidBody": "Tautan atur ulang berlaku satu jam dan hanya sekali pakai. Minta tautan baru.",
+      "requestNew": "Minta tautan baru"
+    },
+    "verify": {
+      "metaTitle": "Verifikasi email",
+      "title": "Konfirmasi email Anda",
+      "body": "Buka tautan yang kami kirim ke email Anda untuk mengaktifkan akun. Mungkin perlu satu menit untuk sampai.",
+      "resend": "Kirim ulang tautan",
+      "resending": "Mengirim…",
+      "resent": "Tautan baru sedang dikirim.",
+      "invalidTitle": "Tautan verifikasi ini sudah tidak berlaku",
+      "invalidBody": "Masuk untuk menerima tautan verifikasi baru."
+    },
+    "notices": {
+      "sessionExpired": "Sesi Anda sudah berakhir. Masuk lagi untuk melanjutkan.",
+      "signedOut": "Anda sudah keluar.",
+      "continueTo": "Masuk untuk melanjutkan ke proyek Anda."
+    },
+    "errors": {
+      "required": "Kolom ini wajib diisi.",
+      "invalidEmail": "Masukkan alamat email yang valid.",
+      "passwordTooShort": "Gunakan minimal 8 karakter.",
+      "passwordMismatch": "Kata sandi tidak sama.",
+      "nameTooShort": "Masukkan nama Anda.",
+      "invalidCredentials": "Email atau kata sandi salah.",
+      "emailNotVerified": "Konfirmasi email Anda sebelum masuk. Kami bisa mengirim ulang tautannya.",
+      "userExists": "Akun dengan email ini sudah ada. Silakan masuk.",
+      "rateLimited": "Terlalu banyak percobaan. Tunggu satu menit lalu coba lagi.",
+      "network": "Server tidak dapat dihubungi. Periksa koneksi Anda lalu coba lagi.",
+      "oauth": "Masuk dengan Google tidak selesai. Coba lagi atau gunakan email.",
+      "unknown": "Terjadi kesalahan. Coba lagi."
+    }
+  }
+}

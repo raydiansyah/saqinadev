@@ -46,7 +46,8 @@
       "title": "This page is not part of the project yet.",
       "body": "The link may be old, or the page is planned for a later phase.",
       "home": "Back to the home page"
-    }
+    },
+    "signIn": "Sign in"
   },
   "start": {
     "metaTitle": "Start a project",
