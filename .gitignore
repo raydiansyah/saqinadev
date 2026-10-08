@@ -46,3 +46,8 @@ graphify-out/
 
 # local test report output
 .vitest/
+
+# Tooling artifacts
+.claude-flow/
+.claude/proven-config.json
+.claude/.proven-config-version
