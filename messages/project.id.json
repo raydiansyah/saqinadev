@@ -60,7 +60,9 @@
         "understand": "Pahami",
         "plan": "Rencana",
         "context": "Konteks",
-        "build": "Build"
+        "build": "Build",
+        "business": "Project",
+        "client": "Client"
       },
       "items": {
         "overview": "Ringkasan",
@@ -77,7 +79,15 @@
         "agents": "Agent",
         "activity": "Aktivitas",
         "settings": "Pengaturan",
-        "integrations": "Integrasi"
+        "integrations": "Integrasi",
+        "progress": "Progres",
+        "features": "Fitur",
+        "billing": "Billing",
+        "maintenance": "Maintenance",
+        "requests": "Permintaan",
+        "messages": "Pesan",
+        "clientApprovals": "Persetujuan client",
+        "changes": "Change request"
       },
       "pending": "menunggu"
     },

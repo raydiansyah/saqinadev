@@ -128,7 +128,10 @@ export function DocumentWorkspace({
   const tabs: { id: Mode; label: string }[] = [
     { id: "preview", label: t("preview") },
     { id: "source", label: t("source") },
-    ...(canEdit ? [{ id: "edit" as const, label: t("edit") }] : []),
+    // Signed and archived documents are records: read-only.
+    ...(canEdit && doc.status !== "signed" && doc.status !== "archived"
+      ? [{ id: "edit" as const, label: t("edit") }]
+      : []),
   ];
 
   return (
@@ -258,15 +261,30 @@ export function DocumentWorkspace({
             </>
           ) : canEdit ? (
             doc.status === "approved" ? (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onStatus("draft")}
+                  disabled={pending}
+                >
+                  {t("markDraft")}
+                </Button>
+                {/* Signed = the agreed record; it can no longer be edited or regenerated. */}
+                <Button size="sm" onClick={() => onStatus("signed")} disabled={pending}>
+                  {t("markSigned")}
+                </Button>
+              </>
+            ) : doc.status === "signed" ? (
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => onStatus("draft")}
+                onClick={() => onStatus("archived")}
                 disabled={pending}
               >
-                {t("markDraft")}
+                {t("archive")}
               </Button>
-            ) : (
+            ) : doc.status === "archived" ? null : (
               <Button size="sm" onClick={() => onStatus("approved")} disabled={pending}>
                 {t("approve")}
               </Button>

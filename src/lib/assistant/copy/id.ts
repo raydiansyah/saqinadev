@@ -1,3 +1,4 @@
+import { businessId } from "./business";
 import type { AssistantCopy } from "./types";
 
 export const id: AssistantCopy = {
@@ -179,6 +180,7 @@ export const id: AssistantCopy = {
       group: "users_roles",
     },
   },
+  business: businessId,
   requirementUpdate: {
     question: (t) => `Apa yang perlu diubah pada "${t}"?`,
     noMatch: (topic) =>

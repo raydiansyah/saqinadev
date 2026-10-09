@@ -8,6 +8,7 @@ import type { Locale } from "@/i18n/locales";
 import { can } from "@/lib/auth/permissions";
 import { projectPageAccess, projectSnapshot } from "@/lib/projects/page";
 import { getNextProjectAction } from "@/lib/projects/progress";
+import { getUiMode } from "@/lib/users/preferences";
 
 export default async function ProjectLayout({
   children,
@@ -22,6 +23,7 @@ export default async function ProjectLayout({
     name: project.name,
     statusLabel: t(project.status),
     pendingApprovals: snapshot.attention?.pendingProposals ?? 0,
+    mode: await getUiMode(actor),
   };
 
   return (

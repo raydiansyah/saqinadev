@@ -3,6 +3,7 @@ import { DashboardNav } from "@/components/app/dashboard-nav";
 import type { Locale } from "@/i18n/locales";
 import { requireActorPage } from "@/lib/auth/server";
 import { isPlatformOwner } from "@/lib/platform/roles";
+import { getUiMode } from "@/lib/users/preferences";
 
 export default async function DashboardLayout({
   children,
@@ -13,7 +14,7 @@ export default async function DashboardLayout({
   return (
     <>
       <AppHeader actor={actor} locale={locale} />
-      <DashboardNav isOwner={await isPlatformOwner(actor)} />
+      <DashboardNav isOwner={await isPlatformOwner(actor)} mode={await getUiMode(actor)} />
       <main id="main" className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6 sm:py-10">
         {children}
       </main>

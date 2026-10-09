@@ -3,21 +3,27 @@ import { and, desc, eq } from "drizzle-orm";
 import { type ActivityView, listActivity } from "@/lib/activity/service";
 import { type AgentRow, listAgentRegistry } from "@/lib/agents/registry";
 import type { PromptSegment } from "@/lib/ai/provider";
-import type { ProjectAccess } from "@/lib/auth/permissions";
+import { can, type ProjectAccess } from "@/lib/auth/permissions";
+import { type ProjectBilling, projectBilling } from "@/lib/billing/summary";
+import { type ChangeRequest, listChangeRequests } from "@/lib/change-requests/service";
 import { db } from "@/lib/db/client";
 import { decisions, documents, memories, requirements, tasks } from "@/lib/db/schema";
 import type { TechStack } from "@/lib/db/schema/projects";
 import { type DecisionView, listDecisions } from "@/lib/decisions/service";
 import type { ConversationContext } from "@/lib/domain/enums";
+import { type ClientApproval, listApprovals } from "@/lib/engagement/approvals";
 import { AppError } from "@/lib/errors";
 import { getRepository, type RepositoryView, toRepositoryView } from "@/lib/git/service";
 import type { StackMismatch } from "@/lib/git/stack";
+import { listPlans, type MaintenancePlan } from "@/lib/maintenance/service";
 import { listMemories, type MemoryView } from "@/lib/memory/service";
+import { clientRecipients } from "@/lib/notifications/service";
 import type { ProjectSnapshot } from "@/lib/projects/progress";
 import { getSettings, loadSnapshot } from "@/lib/projects/repository";
 import { getTechStack, projectStackMismatches } from "@/lib/projects/stack";
 import { listRecommendations, type StoredRecommendation } from "@/lib/recommendations/service";
 import { listRequirements, type RequirementView } from "@/lib/requirements/service";
+import { listScope, type ScopeItem } from "@/lib/scope/service";
 import { listTasks, type TaskView } from "@/lib/tasks/service";
 import type { Intent } from "./intents/types";
 
@@ -44,7 +50,10 @@ type Slice =
   | "recommendations"
   | "activity"
   | "agents"
-  | "repository";
+  | "repository"
+  | "scope"
+  | "billing"
+  | "engagement";
 
 /** Only what each intent needs. Nothing project-wide rides along by default. */
 const NEEDS: Record<Intent, Slice[]> = {
@@ -61,7 +70,7 @@ const NEEDS: Record<Intent, Slice[]> = {
   SPLIT_TASK: ["tasks"],
   CREATE_REQUIREMENT: ["requirements"],
   UPDATE_REQUIREMENT: ["requirements"],
-  ADD_FEATURE: ["requirements", "agents"],
+  ADD_FEATURE: ["requirements", "agents", "scope"],
   UPDATE_PRD: ["prd"],
   CREATE_MEMORY: [],
   CREATE_DECISION: [],
@@ -77,6 +86,15 @@ const NEEDS: Record<Intent, Slice[]> = {
   HANDOFF_AGENT: ["tasks", "agents", "repository"],
   ASK_REPOSITORY: ["repository"],
   ANALYZE_REPOSITORY: ["repository"],
+  ASK_BILLING: ["billing"],
+  SETUP_BILLING: ["billing"],
+  CREATE_INVOICE: ["billing"],
+  ASK_SCOPE: ["scope"],
+  ADD_SCOPE_ITEM: ["scope"],
+  CREATE_CHANGE_REQUEST: ["scope"],
+  GENERATE_DOCUMENT: [],
+  ASK_MAINTENANCE: ["engagement"],
+  REMIND_CLIENT: ["billing", "engagement"],
   HELP: [],
 };
 
@@ -101,6 +119,16 @@ export interface AssistantContext {
     view: RepositoryView | null;
     stack: TechStack;
     mismatches: StackMismatch[];
+  };
+  scope?: ScopeItem[];
+  /** Billing records, or "forbidden" when the member's role cannot read billing. */
+  billing?: ProjectBilling | "forbidden";
+  /** Maintenance plans and open client-facing items, for maintenance and reminder intents. */
+  engagement?: {
+    plans: MaintenancePlan[];
+    approvals: ClientApproval[];
+    changeRequests: ChangeRequest[];
+    portalRecipients: number;
   };
 }
 
@@ -215,6 +243,20 @@ export async function buildContext(
       ]).then(([row, stack, mismatches]) => {
         ctx.repository = { view: row ? toRepositoryView(row) : null, stack, mismatches };
       }),
+    needs.has("scope") && listScope(access.project.id).then((r) => (ctx.scope = r)),
+    needs.has("billing") &&
+      (can(access.role, "billing:read")
+        ? projectBilling(access.project).then((r) => (ctx.billing = r))
+        : (ctx.billing = "forbidden")),
+    needs.has("engagement") &&
+      Promise.all([
+        listPlans(access.project.id),
+        listApprovals(access.project.id),
+        listChangeRequests(access.project.id),
+        clientRecipients(db, access.project.id),
+      ]).then(([plans, approvals, changeRequests, recipients]) => {
+        ctx.engagement = { plans, approvals, changeRequests, portalRecipients: recipients.length };
+      }),
     needs.has("agents") &&
       listAgentRegistry(access).then((r) => {
         ctx.agents = r.agents;
@@ -307,6 +349,20 @@ export function contextSegments(ctx: AssistantContext): PromptSegment[] {
       label: "memory",
       content: ctx.memories.map((m) => `- ${m.title}: ${m.content}`).join("\n"),
     });
+  if (ctx.scope?.length)
+    segments.push({
+      kind: "project_data",
+      label: "scope",
+      content: ctx.scope.map((i) => `- [${i.category}] ${i.title}`).join("\n"),
+    });
+  if (ctx.billing && ctx.billing !== "forbidden") {
+    const { totals, currency } = ctx.billing;
+    segments.push({
+      kind: "project_data",
+      label: "billing (authoritative records, minor units)",
+      content: `Currency ${currency}. Value ${totals.value ?? "unset"}. Invoiced ${totals.invoiced}. Paid ${totals.paid}. Outstanding ${totals.outstanding}. Overdue ${totals.overdue}.`,
+    });
+  }
   if (ctx.summary)
     segments.push({ kind: "project_data", label: "conversation summary", content: ctx.summary });
 

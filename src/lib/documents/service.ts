@@ -29,6 +29,7 @@ export async function listDocuments(access: ProjectAccess): Promise<DocumentList
       slug: documents.slug,
       version: documents.version,
       status: documents.status,
+      clientVisible: documents.clientVisible,
       createdBy: documents.createdBy,
       updatedBy: documents.updatedBy,
       createdAt: documents.createdAt,
@@ -84,6 +85,9 @@ export async function saveDocument(actor: Actor, slug: string, input: unknown) {
     if (!doc) throw new AppError("NOT_FOUND");
     if (doc.version !== baseVersion)
       throw new AppError("CONFLICT", "Document changed", { content: "stale" });
+    // A signed document is a record of what was agreed; changes need a new document.
+    if (doc.status === "signed")
+      throw new AppError("CONFLICT", "Signed documents are read-only", { content: "signed" });
     if (doc.content === content) return { version: doc.version, updatedAt: doc.updatedAt };
 
     const version = doc.version + 1;
@@ -155,7 +159,12 @@ export async function setDocumentStatus(actor: Actor, slug: string, input: unkno
     const { project } = await loadProjectAccess(actor, { slug }, "content:write", tx);
     const [doc] = await tx
       .update(documents)
-      .set({ status, updatedBy: actor.id })
+      // Leaving "approved" also withdraws the document from the client portal.
+      .set({
+        status,
+        updatedBy: actor.id,
+        ...(status === "approved" || status === "signed" ? {} : { clientVisible: false }),
+      })
       .where(and(eq(documents.projectId, project.id), eq(documents.slug, docSlug)))
       .returning({ id: documents.id });
     if (!doc) throw new AppError("NOT_FOUND");
@@ -170,7 +179,49 @@ export async function setDocumentStatus(actor: Actor, slug: string, input: unkno
   });
 }
 
-const RESERVED = new Set(["prd", "plan", "project", "tasks", "memory", "decisions", "changelog"]);
+/** Shares or unshares a document on the client portal. Only approved documents can be shared. */
+export async function setDocumentClientVisible(actor: Actor, slug: string, input: unknown) {
+  const { docSlug, visible } = parse(
+    z.object({ docSlug: z.string().min(1).max(64), visible: z.boolean() }),
+    input,
+  );
+  await db.transaction(async (tx) => {
+    const { project } = await loadProjectAccess(actor, { slug }, "project:update", tx);
+    const [doc] = await tx
+      .select({ id: documents.id, status: documents.status })
+      .from(documents)
+      .where(and(eq(documents.projectId, project.id), eq(documents.slug, docSlug)))
+      .for("update");
+    if (!doc) throw new AppError("NOT_FOUND");
+    if (visible && doc.status !== "approved" && doc.status !== "signed")
+      throw new AppError("VALIDATION_ERROR", "Only approved documents can be shared", {
+        visible: "documents.shareNeedsApproval",
+      });
+    await tx.update(documents).set({ clientVisible: visible }).where(eq(documents.id, doc.id));
+    await recordActivity(tx, {
+      projectId: project.id,
+      actorId: actor.id,
+      type: "document.updated",
+      entityType: "document",
+      entityId: doc.id,
+      metadata: { slug: docSlug, shared: visible },
+    });
+  });
+}
+
+const RESERVED = new Set([
+  "prd",
+  "plan",
+  "project",
+  "tasks",
+  "memory",
+  "decisions",
+  "changelog",
+  "proposal",
+  "agreement",
+  "handover",
+  "maintenance-agreement",
+]);
 
 export async function createDocument(actor: Actor, slug: string, input: unknown) {
   const { title } = parse(z.object({ title: z.string().trim().min(2).max(80) }), input);

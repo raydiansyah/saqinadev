@@ -5,6 +5,7 @@ import { DEFAULT_LOCALE, isLocale } from "@/i18n/locales";
 import { redirect } from "@/i18n/navigation";
 import { runAction } from "@/lib/actions";
 import { requireActor } from "@/lib/auth/server";
+import { setProjectClient } from "@/lib/clients/service";
 import {
   deleteProject,
   setProjectArchived,
@@ -32,6 +33,13 @@ export async function updateSettingsAction(slug: string, input: unknown) {
 export async function updateApprovalPolicyAction(slug: string, input: unknown) {
   return runAction("project.approvalPolicy", { slug }, async () => {
     await updateApprovalPolicy(await requireActor(), slug, input);
+    refresh();
+  });
+}
+
+export async function setProjectClientAction(slug: string, input: unknown) {
+  return runAction("project.client", { slug }, async () => {
+    await setProjectClient(await requireActor(), slug, input);
     refresh();
   });
 }

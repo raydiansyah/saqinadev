@@ -1,0 +1,251 @@
+{
+  "engagement": {
+    "title": "Kerja klien",
+    "common": {
+      "save": "Simpan",
+      "cancel": "Batal",
+      "close": "Tutup",
+      "edit": "Ubah",
+      "remind": "Ingatkan klien",
+      "reminded": "Pengingat terkirim",
+      "portalOff": "Portal klien belum aktif atau belum ada klien, jadi klien belum bisa melihat ini.",
+      "openSettings": "Buka pengaturan",
+      "readOnly": "Anda bisa melihat halaman ini tetapi tidak bisa mengubahnya.",
+      "team": "Tim",
+      "client": "Klien",
+      "unknownAuthor": "Tidak diketahui"
+    },
+    "scope": {
+      "within": "Dalam lingkup",
+      "out_of_scope": "Di luar lingkup",
+      "unknown": "Lingkup belum jelas"
+    },
+    "requests": {
+      "metaTitle": "Permintaan",
+      "title": "Permintaan",
+      "description": "Pertanyaan, fitur, bug, dan permintaan pemeliharaan dari klien, dikirim lewat portal atau dicatat oleh tim.",
+      "empty": "Belum ada permintaan. Permintaan klien dari portal muncul di sini, dan Anda bisa mencatat permintaan yang masuk lewat telepon atau email.",
+      "emptyOpen": "Tidak ada permintaan terbuka.",
+      "filterLabel": "Tampilkan",
+      "filterOpen": "Terbuka",
+      "filterAll": "Semua",
+      "log": "Catat permintaan",
+      "logTitle": "Catat permintaan klien",
+      "logHint": "Untuk permintaan yang disampaikan klien lewat telepon, email, atau chat. Saqina mencocokkannya dengan lingkup yang disepakati.",
+      "kind": "Jenis",
+      "requestTitle": "Judul",
+      "body": "Detail",
+      "bodyPlaceholder": "Apa yang diminta klien, dengan kata-kata mereka",
+      "status": "Status",
+      "classification": "Siapa yang membayar",
+      "suggests": "Saran Saqina: {class}",
+      "accept": "Terima",
+      "convert": "Jadikan permintaan perubahan",
+      "converted": "Permintaan perubahan dibuat",
+      "viewChange": "Lihat permintaan perubahan",
+      "outOfScopeNote": "Di luar lingkup: tangani sebagai permintaan perubahan agar biaya dan waktu disepakati lebih dulu.",
+      "fromTeam": "Dicatat tim",
+      "fromClient": "Dari klien",
+      "kinds": {
+        "question": "Pertanyaan",
+        "feature": "Fitur",
+        "bug": "Bug",
+        "maintenance": "Pemeliharaan"
+      },
+      "statuses": {
+        "open": "Terbuka",
+        "in_review": "Sedang ditinjau",
+        "resolved": "Selesai",
+        "declined": "Ditolak",
+        "converted": "Dikonversi"
+      },
+      "classes": {
+        "unclassified": "Belum diputuskan",
+        "warranty": "Garansi",
+        "included": "Termasuk paket",
+        "paid": "Pekerjaan berbayar"
+      }
+    },
+    "messages": {
+      "metaTitle": "Pesan",
+      "title": "Pesan",
+      "description": "Percakapan dengan klien. Keputusan yang dibahas di sini tetap tersimpan di proyek.",
+      "empty": "Belum ada pesan. Mulai percakapan dengan klien.",
+      "visibility": "Terlihat oleh klien di portal. Jangan tempel catatan internal atau kredensial.",
+      "label": "Pesan",
+      "placeholder": "Tulis pesan untuk klien",
+      "send": "Kirim",
+      "threadLabel": "Utas pesan"
+    },
+    "approvals": {
+      "metaTitle": "Persetujuan klien",
+      "title": "Persetujuan klien",
+      "description": "Minta klien menyetujui desain, dokumen, atau milestone. Tidak ada yang berubah sampai mereka menjawab.",
+      "empty": "Belum ada permintaan persetujuan.",
+      "formTitle": "Minta persetujuan",
+      "approvalTitle": "Apa yang perlu disetujui klien?",
+      "approvalTitlePlaceholder": "Desain beranda, versi 2",
+      "approvalDescription": "Detail",
+      "document": "Dokumen untuk ditinjau",
+      "noDocument": "Tanpa dokumen",
+      "documentHint": "Hanya dokumen yang sudah disetujui atau ditandatangani yang bisa dilampirkan. Dokumen akan dibagikan ke klien.",
+      "link": "Tautan",
+      "linkHint": "Opsional, misalnya URL desain atau staging.",
+      "submit": "Kirim ke klien",
+      "cancelRequest": "Batalkan permintaan",
+      "cancelTitle": "Batalkan permintaan persetujuan ini?",
+      "cancelBody": "Klien tidak bisa lagi menjawabnya.",
+      "response": "Tanggapan klien",
+      "openDocument": "Buka dokumen",
+      "openLink": "Buka tautan",
+      "requested": "Diminta {date}",
+      "statuses": {
+        "pending": "Menunggu",
+        "approved": "Disetujui",
+        "changes_requested": "Minta perubahan",
+        "cancelled": "Dibatalkan"
+      }
+    },
+    "changes": {
+      "metaTitle": "Permintaan perubahan",
+      "title": "Permintaan perubahan",
+      "description": "Pekerjaan di luar lingkup yang disepakati, lengkap dengan biaya dan waktunya, disetujui klien sebelum dimulai.",
+      "empty": "Belum ada permintaan perubahan. Buat di sini atau konversi dari permintaan klien.",
+      "explain": "Saat klien menyetujui permintaan perubahan, perubahan itu masuk ke lingkup, sebuah tugas dibuat, dan biayanya menjadi termin pembayaran sehingga nilai proyek bertambah.",
+      "create": "Permintaan perubahan baru",
+      "createTitle": "Permintaan perubahan baru",
+      "editTitle": "Ubah {number}",
+      "crTitle": "Judul",
+      "crDescription": "Deskripsi",
+      "impact": "Dampak",
+      "impactPlaceholder": "Apa yang berubah pada jadwal, desain, atau fitur lain",
+      "cost": "Biaya tambahan ({currency})",
+      "costHint": "Isi 0 jika tidak ada biaya tambahan.",
+      "days": "Tambahan hari",
+      "send": "Kirim ke klien",
+      "sendTitle": "Kirim {number} ke klien?",
+      "sendBody": "Klien melihat biaya dan waktunya di portal lalu bisa menyetujui atau menolak. Setelah dikirim, isinya tidak bisa diubah.",
+      "recordDecision": "Catat keputusan",
+      "decisionTitle": "Catat keputusan klien untuk {number}",
+      "decisionHint": "Gunakan ini jika klien memutuskan di luar portal. Sebutkan bagaimana klien memutuskan.",
+      "decision": "Keputusan",
+      "approved": "Disetujui",
+      "rejected": "Ditolak",
+      "note": "Bagaimana klien memutuskan?",
+      "notePlaceholder": "Disetujui lewat email pada 12 Okt",
+      "markDone": "Tandai selesai",
+      "cancelCr": "Batalkan",
+      "cancelTitle": "Batalkan {number}?",
+      "cancelBody": "Permintaan perubahan ditutup dan klien tidak bisa lagi memutuskannya.",
+      "costLabel": "Biaya",
+      "daysLabel": "Waktu",
+      "daysValue": "{days, plural, =0 {Tanpa tambahan hari} other {Tambahan # hari}}",
+      "decisionNote": "Catatan keputusan",
+      "invalidAmount": "Masukkan jumlah yang valid.",
+      "statuses": {
+        "draft": "Draf",
+        "sent": "Menunggu klien",
+        "approved": "Disetujui",
+        "rejected": "Ditolak",
+        "cancelled": "Dibatalkan",
+        "done": "Selesai"
+      }
+    },
+    "maintenance": {
+      "metaTitle": "Pemeliharaan",
+      "title": "Pemeliharaan",
+      "description": "Garansi memperbaiki cacat pada lingkup yang sudah diserahkan; pemeliharaan adalah dukungan berkelanjutan yang berbayar.",
+      "warrantyTitle": "Garansi",
+      "warrantyHint": "Bug yang dilaporkan sampai tanggal ini disarankan sebagai perbaikan garansi.",
+      "warrantyUntil": "Garansi sampai",
+      "warrantyNone": "Tanggal garansi belum diatur.",
+      "warrantyLeft": "{days, plural, =0 {Berakhir hari ini} other {Sisa # hari}}",
+      "warrantyEnded": "Garansi berakhir",
+      "clear": "Hapus tanggal",
+      "plansTitle": "Paket pemeliharaan",
+      "plansEmpty": "Belum ada paket pemeliharaan.",
+      "newPlan": "Paket baru",
+      "createTitle": "Paket pemeliharaan baru",
+      "editTitle": "Ubah paket",
+      "name": "Nama paket",
+      "namePlaceholder": "Dukungan dasar",
+      "startDate": "Tanggal mulai",
+      "endDate": "Tanggal selesai",
+      "fee": "Biaya per siklus ({currency})",
+      "cycle": "Siklus tagihan",
+      "responseHours": "Waktu respons (jam)",
+      "planScope": "Termasuk",
+      "planScopePlaceholder": "Pembaruan keamanan, backup bulanan, perubahan konten kecil",
+      "excluded": "Tidak termasuk",
+      "excludedPlaceholder": "Fitur baru, desain ulang",
+      "status": "Status",
+      "period": "Periode",
+      "feeColumn": "Biaya",
+      "daysLeft": "Sisa hari",
+      "actions": "Aksi",
+      "renew": "Perpanjang",
+      "renewTitle": "Perpanjang {name}?",
+      "renewBody": "Paket baru dengan ketentuan yang sama dimulai sehari setelah paket ini berakhir. Paket ini ditandai berakhir.",
+      "renewsSoon": "Segera diperpanjang",
+      "expired": "Berakhir",
+      "perCycle": "{amount} {cycle}",
+      "requestsTitle": "Permintaan pemeliharaan dan bug",
+      "requestsEmpty": "Belum ada permintaan pemeliharaan atau bug.",
+      "triage": "Tinjau di permintaan",
+      "invalidAmount": "Masukkan jumlah yang valid.",
+      "cycles": {
+        "monthly": "per bulan",
+        "quarterly": "per kuartal",
+        "yearly": "per tahun",
+        "one_time": "sekali bayar"
+      },
+      "cycleNames": {
+        "monthly": "Bulanan",
+        "quarterly": "Kuartalan",
+        "yearly": "Tahunan",
+        "one_time": "Sekali bayar"
+      },
+      "statuses": {
+        "active": "Aktif",
+        "ended": "Berakhir",
+        "cancelled": "Dibatalkan"
+      }
+    },
+    "businessDocs": {
+      "title": "Buat dokumen bisnis",
+      "note": "Disusun dari lingkup, jadwal, dan milestone. Detail yang belum ada tetap sebagai [PLACEHOLDER]. Draf ini bukan nasihat hukum.",
+      "kinds": {
+        "proposal": "Proposal",
+        "agreement": "Perjanjian",
+        "handover": "Serah terima",
+        "maintenance_agreement": "Perjanjian pemeliharaan"
+      }
+    },
+    "errors": {
+      "engagement": {
+        "portalOff": "Aktifkan portal klien dan pilih klien di pengaturan proyek terlebih dahulu.",
+        "noteRequired": "Tambahkan catatan tentang apa yang perlu diubah.",
+        "remindedToday": "Klien sudah diingatkan tentang ini hari ini.",
+        "noRecipients": "Belum ada yang punya akses portal untuk klien ini."
+      },
+      "cr": {
+        "notDraft": "Hanya permintaan perubahan berstatus draf yang bisa diubah atau dikirim.",
+        "notSent": "Permintaan perubahan ini tidak sedang menunggu keputusan.",
+        "evidenceRequired": "Sebutkan bagaimana klien memutuskan (minimal 5 karakter), misalnya \"Disetujui lewat email pada 12 Okt\".",
+        "invalidTransition": "Permintaan perubahan ini tidak bisa dipindah ke status tersebut."
+      },
+      "documents": {
+        "shareNeedsApproval": "Setujui dokumen terlebih dahulu sebelum meminta klien meninjaunya.",
+        "signedLocked": "Dokumen ini sudah ditandatangani dan tidak bisa dibuat ulang."
+      },
+      "maintenance": {
+        "cancelled": "Paket yang dibatalkan tidak bisa diperpanjang."
+      },
+      "fields": {
+        "tooShort": "Ada isian yang terlalu pendek.",
+        "tooLong": "Ada isian yang terlalu panjang.",
+        "invalid": "Ada isian dengan nilai tidak valid."
+      }
+    }
+  }
+}

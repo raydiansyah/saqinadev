@@ -9,10 +9,22 @@ import assistantEn from "../messages/assistant.en.json";
 import assistantId from "../messages/assistant.id.json";
 import authEn from "../messages/auth.en.json";
 import authId from "../messages/auth.id.json";
+import billingEn from "../messages/billing.en.json";
+import billingId from "../messages/billing.id.json";
+import clientsEn from "../messages/clients.en.json";
+import clientsId from "../messages/clients.id.json";
 import enMessages from "../messages/en.json";
+import engagementEn from "../messages/engagement.en.json";
+import engagementId from "../messages/engagement.id.json";
 import idMessages from "../messages/id.json";
+import notifyEn from "../messages/notify.en.json";
+import notifyId from "../messages/notify.id.json";
 import platformEn from "../messages/platform.en.json";
 import platformId from "../messages/platform.id.json";
+import portalEn from "../messages/portal.en.json";
+import portalId from "../messages/portal.id.json";
+import portalEngagementEn from "../messages/portal-engagement.en.json";
+import portalEngagementId from "../messages/portal-engagement.id.json";
 import projectEn from "../messages/project.en.json";
 import projectId from "../messages/project.id.json";
 import workspaceEn from "../messages/workspace.en.json";
@@ -43,6 +55,12 @@ describe.each([
   ["workspace messages", workspaceEn, workspaceId],
   ["assistant messages", assistantEn, assistantId],
   ["platform messages", platformEn, platformId],
+  ["billing messages", billingEn, billingId],
+  ["portal messages", portalEn, portalId],
+  ["clients messages", clientsEn, clientsId],
+  ["engagement messages", engagementEn, engagementId],
+  ["portal engagement messages", portalEngagementEn, portalEngagementId],
+  ["notify messages", notifyEn, notifyId],
   ["site content", siteEn, siteId],
   ["legal documents", legalEn, legalId],
 ])("%s", (_, en, id) => {
@@ -76,6 +94,12 @@ describe("message files", () => {
       workspaceEn,
       assistantEn,
       platformEn,
+      billingEn,
+      portalEn,
+      clientsEn,
+      engagementEn,
+      portalEngagementEn,
+      notifyEn,
     ].flatMap((m) => Object.keys(m));
     expect(new Set(names).size).toBe(names.length);
   });

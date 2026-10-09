@@ -16,6 +16,8 @@ import { agentRuns, agents, conversations, messages, proposals } from "@/lib/db/
 import type { AgentPermission } from "@/lib/domain/enums";
 import { AppError, isAppError } from "@/lib/errors";
 import { EventBatch } from "@/lib/events/emitter";
+import { log } from "@/lib/log";
+import { sendClientReminder } from "@/lib/reminders/manual";
 import { executeTool } from "@/lib/tools/executor";
 import { parse } from "@/lib/validation";
 import { type ProposalRow, toView } from "./repository";
@@ -117,6 +119,11 @@ export async function approveProposal(
   batch.flush();
   const tools = await runApprovedTools(access, proposalId, result.toolCalls);
   const handoffs = await createApprovedHandoffs(actor, slug, proposalId, result.handoffs);
+  // Approved reminders: a failure (already reminded today, no portal user) is not fatal.
+  for (const reminder of result.reminders)
+    await sendClientReminder(actor, slug, reminder).catch((error) =>
+      log.warn("proposal.reminder_failed", { proposalId, error: String(error) }),
+    );
   for (const runId of result.runs) await startRun(access, runId);
   return { items: result.items, runs: result.runs, tools, handoffs };
 }

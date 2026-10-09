@@ -1,4 +1,5 @@
 import type { MemoryCategory, RequirementGroup } from "@/lib/domain/enums";
+import type { BusinessCopy } from "./business";
 
 /** A question Saqina asks before acting, with answers the user can tap. */
 export interface Clarification {
@@ -24,6 +25,7 @@ export interface AssistantCopy {
   proposalDestructive: string;
   revisionAsk: (title: string, note: string) => string;
   modelFallback: string;
+  business: BusinessCopy;
 
   project: (p: {
     name: string;

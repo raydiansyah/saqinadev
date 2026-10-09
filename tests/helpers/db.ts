@@ -18,10 +18,10 @@ export async function resetDatabase() {
 
 let counter = 0;
 
-export async function createUser(name = "Test User"): Promise<Actor> {
+export async function createUser(name = "Test User", emailOverride?: string): Promise<Actor> {
   counter += 1;
   const id = `user_${Date.now()}_${counter}`;
-  const email = `${id}@example.test`;
+  const email = emailOverride ?? `${id}@example.test`;
   await db.insert(users).values({ id, name, email, emailVerified: true });
   return { id, name, email, image: null };
 }
