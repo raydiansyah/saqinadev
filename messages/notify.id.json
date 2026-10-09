@@ -1,0 +1,177 @@
+{
+  "notifications": {
+    "title": "Notifikasi",
+    "metaTitle": "Notifikasi",
+    "description": "Kabar dari project Anda: permintaan, persetujuan, invoice, dan pengingat.",
+    "bellLabel": "{count, plural, =0 {Notifikasi, tidak ada yang belum dibaca} other {Notifikasi, # belum dibaca}}",
+    "markAllRead": "Tandai semua sudah dibaca",
+    "unread": "Belum dibaca",
+    "empty": {
+      "title": "Belum ada notifikasi",
+      "body": "Saat ada hal di project Anda yang perlu perhatian, kabarnya muncul di sini."
+    },
+    "generic": {
+      "title": "Pembaruan project",
+      "body": "Ada perubahan di {project}."
+    },
+    "requestStatuses": {
+      "open": "terbuka",
+      "in_review": "sedang ditinjau",
+      "resolved": "selesai",
+      "declined": "ditolak",
+      "converted": "dijadikan change request"
+    },
+    "types": {
+      "request": {
+        "created": {
+          "title": "Permintaan baru",
+          "body": "{title} di {project}"
+        },
+        "updated": {
+          "title": "Permintaan diperbarui",
+          "body": "{title} sekarang {status}"
+        }
+      },
+      "message": {
+        "posted": {
+          "title": "Pesan baru",
+          "body": "{author} menulis di {project}"
+        }
+      },
+      "approval": {
+        "requested": {
+          "title": "Permintaan persetujuan",
+          "body": "{title} di {project}"
+        },
+        "approved": {
+          "title": "Disetujui",
+          "body": "{title} di {project} sudah disetujui"
+        },
+        "changes_requested": {
+          "title": "Perlu perubahan",
+          "body": "{title} di {project} perlu diubah"
+        }
+      },
+      "change_request": {
+        "sent": {
+          "title": "Change request untuk ditinjau",
+          "body": "{number}: {title} di {project}"
+        },
+        "approved": {
+          "title": "Change request disetujui",
+          "body": "{number}: {title} di {project}"
+        },
+        "rejected": {
+          "title": "Change request ditolak",
+          "body": "{number}: {title} di {project}"
+        }
+      },
+      "invoice": {
+        "issued": {
+          "title": "Invoice baru",
+          "body": "{number}: {title} di {project}"
+        }
+      },
+      "reminder": {
+        "invoice_due": {
+          "title": "Invoice segera jatuh tempo",
+          "body": "{number} sebesar {amount} jatuh tempo pada {due} ({project})"
+        },
+        "invoice_overdue": {
+          "title": "Invoice lewat jatuh tempo",
+          "body": "{number} sebesar {amount} jatuh tempo pada {due} ({project})"
+        },
+        "approval_pending": {
+          "title": "Persetujuan masih menunggu",
+          "body": "{title} di {project} masih menunggu keputusan"
+        },
+        "change_request_pending": {
+          "title": "Change request masih menunggu",
+          "body": "{number}: {title} di {project} masih menunggu keputusan"
+        },
+        "maintenance_renewal": {
+          "title": "Maintenance segera berakhir",
+          "body": "{name} untuk {project} berakhir pada {end}"
+        }
+      },
+      "client": {
+        "reminder": {
+          "invoice": {
+            "title": "Pengingat pembayaran",
+            "body": "{number} sebesar {amount} jatuh tempo pada {due} ({project})"
+          },
+          "client_approval": {
+            "title": "Persetujuan Anda dibutuhkan",
+            "body": "{title} di {project} menunggu Anda"
+          },
+          "change_request": {
+            "title": "Change request untuk ditinjau",
+            "body": "{number}: {title} di {project} menunggu Anda"
+          }
+        }
+      }
+    }
+  },
+  "reminders": {
+    "title": "Pengingat",
+    "metaTitle": "Pengingat",
+    "description": "Pengingat otomatis untuk invoice, persetujuan, change request, dan paket maintenance.",
+    "how": {
+      "title": "Cara kerja pengingat",
+      "daily": "Pengingat berjalan sekali sehari lewat tugas terjadwal di /api/cron/reminders.",
+      "once": "Pengingat yang sama tidak pernah dikirim dua kali untuk item yang sama.",
+      "portal": "Klien hanya menerima pengingat jika portal mereka aktif untuk project tersebut.",
+      "email": "Pengingat juga dikirim lewat email jika penyedia email sudah dikonfigurasi. Jika belum, pengingat hanya muncul di notifikasi."
+    },
+    "rules": {
+      "title": "Aturan",
+      "enabled": "Aktif",
+      "disabled": "Nonaktif",
+      "toggleLabel": "Kirim pengingat: {rule}",
+      "readOnly": "Anda bisa melihat aturan ini. Minta owner atau admin untuk mengubahnya."
+    },
+    "kinds": {
+      "invoice_due": "Invoice jatuh tempo",
+      "invoice_overdue": "Invoice lewat jatuh tempo",
+      "approval_pending": "Persetujuan menunggu",
+      "change_request_pending": "Change request menunggu",
+      "maintenance_renewal": "Perpanjangan maintenance"
+    },
+    "anchors": {
+      "invoice_due": "tanggal jatuh tempo",
+      "invoice_overdue": "tanggal jatuh tempo",
+      "approval_pending": "permintaan persetujuan",
+      "change_request_pending": "change request dikirim",
+      "maintenance_renewal": "tanggal berakhir paket"
+    },
+    "timing": {
+      "before": "{days} hari sebelum {anchor}",
+      "onDay": "Pada {anchor}",
+      "after": "{days} hari setelah {anchor}"
+    },
+    "audience": {
+      "team": "ke tim Anda",
+      "client": "ke klien",
+      "both": "ke tim Anda dan klien"
+    },
+    "sentence": "{timing}, {audience}",
+    "run": {
+      "button": "Jalankan sekarang",
+      "running": "Sedang berjalan",
+      "result": "{sent, plural, =0 {Tidak ada pengingat yang jatuh waktu.} other {# pengingat terkirim.}} {skipped, plural, =0 {} other {# sudah pernah dikirim.}}"
+    },
+    "log": {
+      "title": "Pengingat terbaru",
+      "caption": "Pengingat yang baru dikirim",
+      "project": "Project",
+      "kind": "Pengingat",
+      "when": "Dikirim",
+      "recipients": "Penerima",
+      "noProject": "Project terhapus",
+      "empty": {
+        "title": "Belum ada pengingat terkirim",
+        "body": "Pengingat yang terkirim tampil di sini beserta project dan jumlah penerimanya."
+      }
+    }
+  }
+}

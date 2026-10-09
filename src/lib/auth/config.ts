@@ -4,6 +4,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import { db } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
+import { ensurePersonalOrg } from "@/lib/organizations/service";
 import { authEmails, getEmailSender } from "./email";
 
 const google =
@@ -45,6 +46,16 @@ export const auth = betterAuth({
     },
   },
   socialProviders: google ? { google } : {},
+  databaseHooks: {
+    user: {
+      create: {
+        // Every account owns a personal organization from the start.
+        async after(user) {
+          await ensurePersonalOrg(user.id);
+        },
+      },
+    },
+  },
   session: {
     expiresIn: 60 * 60 * 24 * 30,
     updateAge: 60 * 60 * 24,

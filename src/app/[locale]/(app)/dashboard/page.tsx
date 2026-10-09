@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Greeting } from "@/components/app/greeting";
 import { ProjectCard } from "@/components/app/project-card";
+import { DashboardFinance } from "@/components/finance/finance-summary";
 import { buttonVariants } from "@/components/ui/button";
-import { Link } from "@/i18n/navigation";
+import { Link, redirect } from "@/i18n/navigation";
 import { requireActorPage } from "@/lib/auth/server";
+import { isClientUser } from "@/lib/portal/access";
 import { listProjects } from "@/lib/projects/service";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -23,6 +25,9 @@ const NEEDS_ATTENTION = new Set([
 export default async function DashboardPage() {
   const actor = await requireActorPage("/dashboard");
   const projects = await listProjects(actor);
+  // Portal-only users (client contacts without projects of their own) belong in the portal.
+  if (projects.length === 0 && (await isClientUser(actor)))
+    redirect({ href: "/portal", locale: await getLocale() });
   const t = await getTranslations("app");
   const firstName = actor.name.split(/\s+/)[0] ?? actor.name;
 
@@ -64,6 +69,8 @@ export default async function DashboardPage() {
           {t("dashboard.newProject")}
         </Link>
       </div>
+
+      <DashboardFinance actor={actor} />
 
       {unfinished ? (
         <section

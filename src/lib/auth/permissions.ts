@@ -14,12 +14,22 @@ export const PROJECT_ACTIONS = [
   "project:delete",
   "content:write",
   "members:manage",
+  "billing:read",
+  "billing:write",
 ] as const;
 export type ProjectAction = (typeof PROJECT_ACTIONS)[number];
 
 const ROLE_ACTIONS: Record<MemberRole, readonly ProjectAction[]> = {
   owner: PROJECT_ACTIONS,
-  admin: ["project:read", "project:update", "project:archive", "content:write", "members:manage"],
+  admin: [
+    "project:read",
+    "project:update",
+    "project:archive",
+    "content:write",
+    "members:manage",
+    "billing:read",
+    "billing:write",
+  ],
   editor: ["project:read", "content:write"],
   viewer: ["project:read"],
 };

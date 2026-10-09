@@ -1,7 +1,12 @@
-/** Project navigation, grouped the way work flows: understand → plan → context → build. */
+/**
+ * Project navigation. Simple mode shows the business view of a project; advanced sections
+ * (marked `advanced`) add the technical areas. Mode is presentation only: every page still
+ * checks access on the server.
+ */
 export const PROJECT_NAV = [
   {
     group: null,
+    advanced: false,
     items: [
       { key: "overview", path: "" },
       { key: "assistant", path: "/assistant" },
@@ -9,7 +14,29 @@ export const PROJECT_NAV = [
     ],
   },
   {
+    group: "business",
+    advanced: false,
+    items: [
+      { key: "progress", path: "/progress" },
+      { key: "features", path: "/features" },
+      { key: "documents", path: "/documents" },
+      { key: "billing", path: "/billing" },
+      { key: "maintenance", path: "/maintenance" },
+    ],
+  },
+  {
+    group: "client",
+    advanced: false,
+    items: [
+      { key: "requests", path: "/requests" },
+      { key: "messages", path: "/messages" },
+      { key: "clientApprovals", path: "/client-approvals" },
+      { key: "changes", path: "/changes" },
+    ],
+  },
+  {
     group: "understand",
+    advanced: true,
     items: [
       { key: "interview", path: "/interview" },
       { key: "requirements", path: "/requirements" },
@@ -17,6 +44,7 @@ export const PROJECT_NAV = [
   },
   {
     group: "plan",
+    advanced: true,
     items: [
       { key: "prd", path: "/prd" },
       { key: "plan", path: "/plan" },
@@ -25,14 +53,15 @@ export const PROJECT_NAV = [
   },
   {
     group: "context",
+    advanced: true,
     items: [
       { key: "memory", path: "/memory" },
       { key: "decisions", path: "/decisions" },
-      { key: "documents", path: "/documents" },
     ],
   },
   {
     group: "build",
+    advanced: true,
     items: [
       { key: "agents", path: "/agents" },
       { key: "integrations", path: "/integrations" },
@@ -40,6 +69,7 @@ export const PROJECT_NAV = [
   },
   {
     group: null,
+    advanced: false,
     items: [
       { key: "activity", path: "/activity" },
       { key: "settings", path: "/settings" },

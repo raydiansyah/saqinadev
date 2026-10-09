@@ -23,6 +23,7 @@ import { projectName } from "@/lib/interview/rules/recommend";
 import { EMPTY_ANSWERS } from "@/lib/interview/types";
 import { insertInterview, writeAnswers } from "@/lib/interviews/repository";
 import { importedAnswersInput } from "@/lib/interviews/validators";
+import { activeOrg } from "@/lib/organizations/service";
 import { parse } from "@/lib/validation";
 import { getNextProjectAction, type NextAction, type ProjectSnapshot } from "./progress";
 import { listMemberProjects, loadSnapshots, type ProjectRow, slugExists } from "./repository";
@@ -66,12 +67,15 @@ export async function startProject(
     projectName(answers, getEngineCopy(locale)) ?? idea.split(/\s+/).slice(0, 4).join(" ");
 
   return db.transaction(async (tx) => {
+    const { org } = await activeOrg(actor, tx);
     const slug = await uniqueSlug(name, tx);
     const [project] = await tx
       .insert(projects)
       .values({
         slug,
         ownerId: actor.id,
+        organizationId: org.id,
+        currency: org.defaultCurrency,
         name,
         description: idea,
         type: found.projectType ?? null,

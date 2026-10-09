@@ -1,0 +1,165 @@
+{
+  "clients": {
+    "title": "Klien",
+    "metaTitle": "Klien",
+    "description": "Orang dan perusahaan yang Anda bangunkan aplikasinya. Tetapkan klien ke project dan aktifkan portal klien di pengaturan project.",
+    "newClient": "Klien baru",
+    "empty": {
+      "title": "Belum ada klien",
+      "body": "Tambahkan orang atau perusahaan yang Anda layani. Setelah itu Anda bisa mengundang mereka ke portal baca-saja untuk project mereka."
+    },
+    "table": {
+      "caption": "Semua klien di workspace Anda",
+      "name": "Nama",
+      "email": "Email",
+      "status": "Status",
+      "projects": "Project",
+      "portalUsers": "Pengguna portal"
+    },
+    "statuses": {
+      "active": "Aktif",
+      "archived": "Diarsipkan"
+    },
+    "form": {
+      "name": "Nama",
+      "company": "Perusahaan",
+      "email": "Email",
+      "phone": "Telepon",
+      "address": "Alamat",
+      "internalNotes": "Catatan internal",
+      "internalNotesHint": "Catatan internal, tidak pernah ditampilkan ke klien.",
+      "create": "Buat klien",
+      "creating": "Membuat...",
+      "save": "Simpan perubahan",
+      "saving": "Menyimpan...",
+      "saved": "Perubahan tersimpan."
+    },
+    "detail": {
+      "back": "Semua klien",
+      "details": "Detail",
+      "archive": "Arsipkan klien",
+      "unarchive": "Pulihkan klien",
+      "archivedNotice": "Klien ini diarsipkan. Klien tidak muncul saat menetapkan project sampai Anda memulihkannya.",
+      "projects": "Project",
+      "projectsHint": "Tetapkan klien ke project dan aktifkan portal klien di pengaturan project.",
+      "projectsEmpty": "Belum ada project yang ditetapkan ke klien ini.",
+      "portalOn": "Portal aktif",
+      "portalOff": "Portal nonaktif",
+      "projectSettings": "Pengaturan project",
+      "portalUsers": "Pengguna portal",
+      "portalUsersHint": "Orang yang sudah menerima undangan. Mereka hanya melihat project yang portalnya aktif.",
+      "portalUsersEmpty": "Belum ada yang bergabung ke portal. Kirim undangan di bawah.",
+      "since": "Bergabung {date}",
+      "remove": "Cabut akses",
+      "removeTitle": "Cabut akses portal?",
+      "removeBody": "{name} tidak akan lagi melihat project klien ini. Akunnya tetap ada; Anda bisa mengundangnya lagi nanti.",
+      "invitations": "Undangan",
+      "invitationsEmpty": "Belum ada undangan yang dikirim.",
+      "inviteEmail": "Alamat email",
+      "invite": "Buat undangan",
+      "inviting": "Membuat...",
+      "inviteCreated": "Undangan dibuat",
+      "inviteOnce": "Salin tautan ini sekarang. Tautan hanya ditampilkan sekali, berlaku satu kali dan kedaluwarsa dalam 7 hari.",
+      "inviteEmailed": "Kami juga sudah mengirim tautan ini ke {email}.",
+      "inviteNotEmailed": "Email belum dikonfigurasi, jadi kirim tautan ini sendiri.",
+      "inviteLink": "Tautan undangan",
+      "copy": "Salin",
+      "copied": "Tersalin",
+      "done": "Selesai",
+      "revoke": "Batalkan",
+      "revokeTitle": "Batalkan undangan ini?",
+      "revokeBody": "Tautan yang dikirim ke {email} tidak akan berfungsi lagi.",
+      "sent": "Dikirim {date}",
+      "expires": "Kedaluwarsa {date}",
+      "inviteStatuses": {
+        "pending": "Menunggu",
+        "accepted": "Diterima",
+        "revoked": "Dibatalkan",
+        "expired": "Kedaluwarsa"
+      }
+    }
+  },
+  "finance": {
+    "title": "Keuangan",
+    "summary": {
+      "title": "Keuangan",
+      "outstanding": "Belum dibayar",
+      "overdue": "Lewat jatuh tempo",
+      "paidThisMonth": "Dibayar bulan ini",
+      "viewInvoices": "Lihat invoice",
+      "viewPayments": "Lihat pembayaran"
+    },
+    "invoices": {
+      "metaTitle": "Invoice",
+      "title": "Invoice",
+      "description": "Semua invoice dari seluruh project Anda. Buat dan kirim invoice dari halaman tagihan project.",
+      "filterLabel": "Saring berdasarkan status",
+      "filters": {
+        "all": "Semua",
+        "open": "Terbuka",
+        "overdue": "Lewat jatuh tempo",
+        "paid": "Lunas",
+        "draft": "Draf"
+      },
+      "emptyTitle": "Tidak ada invoice di sini",
+      "emptyBody": "Invoice yang Anda buat di halaman tagihan project akan muncul di sini.",
+      "caption": "Invoice",
+      "number": "Nomor",
+      "invoice": "Invoice",
+      "project": "Project",
+      "status": "Status",
+      "issued": "Terbit",
+      "due": "Jatuh tempo",
+      "total": "Total",
+      "balance": "Sisa",
+      "draftNumber": "Draf"
+    },
+    "payments": {
+      "metaTitle": "Pembayaran",
+      "title": "Pembayaran",
+      "description": "Pembayaran yang dicatat di seluruh project Anda. Untuk membatalkan pembayaran, buka halaman tagihan project.",
+      "emptyTitle": "Belum ada pembayaran",
+      "emptyBody": "Pembayaran yang Anda catat pada invoice akan muncul di sini.",
+      "caption": "Pembayaran",
+      "date": "Tanggal",
+      "project": "Project",
+      "invoice": "Invoice",
+      "amount": "Jumlah",
+      "method": "Metode",
+      "reference": "Referensi",
+      "status": "Status"
+    },
+    "invoiceStatuses": {
+      "draft": "Draf",
+      "issued": "Terbit",
+      "sent": "Terkirim",
+      "partially_paid": "Dibayar sebagian",
+      "paid": "Lunas",
+      "cancelled": "Dibatalkan",
+      "overdue": "Lewat jatuh tempo"
+    },
+    "methods": {
+      "bank_transfer": "Transfer bank",
+      "cash": "Tunai",
+      "manual": "Manual",
+      "gateway": "Payment gateway",
+      "other": "Lainnya"
+    },
+    "paymentStatuses": {
+      "confirmed": "Terkonfirmasi",
+      "void": "Dibatalkan"
+    }
+  },
+  "workspaceMode": {
+    "title": "Mode workspace",
+    "description": "Pilih seberapa banyak bagian workspace yang Anda lihat. Anda bisa beralih kapan saja; tidak ada data yang dihapus.",
+    "legend": "Mode workspace",
+    "simple": "Sederhana",
+    "simpleBody": "Menampilkan klien, project, invoice dan pembayaran.",
+    "advanced": "Lanjutan",
+    "advancedBody": "Menambahkan aktivitas, model AI, agen, integrasi dan halaman teknis project.",
+    "save": "Simpan mode",
+    "saving": "Menyimpan...",
+    "saved": "Mode tersimpan."
+  }
+}

@@ -1,0 +1,233 @@
+{
+  "portal": {
+    "title": "Portal client",
+    "nav": {
+      "label": "Portal",
+      "brandHome": "Beranda portal client Saqina Dev",
+      "dashboard": "Dasbor",
+      "projects": "Project",
+      "profile": "Profil",
+      "signOut": "Keluar"
+    },
+    "dashboard": {
+      "metaTitle": "Portal client",
+      "hello": "Halo, {name}",
+      "intro": "Berikut posisi project Anda hari ini.",
+      "emptyTitle": "Belum ada project yang dibagikan",
+      "emptyBody": "Begitu tim membagikan project kepada Anda, progres, dokumen, dan tagihannya akan muncul di sini.",
+      "open": "Buka {name}"
+    },
+    "projects": {
+      "metaTitle": "Project",
+      "title": "Project",
+      "description": "Semua project yang dibagikan kepada Anda."
+    },
+    "stage": {
+      "planning": "Perencanaan",
+      "development": "Dalam pengerjaan",
+      "review": "Dalam peninjauan",
+      "completed": "Selesai",
+      "paused": "Dijeda"
+    },
+    "progress": {
+      "label": "Progres",
+      "percent": "{percent}% selesai",
+      "current": "Tahap saat ini",
+      "next": "Tahap berikutnya",
+      "none": "Belum ditentukan",
+      "title": "Progres",
+      "description": "Tahapan project Anda dan posisi pekerjaan saat ini.",
+      "empty": "Tim belum menampilkan tahapan project.",
+      "listLabel": "Tahapan project",
+      "state": {
+        "done": "Selesai",
+        "current": "Sedang dikerjakan",
+        "upcoming": "Belum dimulai"
+      }
+    },
+    "money": {
+      "value": "Nilai project",
+      "invoiced": "Sudah ditagih",
+      "paid": "Sudah dibayar",
+      "outstanding": "Belum dibayar",
+      "overdue": "Lewat jatuh tempo",
+      "notSet": "Belum ditentukan"
+    },
+    "tabs": {
+      "label": "Bagian project",
+      "overview": "Ringkasan",
+      "progress": "Progres",
+      "features": "Fitur",
+      "documents": "Dokumen",
+      "invoices": "Tagihan",
+      "payments": "Pembayaran"
+    },
+    "overview": {
+      "metaTitle": "Ringkasan",
+      "about": "Tentang project ini",
+      "noDescription": "Belum ada deskripsi.",
+      "billing": "Tagihan",
+      "activity": "Kabar terbaru",
+      "activityEmpty": "Kabar seperti tagihan baru, pembayaran, dan dokumen yang dibagikan akan muncul di sini.",
+      "kinds": {
+        "invoice_issued": "Tagihan {label} diterbitkan",
+        "payment_received": "Pembayaran diterima untuk {label}",
+        "document_shared": "Dokumen dibagikan: {label}"
+      }
+    },
+    "features": {
+      "metaTitle": "Fitur",
+      "title": "Fitur",
+      "description": "Apa saja yang termasuk dalam project ini, dan apa yang tidak.",
+      "empty": "Daftar fitur belum dibagikan.",
+      "groups": {
+        "included": {
+          "title": "Termasuk",
+          "body": "Bagian dari lingkup dan harga yang disepakati."
+        },
+        "excluded": {
+          "title": "Tidak termasuk",
+          "body": "Di luar project ini. Tanyakan ke tim jika Anda membutuhkannya."
+        },
+        "optional": {
+          "title": "Opsional",
+          "body": "Bisa ditambahkan atas permintaan, biasanya dengan biaya tambahan."
+        },
+        "future": {
+          "title": "Nanti",
+          "body": "Ide untuk tahap berikutnya, belum masuk project ini."
+        }
+      }
+    },
+    "documents": {
+      "metaTitle": "Dokumen",
+      "title": "Dokumen",
+      "description": "Dokumen yang dibagikan tim kepada Anda. Hanya bisa dibaca.",
+      "empty": "Belum ada dokumen yang dibagikan.",
+      "version": "Versi {version}",
+      "updated": "Diperbarui {date}",
+      "back": "Semua dokumen"
+    },
+    "invoices": {
+      "metaTitle": "Tagihan",
+      "title": "Tagihan",
+      "description": "Tagihan yang diterbitkan untuk project ini.",
+      "empty": "Belum ada tagihan yang diterbitkan.",
+      "tableLabel": "Tagihan",
+      "pendingNumber": "Tanpa nomor",
+      "columns": {
+        "number": "Tagihan",
+        "title": "Keterangan",
+        "issued": "Terbit",
+        "due": "Jatuh tempo",
+        "total": "Total",
+        "balance": "Sisa",
+        "status": "Status"
+      },
+      "status": {
+        "draft": "Draf",
+        "issued": "Diterbitkan",
+        "sent": "Terkirim",
+        "partially_paid": "Dibayar sebagian",
+        "paid": "Lunas",
+        "cancelled": "Dibatalkan",
+        "overdue": "Lewat jatuh tempo"
+      },
+      "view": "Lihat tagihan {number}",
+      "back": "Semua tagihan",
+      "print": "Cetak",
+      "heading": "Tagihan {number}",
+      "billedTo": "Ditagihkan kepada",
+      "project": "Project",
+      "issueDate": "Tanggal terbit",
+      "dueDate": "Jatuh tempo",
+      "noDate": "Belum ditentukan",
+      "items": {
+        "label": "Rincian tagihan",
+        "description": "Keterangan",
+        "quantity": "Jml",
+        "unit": "Harga satuan",
+        "amount": "Jumlah",
+        "empty": "Tidak ada rincian."
+      },
+      "total": "Total",
+      "paid": "Sudah dibayar",
+      "balance": "Sisa tagihan"
+    },
+    "payments": {
+      "metaTitle": "Pembayaran",
+      "title": "Pembayaran",
+      "description": "Pembayaran yang sudah dikonfirmasi tim untuk project ini.",
+      "empty": "Belum ada pembayaran yang tercatat.",
+      "tableLabel": "Pembayaran",
+      "summary": "{count} pembayaran terkonfirmasi",
+      "totalPaid": "Total dibayar",
+      "columns": {
+        "date": "Tanggal",
+        "invoice": "Tagihan",
+        "method": "Metode",
+        "amount": "Jumlah"
+      },
+      "method": {
+        "bank_transfer": "Transfer bank",
+        "cash": "Tunai",
+        "manual": "Manual",
+        "gateway": "Pembayaran online",
+        "other": "Lainnya"
+      }
+    },
+    "profile": {
+      "metaTitle": "Profil",
+      "title": "Profil",
+      "description": "Detail akun Anda untuk portal client.",
+      "account": "Akun",
+      "name": "Nama",
+      "email": "Email",
+      "clients": "Perusahaan yang Anda wakili",
+      "clientsEmpty": "Anda belum terhubung ke perusahaan mana pun.",
+      "language": "Bahasa",
+      "signOut": "Keluar"
+    }
+  },
+  "invite": {
+    "title": "Undangan",
+    "metaTitle": "Undangan portal project",
+    "heading": "Anda diundang",
+    "intro": "{org} mengundang Anda memantau project bersama {client} di Saqina Dev.",
+    "invitedEmail": "Undangan untuk",
+    "signedOutHint": "Buat akun atau masuk dengan alamat email ini untuk menerima undangan.",
+    "createAccount": "Buat akun",
+    "signIn": "Masuk",
+    "accept": "Terima undangan",
+    "accepting": "Memproses...",
+    "signedInAs": "Masuk sebagai {email}",
+    "wrongEmail": "Undangan ini untuk {invited}, sedangkan Anda masuk sebagai {current}. Keluar dulu, lalu masuk atau buat akun dengan email yang diundang.",
+    "signOut": "Keluar",
+    "goPortal": "Buka portal",
+    "backHome": "Kembali ke beranda",
+    "states": {
+      "expired": {
+        "title": "Undangan ini sudah kedaluwarsa",
+        "body": "Tautan undangan berlaku 7 hari. Minta tim mengirimkan undangan baru."
+      },
+      "used": {
+        "title": "Undangan ini sudah dipakai",
+        "body": "Setiap tautan hanya berlaku sekali. Jika Anda sudah menerimanya, masuk untuk membuka portal."
+      },
+      "revoked": {
+        "title": "Undangan ini sudah ditarik",
+        "body": "Tim membatalkan tautan ini. Minta undangan baru jika Anda masih memerlukan akses."
+      },
+      "invalid": {
+        "title": "Tautan undangan tidak valid",
+        "body": "Pastikan Anda membuka tautan lengkap dari email, atau minta tim mengirim undangan baru."
+      }
+    },
+    "errors": {
+      "unavailable": "Undangan ini sudah tidak berlaku. Minta undangan baru ke tim.",
+      "wrongEmail": "Undangan ini untuk alamat email lain.",
+      "rateLimit": "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.",
+      "generic": "Terjadi kesalahan. Silakan coba lagi."
+    }
+  }
+}

@@ -65,6 +65,11 @@ export function mergePending(
   message: string,
 ): IntentClassification {
   if (!pending) return c;
+  // Answering with the same kind of request adds to it ("DP 50%" after "25 juta").
+  if (c.intent === pending.intent) {
+    const fresh = Object.fromEntries(Object.entries(c.entities).filter(([, v]) => v !== undefined));
+    return { ...c, entities: { ...pending.entities, ...fresh } };
+  }
   if (c.confidence >= 0.8 && c.intent !== "HELP") return c;
   const entities = { ...pending.entities };
   const text = message.trim();
@@ -216,7 +221,7 @@ export async function handleMessage(
     emit({ type: "status", stage: "writing" });
     // Only read-only answers are phrased by a model; action results and questions stay exactly
     // as the application wrote them, so they are labelled as rules.
-    if (outcome.kind === "answer") {
+    if (outcome.kind === "answer" && !outcome.exact) {
       const history = await recentHistory(conversation.id);
       const answer = await runAi({
         access,

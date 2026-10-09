@@ -13,7 +13,6 @@ export function Navbar() {
   const links: ResolvedNavLink[] = NAV_LINKS.map((l) => ({
     href: `/${locale}#${l.hash}`,
     label: t(`nav.${l.key}`),
-    storyTarget: "storyTarget" in l ? l.storyTarget : undefined,
   }));
 
   return (
@@ -32,7 +31,6 @@ export function Navbar() {
               <li key={link.href}>
                 <a
                   href={link.href}
-                  data-story-target={link.storyTarget}
                   className="rounded-sm px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {link.label}

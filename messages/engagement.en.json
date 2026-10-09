@@ -1,0 +1,251 @@
+{
+  "engagement": {
+    "title": "Client work",
+    "common": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "close": "Close",
+      "edit": "Edit",
+      "remind": "Remind client",
+      "reminded": "Reminder sent",
+      "portalOff": "The client portal is off or no client is assigned, so the client cannot see this yet.",
+      "openSettings": "Open settings",
+      "readOnly": "You can view this page but not change it.",
+      "team": "Team",
+      "client": "Client",
+      "unknownAuthor": "Unknown"
+    },
+    "scope": {
+      "within": "Within scope",
+      "out_of_scope": "Out of scope",
+      "unknown": "Scope unclear"
+    },
+    "requests": {
+      "metaTitle": "Requests",
+      "title": "Requests",
+      "description": "Questions, features, bugs and maintenance requests from the client, submitted on the portal or logged by the team.",
+      "empty": "No requests yet. Client requests from the portal appear here, and you can log one that came in by phone or email.",
+      "emptyOpen": "No open requests.",
+      "filterLabel": "Show",
+      "filterOpen": "Open",
+      "filterAll": "All",
+      "log": "Log a request",
+      "logTitle": "Log a client request",
+      "logHint": "For a request the client made by phone, email or chat. Saqina checks it against the agreed scope.",
+      "kind": "Type",
+      "requestTitle": "Title",
+      "body": "Details",
+      "bodyPlaceholder": "What the client asked for, in their words",
+      "status": "Status",
+      "classification": "Who pays",
+      "suggests": "Saqina suggests: {class}",
+      "accept": "Accept",
+      "convert": "Convert to change request",
+      "converted": "Change request created",
+      "viewChange": "View change request",
+      "outOfScopeNote": "Out of scope: handle this as a change request so cost and time are agreed first.",
+      "fromTeam": "Logged by team",
+      "fromClient": "From client",
+      "kinds": {
+        "question": "Question",
+        "feature": "Feature",
+        "bug": "Bug",
+        "maintenance": "Maintenance"
+      },
+      "statuses": {
+        "open": "Open",
+        "in_review": "In review",
+        "resolved": "Resolved",
+        "declined": "Declined",
+        "converted": "Converted"
+      },
+      "classes": {
+        "unclassified": "Not decided",
+        "warranty": "Warranty",
+        "included": "Included in plan",
+        "paid": "Paid work"
+      }
+    },
+    "messages": {
+      "metaTitle": "Messages",
+      "title": "Messages",
+      "description": "The conversation with the client. Decisions discussed here stay with the project.",
+      "empty": "No messages yet. Start the conversation with the client.",
+      "visibility": "Visible to the client on the portal. Do not paste internal notes or credentials.",
+      "label": "Message",
+      "placeholder": "Write a message to the client",
+      "send": "Send",
+      "threadLabel": "Message thread"
+    },
+    "approvals": {
+      "metaTitle": "Client approvals",
+      "title": "Client approvals",
+      "description": "Ask the client to approve a design, a document or a milestone. Nothing changes until they answer.",
+      "empty": "No approval requests yet.",
+      "formTitle": "Request an approval",
+      "approvalTitle": "What should the client approve?",
+      "approvalTitlePlaceholder": "Homepage design, version 2",
+      "approvalDescription": "Details",
+      "document": "Document to review",
+      "noDocument": "No document",
+      "documentHint": "Only approved or signed documents can be attached. The document is shared with the client.",
+      "link": "Link",
+      "linkHint": "Optional, for example a design or staging URL.",
+      "submit": "Send to client",
+      "cancelRequest": "Cancel request",
+      "cancelTitle": "Cancel this approval request?",
+      "cancelBody": "The client will no longer be able to answer it.",
+      "response": "Client response",
+      "openDocument": "Open document",
+      "openLink": "Open link",
+      "requested": "Requested {date}",
+      "statuses": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "changes_requested": "Changes requested",
+        "cancelled": "Cancelled"
+      }
+    },
+    "changes": {
+      "metaTitle": "Change requests",
+      "title": "Change requests",
+      "description": "Work outside the agreed scope, with its cost and time, approved by the client before it starts.",
+      "empty": "No change requests yet. Create one here or convert a client request.",
+      "explain": "When the client approves a change request, it is added to the scope, a task is created and the cost becomes a payment term, so the project value increases.",
+      "create": "New change request",
+      "createTitle": "New change request",
+      "editTitle": "Edit {number}",
+      "crTitle": "Title",
+      "crDescription": "Description",
+      "impact": "Impact",
+      "impactPlaceholder": "What this changes in the schedule, design or other features",
+      "cost": "Additional cost ({currency})",
+      "costHint": "Use 0 when there is no extra charge.",
+      "days": "Additional days",
+      "send": "Send to client",
+      "sendTitle": "Send {number} to the client?",
+      "sendBody": "The client sees the cost and time on the portal and can approve or reject it. It can no longer be edited.",
+      "recordDecision": "Record decision",
+      "decisionTitle": "Record the client's decision on {number}",
+      "decisionHint": "Use this when the client decided outside the portal. Say how they decided.",
+      "decision": "Decision",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "note": "How did the client decide?",
+      "notePlaceholder": "Approved by email on 12 Oct",
+      "markDone": "Mark done",
+      "cancelCr": "Cancel",
+      "cancelTitle": "Cancel {number}?",
+      "cancelBody": "The change request is closed and the client can no longer decide on it.",
+      "costLabel": "Cost",
+      "daysLabel": "Time",
+      "daysValue": "{days, plural, =0 {No extra days} one {# extra day} other {# extra days}}",
+      "decisionNote": "Decision note",
+      "invalidAmount": "Enter a valid amount.",
+      "statuses": {
+        "draft": "Draft",
+        "sent": "Waiting for client",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "cancelled": "Cancelled",
+        "done": "Done"
+      }
+    },
+    "maintenance": {
+      "metaTitle": "Maintenance",
+      "title": "Maintenance",
+      "description": "Warranty fixes defects in delivered scope; maintenance is paid ongoing support.",
+      "warrantyTitle": "Warranty",
+      "warrantyHint": "Bugs reported until this date are suggested as warranty fixes.",
+      "warrantyUntil": "Warranty until",
+      "warrantyNone": "No warranty date set.",
+      "warrantyLeft": "{days, plural, =0 {Ends today} one {# day left} other {# days left}}",
+      "warrantyEnded": "Warranty ended",
+      "clear": "Clear",
+      "plansTitle": "Maintenance plans",
+      "plansEmpty": "No maintenance plans yet.",
+      "newPlan": "New plan",
+      "createTitle": "New maintenance plan",
+      "editTitle": "Edit plan",
+      "name": "Plan name",
+      "namePlaceholder": "Basic support",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "fee": "Fee per cycle ({currency})",
+      "cycle": "Billing cycle",
+      "responseHours": "Response time (hours)",
+      "planScope": "Included",
+      "planScopePlaceholder": "Security updates, monthly backups, small content edits",
+      "excluded": "Not included",
+      "excludedPlaceholder": "New features, redesigns",
+      "status": "Status",
+      "period": "Period",
+      "feeColumn": "Fee",
+      "daysLeft": "Days left",
+      "actions": "Actions",
+      "renew": "Renew",
+      "renewTitle": "Renew {name}?",
+      "renewBody": "A new plan with the same terms starts the day after this one ends. This plan is marked as ended.",
+      "renewsSoon": "Renews soon",
+      "expired": "Ended",
+      "perCycle": "{amount} {cycle}",
+      "requestsTitle": "Maintenance and bug requests",
+      "requestsEmpty": "No maintenance or bug requests yet.",
+      "triage": "Triage in requests",
+      "invalidAmount": "Enter a valid amount.",
+      "cycles": {
+        "monthly": "per month",
+        "quarterly": "per quarter",
+        "yearly": "per year",
+        "one_time": "one time"
+      },
+      "cycleNames": {
+        "monthly": "Monthly",
+        "quarterly": "Quarterly",
+        "yearly": "Yearly",
+        "one_time": "One time"
+      },
+      "statuses": {
+        "active": "Active",
+        "ended": "Ended",
+        "cancelled": "Cancelled"
+      }
+    },
+    "businessDocs": {
+      "title": "Generate business document",
+      "note": "Built from scope, schedule and milestones. Missing details stay as [PLACEHOLDERS]. Drafts are not legal advice.",
+      "kinds": {
+        "proposal": "Proposal",
+        "agreement": "Agreement",
+        "handover": "Handover",
+        "maintenance_agreement": "Maintenance agreement"
+      }
+    },
+    "errors": {
+      "engagement": {
+        "portalOff": "Turn on the client portal and assign a client in project settings first.",
+        "noteRequired": "Add a note that says what should change.",
+        "remindedToday": "The client was already reminded about this today.",
+        "noRecipients": "No one has portal access for this client yet."
+      },
+      "cr": {
+        "notDraft": "Only draft change requests can be edited or sent.",
+        "notSent": "This change request is not waiting for a decision.",
+        "evidenceRequired": "Say how the client decided (at least 5 characters), for example \"Approved by email on 12 Oct\".",
+        "invalidTransition": "This change request cannot move to that status."
+      },
+      "documents": {
+        "shareNeedsApproval": "Approve the document before asking the client to review it.",
+        "signedLocked": "This document is signed and cannot be regenerated."
+      },
+      "maintenance": {
+        "cancelled": "Cancelled plans cannot be renewed."
+      },
+      "fields": {
+        "tooShort": "A field is too short.",
+        "tooLong": "A field is too long.",
+        "invalid": "A field has an invalid value."
+      }
+    }
+  }
+}

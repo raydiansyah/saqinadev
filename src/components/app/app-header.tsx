@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Logo } from "@/components/primitives/logo";
 import { Link } from "@/i18n/navigation";
 import type { Actor } from "@/lib/auth/actor";
@@ -63,6 +64,7 @@ export async function AppHeader({
             />
           </svg>
         </Link>
+        <NotificationBell actor={actor} href="/dashboard/notifications" />
         {trailing}
         <UserMenu name={actor.name} email={actor.email} />
       </div>

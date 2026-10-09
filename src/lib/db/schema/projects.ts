@@ -1,6 +1,8 @@
 import { sql } from "drizzle-orm";
 import {
+  bigint,
   boolean,
+  date,
   index,
   integer,
   jsonb,
@@ -11,6 +13,7 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
+import type { Currency } from "@/lib/domain/business";
 import type {
   AnswerSource,
   ApprovalPolicy,
@@ -24,6 +27,7 @@ import type {
   StackSource,
 } from "@/lib/domain/enums";
 import { users } from "./auth";
+import { clients, organizations } from "./organizations";
 
 /** `acknowledged` = a repository value the user already reviewed for this field. */
 export type TechStack = Partial<
@@ -46,6 +50,17 @@ export const projects = pgTable(
     ownerId: text("owner_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    clientId: uuid("client_id").references(() => clients.id, { onDelete: "set null" }),
+    /** Project billing currency and agreed value (minor units). Not the Saqina subscription. */
+    currency: text("currency").$type<Currency>().notNull().default("IDR"),
+    value: bigint("value", { mode: "number" }),
+    /** Whether the assigned client's portal users can see this project. */
+    portalEnabled: boolean("portal_enabled").notNull().default(false),
+    /** Defects reported until this date are fixed under warranty, not billed as maintenance. */
+    warrantyUntil: date("warranty_until", { mode: "string" }),
     name: text("name").notNull(),
     description: text("description").notNull().default(""),
     /** Project type id from the interview options (pos, marketplace, ...). */
@@ -64,7 +79,11 @@ export const projects = pgTable(
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
-  (t) => [index("projects_owner_idx").on(t.ownerId, t.updatedAt.desc())],
+  (t) => [
+    index("projects_owner_idx").on(t.ownerId, t.updatedAt.desc()),
+    index("projects_org_idx").on(t.organizationId),
+    index("projects_client_idx").on(t.clientId),
+  ],
 );
 
 /** Membership is the access boundary; the owner is also a member with role "owner". */

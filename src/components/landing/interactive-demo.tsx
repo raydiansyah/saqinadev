@@ -99,7 +99,7 @@ export function InteractiveDemo({ content: c }: { content: DemoContent }) {
 
   return (
     <section
-      id="product"
+      id="try"
       aria-labelledby="demo-heading"
       className="border-t border-border py-20 sm:py-28"
     >

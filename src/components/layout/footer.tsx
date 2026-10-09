@@ -35,11 +35,7 @@ export function Footer() {
           <ul className="space-y-1">
             {NAV_LINKS.map((l) => (
               <li key={l.key}>
-                <a
-                  href={`/${locale}#${l.hash}`}
-                  data-story-target={"storyTarget" in l ? l.storyTarget : undefined}
-                  className={LINK}
-                >
+                <a href={`/${locale}#${l.hash}`} className={LINK}>
                   {t(`nav.${l.key}`)}
                 </a>
               </li>

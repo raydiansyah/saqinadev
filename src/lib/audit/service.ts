@@ -11,7 +11,7 @@ export async function recordAudit(
   executor: Executor,
   input: {
     actorId: string | null;
-    scope: "platform" | "project";
+    scope: "platform" | "project" | "organization";
     projectId?: string | null;
     type: string;
     entityType: string;

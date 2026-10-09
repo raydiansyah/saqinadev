@@ -127,7 +127,9 @@
     "statuses": {
       "draft": "Draft",
       "review": "In review",
-      "approved": "Approved"
+      "approved": "Approved",
+      "signed": "Signed",
+      "archived": "Archived"
     },
     "edit": "Edit",
     "preview": "Preview",
@@ -146,7 +148,9 @@
     "historyItem": "Version {version} · {time}",
     "loadingPreview": "Rendering preview…",
     "prdMetaTitle": "PRD",
-    "prdDescription": "The product requirements, generated from the interview. Review, edit and approve it."
+    "prdDescription": "The product requirements, generated from the interview. Review, edit and approve it.",
+    "markSigned": "Mark as signed",
+    "archive": "Archive"
   },
   "plan": {
     "metaTitle": "Plan",

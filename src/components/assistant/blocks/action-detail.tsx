@@ -1,8 +1,11 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { FIELD_CLASS } from "@/components/ui/form";
 import type { PlannedAction } from "@/lib/assistant/actions/types";
+import { resolveTermAmounts } from "@/lib/billing/rules";
+import type { Currency } from "@/lib/domain/business";
+import { formatMoney, formatPercent, isCurrency } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import type { AgentOption } from "../types";
 import { ChangePreview } from "./change-preview";
@@ -30,6 +33,9 @@ export function ActionDetail({
 }) {
   const t = useTranslations("assistant.proposal");
   const statuses = useTranslations("tasks.statuses");
+  const locale = useLocale();
+  const money = (n: number, c: string) =>
+    formatMoney(n, (isCurrency(c) ? c : "IDR") as Currency, locale);
   const status = (s: string) => (statuses.has(s as never) ? statuses(s as never) : s);
   const id = (f: string) => `${idPrefix}-${action.key}-${f}`;
   const input = (field: string, multiline = false) =>
@@ -156,6 +162,92 @@ export function ActionDetail({
           <p className="font-medium">{action.payload.selected}</p>
           <p className="text-muted-foreground">{value("reason")}</p>
         </div>
+      );
+    case "SET_PAYMENT_SCHEDULE": {
+      const { value: total, terms } = action.payload;
+      const amounts = resolveTermAmounts(total, terms) ?? [];
+      return (
+        <div className="space-y-1">
+          <p className="font-medium">
+            {t("billing.value")}: {money(total, action.display.currency)}
+          </p>
+          <ul className="text-sm">
+            {terms.map((term, i) => (
+              <li
+                key={`${term.label}-${term.percentBp ?? term.amount}`}
+                className="flex justify-between gap-3"
+              >
+                <span>
+                  {term.label}
+                  {term.percentBp != null ? (
+                    <span className="text-muted-foreground">
+                      {" "}
+                      · {formatPercent(term.percentBp)}
+                    </span>
+                  ) : null}
+                </span>
+                <span className="tabular-nums">
+                  {amounts[i] != null ? money(amounts[i], action.display.currency) : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+    case "CREATE_INVOICE":
+      return (
+        <p>
+          <span className="font-medium">{action.display.label}</span>{" "}
+          <span className="tabular-nums text-muted-foreground">
+            {money(action.display.amount, action.display.currency)}
+          </span>
+          <span className="block text-xs text-muted-foreground">{t("billing.draftOnly")}</span>
+        </p>
+      );
+    case "CREATE_CHANGE_REQUEST":
+      return editing ? (
+        <div className="space-y-2">
+          {input("title")}
+          {input("description", true)}
+        </div>
+      ) : (
+        <p>
+          <span className="font-medium">{value("title")}</span>
+          <span className="block text-xs text-muted-foreground">
+            {t("changeRequest.draftOnly")}
+          </span>
+        </p>
+      );
+    case "GENERATE_DOCUMENT":
+      return (
+        <p>
+          <span className="font-medium">{t(`documentKinds.${action.payload.kind}`)}</span>
+          <span className="block text-xs text-muted-foreground">{t("documentKinds.note")}</span>
+        </p>
+      );
+    case "SEND_CLIENT_REMINDER":
+      return (
+        <p>
+          <span className="font-medium">{action.display.label}</span>
+          <span className="block text-xs text-muted-foreground">
+            {t("reminder.recipients", { count: action.display.recipients })}
+          </span>
+        </p>
+      );
+    case "CREATE_SCOPE_ITEM":
+      return editing ? (
+        <div className="space-y-2">
+          {input("title")}
+          {input("description", true)}
+        </div>
+      ) : (
+        <p>
+          <span className="font-medium">{value("title")}</span>{" "}
+          <span className="text-xs text-muted-foreground">
+            · {t(`scopeCategories.${action.payload.category}`)}
+          </span>
+        </p>
       );
     case "CREATE_HANDOFF":
       return (

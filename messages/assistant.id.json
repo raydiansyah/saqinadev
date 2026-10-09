@@ -81,7 +81,11 @@
         "requirement": "Requirement",
         "memory": "Memory",
         "decision": "Keputusan",
-        "document": "Dokumen"
+        "document": "Dokumen",
+        "scope": "Scope",
+        "schedule": "Jadwal pembayaran",
+        "invoice": "Invoice",
+        "change_request": "Change request"
       },
       "view": "Lihat"
     },
@@ -138,7 +142,13 @@
         "CREATE_DECISION": "Keputusan baru",
         "ASSIGN_AGENT": "Tugaskan agent",
         "RUN_TOOL": "Jalankan tool",
-        "CREATE_HANDOFF": "Serahkan ke agent"
+        "CREATE_HANDOFF": "Serahkan ke agent",
+        "SET_PAYMENT_SCHEDULE": "Jadwal pembayaran",
+        "CREATE_INVOICE": "Draft invoice",
+        "CREATE_SCOPE_ITEM": "Item scope",
+        "CREATE_CHANGE_REQUEST": "Change request",
+        "GENERATE_DOCUMENT": "Buat dokumen",
+        "SEND_CLIENT_REMINDER": "Ingatkan client"
       },
       "fields": {
         "title": "Judul",
@@ -186,6 +196,29 @@
         "sent": "Terkirim ke agent",
         "export": "Siap diekspor",
         "failed": "Handoff gagal: tidak ada yang terkirim"
+      },
+      "billing": {
+        "value": "Nilai project",
+        "draftOnly": "Dibuat sebagai draft. Belum diterbitkan atau dikirim ke client."
+      },
+      "scopeCategories": {
+        "included": "Termasuk",
+        "excluded": "Tidak termasuk",
+        "optional": "Opsional",
+        "future": "Nanti"
+      },
+      "changeRequest": {
+        "draftOnly": "Dibuat sebagai draft. Isi biaya dan waktu, lalu kirim ke client untuk disetujui."
+      },
+      "documentKinds": {
+        "proposal": "Proposal",
+        "agreement": "Draft perjanjian",
+        "handover": "Dokumen serah terima",
+        "maintenance_agreement": "Draft perjanjian maintenance",
+        "note": "Disusun dari catatan project sebagai draft. Bukan nasihat hukum; tidak ada yang dikirim."
+      },
+      "reminder": {
+        "recipients": "Dikirim ke {count} user portal client di aplikasi, dan lewat email bila dikonfigurasi."
       }
     },
     "run": {
@@ -372,7 +405,10 @@
       "recommendation": "Rekomendasi",
       "repository": "Repository",
       "git_branch": "Branch Git",
-      "project": "Proyek"
+      "project": "Proyek",
+      "billing": "Catatan billing",
+      "scope": "Scope",
+      "maintenance": "Maintenance"
     },
     "sourceLabel": "Sumber: {source}",
     "modelLine": "Dijawab oleh {model}",

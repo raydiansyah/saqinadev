@@ -12,8 +12,7 @@
     "nav": {
       "product": "Product",
       "howItWorks": "How It Works",
-      "agents": "Agents",
-      "useCases": "Use Cases"
+      "try": "Try it"
     },
     "footer": {
       "documentation": "Documentation",
@@ -21,7 +20,7 @@
       "privacy": "Privacy Policy",
       "terms": "Terms and Conditions",
       "legal": "Legal",
-      "phase": "Phase 1 preview"
+      "phase": "Early access"
     },
     "language": {
       "label": "Language",
@@ -181,7 +180,7 @@
   },
   "legal": {
     "draftTitle": "Draft for legal review",
-    "draftBody": "This text describes how the Phase 1 preview actually works. Bracketed fields such as [COMPANY NAME] are placeholders. It must be reviewed by a lawyer before Saqina Dev launches publicly.",
+    "draftBody": "This text describes how the early access version actually works. Bracketed fields such as [COMPANY NAME] are placeholders. It must be reviewed by a lawyer before Saqina Dev launches publicly.",
     "updated": "Last updated",
     "contents": "Contents",
     "otherDocument": "See also"

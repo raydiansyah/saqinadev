@@ -1,4 +1,6 @@
 import * as z from "zod";
+import { scheduleInput } from "@/lib/billing/schedule-input";
+import { SCOPE_CATEGORIES } from "@/lib/domain/business";
 import {
   type ActionCategory,
   MEMORY_CATEGORIES,
@@ -139,6 +141,59 @@ export const plannedAction = z.discriminatedUnion("type", [
     }),
   }),
   z.object({
+    type: z.literal("SET_PAYMENT_SCHEDULE"),
+    key: z.string().min(1).max(8),
+    payload: scheduleInput,
+    display: z.object({ currency: z.string().max(3) }),
+  }),
+  z.object({
+    type: z.literal("CREATE_INVOICE"),
+    key: z.string().min(1).max(8),
+    /** Always from a payment term: the amount comes from the schedule, not from the plan. */
+    payload: z.object({ termId: id }),
+    display: z.object({
+      label: z.string().max(80),
+      amount: z.number(),
+      currency: z.string().max(3),
+    }),
+  }),
+  z.object({
+    type: z.literal("CREATE_SCOPE_ITEM"),
+    key: z.string().min(1).max(8),
+    payload: z.object({
+      title: z.string().trim().min(2).max(160),
+      description: z.string().trim().max(1000).default(""),
+      category: z.enum(SCOPE_CATEGORIES),
+      clientVisible: z.boolean().default(true),
+    }),
+  }),
+  z.object({
+    type: z.literal("CREATE_CHANGE_REQUEST"),
+    key: z.string().min(1).max(8),
+    /** Always a draft: cost and time are filled in by the team before it is sent. */
+    payload: z.object({
+      title: z.string().trim().min(3).max(160),
+      description: z.string().trim().max(4000).default(""),
+      impact: z.string().trim().max(2000).default(""),
+    }),
+  }),
+  z.object({
+    type: z.literal("GENERATE_DOCUMENT"),
+    key: z.string().min(1).max(8),
+    payload: z.object({
+      kind: z.enum(["proposal", "agreement", "handover", "maintenance_agreement"]),
+    }),
+  }),
+  z.object({
+    type: z.literal("SEND_CLIENT_REMINDER"),
+    key: z.string().min(1).max(8),
+    payload: z.object({
+      entityType: z.enum(["invoice", "client_approval", "change_request"]),
+      entityId: id,
+    }),
+    display: z.object({ label: z.string().max(200), recipients: z.number().int().min(0) }),
+  }),
+  z.object({
     type: z.literal("ASSIGN_AGENT"),
     key: z.string().min(1).max(8),
     /** Optional steps can be switched off in the proposal before approving. */
@@ -201,6 +256,24 @@ export const ACTION_POLICY: Record<ActionType, ActionPolicy> = {
     autoEligible: false,
     editable: ["instructions"],
   },
+  // Business records: always reviewed by a person, never automatic.
+  SET_PAYMENT_SCHEDULE: { category: "write", risk: "medium", autoEligible: false, editable: [] },
+  CREATE_INVOICE: { category: "write", risk: "medium", autoEligible: false, editable: [] },
+  CREATE_SCOPE_ITEM: {
+    category: "write",
+    risk: "medium",
+    autoEligible: false,
+    editable: ["title", "description"],
+  },
+  CREATE_CHANGE_REQUEST: {
+    category: "write",
+    risk: "medium",
+    autoEligible: false,
+    editable: ["title", "description", "impact"],
+  },
+  GENERATE_DOCUMENT: { category: "write", risk: "medium", autoEligible: false, editable: [] },
+  // Reaches the client (in-app and email): always reviewed first.
+  SEND_CLIENT_REMINDER: { category: "external", risk: "medium", autoEligible: false, editable: [] },
   ASSIGN_AGENT: {
     category: "agent",
     risk: "medium",

@@ -20,6 +20,9 @@ export const FACT_SOURCES = [
   "repository",
   "git_branch",
   "project",
+  "billing",
+  "scope",
+  "maintenance",
 ] as const;
 
 export const finding = z.object({
@@ -31,7 +34,17 @@ export const finding = z.object({
 export type Finding = z.infer<typeof finding>;
 
 export const executedItem = z.object({
-  kind: z.enum(["task", "requirement", "memory", "decision", "document"]),
+  kind: z.enum([
+    "task",
+    "requirement",
+    "memory",
+    "decision",
+    "document",
+    "scope",
+    "schedule",
+    "invoice",
+    "change_request",
+  ]),
   title: z.string().max(200),
   href: z.string().max(200),
   change: z.enum(["created", "updated", "deleted"]),

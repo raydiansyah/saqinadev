@@ -26,6 +26,8 @@ const CONTEXT_TYPES = [
   "memory",
   "decision",
   "stack",
+  "scope",
+  "billing",
 ];
 const changesContext = (type: string) => CONTEXT_TYPES.includes(type.split(".")[0]);
 

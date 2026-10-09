@@ -14,6 +14,8 @@ export interface ToolDefinition {
   /** Permission an agent needs to use this tool. Members need `content:write` for writes. */
   agentPermission?: AgentPermission;
   available: boolean;
+  /** Business records (scope, billing): people only. Agents can never use these. */
+  membersOnly?: boolean;
 }
 
 export const TOOLS: readonly ToolDefinition[] = [
@@ -77,6 +79,48 @@ export const TOOLS: readonly ToolDefinition[] = [
     available: true,
   },
   { name: "assign_agent", action: "ASSIGN_AGENT", category: "agent", available: true },
+  {
+    name: "set_payment_schedule",
+    action: "SET_PAYMENT_SCHEDULE",
+    category: "write",
+    available: true,
+    membersOnly: true,
+  },
+  {
+    name: "create_invoice",
+    action: "CREATE_INVOICE",
+    category: "write",
+    available: true,
+    membersOnly: true,
+  },
+  {
+    name: "create_change_request",
+    action: "CREATE_CHANGE_REQUEST",
+    category: "write",
+    available: true,
+    membersOnly: true,
+  },
+  {
+    name: "generate_document",
+    action: "GENERATE_DOCUMENT",
+    category: "write",
+    available: true,
+    membersOnly: true,
+  },
+  {
+    name: "send_client_reminder",
+    action: "SEND_CLIENT_REMINDER",
+    category: "external",
+    available: true,
+    membersOnly: true,
+  },
+  {
+    name: "create_scope_item",
+    action: "CREATE_SCOPE_ITEM",
+    category: "write",
+    available: true,
+    membersOnly: true,
+  },
   // Declared for later phases. Nothing can call these yet.
   { name: "git", category: "external", agentPermission: "git_push", available: false },
   { name: "browser", category: "external", available: false },

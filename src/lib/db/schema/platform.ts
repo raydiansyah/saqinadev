@@ -137,7 +137,7 @@ export const agentModelMappings = pgTable(
   "agent_model_mappings",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    scope: text("scope").$type<"platform" | "project">().notNull(),
+    scope: text("scope").$type<"platform" | "project" | "organization">().notNull(),
     agentRole: text("agent_role"),
     projectId: optionalProject(),
     agentId: uuid("agent_id").references(() => agents.id, { onDelete: "cascade" }),
@@ -185,7 +185,7 @@ export const auditEvents = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     actorId: userRef("actor_id"),
-    scope: text("scope").$type<"platform" | "project">().notNull(),
+    scope: text("scope").$type<"platform" | "project" | "organization">().notNull(),
     projectId: optionalProject(),
     type: text("type").notNull(),
     entityType: text("entity_type").notNull(),

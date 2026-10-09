@@ -1,25 +1,26 @@
 @import "tailwindcss";
 
 /*
- * Saqina Dev tokens. Dark graphite by default: the product is a developer tool used next to
- * editors and terminals. One accent (signal green) marks progress and the primary action;
- * blue, amber and red are reserved for status meaning only.
+ * Saqina Dev tokens, aligned with the saqina.dev brand: warm graphite surfaces and one coral
+ * accent (#FF6A55) for the primary action and focus. Success keeps its own green so "paid" and
+ * "done" never read as the brand color; amber and red stay reserved for status meaning.
  */
 :root {
-  --background: oklch(0.17 0.006 250);
-  --surface: oklch(0.205 0.007 250);
-  --surface-raised: oklch(0.235 0.008 250);
-  --foreground: oklch(0.96 0.004 250);
-  --muted-foreground: oklch(0.74 0.012 250);
-  --subtle-foreground: oklch(0.64 0.012 250);
-  --border: oklch(0.31 0.008 250);
-  --border-strong: oklch(0.42 0.01 250);
-  --primary: oklch(0.82 0.15 158);
-  --primary-foreground: oklch(0.2 0.03 158);
+  --background: oklch(0.165 0.006 50);
+  --surface: oklch(0.2 0.007 50);
+  --surface-raised: oklch(0.232 0.008 50);
+  --foreground: oklch(0.965 0.004 70);
+  --muted-foreground: oklch(0.75 0.012 60);
+  --subtle-foreground: oklch(0.65 0.012 60);
+  --border: oklch(0.31 0.008 50);
+  --border-strong: oklch(0.42 0.01 50);
+  --primary: oklch(0.71 0.18 32);
+  --primary-foreground: oklch(0.2 0.04 32);
+  --success: oklch(0.78 0.14 158);
   --info: oklch(0.76 0.11 240);
-  --warning: oklch(0.83 0.13 80);
-  --error: oklch(0.72 0.16 25);
-  --ring: oklch(0.82 0.15 158);
+  --warning: oklch(0.83 0.13 75);
+  --error: oklch(0.68 0.2 15);
+  --ring: oklch(0.71 0.18 32);
   --radius: 6px;
   color-scheme: dark;
 }
@@ -35,7 +36,7 @@
   --color-border-strong: var(--border-strong);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-  --color-success: var(--primary);
+  --color-success: var(--success);
   --color-info: var(--info);
   --color-warning: var(--warning);
   --color-error: var(--error);
@@ -67,15 +68,10 @@
 }
 
 /*
- * Motion system. Vocabulary: reveal, connect, split/merge, morph, progress, pin.
- * The story is pinned only on large screens that allow motion; everywhere else it is a
- * vertical narrative where every visual shows its final state.
+ * Landing motion. Vocabulary: reveal (on scroll), intro (on load), float (idle 3D scene),
+ * orbit (ring of project parts), advance (lifecycle steps). All of it stops under
+ * prefers-reduced-motion and every element is readable in its resting state.
  */
-@custom-variant pinned (@media (min-width: 1024px) and (prefers-reduced-motion: no-preference));
-@custom-variant stacked (
-  @media not all and (min-width: 1024px) and (prefers-reduced-motion: no-preference)
-);
-
 @layer components {
   /* Scroll reveal: content is visible by default; motion only applies once JS marks it. */
   [data-reveal="pending"] {
@@ -97,64 +93,53 @@
     animation-delay: var(--d, 0ms);
   }
 
-  /* Connect: SVG paths draw with local chapter progress (--p, defaults to fully drawn). */
-  .connect {
-    stroke-dasharray: 1;
-    stroke-dashoffset: calc(1 - var(--p, 1));
+  /* 3D scene: a tilted stack of project cards. --rx/--ry come from the pointer. */
+  .scene {
+    perspective: 1200px;
   }
+  .scene-stack {
+    transform-style: preserve-3d;
+    transform: rotateX(var(--rx, 14deg)) rotateY(var(--ry, -22deg));
+    transition: transform 600ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .scene-card {
+    transform: translateZ(var(--z, 0px));
+    animation: float-y 6s ease-in-out infinite;
+    animation-delay: var(--float-delay, 0ms);
+  }
+  .orbit {
+    transform-style: preserve-3d;
+    animation: orbit-spin 24s linear infinite;
+  }
+  /* Bars that fill once their section is revealed; full width without JS. */
+  .fill-bar {
+    width: var(--w, 100%);
+    transition: width 1200ms cubic-bezier(0.2, 0.7, 0.2, 1) 200ms;
+  }
+  [data-reveal="pending"] .fill-bar {
+    width: 0;
+  }
+  .orbit-item {
+    transform: rotateY(var(--a)) translateZ(var(--r, 120px)) rotateY(calc(var(--a) * -1));
+  }
+}
 
-  /* Story layout. Stacked by default; pinned stage on capable screens. */
-  .story-track {
-    position: relative;
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateZ(var(--z, 0px)) translateY(0);
   }
-  @variant pinned {
-    .story-track {
-      height: calc(100vh * 8);
-    }
-    .story-sticky {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-      padding-top: 4rem;
-    }
-    .story-frame {
-      display: grid;
-      grid-template-columns: 9.5rem minmax(0, 0.85fr) minmax(0, 1.25fr);
-      grid-template-areas: "rail text stage";
-      align-items: center;
-      column-gap: 3rem;
-      height: min(42rem, calc(100vh - 7rem));
-    }
-    .chapter {
-      display: contents;
-    }
-    .chapter-text,
-    .chapter-visual {
-      grid-row: 1;
-      transition:
-        opacity 450ms ease,
-        transform 450ms ease,
-        visibility 0s linear 450ms;
-    }
-    .chapter-text {
-      grid-area: text;
-    }
-    .chapter-visual {
-      grid-area: stage;
-    }
-    .chapter:not([data-active]) > .chapter-text,
-    .chapter:not([data-active]) > .chapter-visual {
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(20px);
-    }
-    .chapter[data-active] > .chapter-text,
-    .chapter[data-active] > .chapter-visual {
-      transition-delay: 0s;
-    }
+  50% {
+    transform: translateZ(var(--z, 0px)) translateY(-8px);
+  }
+}
+
+@keyframes orbit-spin {
+  from {
+    transform: rotateX(-14deg) rotateY(0deg);
+  }
+  to {
+    transform: rotateX(-14deg) rotateY(360deg);
   }
 }
 
@@ -214,7 +199,9 @@
     transform: none;
     transition: none;
   }
-  .intro {
+  .intro,
+  .scene-card,
+  .orbit {
     animation: none;
   }
 }
