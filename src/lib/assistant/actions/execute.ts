@@ -2,6 +2,8 @@ import "server-only";
 import { agentCan } from "@/lib/agents/capabilities";
 import type { ProjectAccess } from "@/lib/auth/permissions";
 import { can } from "@/lib/auth/permissions";
+import { createInvoiceTx } from "@/lib/billing/invoices";
+import { setPaymentScheduleTx } from "@/lib/billing/terms";
 import type { Tx } from "@/lib/db/client";
 import { createDecisionTx } from "@/lib/decisions/service";
 import { appendDocumentSectionTx } from "@/lib/documents/service";
@@ -11,6 +13,7 @@ import type { EventBatch } from "@/lib/events/emitter";
 import type { Trace } from "@/lib/events/types";
 import { createMemoryTx } from "@/lib/memory/service";
 import { createRequirementTx, updateRequirementTx } from "@/lib/requirements/service";
+import { createScopeItemTx } from "@/lib/scope/service";
 import { createTaskTx, deleteTaskTx, updateTaskTx } from "@/lib/tasks/service";
 import type { ExecutedItem } from "../blocks";
 import { toolForAction } from "./tools";
@@ -78,6 +81,13 @@ export async function executeActionsTx(
     }
     const tool = toolForAction(action.type);
     if (!tool.available) throw new AppError("AUTHORIZATION_ERROR", `Tool ${tool.name} unavailable`);
+    if (tool.membersOnly && trace.via === "agent")
+      throw new AppError("AUTHORIZATION_ERROR", `${tool.name} is not available to agents`);
+    if (
+      (action.type === "SET_PAYMENT_SCHEDULE" || action.type === "CREATE_INVOICE") &&
+      !can(access.role, "billing:write")
+    )
+      throw new AppError("AUTHORIZATION_ERROR");
     if (trace.via === "agent" && tool.agentPermission) {
       const perms = deps.agentPermissions ?? [];
       if (!agentCan({ permissions: perms }, tool.agentPermission))
@@ -162,6 +172,41 @@ export async function executeActionsTx(
           kind: "decision",
           title: `#${String(row.number).padStart(3, "0")} ${row.selected}`,
           href: `${base}/decisions`,
+          change: "created",
+        });
+        break;
+      }
+      case "SET_PAYMENT_SCHEDULE": {
+        await setPaymentScheduleTx(tx, access, action.payload, { via: trace.via });
+        result.items.push({
+          kind: "schedule",
+          title: `${action.payload.terms.length} terms`,
+          href: `${base}/billing`,
+          change: "updated",
+        });
+        break;
+      }
+      case "CREATE_INVOICE": {
+        const invoice = await createInvoiceTx(
+          tx,
+          access,
+          { ...action.payload, notes: "" },
+          { via: trace.via },
+        );
+        result.items.push({
+          kind: "invoice",
+          title: invoice.title,
+          href: `${base}/billing`,
+          change: "created",
+        });
+        break;
+      }
+      case "CREATE_SCOPE_ITEM": {
+        const item = await createScopeItemTx(tx, access, action.payload, { via: trace.via });
+        result.items.push({
+          kind: "scope",
+          title: item.title,
+          href: `${base}/features`,
           change: "created",
         });
         break;

@@ -29,7 +29,10 @@
       "projects": "Projects",
       "activity": "Activity",
       "settings": "Settings",
-      "ai": "AI & Models"
+      "ai": "AI & Models",
+      "clients": "Clients",
+      "invoices": "Invoices",
+      "payments": "Payments"
     },
     "greeting": {
       "morning": "Good morning, {name}.",

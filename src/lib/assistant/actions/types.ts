@@ -1,4 +1,6 @@
 import * as z from "zod";
+import { scheduleInput } from "@/lib/billing/schedule-input";
+import { SCOPE_CATEGORIES } from "@/lib/domain/business";
 import {
   type ActionCategory,
   MEMORY_CATEGORIES,
@@ -139,6 +141,33 @@ export const plannedAction = z.discriminatedUnion("type", [
     }),
   }),
   z.object({
+    type: z.literal("SET_PAYMENT_SCHEDULE"),
+    key: z.string().min(1).max(8),
+    payload: scheduleInput,
+    display: z.object({ currency: z.string().max(3) }),
+  }),
+  z.object({
+    type: z.literal("CREATE_INVOICE"),
+    key: z.string().min(1).max(8),
+    /** Always from a payment term: the amount comes from the schedule, not from the plan. */
+    payload: z.object({ termId: id }),
+    display: z.object({
+      label: z.string().max(80),
+      amount: z.number(),
+      currency: z.string().max(3),
+    }),
+  }),
+  z.object({
+    type: z.literal("CREATE_SCOPE_ITEM"),
+    key: z.string().min(1).max(8),
+    payload: z.object({
+      title: z.string().trim().min(2).max(160),
+      description: z.string().trim().max(1000).default(""),
+      category: z.enum(SCOPE_CATEGORIES),
+      clientVisible: z.boolean().default(true),
+    }),
+  }),
+  z.object({
     type: z.literal("ASSIGN_AGENT"),
     key: z.string().min(1).max(8),
     /** Optional steps can be switched off in the proposal before approving. */
@@ -200,6 +229,15 @@ export const ACTION_POLICY: Record<ActionType, ActionPolicy> = {
     risk: "medium",
     autoEligible: false,
     editable: ["instructions"],
+  },
+  // Business records: always reviewed by a person, never automatic.
+  SET_PAYMENT_SCHEDULE: { category: "write", risk: "medium", autoEligible: false, editable: [] },
+  CREATE_INVOICE: { category: "write", risk: "medium", autoEligible: false, editable: [] },
+  CREATE_SCOPE_ITEM: {
+    category: "write",
+    risk: "medium",
+    autoEligible: false,
+    editable: ["title", "description"],
   },
   ASSIGN_AGENT: {
     category: "agent",

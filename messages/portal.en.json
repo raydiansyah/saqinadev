@@ -1,0 +1,233 @@
+{
+  "portal": {
+    "title": "Client portal",
+    "nav": {
+      "label": "Portal",
+      "brandHome": "Saqina Dev client portal home",
+      "dashboard": "Dashboard",
+      "projects": "Projects",
+      "profile": "Profile",
+      "signOut": "Sign out"
+    },
+    "dashboard": {
+      "metaTitle": "Client portal",
+      "hello": "Hello, {name}",
+      "intro": "Here is where your projects stand today.",
+      "emptyTitle": "No projects shared yet",
+      "emptyBody": "When the team shares a project with you, its progress, documents and invoices appear here.",
+      "open": "Open {name}"
+    },
+    "projects": {
+      "metaTitle": "Projects",
+      "title": "Projects",
+      "description": "Every project shared with you."
+    },
+    "stage": {
+      "planning": "Planning",
+      "development": "In development",
+      "review": "In review",
+      "completed": "Completed",
+      "paused": "Paused"
+    },
+    "progress": {
+      "label": "Progress",
+      "percent": "{percent}% complete",
+      "current": "Current stage",
+      "next": "Next stage",
+      "none": "Not set yet",
+      "title": "Progress",
+      "description": "The stages of your project and where the work is right now.",
+      "empty": "The team has not published the project stages yet.",
+      "listLabel": "Project stages",
+      "state": {
+        "done": "Done",
+        "current": "In progress",
+        "upcoming": "Upcoming"
+      }
+    },
+    "money": {
+      "value": "Project value",
+      "invoiced": "Invoiced",
+      "paid": "Paid",
+      "outstanding": "Outstanding",
+      "overdue": "Overdue",
+      "notSet": "Not set"
+    },
+    "tabs": {
+      "label": "Project sections",
+      "overview": "Overview",
+      "progress": "Progress",
+      "features": "Features",
+      "documents": "Documents",
+      "invoices": "Invoices",
+      "payments": "Payments"
+    },
+    "overview": {
+      "metaTitle": "Overview",
+      "about": "About this project",
+      "noDescription": "No description yet.",
+      "billing": "Billing",
+      "activity": "Recent updates",
+      "activityEmpty": "Updates such as new invoices, payments and shared documents appear here.",
+      "kinds": {
+        "invoice_issued": "Invoice {label} issued",
+        "payment_received": "Payment received for {label}",
+        "document_shared": "Document shared: {label}"
+      }
+    },
+    "features": {
+      "metaTitle": "Features",
+      "title": "Features",
+      "description": "What this project covers, and what it does not.",
+      "empty": "The feature list has not been shared yet.",
+      "groups": {
+        "included": {
+          "title": "Included",
+          "body": "Part of the agreed scope and the price."
+        },
+        "excluded": {
+          "title": "Not included",
+          "body": "Outside this project. Ask the team if you need any of these."
+        },
+        "optional": {
+          "title": "Optional",
+          "body": "Available on request, usually at extra cost."
+        },
+        "future": {
+          "title": "Later",
+          "body": "Ideas for a future phase, not part of this project yet."
+        }
+      }
+    },
+    "documents": {
+      "metaTitle": "Documents",
+      "title": "Documents",
+      "description": "Documents the team has shared with you. They are read only.",
+      "empty": "No documents have been shared yet.",
+      "version": "Version {version}",
+      "updated": "Updated {date}",
+      "back": "All documents"
+    },
+    "invoices": {
+      "metaTitle": "Invoices",
+      "title": "Invoices",
+      "description": "Invoices issued for this project.",
+      "empty": "No invoices have been issued yet.",
+      "tableLabel": "Invoices",
+      "pendingNumber": "No number",
+      "columns": {
+        "number": "Invoice",
+        "title": "Description",
+        "issued": "Issued",
+        "due": "Due",
+        "total": "Total",
+        "balance": "Balance",
+        "status": "Status"
+      },
+      "status": {
+        "draft": "Draft",
+        "issued": "Issued",
+        "sent": "Sent",
+        "partially_paid": "Partly paid",
+        "paid": "Paid",
+        "cancelled": "Cancelled",
+        "overdue": "Overdue"
+      },
+      "view": "View invoice {number}",
+      "back": "All invoices",
+      "print": "Print",
+      "heading": "Invoice {number}",
+      "billedTo": "Billed to",
+      "project": "Project",
+      "issueDate": "Issue date",
+      "dueDate": "Due date",
+      "noDate": "Not set",
+      "items": {
+        "label": "Invoice items",
+        "description": "Description",
+        "quantity": "Qty",
+        "unit": "Unit price",
+        "amount": "Amount",
+        "empty": "No line items."
+      },
+      "total": "Total",
+      "paid": "Paid",
+      "balance": "Balance due"
+    },
+    "payments": {
+      "metaTitle": "Payments",
+      "title": "Payments",
+      "description": "Payments the team has confirmed for this project.",
+      "empty": "No payments have been recorded yet.",
+      "tableLabel": "Payments",
+      "summary": "{count, plural, one {# payment} other {# payments}} confirmed",
+      "totalPaid": "Total paid",
+      "columns": {
+        "date": "Date",
+        "invoice": "Invoice",
+        "method": "Method",
+        "amount": "Amount"
+      },
+      "method": {
+        "bank_transfer": "Bank transfer",
+        "cash": "Cash",
+        "manual": "Manual",
+        "gateway": "Online payment",
+        "other": "Other"
+      }
+    },
+    "profile": {
+      "metaTitle": "Profile",
+      "title": "Profile",
+      "description": "Your account details for the client portal.",
+      "account": "Account",
+      "name": "Name",
+      "email": "Email",
+      "clients": "Companies you represent",
+      "clientsEmpty": "You are not linked to a company yet.",
+      "language": "Language",
+      "signOut": "Sign out"
+    }
+  },
+  "invite": {
+    "title": "Invitation",
+    "metaTitle": "Project portal invitation",
+    "heading": "You are invited",
+    "intro": "{org} invited you to follow your projects with {client} on Saqina Dev.",
+    "invitedEmail": "Invitation for",
+    "signedOutHint": "Create an account or sign in with this email address to accept.",
+    "createAccount": "Create account",
+    "signIn": "Sign in",
+    "accept": "Accept invitation",
+    "accepting": "Accepting...",
+    "signedInAs": "Signed in as {email}",
+    "wrongEmail": "This invitation is for {invited}, but you are signed in as {current}. Sign out, then sign in or create an account with the invited email.",
+    "signOut": "Sign out",
+    "goPortal": "Go to the portal",
+    "backHome": "Back to home",
+    "states": {
+      "expired": {
+        "title": "This invitation has expired",
+        "body": "Invitation links work for 7 days. Ask the team to send you a new one."
+      },
+      "used": {
+        "title": "This invitation was already used",
+        "body": "Each link works once. If you accepted it, sign in to open the portal."
+      },
+      "revoked": {
+        "title": "This invitation was withdrawn",
+        "body": "The team cancelled this link. Ask them for a new invitation if you still need access."
+      },
+      "invalid": {
+        "title": "This invitation link is not valid",
+        "body": "Check that you opened the full link from the email, or ask the team for a new one."
+      }
+    },
+    "errors": {
+      "unavailable": "This invitation is no longer valid. Ask the team for a new one.",
+      "wrongEmail": "This invitation belongs to a different email address.",
+      "rateLimit": "Too many attempts. Wait a moment and try again.",
+      "generic": "Something went wrong. Try again."
+    }
+  }
+}

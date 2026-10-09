@@ -81,7 +81,10 @@
         "requirement": "Requirement",
         "memory": "Memory",
         "decision": "Keputusan",
-        "document": "Dokumen"
+        "document": "Dokumen",
+        "scope": "Scope",
+        "schedule": "Jadwal pembayaran",
+        "invoice": "Invoice"
       },
       "view": "Lihat"
     },
@@ -138,7 +141,10 @@
         "CREATE_DECISION": "Keputusan baru",
         "ASSIGN_AGENT": "Tugaskan agent",
         "RUN_TOOL": "Jalankan tool",
-        "CREATE_HANDOFF": "Serahkan ke agent"
+        "CREATE_HANDOFF": "Serahkan ke agent",
+        "SET_PAYMENT_SCHEDULE": "Jadwal pembayaran",
+        "CREATE_INVOICE": "Draft invoice",
+        "CREATE_SCOPE_ITEM": "Item scope"
       },
       "fields": {
         "title": "Judul",
@@ -186,6 +192,16 @@
         "sent": "Terkirim ke agent",
         "export": "Siap diekspor",
         "failed": "Handoff gagal: tidak ada yang terkirim"
+      },
+      "billing": {
+        "value": "Nilai project",
+        "draftOnly": "Dibuat sebagai draft. Belum diterbitkan atau dikirim ke client."
+      },
+      "scopeCategories": {
+        "included": "Termasuk",
+        "excluded": "Tidak termasuk",
+        "optional": "Opsional",
+        "future": "Nanti"
       }
     },
     "run": {
@@ -372,7 +388,9 @@
       "recommendation": "Rekomendasi",
       "repository": "Repository",
       "git_branch": "Branch Git",
-      "project": "Proyek"
+      "project": "Proyek",
+      "billing": "Catatan billing",
+      "scope": "Scope"
     },
     "sourceLabel": "Sumber: {source}",
     "modelLine": "Dijawab oleh {model}",

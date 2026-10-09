@@ -1,3 +1,4 @@
+import { businessEn } from "./business";
 import type { AssistantCopy } from "./types";
 
 export const en: AssistantCopy = {
@@ -170,6 +171,7 @@ export const en: AssistantCopy = {
       group: "users_roles",
     },
   },
+  business: businessEn,
   requirementUpdate: {
     question: (t) => `What should change in "${t}"?`,
     noMatch: (topic) =>

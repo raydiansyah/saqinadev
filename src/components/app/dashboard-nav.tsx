@@ -4,18 +4,40 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
-const ITEMS = [
-  { key: "overview", href: "/dashboard" },
-  { key: "projects", href: "/dashboard/projects" },
-  { key: "activity", href: "/dashboard/activity" },
-  { key: "settings", href: "/dashboard/settings" },
-] as const;
+type NavKey =
+  | "overview"
+  | "clients"
+  | "projects"
+  | "invoices"
+  | "payments"
+  | "activity"
+  | "settings"
+  | "ai";
 
-export function DashboardNav({ isOwner = false }: { isOwner?: boolean }) {
+const SIMPLE: { key: NavKey; href: string }[] = [
+  { key: "overview", href: "/dashboard" },
+  { key: "clients", href: "/dashboard/clients" },
+  { key: "projects", href: "/dashboard/projects" },
+  { key: "invoices", href: "/dashboard/invoices" },
+  { key: "payments", href: "/dashboard/payments" },
+];
+
+export function DashboardNav({
+  isOwner = false,
+  mode = "simple",
+}: {
+  isOwner?: boolean;
+  mode?: "simple" | "advanced";
+}) {
   const t = useTranslations("app.nav");
   const pathname = usePathname();
-  // The AI control plane is visible to platform owners only (the pages check again).
-  const items = isOwner ? [...ITEMS, { key: "ai" as const, href: "/dashboard/ai" }] : ITEMS;
+  const items: { key: NavKey; href: string }[] = [
+    ...SIMPLE,
+    ...(mode === "advanced" ? [{ key: "activity" as const, href: "/dashboard/activity" }] : []),
+    { key: "settings", href: "/dashboard/settings" },
+    // The AI control plane is visible to platform owners in advanced mode (pages check again).
+    ...(isOwner && mode === "advanced" ? [{ key: "ai" as const, href: "/dashboard/ai" }] : []),
+  ];
   return (
     <nav aria-label={t("label")} className="border-b border-border">
       <ul className="-mb-px flex gap-1 overflow-x-auto px-4 sm:px-6">

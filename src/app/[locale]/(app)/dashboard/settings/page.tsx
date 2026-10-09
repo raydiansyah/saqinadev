@@ -5,6 +5,8 @@ import { PageHeading } from "@/components/app/states";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { Button } from "@/components/ui/button";
 import { requireActorPage } from "@/lib/auth/server";
+import { getUiMode } from "@/lib/users/preferences";
+import { WorkspaceModeForm } from "./workspace-mode-form";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("app.settings");
@@ -13,7 +15,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AccountSettingsPage() {
   const actor = await requireActorPage("/dashboard/settings");
-  const t = await getTranslations("app");
+  const [t, tm, mode] = await Promise.all([
+    getTranslations("app"),
+    getTranslations("workspaceMode"),
+    getUiMode(actor),
+  ]);
   return (
     <>
       <PageHeading title={t("settings.title")} />
@@ -34,6 +40,13 @@ export default async function AccountSettingsPage() {
             {t("settings.language")}
           </h2>
           <LanguageSwitcher className="mt-3" />
+        </section>
+        <section aria-labelledby="mode-heading" className="rounded-lg border border-border p-5">
+          <h2 id="mode-heading" className="font-medium">
+            {tm("title")}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">{tm("description")}</p>
+          <WorkspaceModeForm mode={mode} />
         </section>
         <section aria-labelledby="session-heading" className="rounded-lg border border-border p-5">
           <h2 id="session-heading" className="font-medium">

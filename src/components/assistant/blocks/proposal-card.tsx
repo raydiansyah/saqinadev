@@ -35,6 +35,9 @@ const SIGN: Record<PlannedAction["type"], string> = {
   CREATE_DECISION: "+",
   RUN_TOOL: "▸",
   CREATE_HANDOFF: "⇢",
+  SET_PAYMENT_SCHEDULE: "~",
+  CREATE_INVOICE: "+",
+  CREATE_SCOPE_ITEM: "+",
   ASSIGN_AGENT: "→",
 };
 

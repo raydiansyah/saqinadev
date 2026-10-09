@@ -60,7 +60,8 @@
         "understand": "Understand",
         "plan": "Plan",
         "context": "Context",
-        "build": "Build"
+        "build": "Build",
+        "business": "Project"
       },
       "items": {
         "overview": "Overview",
@@ -77,7 +78,10 @@
         "agents": "Agents",
         "activity": "Activity",
         "settings": "Settings",
-        "integrations": "Integrations"
+        "integrations": "Integrations",
+        "progress": "Progress",
+        "features": "Features",
+        "billing": "Billing"
       },
       "pending": "waiting"
     },

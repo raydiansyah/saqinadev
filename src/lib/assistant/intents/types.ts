@@ -32,6 +32,11 @@ export const INTENTS = [
   "HANDOFF_AGENT",
   "ASK_REPOSITORY",
   "ANALYZE_REPOSITORY",
+  "ASK_BILLING",
+  "SETUP_BILLING",
+  "CREATE_INVOICE",
+  "ASK_SCOPE",
+  "ADD_SCOPE_ITEM",
   "HELP",
 ] as const;
 export type Intent = (typeof INTENTS)[number];
@@ -49,6 +54,8 @@ export const intentEntities = z.object({
   target: z.enum(TARGETS).optional(),
   /** External agent named in the message ("kirim ke Codex"). */
   agent: z.string().trim().max(60).optional(),
+  /** Scope category named in the message ("ke excluded"). */
+  category: z.enum(["included", "excluded", "optional", "future"]).optional(),
 });
 export type IntentEntities = z.infer<typeof intentEntities>;
 

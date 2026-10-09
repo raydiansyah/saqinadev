@@ -40,6 +40,12 @@ export const id: Record<LegalDocId, LegalDocument> = {
             p: "Integrasi. Jika Anda menghubungkan repository, server MCP, atau agent eksternal, kami menyimpan alamatnya serta access token atau signing secret dalam bentuk terenkripsi. Kami membaca file repository hanya saat sebuah task membutuhkannya (repository Anda tidak disalin), menulis hanya ke branch agent setelah anggota proyek menyetujui perubahannya, dan tidak pernah melakukan merge atau deploy. Server MCP yang Anda hubungkan menerima input dari tool yang Anda aktifkan. Agent eksternal hanya menerima paket konteks yang Anda periksa dan setujui, dengan secret yang dikenali sudah dihapus.",
           },
           {
+            p: "Client dan billing. Jika Anda mengelola client di Saqina Dev, kami menyimpan data client yang Anda masukkan (nama, perusahaan, kontak, dan catatan internal), scope proyek, jadwal pembayaran, invoice, dan pembayaran yang Anda catat. Catatan pembayaran Anda masukkan sendiri dari mutasi rekening atau bukti bayar; Saqina Dev tidak memproses pembayaran, tidak menyimpan dana, dan tidak terhubung ke bank Anda. Pembayaran tidak pernah dihapus: entri yang dikoreksi dibatalkan (void) dengan alasan agar riwayat tetap lengkap.",
+          },
+          {
+            p: "Portal client. Jika Anda mengundang client, kami menyimpan alamat email yang diundang dan hash dari tautan undangan sekali pakai. Client yang menerima undangan hanya melihat proyek yang Anda aktifkan untuk portal, dan pada proyek itu hanya progres, item scope yang ditampilkan, dokumen yang disetujui dan dibagikan, invoice yang sudah terbit, serta pembayaran yang terkonfirmasi. Catatan internal, task, detail AI dan agent, integrasi, dan draft invoice tidak pernah ditampilkan ke client. Anda bertanggung jawab memiliki dasar hukum yang sah untuk memasukkan data pribadi client Anda.",
+          },
+          {
             p: "Sesi dan keamanan. Kami menyimpan sesi aktif Anda beserta alamat IP dan jenis browser yang dipakai untuk masuk, agar Anda tetap masuk dan agar akun dapat dilindungi.",
           },
           {
@@ -224,6 +230,9 @@ export const id: Record<LegalDocId, LegalDocument> = {
           },
           {
             p: "Jangan mengunggah konten yang tidak berhak Anda pakai, atau data pribadi orang lain tanpa dasar hukum yang sah.",
+          },
+          {
+            p: "Proposal, ringkasan scope, deskripsi invoice, dan teks lain yang disusun Saqina Dev untuk Anda adalah draft. Itu bukan nasihat hukum, pajak, atau akuntansi; periksa sebelum Anda mengandalkannya atau mengirimkannya ke client. Angka billing hanya berasal dari catatan yang Anda masukkan.",
           },
         ],
       },

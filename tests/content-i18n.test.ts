@@ -9,10 +9,16 @@ import assistantEn from "../messages/assistant.en.json";
 import assistantId from "../messages/assistant.id.json";
 import authEn from "../messages/auth.en.json";
 import authId from "../messages/auth.id.json";
+import billingEn from "../messages/billing.en.json";
+import billingId from "../messages/billing.id.json";
+import clientsEn from "../messages/clients.en.json";
+import clientsId from "../messages/clients.id.json";
 import enMessages from "../messages/en.json";
 import idMessages from "../messages/id.json";
 import platformEn from "../messages/platform.en.json";
 import platformId from "../messages/platform.id.json";
+import portalEn from "../messages/portal.en.json";
+import portalId from "../messages/portal.id.json";
 import projectEn from "../messages/project.en.json";
 import projectId from "../messages/project.id.json";
 import workspaceEn from "../messages/workspace.en.json";
@@ -43,6 +49,9 @@ describe.each([
   ["workspace messages", workspaceEn, workspaceId],
   ["assistant messages", assistantEn, assistantId],
   ["platform messages", platformEn, platformId],
+  ["billing messages", billingEn, billingId],
+  ["portal messages", portalEn, portalId],
+  ["clients messages", clientsEn, clientsId],
   ["site content", siteEn, siteId],
   ["legal documents", legalEn, legalId],
 ])("%s", (_, en, id) => {
@@ -76,6 +85,9 @@ describe("message files", () => {
       workspaceEn,
       assistantEn,
       platformEn,
+      billingEn,
+      portalEn,
+      clientsEn,
     ].flatMap((m) => Object.keys(m));
     expect(new Set(names).size).toBe(names.length);
   });

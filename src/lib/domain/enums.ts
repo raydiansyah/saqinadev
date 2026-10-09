@@ -212,6 +212,20 @@ export const ACTIVITY_TYPES = [
   "commit.created",
   "pull_request.created",
   "stack.updated",
+  // Phase 5: business layer
+  "client.assigned",
+  "portal.enabled",
+  "portal.disabled",
+  "scope.created",
+  "scope.updated",
+  "scope.deleted",
+  "billing.schedule_updated",
+  "invoice.created",
+  "invoice.issued",
+  "invoice.sent",
+  "invoice.cancelled",
+  "payment.recorded",
+  "payment.voided",
 ] as const;
 export type ActivityType = (typeof ACTIVITY_TYPES)[number];
 

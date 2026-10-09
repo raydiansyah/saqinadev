@@ -81,7 +81,10 @@
         "requirement": "Requirement",
         "memory": "Memory",
         "decision": "Decision",
-        "document": "Document"
+        "document": "Document",
+        "scope": "Scope",
+        "schedule": "Payment schedule",
+        "invoice": "Invoice"
       },
       "view": "View"
     },
@@ -138,7 +141,10 @@
         "CREATE_DECISION": "New decision",
         "ASSIGN_AGENT": "Assign agent",
         "RUN_TOOL": "Run tool",
-        "CREATE_HANDOFF": "Hand off to agent"
+        "CREATE_HANDOFF": "Hand off to agent",
+        "SET_PAYMENT_SCHEDULE": "Payment schedule",
+        "CREATE_INVOICE": "Draft invoice",
+        "CREATE_SCOPE_ITEM": "Scope item"
       },
       "fields": {
         "title": "Title",
@@ -186,6 +192,16 @@
         "sent": "Sent to the agent",
         "export": "Ready to export",
         "failed": "Handoff failed: nothing was sent"
+      },
+      "billing": {
+        "value": "Project value",
+        "draftOnly": "Created as a draft. Nothing is issued or sent to the client."
+      },
+      "scopeCategories": {
+        "included": "Included",
+        "excluded": "Excluded",
+        "optional": "Optional",
+        "future": "Future"
       }
     },
     "run": {
@@ -372,7 +388,9 @@
       "recommendation": "Recommendation",
       "repository": "Repository",
       "git_branch": "Git branch",
-      "project": "Project"
+      "project": "Project",
+      "billing": "Billing records",
+      "scope": "Scope"
     },
     "sourceLabel": "Source: {source}",
     "modelLine": "Answered by {model}",

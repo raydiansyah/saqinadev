@@ -29,7 +29,10 @@
       "projects": "Proyek",
       "activity": "Aktivitas",
       "settings": "Pengaturan",
-      "ai": "AI & Model"
+      "ai": "AI & Model",
+      "clients": "Client",
+      "invoices": "Invoice",
+      "payments": "Pembayaran"
     },
     "greeting": {
       "morning": "Selamat pagi, {name}.",

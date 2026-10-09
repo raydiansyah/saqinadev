@@ -1,0 +1,165 @@
+{
+  "clients": {
+    "title": "Clients",
+    "metaTitle": "Clients",
+    "description": "The people and companies you build for. Assign a client to a project and enable the client portal in the project's settings.",
+    "newClient": "New client",
+    "empty": {
+      "title": "No clients yet",
+      "body": "Add the people or companies you build for. You can then invite them to a read-only portal for their projects."
+    },
+    "table": {
+      "caption": "All clients in your workspace",
+      "name": "Name",
+      "email": "Email",
+      "status": "Status",
+      "projects": "Projects",
+      "portalUsers": "Portal users"
+    },
+    "statuses": {
+      "active": "Active",
+      "archived": "Archived"
+    },
+    "form": {
+      "name": "Name",
+      "company": "Company",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "internalNotes": "Internal notes",
+      "internalNotesHint": "Internal notes, never shown to the client.",
+      "create": "Create client",
+      "creating": "Creating...",
+      "save": "Save changes",
+      "saving": "Saving...",
+      "saved": "Changes saved."
+    },
+    "detail": {
+      "back": "All clients",
+      "details": "Details",
+      "archive": "Archive client",
+      "unarchive": "Restore client",
+      "archivedNotice": "This client is archived. It is hidden from project assignment until you restore it.",
+      "projects": "Projects",
+      "projectsHint": "Assign a client to a project and enable the client portal in the project's settings.",
+      "projectsEmpty": "No projects are assigned to this client yet.",
+      "portalOn": "Portal on",
+      "portalOff": "Portal off",
+      "projectSettings": "Project settings",
+      "portalUsers": "Portal users",
+      "portalUsersHint": "People who accepted an invitation. They can only see projects with the portal enabled.",
+      "portalUsersEmpty": "Nobody has joined the portal yet. Send an invitation below.",
+      "since": "Joined {date}",
+      "remove": "Remove access",
+      "removeTitle": "Remove portal access?",
+      "removeBody": "{name} will no longer see this client's projects. Their account stays; you can invite them again later.",
+      "invitations": "Invitations",
+      "invitationsEmpty": "No invitations sent yet.",
+      "inviteEmail": "Email address",
+      "invite": "Create invitation",
+      "inviting": "Creating...",
+      "inviteCreated": "Invitation created",
+      "inviteOnce": "Copy this link now. It is shown only once, works one time and expires in 7 days.",
+      "inviteEmailed": "We also emailed the link to {email}.",
+      "inviteNotEmailed": "Email is not configured, so send the link yourself.",
+      "inviteLink": "Invitation link",
+      "copy": "Copy",
+      "copied": "Copied",
+      "done": "Done",
+      "revoke": "Revoke",
+      "revokeTitle": "Revoke this invitation?",
+      "revokeBody": "The link sent to {email} will stop working.",
+      "sent": "Sent {date}",
+      "expires": "Expires {date}",
+      "inviteStatuses": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "revoked": "Revoked",
+        "expired": "Expired"
+      }
+    }
+  },
+  "finance": {
+    "title": "Finance",
+    "summary": {
+      "title": "Finance",
+      "outstanding": "Outstanding",
+      "overdue": "Overdue",
+      "paidThisMonth": "Paid this month",
+      "viewInvoices": "View invoices",
+      "viewPayments": "View payments"
+    },
+    "invoices": {
+      "metaTitle": "Invoices",
+      "title": "Invoices",
+      "description": "Every invoice across your projects. Create and send invoices from a project's billing page.",
+      "filterLabel": "Filter by status",
+      "filters": {
+        "all": "All",
+        "open": "Open",
+        "overdue": "Overdue",
+        "paid": "Paid",
+        "draft": "Draft"
+      },
+      "emptyTitle": "No invoices here",
+      "emptyBody": "Invoices you create in a project's billing page appear here.",
+      "caption": "Invoices",
+      "number": "Number",
+      "invoice": "Invoice",
+      "project": "Project",
+      "status": "Status",
+      "issued": "Issued",
+      "due": "Due",
+      "total": "Total",
+      "balance": "Balance",
+      "draftNumber": "Draft"
+    },
+    "payments": {
+      "metaTitle": "Payments",
+      "title": "Payments",
+      "description": "Payments recorded across your projects. To void a payment, open the project's billing page.",
+      "emptyTitle": "No payments yet",
+      "emptyBody": "Payments you record against invoices appear here.",
+      "caption": "Payments",
+      "date": "Date",
+      "project": "Project",
+      "invoice": "Invoice",
+      "amount": "Amount",
+      "method": "Method",
+      "reference": "Reference",
+      "status": "Status"
+    },
+    "invoiceStatuses": {
+      "draft": "Draft",
+      "issued": "Issued",
+      "sent": "Sent",
+      "partially_paid": "Partially paid",
+      "paid": "Paid",
+      "cancelled": "Cancelled",
+      "overdue": "Overdue"
+    },
+    "methods": {
+      "bank_transfer": "Bank transfer",
+      "cash": "Cash",
+      "manual": "Manual",
+      "gateway": "Payment gateway",
+      "other": "Other"
+    },
+    "paymentStatuses": {
+      "confirmed": "Confirmed",
+      "void": "Void"
+    }
+  },
+  "workspaceMode": {
+    "title": "Workspace mode",
+    "description": "Choose how much of the workspace you see. You can switch at any time; nothing is deleted.",
+    "legend": "Workspace mode",
+    "simple": "Simple",
+    "simpleBody": "Shows clients, projects, invoices and payments.",
+    "advanced": "Advanced",
+    "advancedBody": "Adds activity, AI models, agents, integrations and technical project pages.",
+    "save": "Save mode",
+    "saving": "Saving...",
+    "saved": "Mode saved."
+  }
+}

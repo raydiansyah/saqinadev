@@ -1,4 +1,5 @@
 import {
+  boolean,
   index,
   integer,
   jsonb,
@@ -99,6 +100,8 @@ export const documents = pgTable(
     content: text("content").notNull().default(""),
     version: integer("version").notNull().default(1),
     status: text("status").$type<DocumentStatus>().notNull().default("draft"),
+    /** Shared on the client portal. Only approved documents may be shared. */
+    clientVisible: boolean("client_visible").notNull().default(false),
     createdBy: userRef("created_by"),
     updatedBy: userRef("updated_by"),
     createdAt: createdAt(),
@@ -131,6 +134,9 @@ export const milestones = pgTable(
     title: text("title").notNull(),
     goal: text("goal").notNull().default(""),
     position: integer("position").notNull().default(0),
+    /** Shown on the client portal progress view, optionally under a plainer name. */
+    clientVisible: boolean("client_visible").notNull().default(true),
+    clientTitle: text("client_title"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },

@@ -48,7 +48,48 @@ const result = (
   entities: IntentEntities = {},
 ): IntentClassification => ({ intent, confidence, entities });
 
+const SCOPE_WORDS: [RegExp, NonNullable<IntentEntities["category"]>][] = [
+  [/\b(exclude|excluded|out of scope|di luar scope|tidak termasuk|pengecualian)\b/, "excluded"],
+  [/\b(optional|opsional)\b/, "optional"],
+  [/\b(future|nanti|fase berikutnya|next phase)\b/, "future"],
+  [/\b(include|included|in scope|termasuk)\b/, "included"],
+];
+
 const RULES: Rule[] = [
+  // Business rules first: they carry the most specific vocabulary.
+  {
+    test: /\b(?:buat(?:kan)?|bikin(?:kan)?|create|generate|terbitkan|siapkan|prepare|draft)\b.*\b(?:invoice|tagihan|faktur)\b\s*(.*)/,
+    build: (text, m) =>
+      // "buatkan fitur invoice" is a product feature, not a bill.
+      /\b(fitur|feature|modul|module|halaman|page|sistem|system)\b/.test(text)
+        ? result("ADD_FEATURE", 0.75, {
+            feature: clean(
+              text.replace(/^.*?\b(?:buat(?:kan)?|bikin(?:kan)?|create|generate)\b/, ""),
+            ),
+          })
+        : result("CREATE_INVOICE", 0.9, { topic: clean(m[1]) }),
+  },
+  {
+    test: /\b(dp|down ?payment|uang muka|termin|installments?|cicilan|jadwal pembayaran|payment schedule|bayar penuh|full payment)\b/,
+    build: (text) =>
+      /\d|\b(dua|tiga|two|three|bayar penuh|full payment)\b/.test(text)
+        ? result("SETUP_BILLING", 0.9, { description: text.slice(0, 2000) })
+        : result("ASK_BILLING", 0.8),
+  },
+  {
+    test: /\b(?:tambah(?:kan)?|add|masukkan|catat|pindahkan|move)\b\s+(?:fitur\s+|feature\s+)?(.+?)\s+\b(?:ke|to|into|sebagai|as)\s+(?:scope\s+)?(?:exclude|excluded|include|included|optional|opsional|future|out of scope|in scope|tidak termasuk|termasuk)\b/,
+    build: (text, m) =>
+      result("ADD_SCOPE_ITEM", 0.9, {
+        feature: clean(m[1]),
+        category: SCOPE_WORDS.find(([re]) =>
+          re.test(text.slice(text.indexOf(m[1]) + m[1].length)),
+        )?.[1],
+      }),
+  },
+  {
+    test: /\b(?:apakah|is|are|does)\b\s+(?:fitur\s+|feature\s+)?(.+?)\s+(?:termasuk|included|in scope|masuk scope|part of (?:the )?scope)\b|\b(?:scope|ruang lingkup|fitur apa saja|apa saja fitur|what features|which features)\b/,
+    build: (_t, m) => result("ASK_SCOPE", 0.85, { feature: clean(m[1]) }),
+  },
   {
     test: /\b(kirim|kirimkan|send|hand ?off|serahkan|teruskan|forward)\b.*\b(ke|to)\s+(codex|claude|cursor|kiro|hermes|antigravity|openclaw|[a-z][\w-]{1,30})\b/,
     build: (text, m) =>
@@ -152,6 +193,11 @@ const RULES: Rule[] = [
   {
     test: /\b(?:tambah(?:kan)?|add|buat(?:kan)?|bikin|build|implement(?:kan)?|create|dukung|support)\s+(?:fitur\s+|feature\s+|sistem\s+|system\s+|a\s+)?(.+)/,
     build: (_t, m) => result("ADD_FEATURE", 0.75, { feature: clean(m[1]) }),
+  },
+  {
+    test: /\b(belum (?:lunas|bayar|dibayar)|outstanding|unpaid|sudah (?:bayar|dibayar|lunas)|lunas|tagihan|invoice|invoices|piutang|status pembayaran|riwayat pembayaran|riwayat transaksi|payment status|billing|berapa (?:yang )?(?:sudah|belum) dibayar)\b/,
+    // Below 0.8 so a short answer to a pending question is not taken as a billing question.
+    build: () => result("ASK_BILLING", 0.75),
   },
   {
     test: /\b(analisa|analisis|analyze|analyse|review|evaluasi|evaluate)\b.*\b(proyek|project)\b/,

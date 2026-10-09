@@ -3,7 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { runAction } from "@/lib/actions";
 import { requireActor } from "@/lib/auth/server";
-import { createDocument, saveDocument, setDocumentStatus } from "@/lib/documents/service";
+import {
+  createDocument,
+  saveDocument,
+  setDocumentClientVisible,
+  setDocumentStatus,
+} from "@/lib/documents/service";
 
 const refresh = () => revalidatePath("/[locale]/project/[slug]", "layout");
 
@@ -30,5 +35,12 @@ export async function createDocumentAction(slug: string, title: string) {
     const result = await createDocument(await requireActor(), slug, { title });
     refresh();
     return result;
+  });
+}
+
+export async function setDocumentSharedAction(slug: string, docSlug: string, visible: boolean) {
+  return runAction("document.share", { slug, doc: docSlug }, async () => {
+    await setDocumentClientVisible(await requireActor(), slug, { docSlug, visible });
+    refresh();
   });
 }

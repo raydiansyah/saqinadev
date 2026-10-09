@@ -29,6 +29,7 @@ export async function listDocuments(access: ProjectAccess): Promise<DocumentList
       slug: documents.slug,
       version: documents.version,
       status: documents.status,
+      clientVisible: documents.clientVisible,
       createdBy: documents.createdBy,
       updatedBy: documents.updatedBy,
       createdAt: documents.createdAt,
@@ -155,7 +156,12 @@ export async function setDocumentStatus(actor: Actor, slug: string, input: unkno
     const { project } = await loadProjectAccess(actor, { slug }, "content:write", tx);
     const [doc] = await tx
       .update(documents)
-      .set({ status, updatedBy: actor.id })
+      // Leaving "approved" also withdraws the document from the client portal.
+      .set({
+        status,
+        updatedBy: actor.id,
+        ...(status === "approved" ? {} : { clientVisible: false }),
+      })
       .where(and(eq(documents.projectId, project.id), eq(documents.slug, docSlug)))
       .returning({ id: documents.id });
     if (!doc) throw new AppError("NOT_FOUND");
@@ -166,6 +172,36 @@ export async function setDocumentStatus(actor: Actor, slug: string, input: unkno
       entityType: "document",
       entityId: doc.id,
       metadata: { slug: docSlug, status },
+    });
+  });
+}
+
+/** Shares or unshares a document on the client portal. Only approved documents can be shared. */
+export async function setDocumentClientVisible(actor: Actor, slug: string, input: unknown) {
+  const { docSlug, visible } = parse(
+    z.object({ docSlug: z.string().min(1).max(64), visible: z.boolean() }),
+    input,
+  );
+  await db.transaction(async (tx) => {
+    const { project } = await loadProjectAccess(actor, { slug }, "project:update", tx);
+    const [doc] = await tx
+      .select({ id: documents.id, status: documents.status })
+      .from(documents)
+      .where(and(eq(documents.projectId, project.id), eq(documents.slug, docSlug)))
+      .for("update");
+    if (!doc) throw new AppError("NOT_FOUND");
+    if (visible && doc.status !== "approved")
+      throw new AppError("VALIDATION_ERROR", "Only approved documents can be shared", {
+        visible: "documents.shareNeedsApproval",
+      });
+    await tx.update(documents).set({ clientVisible: visible }).where(eq(documents.id, doc.id));
+    await recordActivity(tx, {
+      projectId: project.id,
+      actorId: actor.id,
+      type: "document.updated",
+      entityType: "document",
+      entityId: doc.id,
+      metadata: { slug: docSlug, shared: visible },
     });
   });
 }

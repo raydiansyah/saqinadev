@@ -40,6 +40,12 @@ export const en: Record<LegalDocId, LegalDocument> = {
             p: "Integrations. If you connect a repository, an MCP server or an external agent, we store its address and an access token or signing secret, encrypted. We read repository files only when a task needs them (we do not copy your repository), write only to agent branches after a project member approves the change, and never merge or deploy. MCP servers you connect receive the inputs of tools you enable. External agents receive only the context package you review and approve, with recognisable secrets removed.",
           },
           {
+            p: "Clients and billing. If you manage clients in Saqina Dev, we store the client details you enter (name, company, contact details and internal notes), the project scope, payment schedules, invoices and the payments you record. Payment records are entered by you from your own bank statements or receipts; Saqina Dev does not process payments, hold money or connect to your bank. Payments are never deleted: a corrected entry is voided with a reason so the history stays complete.",
+          },
+          {
+            p: "Client portal. If you invite a client, we store the invited email address and a hash of the one-time invitation link. A client who accepts sees only the projects you enable for the portal, and on those only progress, visible scope items, shared approved documents, issued invoices and confirmed payments. Internal notes, tasks, AI and agent details, integrations and draft invoices are never shown to clients. You are responsible for having a lawful basis to enter your clients' personal data.",
+          },
+          {
             p: "Sessions and security. We store your active sessions with the IP address and browser type used to sign in, so you can stay signed in and so we can protect accounts.",
           },
           {
@@ -224,6 +230,9 @@ export const en: Record<LegalDocId, LegalDocument> = {
           },
           {
             p: "Do not upload content you have no right to use, or personal data of other people without a lawful basis.",
+          },
+          {
+            p: "Proposals, scope summaries, invoice descriptions and other text Saqina Dev drafts for you are drafts. They are not legal, tax or accounting advice; review them before you rely on them or send them to a client. Billing figures come only from the records you enter.",
           },
         ],
       },

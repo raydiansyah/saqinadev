@@ -2,6 +2,7 @@ import { packageFilesFor } from "@/lib/context/package-files";
 import type { PlannedAction } from "./actions/types";
 import { analyzePrd, analyzeRequirements, analyzeTasks, explainChoice } from "./analysis";
 import type { Block, Finding } from "./blocks";
+import { businessPlan, scopeConflict } from "./business-planner";
 import type { AssistantContext } from "./context-builder";
 import type { AssistantCopy, Clarification } from "./copy/types";
 import { clarificationFor, featurePlan, pickAgent } from "./feature-plan";
@@ -14,7 +15,8 @@ import { repositoryAnswer } from "./repository-answer";
  */
 
 export type PlanOutcome =
-  | { kind: "answer"; draft: string; blocks: Block[] }
+  /** `exact` answers (billing, scope) are sent as written; no model rephrases them. */
+  | { kind: "answer"; draft: string; blocks: Block[]; exact?: boolean }
   | { kind: "clarify"; draft: string; options: string[]; pending: PendingIntent }
   | { kind: "act"; draft: string; title: string; description: string; actions: PlannedAction[] };
 
@@ -30,6 +32,11 @@ const NOT_STARTED = new Set(["backlog", "todo"]);
 
 export function answer(draft: string, blocks: Block[] = []): PlanOutcome {
   return { kind: "answer", draft, blocks };
+}
+
+/** An answer built only from records; it is sent exactly as written. */
+export function exactAnswer(draft: string, blocks: Block[] = []): PlanOutcome {
+  return { kind: "answer", draft, blocks, exact: true };
 }
 
 function analysis(
@@ -368,6 +375,8 @@ export function plan(
     case "ADD_FEATURE": {
       const feature = e.feature;
       if (!feature) return clarify(c, copy.needsFeature, "feature");
+      const conflict = scopeConflict(feature, ctx, copy);
+      if (conflict) return conflict;
       const clar = clarificationFor(feature, copy);
       if (clar && !e.description)
         return clarify(c, clar[1].question, `clarify:${clar[0]}`, clar[1].options);
@@ -448,6 +457,13 @@ export function plan(
     case "ASK_REPOSITORY":
     case "ANALYZE_REPOSITORY":
       return repositoryAnswer(ctx, copy, labels, href);
+
+    case "ASK_BILLING":
+    case "SETUP_BILLING":
+    case "CREATE_INVOICE":
+    case "ASK_SCOPE":
+    case "ADD_SCOPE_ITEM":
+      return businessPlan(c, ctx, copy);
 
     case "ASSIGN_AGENT":
     case "RUN_AGENT": {

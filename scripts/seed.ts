@@ -19,6 +19,7 @@ import { completeInterview, saveAnswers } from "../src/lib/interviews/service";
 import { startProject } from "../src/lib/projects/service";
 import { approveProposal } from "../src/lib/proposals/service";
 import { updateTask } from "../src/lib/tasks/service";
+import { DEMO_CLIENT, resetDemoClient, seedBusiness } from "./seed-business";
 
 const DEMO = { email: "demo@saqina.test", password: "saqina-demo-2026", name: "Demo Owner" };
 
@@ -271,9 +272,11 @@ async function agencyPortfolio(actor: Actor) {
 async function main() {
   const actor = await demoActor();
   await resetDemo(actor);
+  await resetDemoClient(actor);
   if (process.argv.includes("--reset-demo")) return;
   const pos = await restaurantPos(actor);
   await restaurantAssistant(actor, pos);
+  await seedBusiness(actor, pos);
   const created = [
     pos,
     await marketplace(actor),
@@ -281,7 +284,7 @@ async function main() {
     await agencyPortfolio(actor),
   ];
   console.log(
-    `Seeded demo projects for ${DEMO.email}:\n${created.map((s) => `  /project/${s}`).join("\n")}`,
+    `Seeded demo projects for ${DEMO.email}:\n${created.map((s) => `  /project/${s}`).join("\n")}\nClient portal: ${DEMO_CLIENT.email}`,
   );
 }
 
