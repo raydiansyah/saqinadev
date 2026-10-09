@@ -51,3 +51,6 @@ graphify-out/
 .claude-flow/
 .claude/proven-config.json
 .claude/.proven-config-version
+
+# Original generated assets (optimized copies live in public/landing)
+/design/landing-source/

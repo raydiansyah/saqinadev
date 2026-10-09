@@ -12,8 +12,7 @@
     "nav": {
       "product": "Produk",
       "howItWorks": "Cara Kerja",
-      "agents": "Agent",
-      "useCases": "Contoh Proyek"
+      "try": "Coba"
     },
     "footer": {
       "documentation": "Dokumentasi",
@@ -21,7 +20,7 @@
       "privacy": "Kebijakan Privasi",
       "terms": "Syarat dan Ketentuan",
       "legal": "Legal",
-      "phase": "Pratinjau Fase 1"
+      "phase": "Akses awal"
     },
     "language": {
       "label": "Bahasa",
@@ -181,7 +180,7 @@
   },
   "legal": {
     "draftTitle": "Draf untuk ditinjau secara hukum",
-    "draftBody": "Teks ini menjelaskan cara kerja pratinjau Fase 1 yang sebenarnya. Kolom dalam kurung siku seperti [NAMA PERUSAHAAN] adalah placeholder. Teks ini wajib ditinjau oleh ahli hukum sebelum Saqina Dev diluncurkan untuk publik.",
+    "draftBody": "Teks ini menjelaskan cara kerja versi akses awal yang sebenarnya. Kolom dalam kurung siku seperti [NAMA PERUSAHAAN] adalah placeholder. Teks ini wajib ditinjau oleh ahli hukum sebelum Saqina Dev diluncurkan untuk publik.",
     "updated": "Terakhir diperbarui",
     "contents": "Daftar isi",
     "otherDocument": "Lihat juga"

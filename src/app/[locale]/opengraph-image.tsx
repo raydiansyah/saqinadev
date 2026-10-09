@@ -18,17 +18,17 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
         flexDirection: "column",
         justifyContent: "space-between",
         padding: 72,
-        background: "#1a1c1f",
-        color: "#f1f2f4",
+        background: "#1c1916",
+        color: "#f5f3f0",
         fontFamily: "sans-serif",
       }}
     >
-      <div style={{ fontSize: 30, color: "#5fdc9c" }}>saqina.dev</div>
+      <div style={{ fontSize: 30, color: "#FF6A55" }}>saqina.dev</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
         <div style={{ fontSize: 72, fontWeight: 600, letterSpacing: -2 }}>{hero.title}</div>
-        <div style={{ fontSize: 40, color: "#b5b9c0" }}>{meta.ogSubtitle}</div>
+        <div style={{ fontSize: 40, color: "#c2bdb4" }}>{meta.ogSubtitle}</div>
       </div>
-      <div style={{ fontSize: 26, color: "#9a9ea6" }}>{meta.ogFooter}</div>
+      <div style={{ fontSize: 26, color: "#8f8a80" }}>{meta.ogFooter}</div>
     </div>,
     size,
   );
