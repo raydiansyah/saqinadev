@@ -94,6 +94,27 @@ export const TOOLS: readonly ToolDefinition[] = [
     membersOnly: true,
   },
   {
+    name: "create_change_request",
+    action: "CREATE_CHANGE_REQUEST",
+    category: "write",
+    available: true,
+    membersOnly: true,
+  },
+  {
+    name: "generate_document",
+    action: "GENERATE_DOCUMENT",
+    category: "write",
+    available: true,
+    membersOnly: true,
+  },
+  {
+    name: "send_client_reminder",
+    action: "SEND_CLIENT_REMINDER",
+    category: "external",
+    available: true,
+    membersOnly: true,
+  },
+  {
     name: "create_scope_item",
     action: "CREATE_SCOPE_ITEM",
     category: "write",

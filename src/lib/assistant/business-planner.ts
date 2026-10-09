@@ -155,29 +155,3 @@ export function businessPlan(
     },
   ]);
 }
-
-/** Before planning a new feature: is it explicitly outside the agreed scope? */
-export function scopeConflict(
-  feature: string,
-  ctx: AssistantContext,
-  copy: AssistantCopy,
-): PlanOutcome | null {
-  const v = checkScope(feature, ctx.scope ?? []);
-  if (!v.item || v.status === "included") return null;
-  const b = copy.business.scope;
-  const text = b.conflict(feature, v.item.title, b.categories[v.status]);
-  return exactAnswer(text, [
-    {
-      type: "analysis",
-      title: b.title,
-      findings: [
-        {
-          label: "confirmed",
-          source: "scope",
-          text: b.line(b.categories[v.status], v.item.title),
-          href: `/project/${ctx.access.project.slug}/features`,
-        },
-      ],
-    },
-  ]);
-}

@@ -84,7 +84,8 @@
         "document": "Dokumen",
         "scope": "Scope",
         "schedule": "Jadwal pembayaran",
-        "invoice": "Invoice"
+        "invoice": "Invoice",
+        "change_request": "Change request"
       },
       "view": "Lihat"
     },
@@ -144,7 +145,10 @@
         "CREATE_HANDOFF": "Serahkan ke agent",
         "SET_PAYMENT_SCHEDULE": "Jadwal pembayaran",
         "CREATE_INVOICE": "Draft invoice",
-        "CREATE_SCOPE_ITEM": "Item scope"
+        "CREATE_SCOPE_ITEM": "Item scope",
+        "CREATE_CHANGE_REQUEST": "Change request",
+        "GENERATE_DOCUMENT": "Buat dokumen",
+        "SEND_CLIENT_REMINDER": "Ingatkan client"
       },
       "fields": {
         "title": "Judul",
@@ -202,6 +206,19 @@
         "excluded": "Tidak termasuk",
         "optional": "Opsional",
         "future": "Nanti"
+      },
+      "changeRequest": {
+        "draftOnly": "Dibuat sebagai draft. Isi biaya dan waktu, lalu kirim ke client untuk disetujui."
+      },
+      "documentKinds": {
+        "proposal": "Proposal",
+        "agreement": "Draft perjanjian",
+        "handover": "Dokumen serah terima",
+        "maintenance_agreement": "Draft perjanjian maintenance",
+        "note": "Disusun dari catatan project sebagai draft. Bukan nasihat hukum; tidak ada yang dikirim."
+      },
+      "reminder": {
+        "recipients": "Dikirim ke {count} user portal client di aplikasi, dan lewat email bila dikonfigurasi."
       }
     },
     "run": {
@@ -390,7 +407,8 @@
       "git_branch": "Branch Git",
       "project": "Proyek",
       "billing": "Catatan billing",
-      "scope": "Scope"
+      "scope": "Scope",
+      "maintenance": "Maintenance"
     },
     "sourceLabel": "Sumber: {source}",
     "modelLine": "Dijawab oleh {model}",

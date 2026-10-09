@@ -85,6 +85,9 @@ export async function saveDocument(actor: Actor, slug: string, input: unknown) {
     if (!doc) throw new AppError("NOT_FOUND");
     if (doc.version !== baseVersion)
       throw new AppError("CONFLICT", "Document changed", { content: "stale" });
+    // A signed document is a record of what was agreed; changes need a new document.
+    if (doc.status === "signed")
+      throw new AppError("CONFLICT", "Signed documents are read-only", { content: "signed" });
     if (doc.content === content) return { version: doc.version, updatedAt: doc.updatedAt };
 
     const version = doc.version + 1;
@@ -160,7 +163,7 @@ export async function setDocumentStatus(actor: Actor, slug: string, input: unkno
       .set({
         status,
         updatedBy: actor.id,
-        ...(status === "approved" ? {} : { clientVisible: false }),
+        ...(status === "approved" || status === "signed" ? {} : { clientVisible: false }),
       })
       .where(and(eq(documents.projectId, project.id), eq(documents.slug, docSlug)))
       .returning({ id: documents.id });
@@ -190,7 +193,7 @@ export async function setDocumentClientVisible(actor: Actor, slug: string, input
       .where(and(eq(documents.projectId, project.id), eq(documents.slug, docSlug)))
       .for("update");
     if (!doc) throw new AppError("NOT_FOUND");
-    if (visible && doc.status !== "approved")
+    if (visible && doc.status !== "approved" && doc.status !== "signed")
       throw new AppError("VALIDATION_ERROR", "Only approved documents can be shared", {
         visible: "documents.shareNeedsApproval",
       });
@@ -206,7 +209,19 @@ export async function setDocumentClientVisible(actor: Actor, slug: string, input
   });
 }
 
-const RESERVED = new Set(["prd", "plan", "project", "tasks", "memory", "decisions", "changelog"]);
+const RESERVED = new Set([
+  "prd",
+  "plan",
+  "project",
+  "tasks",
+  "memory",
+  "decisions",
+  "changelog",
+  "proposal",
+  "agreement",
+  "handover",
+  "maintenance-agreement",
+]);
 
 export async function createDocument(actor: Actor, slug: string, input: unknown) {
   const { title } = parse(z.object({ title: z.string().trim().min(2).max(80) }), input);

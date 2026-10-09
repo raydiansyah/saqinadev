@@ -2,9 +2,10 @@ import { packageFilesFor } from "@/lib/context/package-files";
 import type { PlannedAction } from "./actions/types";
 import { analyzePrd, analyzeRequirements, analyzeTasks, explainChoice } from "./analysis";
 import type { Block, Finding } from "./blocks";
-import { businessPlan, scopeConflict } from "./business-planner";
+import { businessPlan } from "./business-planner";
 import type { AssistantContext } from "./context-builder";
 import type { AssistantCopy, Clarification } from "./copy/types";
+import { engagementPlan, scopeConflict } from "./engagement-planner";
 import { clarificationFor, featurePlan, pickAgent } from "./feature-plan";
 import type { IntentClassification, PendingIntent } from "./intents/types";
 import { repositoryAnswer } from "./repository-answer";
@@ -464,6 +465,12 @@ export function plan(
     case "ASK_SCOPE":
     case "ADD_SCOPE_ITEM":
       return businessPlan(c, ctx, copy);
+
+    case "CREATE_CHANGE_REQUEST":
+    case "GENERATE_DOCUMENT":
+    case "ASK_MAINTENANCE":
+    case "REMIND_CLIENT":
+      return engagementPlan(c, ctx, copy);
 
     case "ASSIGN_AGENT":
     case "RUN_AGENT": {

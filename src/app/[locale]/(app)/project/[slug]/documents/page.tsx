@@ -3,6 +3,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { EmptyState, PageHeading } from "@/components/app/states";
 import { NewDocumentButton } from "@/components/documents/new-document-button";
 import { ShareToggle } from "@/components/documents/share-toggle";
+import { BusinessDocs } from "@/components/engagement/business-docs";
 import { Link } from "@/i18n/navigation";
 import { can } from "@/lib/auth/permissions";
 import { fileName, listDocuments } from "@/lib/documents/service";
@@ -32,6 +33,7 @@ export default async function DocumentsPage({
         description={t("description")}
         actions={can(access.role, "content:write") ? <NewDocumentButton slug={slug} /> : undefined}
       />
+      {canShare ? <BusinessDocs slug={slug} /> : null}
       {docs.length === 0 ? (
         <EmptyState title={t("title")} body={t("empty")} />
       ) : (

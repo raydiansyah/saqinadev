@@ -84,7 +84,8 @@
         "document": "Document",
         "scope": "Scope",
         "schedule": "Payment schedule",
-        "invoice": "Invoice"
+        "invoice": "Invoice",
+        "change_request": "Change request"
       },
       "view": "View"
     },
@@ -144,7 +145,10 @@
         "CREATE_HANDOFF": "Hand off to agent",
         "SET_PAYMENT_SCHEDULE": "Payment schedule",
         "CREATE_INVOICE": "Draft invoice",
-        "CREATE_SCOPE_ITEM": "Scope item"
+        "CREATE_SCOPE_ITEM": "Scope item",
+        "CREATE_CHANGE_REQUEST": "Change request",
+        "GENERATE_DOCUMENT": "Generate document",
+        "SEND_CLIENT_REMINDER": "Remind client"
       },
       "fields": {
         "title": "Title",
@@ -202,6 +206,19 @@
         "excluded": "Excluded",
         "optional": "Optional",
         "future": "Future"
+      },
+      "changeRequest": {
+        "draftOnly": "Created as a draft. Add cost and time, then send it to the client for approval."
+      },
+      "documentKinds": {
+        "proposal": "Proposal",
+        "agreement": "Agreement draft",
+        "handover": "Handover document",
+        "maintenance_agreement": "Maintenance agreement draft",
+        "note": "Built from project records as a draft. Not legal advice; nothing is sent."
+      },
+      "reminder": {
+        "recipients": "Goes to {count, plural, one {# client portal user} other {# client portal users}} in-app, and by email when configured."
       }
     },
     "run": {
@@ -390,7 +407,8 @@
       "git_branch": "Git branch",
       "project": "Project",
       "billing": "Billing records",
-      "scope": "Scope"
+      "scope": "Scope",
+      "maintenance": "Maintenance"
     },
     "sourceLabel": "Source: {source}",
     "modelLine": "Answered by {model}",

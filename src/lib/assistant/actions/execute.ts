@@ -4,10 +4,13 @@ import type { ProjectAccess } from "@/lib/auth/permissions";
 import { can } from "@/lib/auth/permissions";
 import { createInvoiceTx } from "@/lib/billing/invoices";
 import { setPaymentScheduleTx } from "@/lib/billing/terms";
+import { createChangeRequestTx, crNumber } from "@/lib/change-requests/service";
 import type { Tx } from "@/lib/db/client";
 import { createDecisionTx } from "@/lib/decisions/service";
+import { generateBusinessDocumentTx } from "@/lib/documents/business";
 import { appendDocumentSectionTx } from "@/lib/documents/service";
 import type { AgentPermission } from "@/lib/domain/enums";
+import { teamParty } from "@/lib/engagement/shared";
 import { AppError } from "@/lib/errors";
 import type { EventBatch } from "@/lib/events/emitter";
 import type { Trace } from "@/lib/events/types";
@@ -31,6 +34,8 @@ export interface ExecutionResult {
   runs: string[];
   /** Approved tool calls. External side effects run after commit, never inside the transaction. */
   toolCalls: { tool: string; input: Record<string, unknown>; idempotencyKey: string }[];
+  /** Approved client reminders; they reach people, so they are sent after commit. */
+  reminders: { entityType: "invoice" | "client_approval" | "change_request"; entityId: string }[];
   /** Approved handoffs; packages are built and sent after commit. */
   handoffs: {
     key: string;
@@ -67,7 +72,13 @@ export async function executeActionsTx(
   if (!can(access.role, "content:write")) throw new AppError("AUTHORIZATION_ERROR");
   const base = `/project/${access.project.slug}`;
   const created: Record<string, string> = {};
-  const result: ExecutionResult = { items: [], runs: [], toolCalls: [], handoffs: [] };
+  const result: ExecutionResult = {
+    items: [],
+    runs: [],
+    toolCalls: [],
+    handoffs: [],
+    reminders: [],
+  };
 
   for (const action of actions) {
     if (action.type === "CREATE_HANDOFF") {
@@ -199,6 +210,39 @@ export async function executeActionsTx(
           href: `${base}/billing`,
           change: "created",
         });
+        break;
+      }
+      case "CREATE_CHANGE_REQUEST": {
+        const cr = await createChangeRequestTx(tx, teamParty(access), {
+          ...action.payload,
+          additionalCost: 0,
+          additionalDays: 0,
+        });
+        result.items.push({
+          kind: "change_request",
+          title: `${crNumber(cr.number)} ${cr.title}`,
+          href: `${base}/changes`,
+          change: "created",
+        });
+        break;
+      }
+      case "GENERATE_DOCUMENT": {
+        const doc = await generateBusinessDocumentTx(
+          tx,
+          access,
+          action.payload.kind,
+          access.project.locale === "id" ? "id" : "en",
+        );
+        result.items.push({
+          kind: "document",
+          title: `${doc.slug.toUpperCase()}.md v${doc.version}`,
+          href: `${base}/documents/${doc.slug}`,
+          change: doc.version === 1 ? "created" : "updated",
+        });
+        break;
+      }
+      case "SEND_CLIENT_REMINDER": {
+        result.reminders.push(action.payload);
         break;
       }
       case "CREATE_SCOPE_ITEM": {

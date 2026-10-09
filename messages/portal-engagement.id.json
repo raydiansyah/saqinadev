@@ -1,0 +1,159 @@
+{
+  "portalEngagement": {
+    "title": "Permintaan dan persetujuan",
+    "tabs": {
+      "requests": "Permintaan",
+      "messages": "Pesan",
+      "approvals": "Persetujuan",
+      "changes": "Permintaan perubahan",
+      "maintenance": "Pemeliharaan"
+    },
+    "errors": {
+      "noteRequired": "Tuliskan apa yang perlu diubah sebelum mengirim.",
+      "notSent": "Permintaan perubahan ini sudah tidak menunggu keputusan Anda. Muat ulang halaman untuk melihat yang terbaru.",
+      "tooShort": "Terlalu singkat. Tambahkan beberapa kata lagi.",
+      "tooLong": "Terlalu panjang. Persingkat sedikit.",
+      "invalid": "Beberapa isian perlu diperiksa.",
+      "rateLimit": "Anda mengirim terlalu banyak sekaligus. Tunggu sebentar lalu coba lagi."
+    },
+    "attention": {
+      "title": "Perlu tindakan Anda",
+      "approvals": "{count} hal menunggu persetujuan Anda",
+      "changes": "{count} permintaan perubahan menunggu keputusan Anda",
+      "project": "{project}: {items}"
+    },
+    "requests": {
+      "metaTitle": "Permintaan",
+      "title": "Permintaan",
+      "description": "Ajukan pertanyaan, laporkan masalah, atau minta sesuatu yang baru. Semuanya tercatat di proyek ini.",
+      "formTitle": "Permintaan baru",
+      "kindLabel": "Tentang apa?",
+      "kinds": {
+        "question": "Pertanyaan",
+        "feature": "Fitur baru atau perubahan",
+        "bug": "Ada yang rusak",
+        "maintenance": "Pemeliharaan / pembaruan kecil"
+      },
+      "titleLabel": "Judul singkat",
+      "titleHint": "Contoh: Tambahkan nomor telepon di halaman kontak",
+      "bodyLabel": "Rincian",
+      "bodyHint": "Apa yang Anda lihat, apa yang Anda harapkan, dan di mana. Boleh dikosongkan, tetapi sangat membantu.",
+      "submit": "Kirim permintaan",
+      "sent": "Permintaan terkirim.",
+      "afterSubmit": "Tim akan meninjaunya. Perubahan di luar lingkup yang disepakati akan dikirim kembali sebagai permintaan perubahan, lengkap dengan biaya dan waktunya, sebelum pekerjaan dimulai.",
+      "listTitle": "Permintaan Anda",
+      "empty": "Belum ada permintaan. Setelah Anda mengirim, Anda bisa memantaunya di sini.",
+      "sentOn": "Dikirim {date}",
+      "status": {
+        "open": "Diterima",
+        "in_review": "Sedang ditinjau",
+        "resolved": "Selesai",
+        "declined": "Tidak dilanjutkan",
+        "converted": "Dijadikan permintaan perubahan"
+      },
+      "classification": {
+        "warranty": "Ditanggung garansi, tanpa biaya",
+        "included": "Termasuk dalam paket pemeliharaan Anda",
+        "paid": "Pekerjaan berbayar, di luar garansi dan pemeliharaan"
+      }
+    },
+    "messages": {
+      "metaTitle": "Pesan",
+      "title": "Pesan",
+      "description": "Berdiskusi dengan tim tentang proyek ini. Keputusan yang dibuat di sini tetap tercatat.",
+      "empty": "Belum ada pesan. Tulis pesan pertama di bawah.",
+      "team": "Tim",
+      "client": "Anda",
+      "teamSide": "Tim proyek",
+      "bodyLabel": "Pesan Anda",
+      "send": "Kirim",
+      "threadLabel": "Riwayat pesan"
+    },
+    "approvals": {
+      "metaTitle": "Persetujuan",
+      "title": "Persetujuan",
+      "description": "Tim meminta Anda memeriksa dan menyetujui hasil kerja sebelum lanjut ke tahap berikutnya.",
+      "empty": "Tidak ada yang perlu disetujui saat ini.",
+      "waiting": "Menunggu Anda",
+      "history": "Sebelumnya",
+      "status": {
+        "pending": "Menunggu Anda",
+        "approved": "Disetujui",
+        "changes_requested": "Minta perubahan"
+      },
+      "openDocument": "Buka dokumen: {title}",
+      "openLink": "Buka tautan",
+      "approve": "Setujui",
+      "requestChanges": "Minta perubahan",
+      "noteLabel": "Apa yang perlu diubah?",
+      "noteHint": "Jelaskan sedetail mungkin agar tim bisa memperbaikinya dengan tepat.",
+      "optionalNoteLabel": "Catatan (opsional)",
+      "sendChanges": "Kirim",
+      "cancel": "Batal",
+      "yourNote": "Catatan Anda",
+      "requestedOn": "Diminta {date}",
+      "respondedOn": "Dijawab {date}"
+    },
+    "changes": {
+      "metaTitle": "Permintaan perubahan",
+      "title": "Permintaan perubahan",
+      "description": "Pekerjaan di luar lingkup yang disepakati. Tidak ada yang dikerjakan sebelum Anda menyetujui biaya dan waktunya.",
+      "empty": "Belum ada permintaan perubahan. Jika ada pekerjaan di luar lingkup yang disepakati, tim akan mengirimkannya ke sini terlebih dahulu.",
+      "impactLabel": "Dampak perubahan",
+      "costLabel": "Biaya tambahan",
+      "daysLabel": "Waktu tambahan",
+      "days": "{count, plural, =0 {Tanpa hari tambahan} other {# hari}}",
+      "sentOn": "Dikirim {date}",
+      "decidedOn": "Diputuskan {date}",
+      "status": {
+        "sent": "Menunggu Anda",
+        "approved": "Disetujui",
+        "rejected": "Ditolak",
+        "done": "Selesai"
+      },
+      "approve": "Setujui",
+      "reject": "Tolak",
+      "approveTitle": "Setujui {number}?",
+      "approveBody": "Dengan menyetujui, {cost} ditambahkan ke biaya proyek dan {days} ditambahkan ke jadwal. Setelah itu tim bisa mulai mengerjakannya.",
+      "rejectTitle": "Tolak {number}?",
+      "rejectBody": "Tim tidak akan mengerjakan perubahan ini. Anda bisa menyampaikan alasannya.",
+      "noteLabel": "Catatan untuk tim (opsional)",
+      "confirmApprove": "Ya, setujui",
+      "confirmReject": "Tolak",
+      "cancel": "Batal"
+    },
+    "maintenance": {
+      "metaTitle": "Pemeliharaan",
+      "title": "Garansi dan pemeliharaan",
+      "explain": "Garansi menanggung cacat pada hasil kerja yang sudah diserahkan. Pemeliharaan adalah dukungan berkelanjutan.",
+      "warrantyTitle": "Garansi",
+      "warrantyUntil": "Berlaku sampai {date}",
+      "warrantyEnded": "Berakhir pada {date}",
+      "warrantyNotSet": "Belum ditetapkan. Tim akan menambahkannya saat proyek diserahkan.",
+      "plansTitle": "Paket pemeliharaan",
+      "plansEmpty": "Belum ada paket pemeliharaan. Hubungi tim jika Anda membutuhkan dukungan berkelanjutan.",
+      "period": "Periode",
+      "periodValue": "{start} sampai {end}",
+      "fee": "Biaya",
+      "feeValue": "{amount} {cycle}",
+      "cycle": {
+        "monthly": "per bulan",
+        "quarterly": "per tiga bulan",
+        "yearly": "per tahun",
+        "one_time": "sekali bayar"
+      },
+      "included": "Termasuk",
+      "notIncluded": "Tidak termasuk",
+      "responseTime": "Waktu tanggapan",
+      "responseHours": "Dalam {hours} jam",
+      "responseNotSet": "Tidak ditentukan",
+      "planStatus": {
+        "active": "Aktif",
+        "ended": "Berakhir"
+      },
+      "requestTitle": "Perlu perbaikan atau pembaruan kecil?",
+      "requestBody": "Kirim permintaan pemeliharaan. Tim akan memeriksa apakah ini ditanggung garansi, termasuk paket Anda, atau pekerjaan berbayar, dan memberi tahu Anda sebelum mulai.",
+      "requestCta": "Kirim permintaan pemeliharaan"
+    }
+  }
+}

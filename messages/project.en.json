@@ -61,7 +61,8 @@
         "plan": "Plan",
         "context": "Context",
         "build": "Build",
-        "business": "Project"
+        "business": "Project",
+        "client": "Client"
       },
       "items": {
         "overview": "Overview",
@@ -81,7 +82,12 @@
         "integrations": "Integrations",
         "progress": "Progress",
         "features": "Features",
-        "billing": "Billing"
+        "billing": "Billing",
+        "maintenance": "Maintenance",
+        "requests": "Requests",
+        "messages": "Messages",
+        "clientApprovals": "Client approvals",
+        "changes": "Change requests"
       },
       "pending": "waiting"
     },

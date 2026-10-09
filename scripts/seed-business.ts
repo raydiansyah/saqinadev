@@ -14,11 +14,17 @@ import { createInvoice, transitionInvoice } from "../src/lib/billing/invoices";
 import { recordPayment } from "../src/lib/billing/payments";
 import { addDays, todayIso } from "../src/lib/billing/rules";
 import { listTerms, setPaymentSchedule } from "../src/lib/billing/terms";
+import { createChangeRequest, sendChangeRequest } from "../src/lib/change-requests/service";
 import { acceptInvitation, createInvitation } from "../src/lib/clients/invitations";
 import { createClient, setProjectClient } from "../src/lib/clients/service";
 import { db } from "../src/lib/db/client";
 import { clients, users } from "../src/lib/db/schema";
+import { generateBusinessDocument } from "../src/lib/documents/business";
 import { setDocumentClientVisible, setDocumentStatus } from "../src/lib/documents/service";
+import { requestApproval } from "../src/lib/engagement/approvals";
+import { clientPostMessage, teamPostMessage } from "../src/lib/engagement/messages";
+import { clientCreateRequest } from "../src/lib/engagement/requests";
+import { createPlan, setWarranty } from "../src/lib/maintenance/service";
 import { activeOrg } from "../src/lib/organizations/service";
 import { createScopeItem, seedScopeFromRequirements } from "../src/lib/scope/service";
 
@@ -64,7 +70,8 @@ export async function seedBusiness(owner: Actor, slug: string) {
     currency: "IDR",
   });
   const { url } = await createInvitation(owner, client.id, { email: DEMO_CLIENT.email });
-  await acceptInvitation(await clientAccount(), url.split("/invite/")[1]);
+  const portalUser = await clientAccount();
+  await acceptInvitation(portalUser, url.split("/invite/")[1]);
 
   await seedScopeFromRequirements(owner, slug);
   for (const title of ["Payment gateway", "Mobile application", "Hosting and domain"])
@@ -97,4 +104,40 @@ export async function seedBusiness(owner: Actor, slug: string) {
 
   await setDocumentStatus(owner, slug, { docSlug: "prd", status: "approved" });
   await setDocumentClientVisible(owner, slug, { docSlug: "prd", visible: true });
+
+  // Phase 6: client engagement, a change request waiting for the client, maintenance.
+  await clientCreateRequest(portalUser, slug, {
+    kind: "feature",
+    title: "Send receipts by WhatsApp",
+    body: "Customers ask for the receipt on WhatsApp instead of paper.",
+  });
+  await clientPostMessage(portalUser, slug, { body: "Is the menu editor ready to try?" });
+  await teamPostMessage(owner, slug, {
+    body: "Yes, it is in the review build. We will ask for your approval this week.",
+  });
+  await requestApproval(owner, slug, {
+    title: "Approve the PRD",
+    description: "Please confirm the agreed features before development continues.",
+    docSlug: "prd",
+  });
+  const cr = await createChangeRequest(owner, slug, {
+    title: "WhatsApp receipts",
+    description: "Send the receipt to the customer's WhatsApp number after payment.",
+    impact: "Needs a WhatsApp Business API account. Adds one screen to the checkout flow.",
+    additionalCost: 1_500_000,
+    additionalDays: 3,
+  });
+  await sendChangeRequest(owner, slug, cr.id);
+  await setWarranty(owner, slug, { warrantyUntil: addDays(today, 90) });
+  await createPlan(owner, slug, {
+    name: "Monthly care",
+    startDate: addDays(today, 60),
+    endDate: addDays(today, 60 + 364),
+    fee: 1_500_000,
+    cycle: "monthly",
+    scope: "Bug fixes, small content changes, security updates.",
+    excluded: "New features and integrations.",
+    responseHours: 24,
+  });
+  await generateBusinessDocument(owner, slug, { kind: "proposal" }, "en");
 }

@@ -1,8 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { getLocale } from "next-intl/server";
 import { runAction } from "@/lib/actions";
 import { requireActor } from "@/lib/auth/server";
+import { generateBusinessDocument } from "@/lib/documents/business";
 import {
   createDocument,
   saveDocument,
@@ -42,5 +44,19 @@ export async function setDocumentSharedAction(slug: string, docSlug: string, vis
   return runAction("document.share", { slug, doc: docSlug }, async () => {
     await setDocumentClientVisible(await requireActor(), slug, { docSlug, visible });
     refresh();
+  });
+}
+
+/** Proposal, agreement, handover or maintenance agreement drafted from the project records. */
+export async function generateBusinessDocumentAction(slug: string, kind: string) {
+  return runAction("document.generate", { slug, kind }, async () => {
+    const result = await generateBusinessDocument(
+      await requireActor(),
+      slug,
+      { kind },
+      await getLocale(),
+    );
+    refresh();
+    return result;
   });
 }

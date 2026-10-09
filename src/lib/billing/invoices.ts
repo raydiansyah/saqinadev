@@ -7,6 +7,7 @@ import { loadProjectAccess, type ProjectAccess } from "@/lib/auth/permissions";
 import { db, type Tx } from "@/lib/db/client";
 import { invoiceItems, invoices, orgCounters, payments, paymentTerms } from "@/lib/db/schema";
 import { AppError } from "@/lib/errors";
+import { clientRecipients, deliver, notifyTx, type Pending } from "@/lib/notifications/service";
 import { parse } from "@/lib/validation";
 import { addDays, invoiceNumber, todayIso } from "./rules";
 
@@ -154,6 +155,7 @@ export async function transitionInvoice(
   invoiceId: string,
   action: InvoiceAction,
 ) {
+  let pending: Pending | null = null;
   await db.transaction(async (tx) => {
     const { project } = await loadProjectAccess(actor, { slug }, "billing:write", tx);
     const invoice = await lockInvoice(tx, project.id, invoiceId);
@@ -174,6 +176,16 @@ export async function transitionInvoice(
         })
         .where(eq(invoices.id, invoice.id));
       await log(tx, actor, project.id, invoice.id, "invoice.issued", { number });
+      // Issued invoices are visible on the portal; tell the client.
+      pending = await notifyTx(tx, {
+        userIds: await clientRecipients(tx, project.id),
+        projectId: project.id,
+        type: "invoice.issued",
+        params: { number, title: invoice.title, project: project.name },
+        href: `/portal/projects/${project.slug}/invoices/${invoice.id}`,
+        dedupKey: `invoice:${invoice.id}:issued`,
+        email: true,
+      });
     } else if (action === "send") {
       if (!["issued", "sent", "partially_paid"].includes(invoice.status))
         throw new AppError("CONFLICT", "Invoice is not issued", { status: "billing.notIssued" });
@@ -208,6 +220,7 @@ export async function transitionInvoice(
       await log(tx, actor, project.id, invoice.id, "invoice.cancelled", { number: invoice.number });
     }
   });
+  if (pending) await deliver(pending);
 }
 
 async function log(

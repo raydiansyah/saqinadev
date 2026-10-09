@@ -21,6 +21,17 @@ export const PROJECT_NAV = [
       { key: "features", path: "/features" },
       { key: "documents", path: "/documents" },
       { key: "billing", path: "/billing" },
+      { key: "maintenance", path: "/maintenance" },
+    ],
+  },
+  {
+    group: "client",
+    advanced: false,
+    items: [
+      { key: "requests", path: "/requests" },
+      { key: "messages", path: "/messages" },
+      { key: "clientApprovals", path: "/client-approvals" },
+      { key: "changes", path: "/changes" },
     ],
   },
   {

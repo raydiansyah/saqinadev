@@ -38,6 +38,9 @@ const SIGN: Record<PlannedAction["type"], string> = {
   SET_PAYMENT_SCHEDULE: "~",
   CREATE_INVOICE: "+",
   CREATE_SCOPE_ITEM: "+",
+  CREATE_CHANGE_REQUEST: "+",
+  GENERATE_DOCUMENT: "+",
+  SEND_CLIENT_REMINDER: "⇢",
   ASSIGN_AGENT: "→",
 };
 

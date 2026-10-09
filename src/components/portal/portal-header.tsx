@@ -1,6 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { signOutAction } from "@/app/[locale]/(app)/actions";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Logo } from "@/components/primitives/logo";
 import { Link } from "@/i18n/navigation";
 import type { Actor } from "@/lib/auth/actor";
@@ -24,6 +25,7 @@ export async function PortalHeader({ actor }: { actor: Actor }) {
           <PortalNav />
         </div>
         <LanguageSwitcher className="ml-auto md:ml-0" />
+        <NotificationBell actor={actor} href="/portal/notifications" />
         <span className="hidden max-w-40 truncate text-sm text-muted-foreground lg:inline">
           {actor.name}
         </span>

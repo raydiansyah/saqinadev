@@ -46,10 +46,13 @@ export const id: Record<LegalDocId, LegalDocument> = {
             p: "Portal client. Jika Anda mengundang client, kami menyimpan alamat email yang diundang dan hash dari tautan undangan sekali pakai. Client yang menerima undangan hanya melihat proyek yang Anda aktifkan untuk portal, dan pada proyek itu hanya progres, item scope yang ditampilkan, dokumen yang disetujui dan dibagikan, invoice yang sudah terbit, serta pembayaran yang terkonfirmasi. Catatan internal, task, detail AI dan agent, integrasi, dan draft invoice tidak pernah ditampilkan ke client. Anda bertanggung jawab memiliki dasar hukum yang sah untuk memasukkan data pribadi client Anda.",
           },
           {
+            p: "Komunikasi dengan client. Permintaan, pesan, persetujuan, dan change request di portal client disimpan bersama project, terlihat oleh owner dan admin project serta user portal client. Pengingat dikirim otomatis sesuai aturan yang Anda atur dan dicatat agar pengingat yang sama tidak terkirim dua kali.",
+          },
+          {
             p: "Sesi dan keamanan. Kami menyimpan sesi aktif Anda beserta alamat IP dan jenis browser yang dipakai untuk masuk, agar Anda tetap masuk dan agar akun dapat dilindungi.",
           },
           {
-            p: "Email. Kami hanya mengirim email transaksional: tautan verifikasi email dan atur ulang kata sandi. Email ini dikirim melalui [PENYEDIA EMAIL].",
+            p: "Email. Kami hanya mengirim email transaksional: tautan verifikasi email dan atur ulang kata sandi, undangan portal client, serta notifikasi project seperti pengingat pembayaran dan persetujuan. Email dikirim melalui [PENYEDIA EMAIL]. Notifikasi di aplikasi disimpan bersama akun Anda sampai akun dihapus.",
           },
           {
             p: "Pratinjau publik. Interview di halaman publik /start dan demo di landing page berjalan di browser Anda. Jawabannya tetap di session storage browser sampai tab ditutup, kecuali Anda memilih mengimpornya ke proyek baru setelah masuk.",

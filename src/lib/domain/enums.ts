@@ -83,10 +83,14 @@ export const DOCUMENT_TYPES = [
   "notes",
   "requirements",
   "custom",
+  "proposal",
+  "agreement",
+  "handover",
+  "maintenance_agreement",
 ] as const;
 export type DocumentType = (typeof DOCUMENT_TYPES)[number];
 
-export const DOCUMENT_STATUSES = ["draft", "review", "approved"] as const;
+export const DOCUMENT_STATUSES = ["draft", "review", "approved", "signed", "archived"] as const;
 export type DocumentStatus = (typeof DOCUMENT_STATUSES)[number];
 
 export const TASK_STATUSES = [
@@ -226,6 +230,19 @@ export const ACTIVITY_TYPES = [
   "invoice.cancelled",
   "payment.recorded",
   "payment.voided",
+  // Phase 6: client engagement and maintenance
+  "request.created",
+  "request.updated",
+  "message.posted",
+  "approval.requested",
+  "approval.responded",
+  "change_request.created",
+  "change_request.sent",
+  "change_request.decided",
+  "change_request.updated",
+  "maintenance.plan_updated",
+  "maintenance.classified",
+  "reminder.sent",
 ] as const;
 export type ActivityType = (typeof ACTIVITY_TYPES)[number];
 

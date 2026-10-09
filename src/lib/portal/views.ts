@@ -157,7 +157,7 @@ const sharedDocs = (projectId: string) =>
   and(
     eq(documents.projectId, projectId),
     eq(documents.clientVisible, true),
-    eq(documents.status, "approved"),
+    inArray(documents.status, ["approved", "signed"]),
   );
 
 export interface ClientDocument {

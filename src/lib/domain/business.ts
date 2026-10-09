@@ -38,3 +38,52 @@ export const CURRENCIES = Object.keys(CURRENCY_DIGITS) as Currency[];
 
 export const UI_MODES = ["simple", "advanced"] as const;
 export type UiMode = (typeof UI_MODES)[number];
+
+// ── Phase 6: client engagement, change requests, maintenance, reminders ─────────────────
+
+export const REQUEST_KINDS = ["question", "feature", "bug", "maintenance"] as const;
+export type RequestKind = (typeof REQUEST_KINDS)[number];
+
+export const REQUEST_STATUSES = ["open", "in_review", "resolved", "declined", "converted"] as const;
+export type RequestStatus = (typeof REQUEST_STATUSES)[number];
+
+/** Who pays for a post-launch request. Warranty is not maintenance. */
+export const MAINTENANCE_CLASSES = ["unclassified", "warranty", "included", "paid"] as const;
+export type MaintenanceClass = (typeof MAINTENANCE_CLASSES)[number];
+
+export const APPROVAL_STATUSES = ["pending", "approved", "changes_requested", "cancelled"] as const;
+export type ApprovalStatus = (typeof APPROVAL_STATUSES)[number];
+
+export const CHANGE_REQUEST_STATUSES = [
+  "draft",
+  "sent",
+  "approved",
+  "rejected",
+  "cancelled",
+  "done",
+] as const;
+export type ChangeRequestStatus = (typeof CHANGE_REQUEST_STATUSES)[number];
+
+export const SCOPE_STATUSES = ["within", "out_of_scope", "unknown"] as const;
+export type ScopeStatus = (typeof SCOPE_STATUSES)[number];
+
+export const MAINTENANCE_CYCLES = ["monthly", "quarterly", "yearly", "one_time"] as const;
+export type MaintenanceCycle = (typeof MAINTENANCE_CYCLES)[number];
+
+export const MAINTENANCE_STATUSES = ["active", "ended", "cancelled"] as const;
+export type MaintenanceStatus = (typeof MAINTENANCE_STATUSES)[number];
+
+export const REMINDER_KINDS = [
+  "invoice_due",
+  "invoice_overdue",
+  "approval_pending",
+  "change_request_pending",
+  "maintenance_renewal",
+] as const;
+export type ReminderKind = (typeof REMINDER_KINDS)[number];
+
+export const REMINDER_AUDIENCES = ["team", "client", "both"] as const;
+export type ReminderAudience = (typeof REMINDER_AUDIENCES)[number];
+
+export const NOTIFICATION_CHANNELS = ["in_app", "email"] as const;
+export type NotificationChannel = (typeof NOTIFICATION_CHANNELS)[number];

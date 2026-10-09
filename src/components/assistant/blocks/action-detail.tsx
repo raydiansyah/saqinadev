@@ -205,6 +205,36 @@ export function ActionDetail({
           <span className="block text-xs text-muted-foreground">{t("billing.draftOnly")}</span>
         </p>
       );
+    case "CREATE_CHANGE_REQUEST":
+      return editing ? (
+        <div className="space-y-2">
+          {input("title")}
+          {input("description", true)}
+        </div>
+      ) : (
+        <p>
+          <span className="font-medium">{value("title")}</span>
+          <span className="block text-xs text-muted-foreground">
+            {t("changeRequest.draftOnly")}
+          </span>
+        </p>
+      );
+    case "GENERATE_DOCUMENT":
+      return (
+        <p>
+          <span className="font-medium">{t(`documentKinds.${action.payload.kind}`)}</span>
+          <span className="block text-xs text-muted-foreground">{t("documentKinds.note")}</span>
+        </p>
+      );
+    case "SEND_CLIENT_REMINDER":
+      return (
+        <p>
+          <span className="font-medium">{action.display.label}</span>
+          <span className="block text-xs text-muted-foreground">
+            {t("reminder.recipients", { count: action.display.recipients })}
+          </span>
+        </p>
+      );
     case "CREATE_SCOPE_ITEM":
       return editing ? (
         <div className="space-y-2">

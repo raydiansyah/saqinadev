@@ -46,10 +46,13 @@ export const en: Record<LegalDocId, LegalDocument> = {
             p: "Client portal. If you invite a client, we store the invited email address and a hash of the one-time invitation link. A client who accepts sees only the projects you enable for the portal, and on those only progress, visible scope items, shared approved documents, issued invoices and confirmed payments. Internal notes, tasks, AI and agent details, integrations and draft invoices are never shown to clients. You are responsible for having a lawful basis to enter your clients' personal data.",
           },
           {
+            p: "Client communication. Requests, messages, approvals and change requests exchanged on the client portal are stored with the project, visible to the project's owners and admins and to the client's portal users. Reminders are sent automatically by the rules you configure and are logged so the same reminder is never sent twice.",
+          },
+          {
             p: "Sessions and security. We store your active sessions with the IP address and browser type used to sign in, so you can stay signed in and so we can protect accounts.",
           },
           {
-            p: "Email. We send transactional email only: email verification and password reset links. These are sent through [EMAIL PROVIDER].",
+            p: "Email. We send transactional email only: email verification and password reset links, client portal invitations, and project notifications such as payment and approval reminders. These are sent through [EMAIL PROVIDER]. In-app notifications are stored with your account until you delete it.",
           },
           {
             p: "Public preview. The interview on the public /start page and the landing page demo run in your browser. Their answers stay in your browser's session storage until you close the tab, unless you choose to import them into a new project after signing in.",

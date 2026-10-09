@@ -37,6 +37,10 @@ export const INTENTS = [
   "CREATE_INVOICE",
   "ASK_SCOPE",
   "ADD_SCOPE_ITEM",
+  "CREATE_CHANGE_REQUEST",
+  "GENERATE_DOCUMENT",
+  "ASK_MAINTENANCE",
+  "REMIND_CLIENT",
   "HELP",
 ] as const;
 export type Intent = (typeof INTENTS)[number];
@@ -56,6 +60,10 @@ export const intentEntities = z.object({
   agent: z.string().trim().max(60).optional(),
   /** Scope category named in the message ("ke excluded"). */
   category: z.enum(["included", "excluded", "optional", "future"]).optional(),
+  /** Business document named in the message ("buatkan proposal"). */
+  document: z.enum(["proposal", "agreement", "handover", "maintenance_agreement"]).optional(),
+  /** What a client reminder is about. */
+  about: z.enum(["invoice", "approval", "change_request"]).optional(),
 });
 export type IntentEntities = z.infer<typeof intentEntities>;
 

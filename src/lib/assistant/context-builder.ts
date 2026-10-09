@@ -5,15 +5,19 @@ import { type AgentRow, listAgentRegistry } from "@/lib/agents/registry";
 import type { PromptSegment } from "@/lib/ai/provider";
 import { can, type ProjectAccess } from "@/lib/auth/permissions";
 import { type ProjectBilling, projectBilling } from "@/lib/billing/summary";
+import { type ChangeRequest, listChangeRequests } from "@/lib/change-requests/service";
 import { db } from "@/lib/db/client";
 import { decisions, documents, memories, requirements, tasks } from "@/lib/db/schema";
 import type { TechStack } from "@/lib/db/schema/projects";
 import { type DecisionView, listDecisions } from "@/lib/decisions/service";
 import type { ConversationContext } from "@/lib/domain/enums";
+import { type ClientApproval, listApprovals } from "@/lib/engagement/approvals";
 import { AppError } from "@/lib/errors";
 import { getRepository, type RepositoryView, toRepositoryView } from "@/lib/git/service";
 import type { StackMismatch } from "@/lib/git/stack";
+import { listPlans, type MaintenancePlan } from "@/lib/maintenance/service";
 import { listMemories, type MemoryView } from "@/lib/memory/service";
+import { clientRecipients } from "@/lib/notifications/service";
 import type { ProjectSnapshot } from "@/lib/projects/progress";
 import { getSettings, loadSnapshot } from "@/lib/projects/repository";
 import { getTechStack, projectStackMismatches } from "@/lib/projects/stack";
@@ -48,7 +52,8 @@ type Slice =
   | "agents"
   | "repository"
   | "scope"
-  | "billing";
+  | "billing"
+  | "engagement";
 
 /** Only what each intent needs. Nothing project-wide rides along by default. */
 const NEEDS: Record<Intent, Slice[]> = {
@@ -86,6 +91,10 @@ const NEEDS: Record<Intent, Slice[]> = {
   CREATE_INVOICE: ["billing"],
   ASK_SCOPE: ["scope"],
   ADD_SCOPE_ITEM: ["scope"],
+  CREATE_CHANGE_REQUEST: ["scope"],
+  GENERATE_DOCUMENT: [],
+  ASK_MAINTENANCE: ["engagement"],
+  REMIND_CLIENT: ["billing", "engagement"],
   HELP: [],
 };
 
@@ -114,6 +123,13 @@ export interface AssistantContext {
   scope?: ScopeItem[];
   /** Billing records, or "forbidden" when the member's role cannot read billing. */
   billing?: ProjectBilling | "forbidden";
+  /** Maintenance plans and open client-facing items, for maintenance and reminder intents. */
+  engagement?: {
+    plans: MaintenancePlan[];
+    approvals: ClientApproval[];
+    changeRequests: ChangeRequest[];
+    portalRecipients: number;
+  };
 }
 
 /**
@@ -232,6 +248,15 @@ export async function buildContext(
       (can(access.role, "billing:read")
         ? projectBilling(access.project).then((r) => (ctx.billing = r))
         : (ctx.billing = "forbidden")),
+    needs.has("engagement") &&
+      Promise.all([
+        listPlans(access.project.id),
+        listApprovals(access.project.id),
+        listChangeRequests(access.project.id),
+        clientRecipients(db, access.project.id),
+      ]).then(([plans, approvals, changeRequests, recipients]) => {
+        ctx.engagement = { plans, approvals, changeRequests, portalRecipients: recipients.length };
+      }),
     needs.has("agents") &&
       listAgentRegistry(access).then((r) => {
         ctx.agents = r.agents;

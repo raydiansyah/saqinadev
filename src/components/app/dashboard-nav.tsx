@@ -10,6 +10,7 @@ type NavKey =
   | "projects"
   | "invoices"
   | "payments"
+  | "reminders"
   | "activity"
   | "settings"
   | "ai";
@@ -20,6 +21,7 @@ const SIMPLE: { key: NavKey; href: string }[] = [
   { key: "projects", href: "/dashboard/projects" },
   { key: "invoices", href: "/dashboard/invoices" },
   { key: "payments", href: "/dashboard/payments" },
+  { key: "reminders", href: "/dashboard/reminders" },
 ];
 
 export function DashboardNav({

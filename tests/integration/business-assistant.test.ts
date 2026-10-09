@@ -12,7 +12,7 @@ import { transitionInvoice } from "@/lib/billing/invoices";
 import { recordPayment } from "@/lib/billing/payments";
 import { listTerms } from "@/lib/billing/terms";
 import { db } from "@/lib/db/client";
-import { invoices, requirements, scopeItems } from "@/lib/db/schema";
+import { changeRequests, documents, invoices, requirements, scopeItems } from "@/lib/db/schema";
 import { listProposals } from "@/lib/proposals/repository";
 import { approveProposal } from "@/lib/proposals/service";
 import { createScopeItem } from "@/lib/scope/service";
@@ -119,9 +119,17 @@ describe("business assistant", () => {
   it("refuses to add an excluded feature silently and answers scope questions", async () => {
     await createScopeItem(owner, slug, { title: "Payment gateway", category: "excluded" });
     const before = await db.select().from(requirements);
-    const reply = await say("Tambahkan payment gateway");
-    expect(reply.text).toContain("di luar scope");
-    expect(reply.blocks.some((b) => b.type === "proposal")).toBe(false);
+    // An excluded feature becomes a change request proposal, never a requirement or task.
+    await say("Tambahkan payment gateway");
+    const access = await loadProjectAccess(owner, { slug }, "project:read");
+    const [proposal] = (await listProposals(access)).filter((p) => p.status === "pending");
+    expect(proposal.description).toContain("di luar scope");
+    expect(proposal.actions.map((a) => a.type)).toEqual(["CREATE_CHANGE_REQUEST"]);
+    await approveLatest();
+    const crs = await db.select().from(changeRequests);
+    expect(crs).toMatchObject([
+      { status: "draft", additionalCost: 0, scopeStatus: "out_of_scope" },
+    ]);
     expect(await db.select().from(requirements)).toHaveLength(before.length);
 
     const scope = await say("Apakah fitur payment gateway termasuk scope?");
@@ -150,5 +158,34 @@ describe("billing clarification", () => {
     expect((await listTerms(access.project.id)).map((t) => t.amount)).toEqual([
       10_000_000, 10_000_000,
     ]);
+  });
+});
+
+describe("engagement intents", () => {
+  beforeAll(async () => {
+    await resetDatabase();
+    owner = await createUser("Owner");
+    slug = await project(owner, "A restaurant point of sale app for my cafe with stock.");
+  });
+
+  it.each([
+    ["Buatkan proposal untuk project ini", "GENERATE_DOCUMENT"],
+    ["Siapkan draft perjanjian", "GENERATE_DOCUMENT"],
+    ["Kapan maintenance habis?", "ASK_MAINTENANCE"],
+    ["Ingatkan client soal pembayaran", "REMIND_CLIENT"],
+    ["Buat change request untuk integrasi WhatsApp", "CREATE_CHANGE_REQUEST"],
+  ])("%s → %s", (text, intent) => {
+    expect(classifyWithRules(text).intent).toBe(intent);
+  });
+
+  it("generates a document after approval and asks which one when unclear", async () => {
+    const ask = await say("Buatkan dokumen kontrak", "id");
+    expect(ask.blocks.some((b) => b.type === "proposal")).toBe(true);
+    await approveLatest();
+    const docs = await db.select().from(documents).where(eq(documents.slug, "agreement"));
+    expect(docs[0]).toMatchObject({ status: "draft", type: "agreement" });
+
+    const reply = await say("Ingatkan client soal invoice");
+    expect(reply.text).toMatch(/portal/);
   });
 });

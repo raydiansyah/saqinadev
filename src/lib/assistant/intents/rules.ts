@@ -55,8 +55,51 @@ const SCOPE_WORDS: [RegExp, NonNullable<IntentEntities["category"]>][] = [
   [/\b(include|included|in scope|termasuk)\b/, "included"],
 ];
 
+const DOCUMENT_WORDS: [RegExp, NonNullable<IntentEntities["document"]>][] = [
+  [
+    /\b(perjanjian maintenance|kontrak maintenance|maintenance agreement)\b/,
+    "maintenance_agreement",
+  ],
+  [/\b(serah terima|handover)\b/, "handover"],
+  [/\b(perjanjian|kontrak|agreement|contract|spk)\b/, "agreement"],
+  [/\b(proposal|penawaran|quotation)\b/, "proposal"],
+];
+
+/** Which business document a phrase names ("draft perjanjian" → agreement). */
+export const documentKindIn = (text: string) =>
+  DOCUMENT_WORDS.find(([re]) => re.test(text.toLowerCase()))?.[1];
+
 const RULES: Rule[] = [
   // Business rules first: they carry the most specific vocabulary.
+  {
+    test: /\b(ingatkan|remind|kirim(?:kan)? (?:reminder|pengingat)|buat(?:kan)? (?:reminder|pengingat))\b.*\b(client|klien|pelanggan|customer)\b|\b(reminder|pengingat)\b.*\b(client|klien)\b/,
+    build: (text) =>
+      result("REMIND_CLIENT", 0.9, {
+        about: /\b(approval|persetujuan|setuju)\b/.test(text)
+          ? "approval"
+          : /\b(change request|cr)\b/.test(text)
+            ? "change_request"
+            : "invoice",
+      }),
+  },
+  {
+    test: /\b(change request|permintaan perubahan)\b/,
+    build: (text) => {
+      const m = text.match(/\b(?:untuk|for|:)\s+(.+)$/);
+      return result("CREATE_CHANGE_REQUEST", 0.9, { feature: clean(m?.[1]) });
+    },
+  },
+  {
+    test: /\b(?:buat(?:kan)?|bikin(?:kan)?|siapkan|susun|generate|create|draft|prepare|write|tulis)\b.*\b(proposal|penawaran|quotation|perjanjian|kontrak|agreement|contract|spk|serah terima|handover)\b/,
+    build: (text) =>
+      result("GENERATE_DOCUMENT", 0.9, {
+        document: documentKindIn(text),
+      }),
+  },
+  {
+    test: /\b(maintenance|pemeliharaan|garansi|warranty|masa dukungan|support plan)\b/,
+    build: () => result("ASK_MAINTENANCE", 0.75),
+  },
   {
     test: /\b(?:buat(?:kan)?|bikin(?:kan)?|create|generate|terbitkan|siapkan|prepare|draft)\b.*\b(?:invoice|tagihan|faktur)\b\s*(.*)/,
     build: (text, m) =>

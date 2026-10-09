@@ -1,0 +1,159 @@
+{
+  "portalEngagement": {
+    "title": "Requests and approvals",
+    "tabs": {
+      "requests": "Requests",
+      "messages": "Messages",
+      "approvals": "Approvals",
+      "changes": "Change requests",
+      "maintenance": "Maintenance"
+    },
+    "errors": {
+      "noteRequired": "Tell the team what should change before you send this.",
+      "notSent": "This change request is no longer waiting for your decision. Reload to see the latest.",
+      "tooShort": "This is too short. Add a few more words.",
+      "tooLong": "This is too long. Shorten it a little.",
+      "invalid": "Some fields need attention.",
+      "rateLimit": "You are sending a lot at once. Wait a minute and try again."
+    },
+    "attention": {
+      "title": "Needs your attention",
+      "approvals": "{count, plural, one {# item waiting for your approval} other {# items waiting for your approval}}",
+      "changes": "{count, plural, one {# change request waiting for your decision} other {# change requests waiting for your decision}}",
+      "project": "{project}: {items}"
+    },
+    "requests": {
+      "metaTitle": "Requests",
+      "title": "Requests",
+      "description": "Ask a question, report a problem or ask for something new. Everything stays with this project.",
+      "formTitle": "New request",
+      "kindLabel": "What is it about?",
+      "kinds": {
+        "question": "Question",
+        "feature": "New feature or change",
+        "bug": "Something is broken",
+        "maintenance": "Maintenance / small update"
+      },
+      "titleLabel": "Short title",
+      "titleHint": "For example: Add a phone number to the contact page",
+      "bodyLabel": "Details",
+      "bodyHint": "What you see, what you expected, and where. Optional, but it helps.",
+      "submit": "Send request",
+      "sent": "Request sent.",
+      "afterSubmit": "The team reviews it. Changes outside the agreed scope come back as a change request with cost and time before any work starts.",
+      "listTitle": "Your requests",
+      "empty": "No requests yet. When you send one, you can follow it here.",
+      "sentOn": "Sent {date}",
+      "status": {
+        "open": "Received",
+        "in_review": "Being reviewed",
+        "resolved": "Done",
+        "declined": "Not going ahead",
+        "converted": "Turned into a change request"
+      },
+      "classification": {
+        "warranty": "Covered by warranty, no charge",
+        "included": "Included in your maintenance plan",
+        "paid": "Paid work, outside warranty and maintenance"
+      }
+    },
+    "messages": {
+      "metaTitle": "Messages",
+      "title": "Messages",
+      "description": "Talk with the team about this project. Decisions made here stay on record.",
+      "empty": "No messages yet. Write the first one below.",
+      "team": "Team",
+      "client": "You",
+      "teamSide": "Project team",
+      "bodyLabel": "Your message",
+      "send": "Send",
+      "threadLabel": "Message history"
+    },
+    "approvals": {
+      "metaTitle": "Approvals",
+      "title": "Approvals",
+      "description": "The team asks you to check and approve work before it moves on.",
+      "empty": "Nothing to approve right now.",
+      "waiting": "Waiting for you",
+      "history": "Earlier",
+      "status": {
+        "pending": "Waiting for you",
+        "approved": "Approved",
+        "changes_requested": "Changes requested"
+      },
+      "openDocument": "Open document: {title}",
+      "openLink": "Open link",
+      "approve": "Approve",
+      "requestChanges": "Ask for changes",
+      "noteLabel": "What should change?",
+      "noteHint": "Be as specific as you can so the team gets it right.",
+      "optionalNoteLabel": "Note (optional)",
+      "sendChanges": "Send",
+      "cancel": "Cancel",
+      "yourNote": "Your note",
+      "requestedOn": "Asked {date}",
+      "respondedOn": "Answered {date}"
+    },
+    "changes": {
+      "metaTitle": "Change requests",
+      "title": "Change requests",
+      "description": "Work outside the agreed scope. Nothing starts until you approve the cost and time.",
+      "empty": "No change requests. When something falls outside the agreed scope, the team sends it here first.",
+      "impactLabel": "What this changes",
+      "costLabel": "Additional cost",
+      "daysLabel": "Extra time",
+      "days": "{count, plural, =0 {No extra days} one {# day} other {# days}}",
+      "sentOn": "Sent {date}",
+      "decidedOn": "Decided {date}",
+      "status": {
+        "sent": "Waiting for you",
+        "approved": "Approved",
+        "rejected": "Declined",
+        "done": "Done"
+      },
+      "approve": "Approve",
+      "reject": "Decline",
+      "approveTitle": "Approve {number}?",
+      "approveBody": "Approving adds {cost} to the project cost and {days} to the schedule. The team can then start this work.",
+      "rejectTitle": "Decline {number}?",
+      "rejectBody": "The team will not do this work. You can tell them why.",
+      "noteLabel": "Note for the team (optional)",
+      "confirmApprove": "Yes, approve",
+      "confirmReject": "Decline",
+      "cancel": "Cancel"
+    },
+    "maintenance": {
+      "metaTitle": "Maintenance",
+      "title": "Warranty and maintenance",
+      "explain": "Warranty covers defects in what was delivered. Maintenance is ongoing support.",
+      "warrantyTitle": "Warranty",
+      "warrantyUntil": "Active until {date}",
+      "warrantyEnded": "Ended on {date}",
+      "warrantyNotSet": "Not set yet. The team adds it when the project is handed over.",
+      "plansTitle": "Maintenance plans",
+      "plansEmpty": "No maintenance plan yet. Ask the team if you want ongoing support.",
+      "period": "Period",
+      "periodValue": "{start} to {end}",
+      "fee": "Fee",
+      "feeValue": "{amount} {cycle}",
+      "cycle": {
+        "monthly": "per month",
+        "quarterly": "per quarter",
+        "yearly": "per year",
+        "one_time": "one time"
+      },
+      "included": "Included",
+      "notIncluded": "Not included",
+      "responseTime": "Response time",
+      "responseHours": "{hours, plural, one {Within # hour} other {Within # hours}}",
+      "responseNotSet": "Not specified",
+      "planStatus": {
+        "active": "Active",
+        "ended": "Ended"
+      },
+      "requestTitle": "Need a fix or a small update?",
+      "requestBody": "Send a maintenance request. The team checks whether it falls under warranty, your plan, or paid work, and tells you before starting.",
+      "requestCta": "Send a maintenance request"
+    }
+  }
+}

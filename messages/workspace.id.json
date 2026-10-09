@@ -127,7 +127,9 @@
     "statuses": {
       "draft": "Draf",
       "review": "Direview",
-      "approved": "Disetujui"
+      "approved": "Disetujui",
+      "signed": "Ditandatangani",
+      "archived": "Diarsipkan"
     },
     "edit": "Ubah",
     "preview": "Pratinjau",
@@ -146,7 +148,9 @@
     "historyItem": "Versi {version} · {time}",
     "loadingPreview": "Menyiapkan pratinjau…",
     "prdMetaTitle": "PRD",
-    "prdDescription": "Kebutuhan produk yang dibuat dari interview. Review, ubah, lalu setujui."
+    "prdDescription": "Kebutuhan produk yang dibuat dari interview. Review, ubah, lalu setujui.",
+    "markSigned": "Tandai ditandatangani",
+    "archive": "Arsipkan"
   },
   "plan": {
     "metaTitle": "Plan",

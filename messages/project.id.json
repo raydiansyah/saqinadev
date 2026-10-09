@@ -61,7 +61,8 @@
         "plan": "Rencana",
         "context": "Konteks",
         "build": "Build",
-        "business": "Project"
+        "business": "Project",
+        "client": "Client"
       },
       "items": {
         "overview": "Ringkasan",
@@ -81,7 +82,12 @@
         "integrations": "Integrasi",
         "progress": "Progres",
         "features": "Fitur",
-        "billing": "Billing"
+        "billing": "Billing",
+        "maintenance": "Maintenance",
+        "requests": "Permintaan",
+        "messages": "Pesan",
+        "clientApprovals": "Persetujuan client",
+        "changes": "Change request"
       },
       "pending": "menunggu"
     },

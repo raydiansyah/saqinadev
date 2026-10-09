@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   bigint,
   boolean,
+  date,
   index,
   integer,
   jsonb,
@@ -58,6 +59,8 @@ export const projects = pgTable(
     value: bigint("value", { mode: "number" }),
     /** Whether the assigned client's portal users can see this project. */
     portalEnabled: boolean("portal_enabled").notNull().default(false),
+    /** Defects reported until this date are fixed under warranty, not billed as maintenance. */
+    warrantyUntil: date("warranty_until", { mode: "string" }),
     name: text("name").notNull(),
     description: text("description").notNull().default(""),
     /** Project type id from the interview options (pos, marketplace, ...). */

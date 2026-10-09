@@ -22,6 +22,7 @@ export const FACT_SOURCES = [
   "project",
   "billing",
   "scope",
+  "maintenance",
 ] as const;
 
 export const finding = z.object({
@@ -42,6 +43,7 @@ export const executedItem = z.object({
     "scope",
     "schedule",
     "invoice",
+    "change_request",
   ]),
   title: z.string().max(200),
   href: z.string().max(200),

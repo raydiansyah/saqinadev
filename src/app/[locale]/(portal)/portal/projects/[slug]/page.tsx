@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
+import { loadAttention, NeedsAttention } from "@/components/portal/engagement/attention";
 import { formatDate } from "@/components/portal/format";
 import { BillingTotalsList } from "@/components/portal/money";
 import { ProgressBar, StagePointers } from "@/components/portal/progress";
@@ -16,15 +17,17 @@ export default async function PortalOverviewPage({
 }: PageProps<"/[locale]/portal/projects/[slug]">) {
   const { slug } = await params;
   const access = await portalPageAccess(slug);
-  const [view, activity, t, locale] = await Promise.all([
+  const [view, activity, attention, t, locale] = await Promise.all([
     portalProjectView(slug),
     clientActivity(access),
+    loadAttention(access),
     getTranslations("portal.overview"),
     getLocale(),
   ]);
 
   return (
     <div className="space-y-10">
+      <NeedsAttention items={[attention]} />
       <section aria-labelledby="about-heading">
         <h2 id="about-heading" className="mb-3 font-medium">
           {t("about")}

@@ -55,6 +55,38 @@ export interface BusinessCopy {
     addTitle: (title: string, category: string) => string;
     describeAdd: string;
   };
+  change: {
+    title: (feature: string) => string;
+    describe: string;
+    outOfScope: (feature: string, item: string, category: string) => string;
+    needsFeature: string;
+  };
+  document: {
+    names: Record<"proposal" | "agreement" | "handover" | "maintenance_agreement", string>;
+    title: (name: string) => string;
+    describe: string;
+    needsKind: string;
+    options: string[];
+  };
+  maintenance: {
+    title: string;
+    none: string;
+    warranty: (until: string, days: number) => string;
+    warrantyEnded: (until: string) => string;
+    noWarranty: string;
+    plan: (p: { name: string; start: string; end: string; fee: string; days: number }) => string;
+    ended: (name: string, end: string) => string;
+    upcoming: (p: { name: string; start: string; end: string; fee: string }) => string;
+  };
+  remind: {
+    title: (label: string) => string;
+    describe: (recipients: number) => string;
+    nothingOpen: string;
+    noPortal: string;
+    invoice: (number: string, amount: string) => string;
+    approval: (title: string) => string;
+    changeRequest: (number: string, title: string) => string;
+  };
 }
 
 export const businessEn: BusinessCopy = {
@@ -130,6 +162,47 @@ export const businessEn: BusinessCopy = {
     needsItem: "Which feature should I add to the scope?",
     addTitle: (t, c) => `Add "${t}" to ${c}`,
     describeAdd: "Changes the recorded scope. Clients see it if the item is visible to them.",
+  },
+  change: {
+    title: (f) => `Change request: ${f}`,
+    describe:
+      "Creates a draft change request. Add the cost and extra time before sending it to the client; nothing is charged or scheduled until the client approves.",
+    outOfScope: (f, i, c) =>
+      `"${f}" appears to be outside the current scope (${c}: "${i}"). I did not add it to the project. Approve this to open a draft change request instead.`,
+    needsFeature: "What should the change request be about?",
+  },
+  document: {
+    names: {
+      proposal: "Proposal",
+      agreement: "Agreement draft",
+      handover: "Handover document",
+      maintenance_agreement: "Maintenance agreement draft",
+    },
+    title: (n) => `Generate ${n}`,
+    describe:
+      "Builds the document from the project's scope, schedule and milestones as a draft. Missing details stay as [PLACEHOLDERS]. It is not legal advice and nothing is sent.",
+    needsKind: "Which document should I prepare?",
+    options: ["Proposal", "Agreement", "Handover", "Maintenance agreement"],
+  },
+  maintenance: {
+    title: "Maintenance and warranty",
+    none: "No maintenance plan or warranty date is recorded for this project.",
+    warranty: (u, d) => `Warranty runs until ${u} (${d} days left).`,
+    warrantyEnded: (u) => `Warranty ended on ${u}.`,
+    noWarranty: "No warranty date is recorded.",
+    plan: (p) => `${p.name}: ${p.start} to ${p.end}, ${p.fee}. ${p.days} days left.`,
+    ended: (n, e) => `${n} ended on ${e}.`,
+    upcoming: (p) => `${p.name}: starts on ${p.start}, runs until ${p.end}, ${p.fee}.`,
+  },
+  remind: {
+    title: (l) => `Remind the client: ${l}`,
+    describe: (n) =>
+      `Sends an in-app reminder (and an email when email is configured) to ${n} client portal user(s). At most once per day per item.`,
+    nothingOpen: "There is nothing open to remind the client about.",
+    noPortal: "The client has no portal access on this project, so a reminder cannot reach them.",
+    invoice: (n, a) => `invoice ${n}, ${a} outstanding`,
+    approval: (t) => `approval of "${t}"`,
+    changeRequest: (n, t) => `${n} ${t}`,
   },
 };
 
@@ -210,5 +283,46 @@ export const businessId: BusinessCopy = {
     addTitle: (t, c) => `Tambahkan "${t}" ke ${c}`,
     describeAdd:
       "Mengubah scope yang tercatat. Client melihatnya jika item ditampilkan untuk client.",
+  },
+  change: {
+    title: (f) => `Change request: ${f}`,
+    describe:
+      "Membuat draft change request. Isi biaya dan waktu tambahan sebelum dikirim ke client; tidak ada yang ditagih atau dijadwalkan sebelum client menyetujui.",
+    outOfScope: (f, i, c) =>
+      `"${f}" sepertinya di luar scope saat ini (${c}: "${i}"). Saya tidak menambahkannya ke project. Setujui ini untuk membuat draft change request.`,
+    needsFeature: "Change request untuk apa?",
+  },
+  document: {
+    names: {
+      proposal: "Proposal",
+      agreement: "Draft perjanjian",
+      handover: "Dokumen serah terima",
+      maintenance_agreement: "Draft perjanjian maintenance",
+    },
+    title: (n) => `Buat ${n}`,
+    describe:
+      "Menyusun dokumen dari scope, jadwal pembayaran, dan milestone project sebagai draft. Data yang belum ada tetap sebagai [PLACEHOLDER]. Ini bukan nasihat hukum dan tidak ada yang dikirim.",
+    needsKind: "Dokumen apa yang perlu saya siapkan?",
+    options: ["Proposal", "Perjanjian", "Dokumen serah terima", "Perjanjian maintenance"],
+  },
+  maintenance: {
+    title: "Maintenance dan garansi",
+    none: "Belum ada maintenance plan atau tanggal garansi yang tercatat untuk project ini.",
+    warranty: (u, d) => `Garansi berlaku sampai ${u} (sisa ${d} hari).`,
+    warrantyEnded: (u) => `Garansi berakhir pada ${u}.`,
+    noWarranty: "Tanggal garansi belum tercatat.",
+    plan: (p) => `${p.name}: ${p.start} sampai ${p.end}, ${p.fee}. Sisa ${p.days} hari.`,
+    ended: (n, e) => `${n} berakhir pada ${e}.`,
+    upcoming: (p) => `${p.name}: mulai ${p.start}, berlaku sampai ${p.end}, ${p.fee}.`,
+  },
+  remind: {
+    title: (l) => `Ingatkan client: ${l}`,
+    describe: (n) =>
+      `Mengirim pengingat di aplikasi (dan email bila email dikonfigurasi) ke ${n} user portal client. Maksimal sekali sehari per item.`,
+    nothingOpen: "Tidak ada yang perlu diingatkan ke client saat ini.",
+    noPortal: "Client belum punya akses portal di project ini, jadi pengingat tidak bisa sampai.",
+    invoice: (n, a) => `invoice ${n}, sisa ${a}`,
+    approval: (t) => `persetujuan "${t}"`,
+    changeRequest: (n, t) => `${n} ${t}`,
   },
 };

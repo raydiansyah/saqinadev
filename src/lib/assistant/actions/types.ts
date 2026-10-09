@@ -168,6 +168,32 @@ export const plannedAction = z.discriminatedUnion("type", [
     }),
   }),
   z.object({
+    type: z.literal("CREATE_CHANGE_REQUEST"),
+    key: z.string().min(1).max(8),
+    /** Always a draft: cost and time are filled in by the team before it is sent. */
+    payload: z.object({
+      title: z.string().trim().min(3).max(160),
+      description: z.string().trim().max(4000).default(""),
+      impact: z.string().trim().max(2000).default(""),
+    }),
+  }),
+  z.object({
+    type: z.literal("GENERATE_DOCUMENT"),
+    key: z.string().min(1).max(8),
+    payload: z.object({
+      kind: z.enum(["proposal", "agreement", "handover", "maintenance_agreement"]),
+    }),
+  }),
+  z.object({
+    type: z.literal("SEND_CLIENT_REMINDER"),
+    key: z.string().min(1).max(8),
+    payload: z.object({
+      entityType: z.enum(["invoice", "client_approval", "change_request"]),
+      entityId: id,
+    }),
+    display: z.object({ label: z.string().max(200), recipients: z.number().int().min(0) }),
+  }),
+  z.object({
     type: z.literal("ASSIGN_AGENT"),
     key: z.string().min(1).max(8),
     /** Optional steps can be switched off in the proposal before approving. */
@@ -239,6 +265,15 @@ export const ACTION_POLICY: Record<ActionType, ActionPolicy> = {
     autoEligible: false,
     editable: ["title", "description"],
   },
+  CREATE_CHANGE_REQUEST: {
+    category: "write",
+    risk: "medium",
+    autoEligible: false,
+    editable: ["title", "description", "impact"],
+  },
+  GENERATE_DOCUMENT: { category: "write", risk: "medium", autoEligible: false, editable: [] },
+  // Reaches the client (in-app and email): always reviewed first.
+  SEND_CLIENT_REMINDER: { category: "external", risk: "medium", autoEligible: false, editable: [] },
   ASSIGN_AGENT: {
     category: "agent",
     risk: "medium",
