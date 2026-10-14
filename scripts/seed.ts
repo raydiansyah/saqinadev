@@ -18,6 +18,7 @@ import { setDocumentStatus } from "../src/lib/documents/service";
 import { completeInterview, saveAnswers } from "../src/lib/interviews/service";
 import { startProject } from "../src/lib/projects/service";
 import { approveProposal } from "../src/lib/proposals/service";
+import { listServices, seedStarterServices, setServiceFlag } from "../src/lib/services/admin";
 import { updateTask } from "../src/lib/tasks/service";
 import { DEMO_CLIENT, resetDemoClient, seedBusiness } from "./seed-business";
 
@@ -269,6 +270,16 @@ async function agencyPortfolio(actor: Actor) {
   return slug;
 }
 
+/** Starter AI services as drafts; two are published (prices hidden) so the public page has content. */
+async function seedServices(actor: Actor) {
+  await seedStarterServices(actor);
+  const { rows } = await listServices(actor);
+  for (const row of rows.filter((r) =>
+    ["ai-daily-assistant", "ai-business-assistant"].includes(r.slug),
+  ))
+    await setServiceFlag(actor, row.id, { flag: "isPublished", value: true });
+}
+
 async function main() {
   const actor = await demoActor();
   await resetDemo(actor);
@@ -277,6 +288,7 @@ async function main() {
   const pos = await restaurantPos(actor);
   await restaurantAssistant(actor, pos);
   await seedBusiness(actor, pos);
+  await seedServices(actor);
   const created = [
     pos,
     await marketplace(actor),

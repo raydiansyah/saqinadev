@@ -46,6 +46,9 @@ export const id: Record<LegalDocId, LegalDocument> = {
             p: "Portal client. Jika Anda mengundang client, kami menyimpan alamat email yang diundang dan hash dari tautan undangan sekali pakai. Client yang menerima undangan hanya melihat proyek yang Anda aktifkan untuk portal, dan pada proyek itu hanya progres, item scope yang ditampilkan, dokumen yang disetujui dan dibagikan, invoice yang sudah terbit, serta pembayaran yang terkonfirmasi. Catatan internal, task, detail AI dan agent, integrasi, dan draft invoice tidak pernah ditampilkan ke client. Anda bertanggung jawab memiliki dasar hukum yang sah untuk memasukkan data pribadi client Anda.",
           },
           {
+            p: "Pertanyaan layanan. Jika Anda mengirim pertanyaan dari halaman publik Layanan AI, kami menyimpan nama, perusahaan (opsional), alamat email, nomor WhatsApp (opsional), pesan Anda, persetujuan untuk dihubungi, layanan yang Anda tanyakan, serta hash satu arah dari alamat IP Anda yang hanya kami pakai untuk membatasi penyalahgunaan. Hanya pemilik platform yang dapat membaca pertanyaan itu. Kami memakainya untuk membalas Anda dan tidak membuat kontrak, invoice, atau proyek darinya. Pertanyaan disimpan selama [MASA RETENSI].",
+          },
+          {
             p: "Komunikasi dengan client. Permintaan, pesan, persetujuan, dan change request di portal client disimpan bersama project, terlihat oleh owner dan admin project serta user portal client. Pengingat dikirim otomatis sesuai aturan yang Anda atur dan dicatat agar pengingat yang sama tidak terkirim dua kali.",
           },
           {

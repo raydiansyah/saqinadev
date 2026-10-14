@@ -5,13 +5,13 @@ import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { LanguageSwitcher } from "./language-switcher";
 import { MobileNav } from "./mobile-nav";
-import { NAV_LINKS, type ResolvedNavLink } from "./nav-links";
+import { NAV_LINKS, navHref, type ResolvedNavLink } from "./nav-links";
 
 export function Navbar() {
   const t = useTranslations("common");
   const locale = useLocale();
   const links: ResolvedNavLink[] = NAV_LINKS.map((l) => ({
-    href: `/${locale}#${l.hash}`,
+    href: navHref(l, locale),
     label: t(`nav.${l.key}`),
   }));
 

@@ -10,6 +10,7 @@
     "mobileNav": "Mobile",
     "footerNav": "Footer",
     "nav": {
+      "services": "Services",
       "product": "Product",
       "howItWorks": "How It Works",
       "try": "Try it"

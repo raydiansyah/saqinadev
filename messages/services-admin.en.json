@@ -1,0 +1,295 @@
+{
+  "servicesAdmin": {
+    "title": "AI Services",
+    "metaTitle": "AI Services",
+    "description": "The public catalog of what Saqina Dev offers. Drafts and hidden services stay invisible to visitors.",
+    "nav": {
+      "label": "AI Services sections",
+      "services": "Services",
+      "inquiries": "Inquiries",
+      "newService": "New service"
+    },
+    "list": {
+      "filtersLabel": "Filter services",
+      "search": "Search",
+      "searchHint": "Name or slug",
+      "category": "Category",
+      "allCategories": "All categories",
+      "status": "Status",
+      "sort": "Sort by",
+      "apply": "Apply",
+      "reset": "Reset",
+      "count": "{count} services",
+      "pageOf": "Page {page} of {pages}",
+      "prev": "Previous",
+      "next": "Next",
+      "statusOptions": {
+        "all": "Active",
+        "draft": "Draft",
+        "published": "Live on the website",
+        "hidden": "Hidden",
+        "archived": "Archived"
+      },
+      "sortOptions": {
+        "order": "Display order",
+        "updated": "Recently updated",
+        "name": "Name"
+      },
+      "columns": {
+        "name": "Service",
+        "category": "Category",
+        "slug": "Slug",
+        "status": "Status",
+        "toggles": "Quick switches",
+        "price": "Price",
+        "order": "Order",
+        "updated": "Updated",
+        "actions": "Actions"
+      },
+      "chips": {
+        "draft": "Draft",
+        "published": "Published",
+        "hidden": "Hidden",
+        "comingSoon": "Coming soon",
+        "featured": "Featured",
+        "archived": "Archived"
+      },
+      "priceShown": "Shown to visitors",
+      "priceHidden": "Hidden from visitors",
+      "toggles": {
+        "isPublished": "Published",
+        "isPublic": "Public",
+        "isComingSoon": "Coming soon",
+        "isFeatured": "Featured",
+        "showPrice": "Show price"
+      },
+      "toggleAria": "{label}: {name}",
+      "actions": {
+        "edit": "Edit",
+        "preview": "Preview",
+        "viewPublic": "View public page",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "archive": "Archive",
+        "restore": "Restore",
+        "duplicate": "Duplicate"
+      },
+      "actionAria": "{action}: {name}",
+      "empty": {
+        "title": "No services yet",
+        "body": "Add the starter services as private drafts, or write your first service from scratch.",
+        "seed": "Add starter services",
+        "create": "New service"
+      },
+      "emptyFiltered": {
+        "title": "Nothing matches these filters",
+        "body": "Try another search or reset the filters."
+      },
+      "seeded": "{count} starter services added as drafts.",
+      "seededNone": "All starter services already exist.",
+      "confirm": {
+        "publishTitle": "Publish this service?",
+        "publishBody": "It becomes visible on the public website as soon as it is also public.",
+        "publish": "Publish",
+        "priceTitle": "Show the price to visitors?",
+        "priceBody": "The stored amount will be sent to visitors and appear on the public page.",
+        "price": "Show price",
+        "archiveTitle": "Archive this service?",
+        "archiveBody": "It is unpublished and removed from the active list. You can restore it later; it stays a draft.",
+        "archive": "Archive",
+        "restoreTitle": "Restore this service?",
+        "restoreBody": "It returns to the active list as a draft. Publish it again when ready.",
+        "restore": "Restore"
+      }
+    },
+    "categories": {
+      "daily": "Daily AI",
+      "business": "Business AI",
+      "marketing": "Marketing AI",
+      "cctv": "CCTV AI",
+      "custom": "Custom AI",
+      "other": "Other"
+    },
+    "icons": {
+      "assistant": "Assistant",
+      "business": "Business",
+      "marketing": "Marketing",
+      "camera": "Camera",
+      "puzzle": "Puzzle",
+      "chat": "Chat",
+      "chart": "Chart",
+      "bolt": "Bolt",
+      "shield": "Shield",
+      "document": "Document"
+    },
+    "pricingTypes": {
+      "fixed": "Fixed price",
+      "starting_from": "Starting from",
+      "monthly": "Monthly",
+      "custom_quote": "Custom quotation",
+      "free_consultation": "Free consultation",
+      "contact": "Contact for pricing"
+    },
+    "ctaTypes": {
+      "discuss": "Discuss",
+      "consultation": "Consultation",
+      "proposal": "Request a proposal",
+      "start_project": "Start a project",
+      "waitlist": "Join the waitlist"
+    },
+    "inquiryStatuses": {
+      "new": "New",
+      "contacted": "Contacted",
+      "qualified": "Qualified",
+      "proposal": "Proposal",
+      "converted": "Converted",
+      "closed": "Closed"
+    },
+    "editor": {
+      "newTitle": "New service",
+      "editTitle": "Edit service",
+      "backToList": "Back to services",
+      "save": "Save service",
+      "create": "Create service",
+      "saving": "Saving",
+      "saved": "Saved.",
+      "created": "Service created.",
+      "preview": "Preview",
+      "previewHint": "Preview opens the last saved version.",
+      "invalidSummary": "Some fields need attention. Check the marked sections.",
+      "sectionNav": "Editor sections",
+      "sections": {
+        "basic": "Basic",
+        "content": "Content",
+        "commercial": "Commercial",
+        "publication": "Publication",
+        "seo": "SEO"
+      },
+      "basic": {
+        "internalName": "Internal name",
+        "internalNameHint": "Only you see this name.",
+        "slug": "Slug",
+        "slugHint": "Lowercase letters, numbers and hyphens. Changing the slug of a published service keeps the old URL redirecting to the new one.",
+        "category": "Category",
+        "icon": "Icon",
+        "iconGroup": "Choose an icon",
+        "imageUrl": "Image URL",
+        "imageUrlHint": "Optional. Must be an https link to an image.",
+        "displayOrder": "Display order",
+        "displayOrderHint": "Lower numbers come first on the website."
+      },
+      "content": {
+        "tablist": "Content language",
+        "tabEn": "English",
+        "tabId": "Indonesian",
+        "title": "Title",
+        "shortDescription": "Short description",
+        "description": "Full description",
+        "timeline": "Typical timeline",
+        "problems": "Problems solved",
+        "capabilities": "Capabilities",
+        "useCases": "Use cases",
+        "included": "What is included",
+        "excluded": "What is not included",
+        "requirements": "Requirements from the client",
+        "steps": "How it works (steps)",
+        "faqs": "Frequently asked questions",
+        "stepTitle": "Step title",
+        "stepBody": "Step details",
+        "faqQuestion": "Question",
+        "faqAnswer": "Answer",
+        "related": "Related services",
+        "relatedHint": "Up to 6. Only services that are live appear to visitors.",
+        "relatedNone": "No other services to relate yet.",
+        "hasErrors": "Has errors"
+      },
+      "list": {
+        "add": "Add item",
+        "addStep": "Add step",
+        "addFaq": "Add question",
+        "remove": "Remove",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "item": "{label}, item {n}",
+        "empty": "Nothing added yet."
+      },
+      "commercial": {
+        "pricingType": "Pricing type",
+        "amount": "Amount",
+        "amountHint": "Enter the amount in {currency}, as you would write it (not in cents).",
+        "currency": "Currency",
+        "priceLabel": "Custom price label",
+        "priceLabelHint": "Optional. When set, visitors see this text instead of the formatted price.",
+        "showPrice": "Show price to visitors",
+        "showPriceHint": "Hiding the price keeps the amount; visitors never receive it.",
+        "ctaType": "Call to action",
+        "ctaLabel": "Button label",
+        "ctaLabelHint": "Optional. Overrides the default label of the call to action."
+      },
+      "publication": {
+        "isPublished": "Published",
+        "isPublishedHint": "Draft: only staff can preview it. Turn on to make it eligible for the website.",
+        "isPublic": "Public visibility",
+        "isPublicHint": "Hidden: visitors get a 404 even when published.",
+        "isComingSoon": "Coming soon",
+        "isComingSoonHint": "Shows a Coming soon label but keeps the page, and the call to action becomes a waitlist.",
+        "isFeatured": "Featured",
+        "isFeaturedHint": "Highlights this service on the services page and the landing page."
+      },
+      "seo": {
+        "metaTitle": "Meta title",
+        "metaDescription": "Meta description",
+        "hint": "Shown in search results. Leave empty to use the title and short description.",
+        "counter": "{count} / {max}",
+        "tablist": "SEO language"
+      }
+    },
+    "errors": {
+      "tooShort": "Too short.",
+      "tooLong": "Too long.",
+      "invalid": "This value is not valid.",
+      "slugTaken": "This slug is already used by another service or was used before.",
+      "slug": "Use lowercase letters, numbers and single hyphens (not a reserved word).",
+      "titleRequired": "Add a title in at least one language before publishing.",
+      "priceAmount": "Enter a valid amount for this pricing type.",
+      "imageUrl": "Use a public https link without credentials.",
+      "displayOrder": "Enter a whole number from 0 to 100000.",
+      "relatedIds": "Choose valid related services.",
+      "useConvert": "Use Make client to convert an inquiry.",
+      "alreadyConverted": "This inquiry was already converted.",
+      "fieldPrefix": "{field}: {message}"
+    },
+    "preview": {
+      "banner": "Preview: not visible to visitors (draft/hidden). This is how the saved version will look.",
+      "bannerLive": "Preview: this service is live. This is the saved version.",
+      "edit": "Edit service"
+    },
+    "inquiries": {
+      "title": "Inquiries",
+      "description": "Messages sent from the public service pages.",
+      "metaTitle": "Service inquiries",
+      "filterLabel": "Filter by status",
+      "filterAll": "All",
+      "empty": {
+        "title": "No inquiries here",
+        "body": "Inquiries from the website appear in this list."
+      },
+      "company": "Company",
+      "email": "Email",
+      "whatsapp": "WhatsApp",
+      "service": "Service",
+      "noService": "General inquiry",
+      "message": "Message",
+      "received": "Received",
+      "status": "Status",
+      "statusAria": "Status of the inquiry from {name}",
+      "makeClient": "Make client",
+      "makeClientAria": "Make {name} a client",
+      "openClient": "Open client",
+      "clientCreated": "Client created.",
+      "confirmTitle": "Make this inquiry a client?",
+      "confirmBody": "A client record is created from these contact details. Nothing else is created: no project, proposal or invoice.",
+      "confirmLabel": "Make client"
+    }
+  }
+}

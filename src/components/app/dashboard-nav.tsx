@@ -13,7 +13,8 @@ type NavKey =
   | "reminders"
   | "activity"
   | "settings"
-  | "ai";
+  | "ai"
+  | "services";
 
 const SIMPLE: { key: NavKey; href: string }[] = [
   { key: "overview", href: "/dashboard" },
@@ -39,6 +40,8 @@ export function DashboardNav({
     { key: "settings", href: "/dashboard/settings" },
     // The AI control plane is visible to platform owners in advanced mode (pages check again).
     ...(isOwner && mode === "advanced" ? [{ key: "ai" as const, href: "/dashboard/ai" }] : []),
+    // The public AI Services catalog is owner-managed in both modes (pages check again).
+    ...(isOwner ? [{ key: "services" as const, href: "/dashboard/services" }] : []),
   ];
   return (
     <nav aria-label={t("label")} className="border-b border-border">

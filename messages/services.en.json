@@ -1,0 +1,142 @@
+{
+  "services": {
+    "title": "AI Services",
+    "hero": {
+      "title": "AI Services for Everyday Work and Business",
+      "description": "Explore practical AI solutions for productivity, business operations, marketing, video analytics, and custom workflows. Find the right solution for your needs, then discuss the implementation with Saqina.",
+      "explore": "Explore Services",
+      "discuss": "Discuss Your Needs",
+      "visualLabel": "Service areas connected to Saqina"
+    },
+    "metaTitle": "AI Services for Everyday Work and Business",
+    "metaDescription": "Practical AI solutions for productivity, business operations, marketing, video analytics and custom workflows. Find the right fit, then discuss it with Saqina.",
+    "featured": {
+      "title": "Featured services",
+      "intro": "A good place to start if you are not sure what you need."
+    },
+    "catalog": {
+      "title": "All services",
+      "intro": "Pick a service to see what it covers, how it works and what to expect."
+    },
+    "categories": {
+      "daily": "Daily work",
+      "business": "Business operations",
+      "marketing": "Marketing",
+      "cctv": "Video analytics",
+      "custom": "Custom",
+      "other": "Other"
+    },
+    "card": {
+      "comingSoon": "Coming soon",
+      "learnMore": "View details"
+    },
+    "empty": {
+      "title": "The catalog is being prepared",
+      "body": "No services are published yet. Tell us what you need below and we will get back to you."
+    },
+    "how": {
+      "title": "How Saqina helps",
+      "intro": "Six steps from a rough idea to something your team uses every day.",
+      "steps": [
+        {
+          "title": "Understand the need",
+          "body": "We listen to how the work happens today and where it slows you down."
+        },
+        {
+          "title": "Define the solution",
+          "body": "We propose what to build, what to leave out and how it fits your tools."
+        },
+        {
+          "title": "Agree on scope",
+          "body": "Deliverables, timeline and responsibilities are written down before work starts."
+        },
+        {
+          "title": "Implement",
+          "body": "We build and configure the solution in small steps you can see along the way."
+        },
+        {
+          "title": "Review",
+          "body": "You test it with real work. We adjust until it behaves the way you expect."
+        },
+        {
+          "title": "Support",
+          "body": "After launch we stay available for questions, fixes and the next improvement."
+        }
+      ]
+    },
+    "custom": {
+      "title": "Custom AI Solutions",
+      "body": "Your process does not fit a standard package? We design workflows around your data, your tools and your team, from a single automation to a full internal system.",
+      "cta": "Discuss a Custom Solution"
+    },
+    "inquiry": {
+      "title": "Tell us what you need",
+      "intro": "Share a few details and Saqina will reply with next steps. No commitment.",
+      "introService": "Interested in {service}? Share a few details and Saqina will reply with next steps. No commitment.",
+      "name": "Name",
+      "company": "Company",
+      "companyHint": "Optional",
+      "email": "Email",
+      "whatsapp": "WhatsApp",
+      "whatsappHint": "Optional, with country code",
+      "message": "Requirements",
+      "messageHint": "What are you trying to achieve? A few sentences are enough.",
+      "consent": "I agree to be contacted about this inquiry",
+      "submit": "Send inquiry",
+      "sending": "Sending",
+      "success": {
+        "title": "Inquiry received",
+        "body": "Thank you. Saqina will contact you at the email you provided.",
+        "again": "Send another inquiry"
+      },
+      "errors": {
+        "fields": {
+          "name": "Enter your name (at least 2 characters).",
+          "email": "Enter a valid email address.",
+          "whatsapp": "Enter a valid phone number, for example +62 812 3456 7890.",
+          "company": "Company name is too long.",
+          "message": "Describe your requirements in at least 10 characters.",
+          "consent": "Please confirm that we may contact you."
+        },
+        "fieldInvalid": "Please check this field.",
+        "validation": "Some fields need your attention. Please check the form.",
+        "rateLimit": "Too many inquiries from your connection. Please try again in an hour.",
+        "notFound": "This service is no longer available. Reload the page and try again.",
+        "generic": "We could not send your inquiry. Please try again.",
+        "reference": "Reference: {ref}"
+      }
+    },
+    "final": {
+      "title": "Not sure which service fits?",
+      "body": "Describe the work you want to make easier. We will point you to the right option."
+    },
+    "detail": {
+      "breadcrumbLabel": "Breadcrumb",
+      "home": "Home",
+      "all": "AI Services",
+      "back": "Back to all services",
+      "previewNotice": "Preview of an unpublished service. Visitors cannot see this page and the inquiry form is off.",
+      "problems": "Problems it solves",
+      "capabilities": "Key capabilities",
+      "useCases": "Use cases",
+      "included": "What is included",
+      "excluded": "What is not included",
+      "requirements": "Requirements and dependencies",
+      "steps": "How it works",
+      "timeline": "Estimated timeline",
+      "price": "Pricing",
+      "availability": "Availability",
+      "comingSoon": "Coming soon. Join the waiting list and we will let you know when it opens.",
+      "faq": "Frequently asked questions",
+      "related": "Related services",
+      "stepNumber": "Step {n}"
+    },
+    "cta": {
+      "discuss": "Discuss This Service",
+      "consultation": "Request a Consultation",
+      "proposal": "Request a Proposal",
+      "start_project": "Start a Project",
+      "waitlist": "Join the Waiting List"
+    }
+  }
+}

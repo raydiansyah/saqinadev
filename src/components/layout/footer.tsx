@@ -5,7 +5,7 @@ import { getSiteContent } from "@/content/site";
 import type { Locale } from "@/i18n/locales";
 import { Link } from "@/i18n/navigation";
 import { LanguageSwitcher } from "./language-switcher";
-import { NAV_LINKS } from "./nav-links";
+import { NAV_LINKS, navHref } from "./nav-links";
 
 const LINK =
   "inline-flex min-h-11 items-center text-sm text-muted-foreground hover:text-foreground";
@@ -35,7 +35,7 @@ export function Footer() {
           <ul className="space-y-1">
             {NAV_LINKS.map((l) => (
               <li key={l.key}>
-                <a href={`/${locale}#${l.hash}`} className={LINK}>
+                <a href={navHref(l, locale)} className={LINK}>
                   {t(`nav.${l.key}`)}
                 </a>
               </li>

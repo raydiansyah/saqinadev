@@ -27,6 +27,10 @@ import portalEngagementEn from "../messages/portal-engagement.en.json";
 import portalEngagementId from "../messages/portal-engagement.id.json";
 import projectEn from "../messages/project.en.json";
 import projectId from "../messages/project.id.json";
+import servicesEn from "../messages/services.en.json";
+import servicesId from "../messages/services.id.json";
+import servicesAdminEn from "../messages/services-admin.en.json";
+import servicesAdminId from "../messages/services-admin.id.json";
 import workspaceEn from "../messages/workspace.en.json";
 import workspaceId from "../messages/workspace.id.json";
 
@@ -61,6 +65,8 @@ describe.each([
   ["engagement messages", engagementEn, engagementId],
   ["portal engagement messages", portalEngagementEn, portalEngagementId],
   ["notify messages", notifyEn, notifyId],
+  ["services messages", servicesEn, servicesId],
+  ["services admin messages", servicesAdminEn, servicesAdminId],
   ["site content", siteEn, siteId],
   ["legal documents", legalEn, legalId],
 ])("%s", (_, en, id) => {
@@ -100,6 +106,8 @@ describe("message files", () => {
       engagementEn,
       portalEngagementEn,
       notifyEn,
+      servicesEn,
+      servicesAdminEn,
     ].flatMap((m) => Object.keys(m));
     expect(new Set(names).size).toBe(names.length);
   });

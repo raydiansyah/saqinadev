@@ -1,0 +1,142 @@
+{
+  "services": {
+    "title": "Layanan AI",
+    "hero": {
+      "title": "Layanan AI untuk Pekerjaan Sehari-hari dan Bisnis",
+      "description": "Jelajahi solusi AI praktis untuk produktivitas, operasional bisnis, pemasaran, analitik video, dan alur kerja khusus. Temukan solusi yang sesuai dengan kebutuhan Anda, lalu diskusikan penerapannya bersama Saqina.",
+      "explore": "Jelajahi Layanan",
+      "discuss": "Diskusikan Kebutuhan Anda",
+      "visualLabel": "Area layanan yang terhubung dengan Saqina"
+    },
+    "metaTitle": "Layanan AI untuk Pekerjaan Sehari-hari dan Bisnis",
+    "metaDescription": "Solusi AI praktis untuk produktivitas, operasional bisnis, pemasaran, analitik video, dan alur kerja khusus. Temukan yang sesuai, lalu diskusikan bersama Saqina.",
+    "featured": {
+      "title": "Layanan unggulan",
+      "intro": "Titik awal yang baik jika Anda belum yakin apa yang dibutuhkan."
+    },
+    "catalog": {
+      "title": "Semua layanan",
+      "intro": "Pilih layanan untuk melihat cakupan, cara kerja, dan hal yang bisa Anda harapkan."
+    },
+    "categories": {
+      "daily": "Pekerjaan harian",
+      "business": "Operasional bisnis",
+      "marketing": "Pemasaran",
+      "cctv": "Analitik video",
+      "custom": "Khusus",
+      "other": "Lainnya"
+    },
+    "card": {
+      "comingSoon": "Segera hadir",
+      "learnMore": "Lihat detail"
+    },
+    "empty": {
+      "title": "Katalog sedang disiapkan",
+      "body": "Belum ada layanan yang dipublikasikan. Ceritakan kebutuhan Anda di bawah dan kami akan menghubungi Anda."
+    },
+    "how": {
+      "title": "Cara Saqina membantu",
+      "intro": "Enam langkah dari ide yang masih kasar hingga sesuatu yang dipakai tim Anda setiap hari.",
+      "steps": [
+        {
+          "title": "Memahami kebutuhan",
+          "body": "Kami mendengarkan bagaimana pekerjaan berjalan saat ini dan di mana ia tersendat."
+        },
+        {
+          "title": "Menentukan solusi",
+          "body": "Kami mengusulkan apa yang dibangun, apa yang ditinggalkan, dan bagaimana ia cocok dengan alat Anda."
+        },
+        {
+          "title": "Menyepakati lingkup",
+          "body": "Hasil kerja, jadwal, dan tanggung jawab ditulis sebelum pekerjaan dimulai."
+        },
+        {
+          "title": "Implementasi",
+          "body": "Kami membangun dan mengatur solusi dalam langkah kecil yang bisa Anda lihat sepanjang jalan."
+        },
+        {
+          "title": "Peninjauan",
+          "body": "Anda mencobanya dengan pekerjaan nyata. Kami menyesuaikan sampai hasilnya sesuai harapan."
+        },
+        {
+          "title": "Dukungan",
+          "body": "Setelah peluncuran kami tetap tersedia untuk pertanyaan, perbaikan, dan peningkatan berikutnya."
+        }
+      ]
+    },
+    "custom": {
+      "title": "Solusi AI Khusus",
+      "body": "Proses Anda tidak cocok dengan paket standar? Kami merancang alur kerja di sekitar data, alat, dan tim Anda, dari satu otomatisasi hingga sistem internal yang utuh.",
+      "cta": "Diskusikan Solusi Khusus"
+    },
+    "inquiry": {
+      "title": "Ceritakan kebutuhan Anda",
+      "intro": "Bagikan beberapa detail dan Saqina akan membalas dengan langkah berikutnya. Tanpa kewajiban.",
+      "introService": "Tertarik dengan {service}? Bagikan beberapa detail dan Saqina akan membalas dengan langkah berikutnya. Tanpa kewajiban.",
+      "name": "Nama",
+      "company": "Perusahaan",
+      "companyHint": "Opsional",
+      "email": "Email",
+      "whatsapp": "WhatsApp",
+      "whatsappHint": "Opsional, dengan kode negara",
+      "message": "Kebutuhan",
+      "messageHint": "Apa yang ingin Anda capai? Beberapa kalimat sudah cukup.",
+      "consent": "Saya setuju untuk dihubungi terkait pertanyaan ini",
+      "submit": "Kirim pertanyaan",
+      "sending": "Mengirim",
+      "success": {
+        "title": "Pertanyaan diterima",
+        "body": "Terima kasih. Saqina akan menghubungi Anda melalui email yang Anda berikan.",
+        "again": "Kirim pertanyaan lain"
+      },
+      "errors": {
+        "fields": {
+          "name": "Masukkan nama Anda (minimal 2 karakter).",
+          "email": "Masukkan alamat email yang valid.",
+          "whatsapp": "Masukkan nomor telepon yang valid, misalnya +62 812 3456 7890.",
+          "company": "Nama perusahaan terlalu panjang.",
+          "message": "Jelaskan kebutuhan Anda dalam minimal 10 karakter.",
+          "consent": "Mohon konfirmasi bahwa kami boleh menghubungi Anda."
+        },
+        "fieldInvalid": "Periksa kembali kolom ini.",
+        "validation": "Beberapa kolom perlu diperbaiki. Silakan periksa formulir.",
+        "rateLimit": "Terlalu banyak pertanyaan dari koneksi Anda. Silakan coba lagi dalam satu jam.",
+        "notFound": "Layanan ini sudah tidak tersedia. Muat ulang halaman lalu coba lagi.",
+        "generic": "Kami tidak dapat mengirim pertanyaan Anda. Silakan coba lagi.",
+        "reference": "Referensi: {ref}"
+      }
+    },
+    "final": {
+      "title": "Belum yakin layanan mana yang cocok?",
+      "body": "Jelaskan pekerjaan yang ingin Anda permudah. Kami akan menunjukkan pilihan yang tepat."
+    },
+    "detail": {
+      "breadcrumbLabel": "Navigasi remah roti",
+      "home": "Beranda",
+      "all": "Layanan AI",
+      "back": "Kembali ke semua layanan",
+      "previewNotice": "Pratinjau layanan yang belum dipublikasikan. Pengunjung tidak dapat melihat halaman ini dan formulir pertanyaan dinonaktifkan.",
+      "problems": "Masalah yang diselesaikan",
+      "capabilities": "Kemampuan utama",
+      "useCases": "Contoh penggunaan",
+      "included": "Yang termasuk",
+      "excluded": "Yang tidak termasuk",
+      "requirements": "Persyaratan dan ketergantungan",
+      "steps": "Cara kerja",
+      "timeline": "Estimasi waktu",
+      "price": "Harga",
+      "availability": "Ketersediaan",
+      "comingSoon": "Segera hadir. Bergabunglah di daftar tunggu dan kami akan memberi kabar saat layanan dibuka.",
+      "faq": "Pertanyaan yang sering diajukan",
+      "related": "Layanan terkait",
+      "stepNumber": "Langkah {n}"
+    },
+    "cta": {
+      "discuss": "Diskusikan Layanan Ini",
+      "consultation": "Minta Konsultasi",
+      "proposal": "Minta Proposal",
+      "start_project": "Mulai Proyek",
+      "waitlist": "Gabung Daftar Tunggu"
+    }
+  }
+}

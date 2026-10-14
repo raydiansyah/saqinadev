@@ -1,0 +1,295 @@
+{
+  "servicesAdmin": {
+    "title": "Layanan AI",
+    "metaTitle": "Layanan AI",
+    "description": "Katalog publik layanan Saqina Dev. Draf dan layanan yang disembunyikan tidak terlihat oleh pengunjung.",
+    "nav": {
+      "label": "Bagian Layanan AI",
+      "services": "Layanan",
+      "inquiries": "Pertanyaan masuk",
+      "newService": "Layanan baru"
+    },
+    "list": {
+      "filtersLabel": "Saring layanan",
+      "search": "Cari",
+      "searchHint": "Nama atau slug",
+      "category": "Kategori",
+      "allCategories": "Semua kategori",
+      "status": "Status",
+      "sort": "Urutkan",
+      "apply": "Terapkan",
+      "reset": "Atur ulang",
+      "count": "{count} layanan",
+      "pageOf": "Halaman {page} dari {pages}",
+      "prev": "Sebelumnya",
+      "next": "Berikutnya",
+      "statusOptions": {
+        "all": "Aktif",
+        "draft": "Draf",
+        "published": "Tayang di situs",
+        "hidden": "Disembunyikan",
+        "archived": "Diarsipkan"
+      },
+      "sortOptions": {
+        "order": "Urutan tampil",
+        "updated": "Terbaru diubah",
+        "name": "Nama"
+      },
+      "columns": {
+        "name": "Layanan",
+        "category": "Kategori",
+        "slug": "Slug",
+        "status": "Status",
+        "toggles": "Sakelar cepat",
+        "price": "Harga",
+        "order": "Urutan",
+        "updated": "Diperbarui",
+        "actions": "Aksi"
+      },
+      "chips": {
+        "draft": "Draf",
+        "published": "Terbit",
+        "hidden": "Tersembunyi",
+        "comingSoon": "Segera hadir",
+        "featured": "Unggulan",
+        "archived": "Diarsipkan"
+      },
+      "priceShown": "Tampil ke pengunjung",
+      "priceHidden": "Disembunyikan dari pengunjung",
+      "toggles": {
+        "isPublished": "Terbit",
+        "isPublic": "Publik",
+        "isComingSoon": "Segera hadir",
+        "isFeatured": "Unggulan",
+        "showPrice": "Tampilkan harga"
+      },
+      "toggleAria": "{label}: {name}",
+      "actions": {
+        "edit": "Ubah",
+        "preview": "Pratinjau",
+        "viewPublic": "Lihat halaman publik",
+        "moveUp": "Naikkan",
+        "moveDown": "Turunkan",
+        "archive": "Arsipkan",
+        "restore": "Pulihkan",
+        "duplicate": "Gandakan"
+      },
+      "actionAria": "{action}: {name}",
+      "empty": {
+        "title": "Belum ada layanan",
+        "body": "Tambahkan layanan awal sebagai draf pribadi, atau tulis layanan pertama dari nol.",
+        "seed": "Tambah layanan awal",
+        "create": "Layanan baru"
+      },
+      "emptyFiltered": {
+        "title": "Tidak ada yang cocok dengan filter ini",
+        "body": "Coba kata kunci lain atau atur ulang filter."
+      },
+      "seeded": "{count} layanan awal ditambahkan sebagai draf.",
+      "seededNone": "Semua layanan awal sudah ada.",
+      "confirm": {
+        "publishTitle": "Terbitkan layanan ini?",
+        "publishBody": "Layanan akan tampil di situs publik begitu juga berstatus publik.",
+        "publish": "Terbitkan",
+        "priceTitle": "Tampilkan harga ke pengunjung?",
+        "priceBody": "Nominal yang tersimpan akan dikirim ke pengunjung dan muncul di halaman publik.",
+        "price": "Tampilkan harga",
+        "archiveTitle": "Arsipkan layanan ini?",
+        "archiveBody": "Layanan dibatalkan penerbitannya dan keluar dari daftar aktif. Anda bisa memulihkannya nanti; statusnya tetap draf.",
+        "archive": "Arsipkan",
+        "restoreTitle": "Pulihkan layanan ini?",
+        "restoreBody": "Layanan kembali ke daftar aktif sebagai draf. Terbitkan lagi saat sudah siap.",
+        "restore": "Pulihkan"
+      }
+    },
+    "categories": {
+      "daily": "AI Harian",
+      "business": "AI Bisnis",
+      "marketing": "AI Pemasaran",
+      "cctv": "AI CCTV",
+      "custom": "AI Kustom",
+      "other": "Lainnya"
+    },
+    "icons": {
+      "assistant": "Asisten",
+      "business": "Bisnis",
+      "marketing": "Pemasaran",
+      "camera": "Kamera",
+      "puzzle": "Puzel",
+      "chat": "Obrolan",
+      "chart": "Grafik",
+      "bolt": "Petir",
+      "shield": "Perisai",
+      "document": "Dokumen"
+    },
+    "pricingTypes": {
+      "fixed": "Harga tetap",
+      "starting_from": "Mulai dari",
+      "monthly": "Bulanan",
+      "custom_quote": "Penawaran khusus",
+      "free_consultation": "Konsultasi gratis",
+      "contact": "Hubungi untuk harga"
+    },
+    "ctaTypes": {
+      "discuss": "Diskusi",
+      "consultation": "Konsultasi",
+      "proposal": "Minta proposal",
+      "start_project": "Mulai proyek",
+      "waitlist": "Gabung daftar tunggu"
+    },
+    "inquiryStatuses": {
+      "new": "Baru",
+      "contacted": "Sudah dihubungi",
+      "qualified": "Memenuhi syarat",
+      "proposal": "Proposal",
+      "converted": "Menjadi klien",
+      "closed": "Ditutup"
+    },
+    "editor": {
+      "newTitle": "Layanan baru",
+      "editTitle": "Ubah layanan",
+      "backToList": "Kembali ke daftar layanan",
+      "save": "Simpan layanan",
+      "create": "Buat layanan",
+      "saving": "Menyimpan",
+      "saved": "Tersimpan.",
+      "created": "Layanan dibuat.",
+      "preview": "Pratinjau",
+      "previewHint": "Pratinjau membuka versi yang terakhir disimpan.",
+      "invalidSummary": "Beberapa isian perlu diperbaiki. Periksa bagian yang ditandai.",
+      "sectionNav": "Bagian editor",
+      "sections": {
+        "basic": "Dasar",
+        "content": "Konten",
+        "commercial": "Komersial",
+        "publication": "Publikasi",
+        "seo": "SEO"
+      },
+      "basic": {
+        "internalName": "Nama internal",
+        "internalNameHint": "Hanya Anda yang melihat nama ini.",
+        "slug": "Slug",
+        "slugHint": "Huruf kecil, angka, dan tanda hubung. Mengubah slug layanan yang sudah terbit tetap mengalihkan URL lama ke yang baru.",
+        "category": "Kategori",
+        "icon": "Ikon",
+        "iconGroup": "Pilih ikon",
+        "imageUrl": "URL gambar",
+        "imageUrlHint": "Opsional. Harus berupa tautan https ke gambar.",
+        "displayOrder": "Urutan tampil",
+        "displayOrderHint": "Angka lebih kecil tampil lebih dulu di situs."
+      },
+      "content": {
+        "tablist": "Bahasa konten",
+        "tabEn": "Inggris",
+        "tabId": "Indonesia",
+        "title": "Judul",
+        "shortDescription": "Deskripsi singkat",
+        "description": "Deskripsi lengkap",
+        "timeline": "Perkiraan durasi",
+        "problems": "Masalah yang diselesaikan",
+        "capabilities": "Kemampuan",
+        "useCases": "Contoh penggunaan",
+        "included": "Yang termasuk",
+        "excluded": "Yang tidak termasuk",
+        "requirements": "Kebutuhan dari klien",
+        "steps": "Cara kerja (langkah)",
+        "faqs": "Pertanyaan yang sering diajukan",
+        "stepTitle": "Judul langkah",
+        "stepBody": "Rincian langkah",
+        "faqQuestion": "Pertanyaan",
+        "faqAnswer": "Jawaban",
+        "related": "Layanan terkait",
+        "relatedHint": "Maksimal 6. Pengunjung hanya melihat layanan yang sudah tayang.",
+        "relatedNone": "Belum ada layanan lain untuk dikaitkan.",
+        "hasErrors": "Ada kesalahan"
+      },
+      "list": {
+        "add": "Tambah butir",
+        "addStep": "Tambah langkah",
+        "addFaq": "Tambah pertanyaan",
+        "remove": "Hapus",
+        "moveUp": "Naikkan",
+        "moveDown": "Turunkan",
+        "item": "{label}, butir {n}",
+        "empty": "Belum ada isi."
+      },
+      "commercial": {
+        "pricingType": "Jenis harga",
+        "amount": "Nominal",
+        "amountHint": "Isi nominal dalam {currency}, seperti biasa Anda menuliskannya (bukan dalam satuan sen).",
+        "currency": "Mata uang",
+        "priceLabel": "Label harga kustom",
+        "priceLabelHint": "Opsional. Jika diisi, pengunjung melihat teks ini sebagai ganti harga terformat.",
+        "showPrice": "Tampilkan harga ke pengunjung",
+        "showPriceHint": "Menyembunyikan harga tetap menyimpan nominalnya; pengunjung tidak pernah menerimanya.",
+        "ctaType": "Ajakan bertindak",
+        "ctaLabel": "Label tombol",
+        "ctaLabelHint": "Opsional. Menggantikan label bawaan dari ajakan bertindak."
+      },
+      "publication": {
+        "isPublished": "Terbit",
+        "isPublishedHint": "Draf: hanya staf yang bisa melihat pratinjau. Aktifkan agar layanan layak tampil di situs.",
+        "isPublic": "Terlihat publik",
+        "isPublicHint": "Tersembunyi: pengunjung mendapat 404 walaupun sudah terbit.",
+        "isComingSoon": "Segera hadir",
+        "isComingSoonHint": "Menampilkan label Segera hadir tetapi halaman tetap ada, dan ajakan bertindak menjadi daftar tunggu.",
+        "isFeatured": "Unggulan",
+        "isFeaturedHint": "Menyorot layanan ini di halaman layanan dan halaman utama."
+      },
+      "seo": {
+        "metaTitle": "Judul meta",
+        "metaDescription": "Deskripsi meta",
+        "hint": "Tampil di hasil pencarian. Kosongkan untuk memakai judul dan deskripsi singkat.",
+        "counter": "{count} / {max}",
+        "tablist": "Bahasa SEO"
+      }
+    },
+    "errors": {
+      "tooShort": "Terlalu pendek.",
+      "tooLong": "Terlalu panjang.",
+      "invalid": "Isian ini tidak valid.",
+      "slugTaken": "Slug ini sudah dipakai layanan lain atau pernah dipakai sebelumnya.",
+      "slug": "Gunakan huruf kecil, angka, dan tanda hubung tunggal (bukan kata yang dicadangkan).",
+      "titleRequired": "Tambahkan judul di minimal satu bahasa sebelum menerbitkan.",
+      "priceAmount": "Isi nominal yang valid untuk jenis harga ini.",
+      "imageUrl": "Gunakan tautan https publik tanpa kredensial.",
+      "displayOrder": "Isi bilangan bulat dari 0 sampai 100000.",
+      "relatedIds": "Pilih layanan terkait yang valid.",
+      "useConvert": "Gunakan Jadikan klien untuk mengubah pertanyaan menjadi klien.",
+      "alreadyConverted": "Pertanyaan ini sudah menjadi klien.",
+      "fieldPrefix": "{field}: {message}"
+    },
+    "preview": {
+      "banner": "Pratinjau: tidak terlihat oleh pengunjung (draf/tersembunyi). Beginilah tampilan versi yang tersimpan.",
+      "bannerLive": "Pratinjau: layanan ini sudah tayang. Ini adalah versi yang tersimpan.",
+      "edit": "Ubah layanan"
+    },
+    "inquiries": {
+      "title": "Pertanyaan masuk",
+      "description": "Pesan yang dikirim dari halaman layanan publik.",
+      "metaTitle": "Pertanyaan layanan",
+      "filterLabel": "Saring menurut status",
+      "filterAll": "Semua",
+      "empty": {
+        "title": "Tidak ada pertanyaan di sini",
+        "body": "Pertanyaan dari situs web akan muncul di daftar ini."
+      },
+      "company": "Perusahaan",
+      "email": "Email",
+      "whatsapp": "WhatsApp",
+      "service": "Layanan",
+      "noService": "Pertanyaan umum",
+      "message": "Pesan",
+      "received": "Diterima",
+      "status": "Status",
+      "statusAria": "Status pertanyaan dari {name}",
+      "makeClient": "Jadikan klien",
+      "makeClientAria": "Jadikan {name} sebagai klien",
+      "openClient": "Buka klien",
+      "clientCreated": "Klien dibuat.",
+      "confirmTitle": "Jadikan pertanyaan ini klien?",
+      "confirmBody": "Data klien dibuat dari kontak ini. Tidak ada yang lain yang dibuat: tanpa proyek, proposal, atau faktur.",
+      "confirmLabel": "Jadikan klien"
+    }
+  }
+}

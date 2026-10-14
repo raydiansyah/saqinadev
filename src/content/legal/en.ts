@@ -46,6 +46,9 @@ export const en: Record<LegalDocId, LegalDocument> = {
             p: "Client portal. If you invite a client, we store the invited email address and a hash of the one-time invitation link. A client who accepts sees only the projects you enable for the portal, and on those only progress, visible scope items, shared approved documents, issued invoices and confirmed payments. Internal notes, tasks, AI and agent details, integrations and draft invoices are never shown to clients. You are responsible for having a lawful basis to enter your clients' personal data.",
           },
           {
+            p: "Service inquiries. If you send an inquiry from the public AI Services pages, we store your name, company (optional), email address, WhatsApp number (optional), your message, your consent to be contacted, the service you asked about and a one-way hash of your IP address that we use only to limit abuse. Only the platform owner can read inquiries. We use them to reply to you and do not create a contract, invoice or project from them. Inquiries are kept for [RETENTION PERIOD].",
+          },
+          {
             p: "Client communication. Requests, messages, approvals and change requests exchanged on the client portal are stored with the project, visible to the project's owners and admins and to the client's portal users. Reminders are sent automatically by the rules you configure and are logged so the same reminder is never sent twice.",
           },
           {

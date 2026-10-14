@@ -10,6 +10,8 @@ import type platform from "../messages/platform.en.json";
 import type portal from "../messages/portal.en.json";
 import type portalEngagement from "../messages/portal-engagement.en.json";
 import type project from "../messages/project.en.json";
+import type services from "../messages/services.en.json";
+import type servicesAdmin from "../messages/services-admin.en.json";
 import type workspace from "../messages/workspace.en.json";
 import type { routing } from "./i18n/routing";
 
@@ -29,6 +31,8 @@ declare module "next-intl" {
       typeof clients &
       typeof engagement &
       typeof portalEngagement &
-      typeof notify;
+      typeof notify &
+      typeof services &
+      typeof servicesAdmin;
   }
 }
