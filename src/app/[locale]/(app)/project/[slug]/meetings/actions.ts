@@ -1,8 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getLocale } from "next-intl/server";
-import type { Locale } from "@/i18n/locales";
+import { DEFAULT_LOCALE, isLocale } from "@/i18n/locales";
 import { runAction } from "@/lib/actions";
 import { requireActor } from "@/lib/auth/server";
 import { analyzeNote } from "@/lib/meetings/analyze";
@@ -46,11 +45,16 @@ export async function reviewNoteAction(slug: string, id: string, input: unknown)
 }
 
 /** Reads a note with the platform's AI model. Returns whether a model was available. */
-export async function analyzeNoteAction(slug: string, id: string) {
+export async function analyzeNoteAction(slug: string, id: string, locale: string) {
   return runAction("meeting.analyze", { slug, id }, async () => {
-    const result = await analyzeNote(await requireActor(), slug, id, (await getLocale()) as Locale);
+    const result = await analyzeNote(
+      await requireActor(),
+      slug,
+      id,
+      isLocale(locale) ? locale : DEFAULT_LOCALE,
+    );
     refresh();
-    return { available: result.available };
+    return { available: result.available, reason: result.available ? null : result.reason };
   });
 }
 

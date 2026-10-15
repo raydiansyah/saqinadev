@@ -67,7 +67,7 @@ export function MeetingNotesPanel({
   const [deleting, setDeleting] = useState<NoteView | null>(null);
   const [declining, setDeclining] = useState<NoteView | null>(null);
   const [reason, setReason] = useState("");
-  const [unavailable, setUnavailable] = useState(false);
+  const [unavailable, setUnavailable] = useState<"no_model" | "provider_failed" | null>(null);
   const { pending, error, run, clear } = useRun();
   const errorText = useEngagementErrorText(error);
 
@@ -142,10 +142,10 @@ export function MeetingNotesPanel({
                   size="sm"
                   disabled={pending}
                   onClick={() => {
-                    setUnavailable(false);
-                    run<{ available: boolean }>(
-                      () => analyzeNoteAction(slug, n.id),
-                      (r) => setUnavailable(!r.available),
+                    setUnavailable(null);
+                    run<{ available: boolean; reason: "no_model" | "provider_failed" | null }>(
+                      () => analyzeNoteAction(slug, n.id, locale),
+                      (r) => setUnavailable(r.available ? null : r.reason),
                     );
                   }}
                 >
@@ -170,7 +170,11 @@ export function MeetingNotesPanel({
         <NoteDialog slug={slug} open note={editing} onClose={() => setEditing(null)} />
       ) : null}
       {declining || deleting ? null : <EngagementError error={error} />}
-      {unavailable ? <Notice tone="warning">{t("analysisUnavailable")}</Notice> : null}
+      {unavailable ? (
+        <Notice tone="warning">
+          {unavailable === "provider_failed" ? t("providerFailed") : t("analysisUnavailable")}
+        </Notice>
+      ) : null}
       <ConfirmDialog
         open={declining !== null}
         title={t("declineTitle")}

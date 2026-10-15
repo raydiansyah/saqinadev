@@ -77,6 +77,7 @@
     "inProposal": "In a proposal",
     "dismissed": "Dismissed",
     "notActionable": "No change to propose",
-    "findingsHint": "Pick the findings to turn into a proposal. Nothing changes until you approve it."
+    "findingsHint": "Pick the findings to turn into a proposal. Nothing changes until you approve it.",
+    "providerFailed": "The AI model did not answer. Check the provider in AI & Models, then try again."
   }
 }

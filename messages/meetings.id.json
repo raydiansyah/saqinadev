@@ -77,6 +77,7 @@
     "inProposal": "Sudah di proposal",
     "dismissed": "Diabaikan",
     "notActionable": "Tidak ada perubahan untuk diusulkan",
-    "findingsHint": "Pilih temuan yang dijadikan proposal. Tidak ada yang berubah sampai Anda menyetujuinya."
+    "findingsHint": "Pilih temuan yang dijadikan proposal. Tidak ada yang berubah sampai Anda menyetujuinya.",
+    "providerFailed": "Model AI tidak menjawab. Periksa provider di AI & Models, lalu coba lagi."
   }
 }

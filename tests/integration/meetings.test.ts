@@ -340,9 +340,30 @@ describe("note analysis", () => {
   it("does nothing without an AI model", async () => {
     const { id } = await teamCreateNote(owner, slug, note());
     const { provider } = fake(null, true);
-    expect(await analyzeNote(owner, slug, id, "en", { provider })).toEqual({ available: false });
+    expect(await analyzeNote(owner, slug, id, "en", { provider })).toEqual({
+      available: false,
+      reason: "no_model",
+    });
     expect((await row(id)).status).toBe("ready");
     expect(await items(id)).toEqual([]);
+  });
+
+  it("reports a failing model clearly and keeps the note ready", async () => {
+    const { id } = await teamCreateNote(owner, slug, note());
+    const broken = {
+      deterministic: false,
+      config: { provider: "mock" as const, model: "owner-model" },
+      generate: async () => "",
+      stream: async function* () {},
+      generateObject: async () => {
+        throw new Error("401 invalid x-api-key");
+      },
+    } as unknown as AiProvider;
+    expect(await analyzeNote(owner, slug, id, "en", { provider: broken })).toEqual({
+      available: false,
+      reason: "provider_failed",
+    });
+    expect(await row(id)).toMatchObject({ status: "ready", analysisError: "provider_failed" });
   });
 
   it("fails cleanly on a malformed answer and lets the note be retried", async () => {

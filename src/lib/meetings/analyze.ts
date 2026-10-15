@@ -57,7 +57,7 @@ const SYSTEM = [
 
 export type AnalysisResult =
   | { available: true; items: MeetingItem[]; model: string; source: ResolvedSource }
-  | { available: false };
+  | { available: false; reason: "no_model" | "provider_failed" };
 
 /**
  * A team note is ready to analyze as saved; a client note only after the team approved it.
@@ -85,35 +85,47 @@ export async function analyzeNote(
 
   const context = await loadNoteContext(access);
   const language = locale === "id" ? "Indonesian" : "English";
-  const outcome = await runAi({
-    access,
-    operation: "structured_analysis",
-    required: ["structured_output"],
-    override: options.provider,
-    run: async (client) =>
-      client.deterministic
-        ? null
-        : client.generateObject(
-            {
-              system: SYSTEM,
-              segments: [
-                ...context.segments,
-                {
-                  kind: "external",
-                  label: `meeting note: ${note.title} (${note.meetingDate})`,
-                  content: note.body,
-                },
-              ],
-              userMessage: `List the points of the meeting note. Write text and rationale in ${language}; keep quotes verbatim.`,
-              draft: "{}",
-              maxOutputTokens: 3000,
-            },
-            ANALYSIS_SCHEMA,
-            "meeting_note_analysis",
-          ),
-  });
+  // A model that is configured but fails (bad key, outage) must not look like a crash: say so,
+  // remember it on the note, and leave the note ready to try again.
+  let outcome: Awaited<ReturnType<typeof runAi<unknown>>>;
+  try {
+    outcome = await runAi({
+      access,
+      operation: "structured_analysis",
+      required: ["structured_output"],
+      override: options.provider,
+      run: async (client) =>
+        client.deterministic
+          ? null
+          : client.generateObject(
+              {
+                system: SYSTEM,
+                segments: [
+                  ...context.segments,
+                  {
+                    kind: "external",
+                    label: `meeting note: ${note.title} (${note.meetingDate})`,
+                    content: note.body,
+                  },
+                ],
+                userMessage: `List the points of the meeting note. Write text and rationale in ${language}; keep quotes verbatim.`,
+                draft: "{}",
+                maxOutputTokens: 3000,
+              },
+              ANALYSIS_SCHEMA,
+              "meeting_note_analysis",
+            ),
+    });
+  } catch (error) {
+    if (error instanceof AppError) throw error;
+    await db
+      .update(meetingNotes)
+      .set({ analysisError: "provider_failed" })
+      .where(eq(meetingNotes.id, id));
+    return { available: false, reason: "provider_failed" };
+  }
   // Without a configured model nothing is guessed: the note stays as it is.
-  if (!outcome.value || outcome.deterministic) return { available: false };
+  if (!outcome.value || outcome.deterministic) return { available: false, reason: "no_model" };
 
   const parsed = ANALYSIS_SCHEMA.safeParse(outcome.value);
   if (!parsed.success) {
