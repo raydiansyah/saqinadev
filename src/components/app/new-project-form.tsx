@@ -8,12 +8,13 @@ import { Notice, TextArea } from "@/components/ui/form";
 import { useRouter } from "@/i18n/navigation";
 import { clearState, loadState } from "@/lib/interview/storage";
 import type { Answers } from "@/lib/interview/types";
-import { ImportProjectForm } from "./import-project-form";
+import { type GithubState, ImportProjectForm } from "./import-project-form";
 
 /** Chooses how to start: describe an idea, or import an existing GitHub repository. */
-export function NewProjectForm() {
+export function NewProjectForm({ github }: { github: GithubState }) {
   const t = useTranslations("app");
-  const [mode, setMode] = useState<"idea" | "github">("idea");
+  // Coming back from GitHub lands on the import tab.
+  const [mode, setMode] = useState<"idea" | "github">(github.flag ? "github" : "idea");
   return (
     <div className="space-y-6">
       <div
@@ -34,7 +35,7 @@ export function NewProjectForm() {
           </button>
         ))}
       </div>
-      {mode === "idea" ? <IdeaForm /> : <ImportProjectForm />}
+      {mode === "idea" ? <IdeaForm /> : <ImportProjectForm github={github} />}
     </div>
   );
 }

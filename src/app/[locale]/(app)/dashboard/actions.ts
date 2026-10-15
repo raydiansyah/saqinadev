@@ -3,6 +3,8 @@
 import { isLocale } from "@/i18n/locales";
 import { runAction } from "@/lib/actions";
 import { requireActor } from "@/lib/auth/server";
+import { disconnect } from "@/lib/github/connection";
+import { listUserRepos } from "@/lib/github/repos";
 import { importFromGithub } from "@/lib/imports/service";
 import { startProject } from "@/lib/projects/service";
 
@@ -31,5 +33,16 @@ export async function importProjectAction(input: {
     const actor = await requireActor();
     const { locale, ...rest } = input;
     return importFromGithub(actor, rest, isLocale(locale) ? locale : "en");
+  });
+}
+
+/** Repositories of the connected GitHub account, for the picker. Whitelisted fields only. */
+export async function listGithubReposAction() {
+  return runAction("github.repos", {}, async () => listUserRepos(await requireActor()));
+}
+
+export async function disconnectGithubAction() {
+  return runAction("github.disconnect", {}, async () => {
+    await disconnect(await requireActor());
   });
 }
