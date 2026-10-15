@@ -31,6 +31,7 @@ const SIGN: Record<PlannedAction["type"], string> = {
   CREATE_REQUIREMENT: "+",
   UPDATE_REQUIREMENT: "~",
   APPEND_PRD: "+",
+  UPDATE_DOCUMENT: "~",
   CREATE_MEMORY: "+",
   CREATE_DECISION: "+",
   RUN_TOOL: "▸",

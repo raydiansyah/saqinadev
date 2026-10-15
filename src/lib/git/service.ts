@@ -244,9 +244,15 @@ export async function disconnectRepository(actor: Actor, slug: string) {
       .where(eq(repositoryConnections.projectId, access.project.id));
     if (!row) throw new AppError("NOT_FOUND");
     if (row.credentialId) await revokeCredential(tx, row.credentialId);
+    if (row.webhookCredentialId) await revokeCredential(tx, row.webhookCredentialId);
     await tx
       .update(repositoryConnections)
-      .set({ status: "disconnected", credentialId: null })
+      .set({
+        status: "disconnected",
+        credentialId: null,
+        docSyncEnabled: false,
+        webhookCredentialId: null,
+      })
       .where(eq(repositoryConnections.id, row.id));
     await batch.emit(tx, {
       type: "REPOSITORY_DISCONNECTED",

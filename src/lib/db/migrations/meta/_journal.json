@@ -64,6 +64,20 @@
       "when": 1792053307120,
       "tag": "0008_user_locale",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792056625622,
+      "tag": "0009_doc_sync",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792057008210,
+      "tag": "0010_doc_sync_skip",
+      "breakpoints": true
     }
   ]
 }

@@ -146,6 +146,7 @@
         "CREATE_REQUIREMENT": "New requirement",
         "UPDATE_REQUIREMENT": "Update requirement",
         "APPEND_PRD": "PRD section",
+        "UPDATE_DOCUMENT": "Document rewrite",
         "CREATE_MEMORY": "New memory",
         "CREATE_DECISION": "New decision",
         "ASSIGN_AGENT": "Assign agent",

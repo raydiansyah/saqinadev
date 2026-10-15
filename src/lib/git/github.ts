@@ -1,5 +1,5 @@
 import { gitFetch } from "./http";
-import { type GitAdapter, GitError, MAX_FILE_BYTES, type RepoRef } from "./types";
+import { type DocSyncOps, type GitAdapter, GitError, MAX_FILE_BYTES, type RepoRef } from "./types";
 
 const api = (ref: RepoRef) => (ref.baseUrl || "https://api.github.com").replace(/\/+$/, "");
 const repo = (ref: RepoRef) =>
@@ -12,7 +12,7 @@ const headers = (token: string | null) => ({
 const path = (p: string) => p.split("/").filter(Boolean).map(encodeURIComponent).join("/");
 
 /** GitHub REST v3 through fetch. Multi-file commits use the Git data API (tree → commit → ref). */
-export const githubAdapter: GitAdapter = {
+export const githubAdapter: GitAdapter & DocSyncOps = {
   provider: "github",
 
   async getRepository(ref, token) {
@@ -163,5 +163,42 @@ export const githubAdapter: GitAdapter = {
       if (!open) throw error;
       return { number: open.number, url: open.html_url };
     }
+  },
+
+  async getTree(ref, token, input) {
+    const tree = await gitFetch<{
+      truncated?: boolean;
+      tree: { path: string; type: string; size?: number }[];
+    }>(`${repo(ref)}/git/trees/${path(input.ref)}?recursive=1`, { headers: headers(token) });
+    if (tree.truncated) throw new GitError("too_large");
+    const prefix = `${input.path.replace(/\/+$/, "")}/`;
+    return tree.tree
+      .filter((e) => e.type === "blob" && e.path.startsWith(prefix))
+      .map((e) => ({ path: e.path, size: e.size ?? 0 }));
+  },
+
+  async findOpenPullRequest(ref, token, input) {
+    const owner = ref.fullName.split("/")[0];
+    const [open] = await gitFetch<{ number: number; html_url: string }[]>(
+      `${repo(ref)}/pulls?state=open&head=${encodeURIComponent(`${owner}:${input.head}`)}&base=${encodeURIComponent(input.base)}`,
+      { headers: headers(token) },
+    );
+    return open ? { number: open.number, url: open.html_url } : null;
+  },
+
+  async updatePullRequest(ref, token, input) {
+    await gitFetch(`${repo(ref)}/pulls/${input.number}`, {
+      method: "PATCH",
+      headers: { ...headers(token), "content-type": "application/json" },
+      body: JSON.stringify({ title: input.title, body: input.body }),
+    });
+  },
+
+  async resetBranch(ref, token, input) {
+    await gitFetch(`${repo(ref)}/git/refs/heads/${path(input.name)}`, {
+      method: "PATCH",
+      headers: { ...headers(token), "content-type": "application/json" },
+      body: JSON.stringify({ sha: input.to, force: true }),
+    });
   },
 };

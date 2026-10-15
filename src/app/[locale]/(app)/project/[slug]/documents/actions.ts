@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { getLocale } from "next-intl/server";
 import { runAction } from "@/lib/actions";
 import { requireActor } from "@/lib/auth/server";
+import { getConflictRemote } from "@/lib/docsync/config";
+import { scheduleDocSync } from "@/lib/docsync/schedule";
 import { generateBusinessDocument } from "@/lib/documents/business";
 import {
   createDocument,
@@ -21,6 +23,7 @@ export async function saveDocumentAction(
   return runAction("document.save", { slug, doc: input.docSlug }, async () => {
     const row = await saveDocument(await requireActor(), slug, input);
     refresh();
+    scheduleDocSync({ slug });
     return { version: row.version, updatedAt: row.updatedAt.toISOString() };
   });
 }
@@ -29,6 +32,7 @@ export async function setDocumentStatusAction(slug: string, docSlug: string, sta
   return runAction("document.status", { slug, doc: docSlug }, async () => {
     await setDocumentStatus(await requireActor(), slug, { docSlug, status });
     refresh();
+    scheduleDocSync({ slug });
   });
 }
 
@@ -36,6 +40,7 @@ export async function createDocumentAction(slug: string, title: string) {
   return runAction("document.create", { slug }, async () => {
     const result = await createDocument(await requireActor(), slug, { title });
     refresh();
+    scheduleDocSync({ slug });
     return result;
   });
 }
@@ -44,7 +49,15 @@ export async function setDocumentSharedAction(slug: string, docSlug: string, vis
   return runAction("document.share", { slug, doc: docSlug }, async () => {
     await setDocumentClientVisible(await requireActor(), slug, { docSlug, visible });
     refresh();
+    scheduleDocSync({ slug });
   });
+}
+
+/** The repository's side of a sync conflict, for the compare dialog. */
+export async function getDocConflictAction(slug: string, documentId: string) {
+  return runAction("document.conflict", { slug, documentId }, async () =>
+    getConflictRemote(await requireActor(), slug, documentId),
+  );
 }
 
 /** Proposal, agreement, handover or maintenance agreement drafted from the project records. */

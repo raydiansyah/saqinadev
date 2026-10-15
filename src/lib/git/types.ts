@@ -79,3 +79,39 @@ export interface GitAdapter {
 }
 
 export const MAX_FILE_BYTES = 200_000;
+
+export interface TreeEntry {
+  path: string;
+  size: number;
+}
+
+/**
+ * What document sync needs beyond the normalised operations. Only hosts that implement it can
+ * sync; the rest keep the plain GitAdapter and are reported as unsupported.
+ */
+export interface DocSyncOps {
+  /** Every file under `path` at `ref`, recursively. `too_large` when the host truncates the tree. */
+  getTree(
+    ref: RepoRef,
+    token: string | null,
+    input: { ref: string; path: string },
+  ): Promise<TreeEntry[]>;
+  findOpenPullRequest(
+    ref: RepoRef,
+    token: string | null,
+    input: { head: string; base: string },
+  ): Promise<{ number: number; url: string } | null>;
+  updatePullRequest(
+    ref: RepoRef,
+    token: string | null,
+    input: { number: number; title: string; body: string },
+  ): Promise<void>;
+  /** Moves a branch (force). Only ever used on the dedicated docs-sync branch. */
+  resetBranch(
+    ref: RepoRef,
+    token: string | null,
+    input: { name: string; to: string },
+  ): Promise<void>;
+}
+
+export type SyncAdapter = GitAdapter & DocSyncOps;

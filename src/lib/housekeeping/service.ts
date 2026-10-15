@@ -1,7 +1,13 @@
 import "server-only";
 import { and, lt, ne, sql } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { rateLimits, serviceInquiries, sessions, verifications } from "@/lib/db/schema";
+import {
+  rateLimits,
+  serviceInquiries,
+  sessions,
+  verifications,
+  webhookDeliveries,
+} from "@/lib/db/schema";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -34,6 +40,12 @@ export async function runMaintenance(
     .where(lt(rateLimits.windowStart, sql`${now.toISOString()}::timestamptz - interval '1 day'`))
     .returning({ key: rateLimits.key });
 
+  // GitHub redelivers within hours at most; a week of ids is plenty to catch a replay.
+  const staleDeliveries = await db
+    .delete(webhookDeliveries)
+    .where(lt(webhookDeliveries.receivedAt, new Date(now.getTime() - 7 * DAY_MS)))
+    .returning({ id: webhookDeliveries.id });
+
   const days = retentionDays(env.INQUIRY_RETENTION_DAYS);
   let inquiries = 0;
   if (days) {
@@ -48,6 +60,7 @@ export async function runMaintenance(
     sessions: expiredSessions.length,
     verifications: expiredVerifications.length,
     rateLimits: staleLimits.length,
+    webhookDeliveries: staleDeliveries.length,
     inquiries,
     inquiryRetentionDays: days,
   };

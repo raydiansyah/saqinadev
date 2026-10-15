@@ -15,6 +15,7 @@ import { useRouter } from "@/i18n/navigation";
 import type { DocumentStatus } from "@/lib/domain/enums";
 import { formatRelative } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { type DocSyncInfo, SyncBadge } from "./sync-badge";
 
 // The Markdown renderer only loads when a document is actually shown.
 const MarkdownPreview = dynamic(() => import("./markdown-preview"), {
@@ -45,10 +46,13 @@ export function DocumentWorkspace({
   projectSlug,
   doc,
   canEdit,
+  sync,
 }: {
   projectSlug: string;
   doc: DocumentData;
   canEdit: boolean;
+  /** Repository sync state; absent for documents that do not sync. */
+  sync?: DocSyncInfo | null;
 }) {
   const t = useTranslations("documents");
   const errors = useTranslations("app.errors");
@@ -155,6 +159,15 @@ export function DocumentWorkspace({
           >
             {t(`statuses.${doc.status}`)}
           </span>
+          {sync ? (
+            <SyncBadge
+              projectSlug={projectSlug}
+              docSlug={doc.slug}
+              sync={sync}
+              saqinaText={base.content}
+              canResolve={canEdit}
+            />
+          ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-1">
           <AskSaqinaButton

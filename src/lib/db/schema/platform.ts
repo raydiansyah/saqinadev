@@ -322,6 +322,16 @@ export const repositoryConnections = pgTable("repository_connections", {
   detectedStack: jsonb("detected_stack").$type<Record<string, string>>().notNull().default({}),
   lastError: text("last_error"),
   lastSyncedAt: timestamp("last_synced_at", { withTimezone: true }),
+  /** Two-way document sync (docs/ folder <-> project documents). Off until enabled. */
+  docSyncEnabled: boolean("doc_sync_enabled").notNull().default(false),
+  docsPath: text("docs_path").notNull().default("docs"),
+  webhookCredentialId: uuid("webhook_credential_id").references(() => credentials.id, {
+    onDelete: "set null",
+  }),
+  docsSyncedAt: timestamp("docs_synced_at", { withTimezone: true }),
+  docsSyncError: text("docs_sync_error"),
+  docsPrNumber: integer("docs_pr_number"),
+  docsPrUrl: text("docs_pr_url"),
   createdBy: userRef("created_by"),
   createdAt: createdAt(),
   updatedAt: updatedAt(),

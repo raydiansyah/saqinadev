@@ -35,6 +35,7 @@ import type {
   RiskLevel,
   TaskSource,
   TaskStatus,
+  VersionSource,
 } from "@/lib/domain/enums";
 import { users } from "./auth";
 import { projects } from "./projects";
@@ -120,6 +121,8 @@ export const documentVersions = pgTable(
       .references(() => documents.id, { onDelete: "cascade" }),
     version: integer("version").notNull(),
     content: text("content").notNull(),
+    /** Null for versions written before sources were tracked. */
+    source: text("source").$type<VersionSource>(),
     createdBy: userRef("created_by"),
     createdAt: createdAt(),
   },

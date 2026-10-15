@@ -144,6 +144,16 @@ export function ActionDetail({
       ) : (
         <ChangePreview after={`## ${action.payload.heading}\n\n${value("body")}`} />
       );
+    case "UPDATE_DOCUMENT":
+      return (
+        <div className="space-y-2">
+          <p className="font-medium">{action.before.title}</p>
+          {action.payload.summary ? (
+            <p className="text-muted-foreground">{action.payload.summary}</p>
+          ) : null}
+          <ChangePreview before={action.before.content} after={action.payload.content} />
+        </div>
+      );
     case "CREATE_MEMORY":
       return editing ? (
         <div className="space-y-2">

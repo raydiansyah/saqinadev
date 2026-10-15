@@ -16,6 +16,8 @@ import {
 } from "@/lib/agents/handoff";
 import { setProjectAiSettings } from "@/lib/ai/project-settings";
 import { requireActor } from "@/lib/auth/server";
+import { configureDocSync, syncNow } from "@/lib/docsync/config";
+import { resolveConflict } from "@/lib/docsync/engine";
 import { connectRepository, disconnectRepository, syncRepository } from "@/lib/git/service";
 import { connectMcp, createMcpConnection, disconnectMcp, setToolTrust } from "@/lib/mcp/service";
 import { resolveStackMismatch, updateTechStack } from "@/lib/projects/stack";
@@ -56,3 +58,10 @@ export const importResultAction = wrap("handoff.import", importResult);
 export const setProjectAiAction = wrap("project.ai", setProjectAiSettings);
 export const updateStackAction = wrap("stack.update", updateTechStack);
 export const resolveMismatchAction = wrap("stack.resolve", resolveStackMismatch);
+
+export const configureDocSyncAction = wrap("docsync.configure", configureDocSync);
+export const syncDocsNowAction = wrap("docsync.now", (a, s) => syncNow(a, s));
+export const resolveDocConflictAction = wrap("docsync.resolve", async (a, s, input) => {
+  const { docSlug, keep } = input as { docSlug: string; keep: "saqina" | "repo" };
+  await resolveConflict(a, s, { docSlug, keep });
+});

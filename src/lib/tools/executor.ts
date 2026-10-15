@@ -173,7 +173,7 @@ export async function executeTool(request: ToolRequest): Promise<ToolResult> {
   const started = performance.now();
   const batch = new EventBatch();
   try {
-    const raw = await HANDLERS[tool.source](tool, request.input, { access, batch });
+    const raw = await HANDLERS[tool.source](tool, request.input, { access, batch, actor });
     const output = sanitizeOutput(raw);
     const executionId = await write({
       status: "succeeded",

@@ -8,6 +8,7 @@ import { cancelRun, pauseRun, reassignRun, resumeRun, retryRun } from "@/lib/age
 import { agentOptions } from "@/lib/agents/options";
 import { requireActor, requireProjectAccess } from "@/lib/auth/server";
 import { listConversations, loadMessages } from "@/lib/conversations/service";
+import { scheduleDocSync } from "@/lib/docsync/schedule";
 import { AppError } from "@/lib/errors";
 import { approveProposal, rejectProposal, requestRevision } from "@/lib/proposals/service";
 import { parse } from "@/lib/validation";
@@ -48,6 +49,8 @@ export async function approveProposalAction(slug: string, input: unknown) {
   return runAction("proposal.approve", { slug }, async () => {
     const result = await approveProposal(await requireActor(), slug, input);
     refresh();
+    // An approved proposal may have changed a document: push it out when sync is on.
+    scheduleDocSync({ slug });
     return result;
   });
 }

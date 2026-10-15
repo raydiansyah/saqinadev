@@ -12,7 +12,7 @@ export function assertTestDatabase() {
 export async function resetDatabase() {
   assertTestDatabase();
   await db.execute(sql`
-    truncate table users, projects, rate_limits, verifications cascade
+    truncate table users, projects, rate_limits, verifications, webhook_deliveries cascade
   `);
 }
 

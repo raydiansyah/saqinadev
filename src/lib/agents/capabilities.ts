@@ -129,5 +129,17 @@ export function inferRequiredCapabilities(task: {
   return [...found];
 }
 
-/** External tool agents read the project and repository by default; nothing more. */
-export const TOOL_AGENT_PERMISSIONS: AgentPermission[] = [...READ_PERMISSIONS, "read_repository"];
+/** What tool agents had before they could propose document changes. */
+export const LEGACY_TOOL_AGENT_PERMISSIONS: AgentPermission[] = [
+  ...READ_PERMISSIONS,
+  "read_repository",
+];
+
+/**
+ * External tool agents read the project and repository by default, and may propose document
+ * changes. A proposal changes nothing until a project member approves its diff.
+ */
+export const TOOL_AGENT_PERMISSIONS: AgentPermission[] = [
+  ...LEGACY_TOOL_AGENT_PERMISSIONS,
+  "write_documents",
+];

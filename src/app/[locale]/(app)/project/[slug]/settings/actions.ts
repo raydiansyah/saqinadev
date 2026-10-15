@@ -6,6 +6,7 @@ import { redirect } from "@/i18n/navigation";
 import { runAction } from "@/lib/actions";
 import { requireActor } from "@/lib/auth/server";
 import { setProjectClient } from "@/lib/clients/service";
+import { createAgentToken, revokeAgentToken } from "@/lib/mcp/tokens";
 import {
   deleteProject,
   setProjectArchived,
@@ -47,6 +48,21 @@ export async function setProjectClientAction(slug: string, input: unknown) {
 export async function setArchivedAction(slug: string, archived: boolean) {
   return runAction("project.archive", { slug, archived }, async () => {
     await setProjectArchived(await requireActor(), slug, archived);
+    refresh();
+  });
+}
+
+export async function createAgentTokenAction(slug: string, input: unknown) {
+  return runAction("mcp.token.create", { slug }, async () => {
+    const created = await createAgentToken(await requireActor(), slug, input);
+    refresh();
+    return created;
+  });
+}
+
+export async function revokeAgentTokenAction(slug: string, tokenId: string) {
+  return runAction("mcp.token.revoke", { slug }, async () => {
+    await revokeAgentToken(await requireActor(), slug, tokenId);
     refresh();
   });
 }

@@ -6,6 +6,7 @@ import type { AiProvider } from "@/lib/ai/provider";
 import { recordAudit } from "@/lib/audit/service";
 import type { Actor } from "@/lib/auth/actor";
 import { documents, documentVersions } from "@/lib/db/schema";
+import { docSlug } from "@/lib/docsync/paths";
 import { AppError } from "@/lib/errors";
 import { GIT_ADAPTERS } from "@/lib/git/adapters";
 import { connectRepository } from "@/lib/git/service";
@@ -49,19 +50,7 @@ export interface ImportOptions {
   connect?: typeof connectRepository;
 }
 
-const MAX_SLUG = 64;
-
-/** README.md becomes "repo-readme", docs/api/overview.md "repo-docs-api-overview". */
-export function docSlug(path: string, taken: Set<string>): string {
-  const base = `repo-${path.replace(/\.[^.]+$/, "").replace(/[^a-zA-Z0-9]+/g, "-")}`
-    .toLowerCase()
-    .replace(/-+$/g, "")
-    .slice(0, MAX_SLUG - 3);
-  let slug = base || "repo-doc";
-  for (let n = 2; taken.has(slug); n++) slug = `${base}-${n}`;
-  taken.add(slug);
-  return slug;
-}
+export { docSlug };
 
 const withProvenance = (doc: RepoDoc, repo: string, branch: string) =>
   `> Imported from https://github.com/${repo}/blob/${branch}/${doc.path}${doc.truncated ? " (truncated)" : ""}\n\n${doc.content}`;

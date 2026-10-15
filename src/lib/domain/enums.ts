@@ -361,7 +361,7 @@ export type PlatformRole = (typeof PLATFORM_ROLES)[number];
 export const CREDENTIAL_SCOPES = ["platform", "project", "user"] as const;
 export type CredentialScope = (typeof CREDENTIAL_SCOPES)[number];
 
-export const CREDENTIAL_KINDS = ["ai_provider", "git", "mcp", "agent"] as const;
+export const CREDENTIAL_KINDS = ["ai_provider", "git", "git_webhook", "mcp", "agent"] as const;
 export type CredentialKind = (typeof CREDENTIAL_KINDS)[number];
 
 export const CONNECTION_STATUSES = [
@@ -489,3 +489,16 @@ export type StackKey = (typeof STACK_KEYS)[number];
 
 export const STACK_SOURCES = ["recommended", "user", "detected"] as const;
 export type StackSource = (typeof STACK_SOURCES)[number];
+
+/** Where a document version came from: loop-proofing for sync and a trail in the history. */
+export const VERSION_SOURCES = ["user", "import", "sync", "mcp", "assistant"] as const;
+export type VersionSource = (typeof VERSION_SOURCES)[number];
+
+export const DOC_LINK_STATES = [
+  "synced",
+  "pending_pr",
+  "conflict",
+  "remote_missing",
+  "excluded",
+] as const;
+export type DocLinkState = (typeof DOC_LINK_STATES)[number];

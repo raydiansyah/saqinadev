@@ -5,17 +5,21 @@ import { PageHeading } from "@/components/app/states";
 import { ProjectClientForm } from "@/components/billing/project-client-form";
 import { ProjectAiForm, TechStackForm } from "@/components/integrations/project-ai-forms";
 import { AssistantSettingsForm } from "@/components/settings/assistant-settings-form";
+import { McpServerPanel } from "@/components/settings/mcp-server-panel";
 import {
   DangerZone,
   GeneralForm,
   TechnicalForm,
 } from "@/components/settings/project-settings-forms";
+import { listAgentRegistry } from "@/lib/agents/registry";
 import { projectAiView } from "@/lib/ai/project-settings";
 import { DEFAULT_MODEL, isModelEnabled } from "@/lib/ai/registry";
 import { can } from "@/lib/auth/permissions";
 import { listClientOptions } from "@/lib/clients/service";
 import { db } from "@/lib/db/client";
 import { invoices } from "@/lib/db/schema";
+import { siteBase } from "@/lib/email/layout";
+import { listAgentTokens } from "@/lib/mcp/tokens";
 import { projectPageAccess } from "@/lib/projects/page";
 import { getSettings } from "@/lib/projects/repository";
 import { getTechStack } from "@/lib/projects/stack";
@@ -45,6 +49,26 @@ export default async function ProjectSettingsPage({
           .limit(1),
       ])
     : [[], []];
+  // Agent tokens are listed only for members who can manage the project.
+  const [tokens, registry] = canEdit
+    ? await Promise.all([listAgentTokens(actor, slug), listAgentRegistry(access)])
+    : [[], { agents: [] as Awaited<ReturnType<typeof listAgentRegistry>>["agents"] }];
+  const tokenRows = tokens.map((x) => ({
+    id: x.id,
+    label: x.label,
+    prefix: x.prefix,
+    agentName: x.agentName,
+    scopes: x.scopes,
+    expiresAt: x.expiresAt?.getTime() ?? null,
+    revokedAt: x.revokedAt?.getTime() ?? null,
+    lastUsedAt: x.lastUsedAt?.getTime() ?? null,
+    createdAt: x.createdAt.getTime(),
+  }));
+  // External tools first, then the Saqina specialists.
+  const agentOptions = [
+    ...registry.agents.filter((a) => a.type !== "saqina"),
+    ...registry.agents.filter((a) => a.type === "saqina"),
+  ].map((a) => ({ id: a.id, name: a.name, team: a.type === "saqina" }));
   const values = {
     name: project.name,
     description: project.description,
@@ -97,6 +121,14 @@ export default async function ProjectSettingsPage({
           model={isModelEnabled() ? process.env.AI_MODEL || DEFAULT_MODEL : null}
           canEdit={canEdit}
         />
+        {canEdit ? (
+          <McpServerPanel
+            slug={slug}
+            endpoint={`${siteBase()}/api/projects/${slug}/mcp`}
+            agents={agentOptions}
+            tokens={tokenRows}
+          />
+        ) : null}
         <ProjectAiForm slug={slug} view={await projectAiView(access)} canEdit={canEdit} />
         <TechStackForm
           slug={slug}

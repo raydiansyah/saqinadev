@@ -156,7 +156,40 @@
     "prdMetaTitle": "PRD",
     "prdDescription": "The product requirements, generated from the interview. Review, edit and approve it.",
     "markSigned": "Mark as signed",
-    "archive": "Archive"
+    "archive": "Archive",
+    "sync": {
+      "path": "Repository file: {path}",
+      "badge": {
+        "synced": "Synced",
+        "pending_pr": "Waiting in pull request",
+        "conflict": "Conflict",
+        "remote_missing": "File removed in repository",
+        "excluded": "Not synced"
+      },
+      "hint": {
+        "synced": "This document matches the file in the repository.",
+        "pending_pr": "Changes are waiting in a pull request. They reach the repository once it is merged.",
+        "conflict": "Both Saqina and the repository changed this document. Open it to choose which version to keep.",
+        "remote_missing": "The file was removed in the repository. Open it to decide what to do.",
+        "excluded": "This document is not synced, for example because an import was truncated."
+      },
+      "dialog": {
+        "title": "Resolve conflict",
+        "missingTitle": "File removed in repository",
+        "explain": "Both sides changed {file} since the last sync, so Saqina cannot merge them by itself.",
+        "missingExplain": "The file for {file} was removed in the repository. You can keep the Saqina version and recreate it.",
+        "loading": "Loading the repository version…",
+        "saqina": "Saqina version",
+        "repo": "Repository version",
+        "diff": "Changes if you use the repository version",
+        "keepSaqina": "Keep Saqina's version",
+        "keepSaqinaHint": "Your text stays and is sent to the repository on the next sync.",
+        "keepSaqinaMissingHint": "Your text stays and the file is recreated in the repository on the next sync.",
+        "useRepo": "Use the repository's version",
+        "useRepoHint": "The repository text is saved as a new version here.",
+        "cancel": "Cancel"
+      }
+    }
   },
   "plan": {
     "metaTitle": "Plan",

@@ -88,6 +88,20 @@ export const plannedAction = z.discriminatedUnion("type", [
     }),
   }),
   z.object({
+    type: z.literal("UPDATE_DOCUMENT"),
+    key: z.string().min(1).max(8),
+    /** An agent's proposed rewrite. `agentId` is re-checked against its permissions on apply. */
+    payload: z.object({
+      docSlug: z.string().min(1).max(64),
+      content: z.string().max(200_000),
+      baseVersion: z.int().min(1),
+      agentId: id,
+      summary: z.string().trim().max(300).default(""),
+    }),
+    /** The text the proposal was written against, so the reviewer sees a real diff. */
+    before: z.object({ title: z.string().max(200), content: z.string().max(200_000) }),
+  }),
+  z.object({
     type: z.literal("CREATE_MEMORY"),
     key: z.string().min(1).max(8),
     payload: z.object({
@@ -242,6 +256,8 @@ export const ACTION_POLICY: Record<ActionType, ActionPolicy> = {
     editable: ["description", "priority"],
   },
   APPEND_PRD: { category: "write", risk: "medium", autoEligible: false, editable: ["body"] },
+  // A whole-document rewrite from an agent: always reviewed as a diff, never automatic.
+  UPDATE_DOCUMENT: { category: "write", risk: "medium", autoEligible: false, editable: [] },
   CREATE_MEMORY: {
     category: "write",
     risk: "low",

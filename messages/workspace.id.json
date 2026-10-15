@@ -156,7 +156,40 @@
     "prdMetaTitle": "PRD",
     "prdDescription": "Kebutuhan produk yang dibuat dari interview. Review, ubah, lalu setujui.",
     "markSigned": "Tandai ditandatangani",
-    "archive": "Arsipkan"
+    "archive": "Arsipkan",
+    "sync": {
+      "path": "File di repositori: {path}",
+      "badge": {
+        "synced": "Tersinkron",
+        "pending_pr": "Menunggu di pull request",
+        "conflict": "Konflik",
+        "remote_missing": "File dihapus di repositori",
+        "excluded": "Tidak disinkronkan"
+      },
+      "hint": {
+        "synced": "Dokumen ini sama dengan file di repositori.",
+        "pending_pr": "Perubahan menunggu di pull request. Perubahan masuk ke repositori setelah pull request digabungkan.",
+        "conflict": "Saqina dan repositori sama-sama mengubah dokumen ini. Buka untuk memilih versi yang dipertahankan.",
+        "remote_missing": "File ini dihapus di repositori. Buka untuk menentukan langkah selanjutnya.",
+        "excluded": "Dokumen ini tidak disinkronkan, misalnya karena hasil impor terpotong."
+      },
+      "dialog": {
+        "title": "Selesaikan konflik",
+        "missingTitle": "File dihapus di repositori",
+        "explain": "{file} diubah di kedua sisi sejak sinkronisasi terakhir, sehingga Saqina tidak bisa menggabungkannya sendiri.",
+        "missingExplain": "File untuk {file} dihapus di repositori. Anda bisa mempertahankan versi Saqina dan membuatnya kembali.",
+        "loading": "Memuat versi repositori…",
+        "saqina": "Versi Saqina",
+        "repo": "Versi repositori",
+        "diff": "Perubahan jika memakai versi repositori",
+        "keepSaqina": "Pertahankan versi Saqina",
+        "keepSaqinaHint": "Teks Anda tetap dan dikirim ke repositori pada sinkronisasi berikutnya.",
+        "keepSaqinaMissingHint": "Teks Anda tetap dan file dibuat ulang di repositori pada sinkronisasi berikutnya.",
+        "useRepo": "Pakai versi repositori",
+        "useRepoHint": "Teks repositori disimpan di sini sebagai versi baru.",
+        "cancel": "Batal"
+      }
+    }
   },
   "plan": {
     "metaTitle": "Plan",

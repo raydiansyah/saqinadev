@@ -65,6 +65,13 @@ export const TOOLS: readonly ToolDefinition[] = [
     available: true,
   },
   {
+    name: "update_document",
+    action: "UPDATE_DOCUMENT",
+    category: "write",
+    agentPermission: "write_documents",
+    available: true,
+  },
+  {
     name: "create_memory",
     action: "CREATE_MEMORY",
     category: "write",

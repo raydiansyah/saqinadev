@@ -146,6 +146,7 @@
         "CREATE_REQUIREMENT": "Requirement baru",
         "UPDATE_REQUIREMENT": "Ubah requirement",
         "APPEND_PRD": "Bagian PRD",
+        "UPDATE_DOCUMENT": "Penulisan ulang dokumen",
         "CREATE_MEMORY": "Memory baru",
         "CREATE_DECISION": "Keputusan baru",
         "ASSIGN_AGENT": "Tugaskan agent",

@@ -19,7 +19,14 @@ export async function gitFetch<T>(url: string, init: RequestInit = {}): Promise<
   } catch {
     throw new GitError("network");
   }
-  if (!response.ok) throw new GitError(codeFor(response.status));
+  if (!response.ok) {
+    // GitHub reports its secondary rate limit as a 403; that is not a bad token.
+    const limited =
+      response.status === 403 &&
+      (response.headers.get("x-ratelimit-remaining") === "0" ||
+        response.headers.has("retry-after"));
+    throw new GitError(limited ? "rate_limited" : codeFor(response.status));
+  }
   if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
 }

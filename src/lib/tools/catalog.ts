@@ -35,6 +35,48 @@ export const STATIC_TOOLS: StaticTool[] = [
   },
   {
     source: "internal",
+    name: "list_documents",
+    description:
+      "Project documents agents may read (PRD, PLAN and custom documents): slug, title, status, version.",
+    inputSchema: { type: "object", properties: {}, additionalProperties: false },
+    riskLevel: "low",
+    agentPermission: "read_prd",
+  },
+  {
+    source: "internal",
+    name: "read_document",
+    description:
+      "Markdown of one document by slug, with its version. Use the version as baseVersion.",
+    inputSchema: {
+      type: "object",
+      properties: { slug: str(64) },
+      required: ["slug"],
+      additionalProperties: false,
+    },
+    riskLevel: "low",
+    agentPermission: "read_prd",
+  },
+  {
+    source: "internal",
+    name: "propose_document_change",
+    description:
+      "Propose a new full text for a document. Nothing changes until a project member approves the diff in Saqina.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        slug: str(64),
+        content: str(200_000),
+        baseVersion: { type: "integer", minimum: 1 },
+        summary: { type: "string", maxLength: 300 },
+      },
+      required: ["slug", "content", "baseVersion"],
+      additionalProperties: false,
+    },
+    riskLevel: "low",
+    agentPermission: "write_documents",
+  },
+  {
+    source: "internal",
     name: "search_memory",
     description: "Project memory entries matching a query.",
     inputSchema: {

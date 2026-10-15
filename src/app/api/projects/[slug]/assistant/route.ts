@@ -1,6 +1,7 @@
 import type { StreamEvent } from "@/lib/assistant/blocks";
 import { handleMessage } from "@/lib/assistant/service";
 import { getActor } from "@/lib/auth/server";
+import { scheduleDocSync } from "@/lib/docsync/schedule";
 import { errorRef, isAppError } from "@/lib/errors";
 import { log } from "@/lib/log";
 import { allow } from "@/lib/rate-limit";
@@ -42,6 +43,8 @@ export async function POST(request: Request, ctx: RouteContext<"/api/projects/[s
     return json(400, "VALIDATION_ERROR");
   }
   const { slug } = await ctx.params;
+  // Auto-mode actions may change documents; a clean project makes this a single cheap check.
+  scheduleDocSync({ slug });
   const encoder = new TextEncoder();
 
   const stream = new ReadableStream<Uint8Array>({

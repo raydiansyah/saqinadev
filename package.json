@@ -12,6 +12,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx --env-file=.env.local scripts/migrate.ts",
+    "db:migrate:neon": "bash scripts/neon-migrate.sh",
     "db:seed": "tsx --conditions=react-server --env-file=.env.local scripts/seed.ts",
     "db:create-owner": "tsx --conditions=react-server --env-file=.env.local scripts/create-owner.ts",
     "db:studio": "drizzle-kit studio",

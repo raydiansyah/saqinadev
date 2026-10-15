@@ -4,7 +4,12 @@ import type { ProjectAccess } from "@/lib/auth/permissions";
 import { db, type Executor } from "@/lib/db/client";
 import { agentRuns, agents } from "@/lib/db/schema";
 import type { AgentRole, AgentType } from "@/lib/domain/enums";
-import { ROLE_TEMPLATES, TOOL_AGENT_PERMISSIONS, TOOL_CAPABILITIES } from "./capabilities";
+import {
+  LEGACY_TOOL_AGENT_PERMISSIONS,
+  ROLE_TEMPLATES,
+  TOOL_AGENT_PERMISSIONS,
+  TOOL_CAPABILITIES,
+} from "./capabilities";
 import { ACTIVE_RUN_STATUSES } from "./state";
 
 export type AgentRow = typeof agents.$inferSelect;
@@ -62,6 +67,17 @@ export async function ensureTeamAgents(executor: Executor, projectId: string): P
         eq(agents.projectId, projectId),
         eq(agents.role, "general"),
         sql`${agents.permissions} = '[]'::jsonb`,
+      ),
+    );
+  // Tool agents that still have the old read-only default may now propose document changes.
+  await executor
+    .update(agents)
+    .set({ permissions: TOOL_AGENT_PERMISSIONS })
+    .where(
+      and(
+        eq(agents.projectId, projectId),
+        eq(agents.role, "general"),
+        sql`${agents.permissions} = ${JSON.stringify(LEGACY_TOOL_AGENT_PERMISSIONS)}::jsonb`,
       ),
     );
   // Tool agents from Phase 2 have no capabilities stored; describe what they could do.

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { PageHeading } from "@/components/app/states";
 import { AgentsPanel } from "@/components/integrations/agents-panel";
+import { DocSyncPanel } from "@/components/integrations/doc-sync-panel";
 import { McpPanel } from "@/components/integrations/mcp-panel";
 import { RepositoryPanel } from "@/components/integrations/repository-panel";
 import { Link } from "@/i18n/navigation";
@@ -11,6 +12,7 @@ import { listAgentRegistry } from "@/lib/agents/registry";
 import { can } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
 import { tasks, toolExecutions } from "@/lib/db/schema";
+import { getDocSyncStatus } from "@/lib/docsync/config";
 import { formatRelative } from "@/lib/format";
 import { localGitAllowed } from "@/lib/git/local";
 import { getRepository, toRepositoryView } from "@/lib/git/service";
@@ -30,9 +32,10 @@ export default async function IntegrationsPage({
   const { slug } = await params;
   const access = await projectPageAccess(slug);
   await ensureProjectTools(db, access.project.id);
-  const [repo, connections, tools, registry, openTasks, handoffs, executions, t, locale] =
+  const [repo, docSync, connections, tools, registry, openTasks, handoffs, executions, t, locale] =
     await Promise.all([
       getRepository(access),
+      getDocSyncStatus(access.project.id),
       listMcpConnections(access),
       listProjectTools(access),
       listAgentRegistry(access),
@@ -82,6 +85,7 @@ export default async function IntegrationsPage({
           canManage={canManage}
           localAllowed={localGitAllowed()}
         />
+        {docSync ? <DocSyncPanel slug={slug} status={docSync} canManage={canManage} /> : null}
         <McpPanel
           slug={slug}
           connections={connections}

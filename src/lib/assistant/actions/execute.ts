@@ -1,4 +1,5 @@
 import "server-only";
+import { and, eq } from "drizzle-orm";
 import { agentCan } from "@/lib/agents/capabilities";
 import type { ProjectAccess } from "@/lib/auth/permissions";
 import { can } from "@/lib/auth/permissions";
@@ -6,9 +7,11 @@ import { createInvoiceTx } from "@/lib/billing/invoices";
 import { setPaymentScheduleTx } from "@/lib/billing/terms";
 import { createChangeRequestTx, crNumber } from "@/lib/change-requests/service";
 import type { Tx } from "@/lib/db/client";
+import { agents, documents } from "@/lib/db/schema";
 import { createDecisionTx } from "@/lib/decisions/service";
+import { isSyncType } from "@/lib/docsync/paths";
 import { generateBusinessDocumentTx } from "@/lib/documents/business";
-import { appendDocumentSectionTx } from "@/lib/documents/service";
+import { appendDocumentSectionTx, saveDocumentTx } from "@/lib/documents/service";
 import type { AgentPermission } from "@/lib/domain/enums";
 import { teamParty } from "@/lib/engagement/shared";
 import { AppError } from "@/lib/errors";
@@ -163,6 +166,43 @@ export async function executeActionsTx(
           kind: "document",
           title: "PRD.md",
           href: `${base}/prd`,
+          change: "updated",
+        });
+        break;
+      }
+      case "UPDATE_DOCUMENT": {
+        // The proposal outlives the call that made it: check the author's permission now.
+        const [agent] = await tx
+          .select({ permissions: agents.permissions })
+          .from(agents)
+          .where(
+            and(eq(agents.id, action.payload.agentId), eq(agents.projectId, access.project.id)),
+          );
+        if (!agent || !agentCan(agent, "write_documents"))
+          throw new AppError("AUTHORIZATION_ERROR", "Agent lacks write_documents");
+        const [target] = await tx
+          .select({ type: documents.type })
+          .from(documents)
+          .where(
+            and(
+              eq(documents.projectId, access.project.id),
+              eq(documents.slug, action.payload.docSlug),
+            ),
+          );
+        // Agents never touch business documents: they carry client terms and prices.
+        if (!target || !isSyncType(target.type))
+          throw new AppError("AUTHORIZATION_ERROR", "Document is not available to agents");
+        await saveDocumentTx(tx, access, {
+          docSlug: action.payload.docSlug,
+          content: action.payload.content,
+          baseVersion: action.payload.baseVersion,
+          source: "mcp",
+          trace,
+        });
+        result.items.push({
+          kind: "document",
+          title: action.before.title,
+          href: `${base}/documents`,
           change: "updated",
         });
         break;
