@@ -111,6 +111,7 @@ export function ChangeRequestFormDialog({
             id={`${id}-title`}
             name="title"
             label={t("crTitle")}
+            placeholder={t("crTitlePlaceholder")}
             defaultValue={draft?.title}
             required
             minLength={3}
@@ -120,6 +121,7 @@ export function ChangeRequestFormDialog({
             id={`${id}-description`}
             name="description"
             label={t("crDescription")}
+            placeholder={t("crDescriptionPlaceholder")}
             defaultValue={draft?.description}
             rows={3}
             maxLength={4000}
@@ -138,6 +140,7 @@ export function ChangeRequestFormDialog({
               id={`${id}-cost`}
               name="cost"
               label={t("cost", { currency })}
+              placeholder={t("costPlaceholder")}
               hint={t("costHint")}
               inputMode="decimal"
               defaultValue={draft ? String(fromMinor(draft.additionalCost, currency)) : "0"}
@@ -150,6 +153,7 @@ export function ChangeRequestFormDialog({
               min={0}
               max={3650}
               label={t("days")}
+              placeholder={t("daysPlaceholder")}
               defaultValue={draft?.additionalDays ?? 0}
             />
           </div>

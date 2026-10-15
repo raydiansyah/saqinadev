@@ -109,6 +109,7 @@ export function HandoffActions({
           <TextArea
             id={`${id}-raw`}
             label={t("paste")}
+            placeholder={t("placeholders.paste")}
             hint={t("pasteHint")}
             rows={5}
             maxLength={60_000}

@@ -70,6 +70,10 @@
     "add": "Tambah requirement",
     "addTitle": "Tambah requirement",
     "editTitle": "Ubah requirement",
+    "placeholders": {
+      "title": "Pelanggan dapat mengekspor invoice sebagai PDF",
+      "description": "Invoice diekspor dari halaman tagihan lengkap dengan logo dan NPWP perusahaan."
+    },
     "deleteConfirm": "Hapus “{title}”? Tindakan ini tidak bisa dibatalkan.",
     "jump": "Lompat ke grup",
     "empty": "Belum ada requirement. Selesaikan interview atau tambahkan sendiri.",
@@ -121,6 +125,7 @@
     "new": "Dokumen baru",
     "newTitle": "Dokumen baru",
     "newLabel": "Judul",
+    "newPlaceholder": "Brief proyek",
     "empty": "Belum ada dokumen.",
     "updated": "Diperbarui {time}",
     "version": "v{version}",
@@ -141,6 +146,7 @@
     "approve": "Setujui",
     "markDraft": "Kembalikan ke draf",
     "editorLabel": "Isi {file}",
+    "editorPlaceholder": "# Brief proyek",
     "stale": "Ada yang menyimpan versi lebih baru. Salin perubahan Anda, lalu muat ulang untuk melanjutkan dari versi terbaru.",
     "reload": "Muat ulang",
     "leaveWarning": "Ada perubahan yang belum disimpan.",
@@ -158,6 +164,10 @@
     "description": "Tujuan, milestone, dan task di dalamnya. Sengaja dibuat sederhana.",
     "milestone": "Milestone {n}",
     "editMilestone": "Ubah milestone",
+    "placeholders": {
+      "title": "Rilis MVP",
+      "goal": "Pelanggan bisa mendaftar, membayar, dan memakai fitur inti."
+    },
     "fields": {
       "title": "Judul",
       "goal": "Tujuan"
@@ -175,6 +185,10 @@
     "add": "Tambah task",
     "addTitle": "Tambah task",
     "editTitle": "Ubah task",
+    "placeholders": {
+      "title": "Tambah alur reset password",
+      "description": "Kirim tautan reset lewat email dan kedaluwarsakan setelah 30 menit."
+    },
     "empty": "Belum ada task. Tambahkan yang pertama atau buat dari interview.",
     "columnEmpty": "Tidak ada task",
     "fields": {
@@ -222,6 +236,7 @@
         "disabled": "Nonaktif"
       },
       "instructions": "Instruksi (opsional)",
+      "instructionsPlaceholder": "Ikuti komponen form yang sudah ada dan tambahkan test",
       "submit": "Tugaskan dan mulai",
       "assigned": "Ditugaskan. Buka run",
       "current": "Run saat ini",
@@ -235,6 +250,10 @@
     "add": "Tambah memory",
     "addTitle": "Tambah ke memory",
     "editTitle": "Ubah memory",
+    "placeholders": {
+      "title": "Klien ingin update mingguan setiap Jumat",
+      "content": "Kirim ringkasan singkat lewat email setiap Jumat sore. Tidak perlu telepon kecuali mendesak."
+    },
     "empty": "Belum ada yang diingat. Fakta penting tentang arsitektur, produk, dan preferensi akan muncul di sini.",
     "filterLabel": "Kategori",
     "all": "Semua",
@@ -272,6 +291,12 @@
     "description": "Mengapa sesuatu dipilih. Memory adalah apa yang diketahui proyek; keputusan menjelaskan pilihannya.",
     "add": "Buat keputusan",
     "addTitle": "Catat keputusan",
+    "placeholders": {
+      "question": "Gateway pembayaran mana yang kita pakai?",
+      "context": "Sebagian besar pelanggan membayar lewat transfer bank dan e-wallet.",
+      "options": "Midtrans\nXendit\nStripe",
+      "reason": "Cakupan metode pembayaran lokal terbaik dan integrasinya mudah."
+    },
     "empty": "Belum ada keputusan. Keputusan arsitektur atau produk yang penting akan muncul di sini seiring proyek berkembang.",
     "fields": {
       "question": "Pertanyaan",
@@ -308,6 +333,10 @@
     "configureHint": "Hanya preferensi. Jangan tempel API key atau token di sini; kredensial akan punya penyimpanan aman nanti.",
     "model": "Model pilihan",
     "notes": "Catatan untuk agent ini",
+    "placeholders": {
+      "model": "claude-sonnet-5-5",
+      "notes": "Utamakan jawaban singkat dan hindari dependensi baru"
+    },
     "secretRejected": "Itu terlihat seperti kredensial. Hapus key dan token dari konfigurasi.",
     "statuses": {
       "available": "Tersedia",

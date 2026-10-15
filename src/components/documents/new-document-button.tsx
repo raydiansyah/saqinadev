@@ -47,6 +47,7 @@ export function NewDocumentButton({ slug }: { slug: string }) {
             id={`${id}-title`}
             name="title"
             label={t("newLabel")}
+            placeholder={t("newPlaceholder")}
             maxLength={80}
             error={error}
             required

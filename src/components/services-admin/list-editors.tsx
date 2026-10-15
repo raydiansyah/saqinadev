@@ -110,6 +110,7 @@ export function StringListEditor({
   onChange,
   maxItems = 12,
   itemMax = 240,
+  placeholder,
   error,
 }: {
   id: string;
@@ -118,6 +119,7 @@ export function StringListEditor({
   onChange: (next: string[]) => void;
   maxItems?: number;
   itemMax?: number;
+  placeholder?: string;
   error?: string;
 }) {
   const t = useTranslations("servicesAdmin.editor.list");
@@ -141,6 +143,7 @@ export function StringListEditor({
           >
             <input
               aria-label={itemLabel}
+              placeholder={placeholder}
               value={value}
               maxLength={itemMax}
               onChange={(e) => onChange(values.map((v, j) => (j === i ? e.target.value : v)))}

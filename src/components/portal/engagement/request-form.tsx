@@ -58,6 +58,7 @@ export function RequestForm({ slug, defaultKind }: { slug: string; defaultKind: 
       <Field
         id="request-title"
         label={t("titleLabel")}
+        placeholder={t("titlePlaceholder")}
         hint={t("titleHint")}
         value={title}
         onChange={(e) => setTitle(e.target.value)}
@@ -68,6 +69,7 @@ export function RequestForm({ slug, defaultKind }: { slug: string; defaultKind: 
       <TextArea
         id="request-body"
         label={t("bodyLabel")}
+        placeholder={t("bodyPlaceholder")}
         hint={t("bodyHint")}
         rows={5}
         value={body}

@@ -4,6 +4,7 @@ export type AuthErrorKey =
   | "emailNotVerified"
   | "userExists"
   | "passwordTooShort"
+  | "passwordPolicy"
   | "rateLimited"
   | "captcha"
   | "network"
@@ -24,6 +25,8 @@ export function authErrorKey(
       return "userExists";
     case "PASSWORD_TOO_SHORT":
       return "passwordTooShort";
+    case "PASSWORD_POLICY":
+      return "passwordPolicy";
     case "VERIFICATION_FAILED":
     case "MISSING_RESPONSE":
       return "captcha";

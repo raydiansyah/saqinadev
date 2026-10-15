@@ -13,6 +13,7 @@
 import { randomBytes, randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { auth } from "../src/lib/auth/config";
+import { passwordIssue } from "../src/lib/auth/password-policy";
 import { db } from "../src/lib/db/client";
 import { accounts, users } from "../src/lib/db/schema";
 import { ensurePersonalOrg } from "../src/lib/organizations/service";
@@ -36,8 +37,8 @@ async function main() {
   const email = resolveEmail();
   const name = (process.env.OWNER_NAME ?? "").trim() || "Saqina Owner";
   const supplied = process.env.OWNER_PASSWORD;
-  if (supplied && supplied.length < MIN_PASSWORD)
-    fail(`OWNER_PASSWORD must be at least ${MIN_PASSWORD} characters`);
+  if (supplied && (supplied.length < MIN_PASSWORD || passwordIssue(supplied)))
+    fail(`OWNER_PASSWORD needs ${MIN_PASSWORD}+ characters with a number and a symbol`);
 
   const target = new URL(process.env.DATABASE_URL ?? fail("DATABASE_URL is not set"));
   console.log(`Database: ${target.host}${target.pathname}`);
@@ -52,7 +53,7 @@ async function main() {
     return;
   }
 
-  const password = supplied || randomBytes(18).toString("base64url");
+  const password = supplied || `${randomBytes(18).toString("base64url")}-7!`;
   // Better Auth's own hasher, so the account signs in like any other. Written straight to the
   // tables (no sign-up call) so no verification email goes out; the personal organization the
   // sign-up hook would create is ensured explicitly.

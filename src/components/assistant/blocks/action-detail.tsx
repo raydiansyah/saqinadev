@@ -43,6 +43,7 @@ export function ActionDetail({
       <textarea
         id={id(field)}
         aria-label={t(`fields.${field}` as never)}
+        placeholder={t(`placeholders.${field}` as never)}
         value={value(field) ?? ""}
         onChange={(e) => setField(field, e.target.value)}
         rows={3}
@@ -52,6 +53,7 @@ export function ActionDetail({
       <input
         id={id(field)}
         aria-label={t(`fields.${field}` as never)}
+        placeholder={t(`placeholders.${field}` as never)}
         value={value(field) ?? ""}
         onChange={(e) => setField(field, e.target.value)}
         className={FIELD_CLASS}

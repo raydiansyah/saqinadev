@@ -4,6 +4,7 @@ import { NotificationBell } from "@/components/notifications/notification-bell";
 import { Logo } from "@/components/primitives/logo";
 import { Link } from "@/i18n/navigation";
 import type { Actor } from "@/lib/auth/actor";
+import { isPlatformOwner } from "@/lib/platform/roles";
 import { UserMenu } from "./user-menu";
 
 /** Top bar shared by the dashboard and project workspace. */
@@ -19,7 +20,7 @@ export async function AppHeader({
   /** Project-level actions next to the user menu (Ask Saqina). */
   trailing?: ReactNode;
 }) {
-  const t = await getTranslations("app");
+  const [t, owner] = await Promise.all([getTranslations("app"), isPlatformOwner(actor)]);
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
       <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
@@ -66,7 +67,7 @@ export async function AppHeader({
         </Link>
         <NotificationBell actor={actor} href="/dashboard/notifications" />
         {trailing}
-        <UserMenu name={actor.name} email={actor.email} />
+        <UserMenu name={actor.name} email={actor.email} role={owner ? "owner" : "user"} />
       </div>
     </header>
   );

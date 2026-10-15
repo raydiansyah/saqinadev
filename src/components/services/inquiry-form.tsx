@@ -100,6 +100,7 @@ export function InquiryForm({ locale, serviceSlug, disabled }: InquiryFormProps)
           id="inquiry-name"
           name="name"
           label={t("name")}
+          placeholder={t("placeholders.name")}
           autoComplete="name"
           required
           maxLength={120}
@@ -109,6 +110,7 @@ export function InquiryForm({ locale, serviceSlug, disabled }: InquiryFormProps)
           id="inquiry-company"
           name="company"
           label={t("company")}
+          placeholder={t("placeholders.company")}
           hint={t("companyHint")}
           autoComplete="organization"
           maxLength={160}
@@ -119,6 +121,7 @@ export function InquiryForm({ locale, serviceSlug, disabled }: InquiryFormProps)
           name="email"
           type="email"
           label={t("email")}
+          placeholder={t("placeholders.email")}
           autoComplete="email"
           inputMode="email"
           required
@@ -130,6 +133,7 @@ export function InquiryForm({ locale, serviceSlug, disabled }: InquiryFormProps)
           name="whatsapp"
           type="tel"
           label={t("whatsapp")}
+          placeholder={t("placeholders.whatsapp")}
           hint={t("whatsappHint")}
           autoComplete="tel"
           maxLength={40}
@@ -140,6 +144,7 @@ export function InquiryForm({ locale, serviceSlug, disabled }: InquiryFormProps)
         id="inquiry-message"
         name="message"
         label={t("message")}
+        placeholder={t("placeholders.message")}
         hint={t("messageHint")}
         rows={5}
         required

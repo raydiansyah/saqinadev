@@ -109,6 +109,7 @@ export function ApprovalsPanel({
                 id={`${id}-description`}
                 name="description"
                 label={t("approvalDescription")}
+                placeholder={t("approvalDescriptionPlaceholder")}
                 rows={3}
                 maxLength={2000}
               />

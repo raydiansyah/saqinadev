@@ -67,6 +67,7 @@ export function ChangeDecision({
           <TextArea
             id={`cr-note-${id}`}
             label={t("noteLabel")}
+            placeholder={t("notePlaceholder")}
             rows={3}
             value={note}
             onChange={(e) => setNote(e.target.value)}

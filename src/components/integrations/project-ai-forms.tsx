@@ -138,6 +138,7 @@ export function TechStackForm({
                   id={`${id}-${key}`}
                   name="value"
                   label={t(`keys.${key}`)}
+                  placeholder={t(`placeholders.${key}`)}
                   hint={stack[key] ? t(`sources.${stack[key].source}`) : undefined}
                   defaultValue={stack[key]?.value ?? ""}
                   maxLength={120}

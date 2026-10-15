@@ -20,6 +20,9 @@
     },
     "user": {
       "menu": "Account menu",
+      "role": "Account type",
+      "roleOwner": "Owner",
+      "roleUser": "User",
       "settings": "Account settings",
       "signOut": "Sign out"
     },

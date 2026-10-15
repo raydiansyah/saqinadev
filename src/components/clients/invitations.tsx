@@ -81,6 +81,7 @@ export function Invitations({
               maxLength={200}
               autoComplete="off"
               label={t("inviteEmail")}
+              placeholder={t("inviteEmailPlaceholder")}
             />
           </div>
           <Button type="submit" disabled={pending}>

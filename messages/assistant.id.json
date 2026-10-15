@@ -116,6 +116,14 @@
       "edit": "Ubah",
       "doneEditing": "Selesai mengubah",
       "notePlaceholder": "Apa yang perlu diubah?",
+      "placeholders": {
+        "title": "Tambah alur reset password",
+        "description": "Kirim tautan reset lewat email dan kedaluwarsakan setelah 30 menit.",
+        "body": "Halaman login selesai. Berikutnya alur reset password.",
+        "content": "Kirim ringkasan singkat lewat email setiap Jumat sore.",
+        "reason": "Cakupan metode pembayaran lokal terbaik dan integrasinya mudah.",
+        "instructions": "Ikuti komponen form yang sudah ada dan tambahkan test"
+      },
       "sendRevision": "Kirim permintaan",
       "cancel": "Batal",
       "statuses": {
@@ -374,6 +382,7 @@
         "agent": "Agen",
         "notConnected": "belum terhubung",
         "instructions": "Instruksi (opsional)",
+        "instructionsPlaceholder": "Ikuti komponen form yang sudah ada dan tambahkan test",
         "instructionsHint": "Beri tahu agen apa yang perlu dilakukan berbeda.",
         "submitReassign": "Alihkan dan mulai",
         "close": "Tutup",

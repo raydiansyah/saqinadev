@@ -20,6 +20,9 @@
     },
     "user": {
       "menu": "Menu akun",
+      "role": "Jenis akun",
+      "roleOwner": "Owner",
+      "roleUser": "User",
       "settings": "Pengaturan akun",
       "signOut": "Keluar"
     },

@@ -36,6 +36,8 @@
       },
       "titleLabel": "Short title",
       "titleHint": "For example: Add a phone number to the contact page",
+      "titlePlaceholder": "Update the phone number on the contact page",
+      "bodyPlaceholder": "The contact page still shows the old number. It should be +62 812 3456 7890.",
       "bodyLabel": "Details",
       "bodyHint": "What you see, what you expected, and where. Optional, but it helps.",
       "submit": "Send request",
@@ -66,6 +68,7 @@
       "client": "You",
       "teamSide": "Project team",
       "bodyLabel": "Your message",
+      "bodyPlaceholder": "Hi, could we move Thursday's demo to 2 PM?",
       "send": "Send",
       "threadLabel": "Message history"
     },
@@ -88,6 +91,8 @@
       "noteLabel": "What should change?",
       "noteHint": "Be as specific as you can so the team gets it right.",
       "optionalNoteLabel": "Note (optional)",
+      "notePlaceholder": "The header logo is too small on mobile.",
+      "optionalNotePlaceholder": "Looks good, thank you.",
       "sendChanges": "Send",
       "cancel": "Cancel",
       "yourNote": "Your note",
@@ -118,6 +123,7 @@
       "rejectTitle": "Decline {number}?",
       "rejectBody": "The team will not do this work. You can tell them why.",
       "noteLabel": "Note for the team (optional)",
+      "notePlaceholder": "Fine with the extra cost, please go ahead.",
       "confirmApprove": "Yes, approve",
       "confirmReject": "Decline",
       "cancel": "Cancel"

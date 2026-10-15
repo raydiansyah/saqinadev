@@ -81,6 +81,13 @@
       "whatsappHint": "Optional, with country code",
       "message": "Requirements",
       "messageHint": "What are you trying to achieve? A few sentences are enough.",
+      "placeholders": {
+        "name": "Budi Santoso",
+        "company": "PT Maju Jaya",
+        "email": "budi@perusahaan.co.id",
+        "whatsapp": "+62 812 3456 7890",
+        "message": "We want a chatbot that answers common customer questions on WhatsApp."
+      },
       "consent": "I agree to be contacted about this inquiry",
       "submit": "Send inquiry",
       "sending": "Sending",

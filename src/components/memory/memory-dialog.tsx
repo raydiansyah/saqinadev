@@ -70,6 +70,7 @@ export function MemoryDialog({
         <Field
           id={`${id}-title`}
           name="title"
+          placeholder={t("placeholders.title")}
           label={t("fields.title")}
           defaultValue={initial.title}
           maxLength={160}
@@ -79,6 +80,7 @@ export function MemoryDialog({
         <TextArea
           id={`${id}-content`}
           name="content"
+          placeholder={t("placeholders.content")}
           label={t("fields.content")}
           defaultValue={initial.content}
           rows={5}

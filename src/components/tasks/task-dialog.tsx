@@ -77,6 +77,7 @@ export function TaskDialog({
         <Field
           id={`${id}-title`}
           name="title"
+          placeholder={t("placeholders.title")}
           label={t("fields.title")}
           defaultValue={initial.title}
           maxLength={200}
@@ -86,6 +87,7 @@ export function TaskDialog({
         <TextArea
           id={`${id}-description`}
           name="description"
+          placeholder={t("placeholders.description")}
           label={t("fields.description")}
           defaultValue={initial.description}
           rows={3}

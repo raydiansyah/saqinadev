@@ -7,6 +7,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Field, Notice } from "@/components/ui/form";
 import { Link } from "@/i18n/navigation";
 import { requestPasswordReset, resetPassword } from "@/lib/auth/client";
+import { passwordIssue } from "@/lib/auth/password-policy";
 import { type AuthErrorKey, authErrorKey, isEmail } from "./auth-errors";
 
 export function ForgotPasswordForm() {
@@ -72,6 +73,7 @@ export function ForgotPasswordForm() {
         type="email"
         autoComplete="email"
         label={t("fields.email")}
+        placeholder={t("placeholders.email")}
         error={fieldError}
         required
       />
@@ -107,7 +109,7 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
     const password = String(form.get("password") ?? "");
     const confirm = String(form.get("confirm") ?? "");
     const invalid = {
-      password: password.length < 8 ? t("errors.passwordTooShort") : undefined,
+      password: passwordIssue(password) ? t("errors.passwordPolicy") : undefined,
       confirm: confirm !== password ? t("errors.passwordMismatch") : undefined,
     };
     setFields(invalid);
@@ -168,6 +170,7 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
         type="password"
         autoComplete="new-password"
         label={t("fields.newPassword")}
+        placeholder={t("placeholders.newPassword")}
         hint={t("fields.passwordHint")}
         error={fields.password}
         required
@@ -178,6 +181,7 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
         type="password"
         autoComplete="new-password"
         label={t("fields.confirmPassword")}
+        placeholder={t("placeholders.confirmPassword")}
         error={fields.confirm}
         required
       />

@@ -86,6 +86,7 @@ export function ClientForm({
         id={`${prefix}-name`}
         name="name"
         label={t("name")}
+        placeholder={t("placeholders.name")}
         defaultValue={initial.name}
         required
         minLength={2}
@@ -97,6 +98,7 @@ export function ClientForm({
           id={`${prefix}-company`}
           name="company"
           label={t("company")}
+          placeholder={t("placeholders.company")}
           defaultValue={initial.company}
           maxLength={160}
           autoComplete="off"
@@ -106,6 +108,7 @@ export function ClientForm({
           name="email"
           type="email"
           label={t("email")}
+          placeholder={t("placeholders.email")}
           defaultValue={initial.email}
           maxLength={200}
           autoComplete="off"
@@ -116,6 +119,7 @@ export function ClientForm({
         name="phone"
         type="tel"
         label={t("phone")}
+        placeholder={t("placeholders.phone")}
         defaultValue={initial.phone}
         maxLength={40}
         autoComplete="off"
@@ -124,6 +128,7 @@ export function ClientForm({
         id={`${prefix}-address`}
         name="address"
         label={t("address")}
+        placeholder={t("placeholders.address")}
         defaultValue={initial.address}
         maxLength={400}
         rows={2}
@@ -132,6 +137,7 @@ export function ClientForm({
         id={`${prefix}-notes`}
         name="internalNotes"
         label={t("internalNotes")}
+        placeholder={t("placeholders.internalNotes")}
         hint={t("internalNotesHint")}
         defaultValue={initial.internalNotes}
         maxLength={4000}

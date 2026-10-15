@@ -150,7 +150,14 @@ export function PolicyForm({
           }
         >
           <div className="min-w-60 flex-1">
-            <Field id={`${id}-email`} name="email" type="email" label={t("addOwner")} required />
+            <Field
+              id={`${id}-email`}
+              name="email"
+              type="email"
+              label={t("addOwner")}
+              placeholder={t("placeholders.ownerEmail")}
+              required
+            />
           </div>
           <Button type="submit" disabled={owner.pending}>
             {t("promote")}

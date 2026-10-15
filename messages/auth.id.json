@@ -4,13 +4,20 @@
     "or": "atau",
     "google": "Lanjutkan dengan Google",
     "googleRedirecting": "Mengalihkan ke Google…",
+    "placeholders": {
+      "name": "Budi Santoso",
+      "email": "budi@perusahaan.co.id",
+      "password": "Kata sandi Anda",
+      "newPassword": "Minimal 8 karakter dengan kombinasi angka dan simbol",
+      "confirmPassword": "Ulangi kata sandi"
+    },
     "fields": {
       "name": "Nama",
       "email": "Email",
       "password": "Kata sandi",
       "confirmPassword": "Konfirmasi kata sandi",
       "newPassword": "Kata sandi baru",
-      "passwordHint": "Minimal 8 karakter."
+      "passwordHint": "Minimal 8 karakter, dengan kombinasi angka dan simbol."
     },
     "signIn": {
       "metaTitle": "Masuk",
@@ -80,6 +87,7 @@
       "userExists": "Akun dengan email ini sudah ada. Silakan masuk.",
       "rateLimited": "Terlalu banyak percobaan. Tunggu satu menit lalu coba lagi.",
       "captcha": "Selesaikan pemeriksaan keamanan, lalu coba lagi.",
+      "passwordPolicy": "Gunakan minimal 8 karakter dengan angka dan simbol, misalnya \"Saqina#2026\".",
       "network": "Server tidak dapat dihubungi. Periksa koneksi Anda lalu coba lagi.",
       "oauth": "Masuk dengan Google tidak selesai. Coba lagi atau gunakan email.",
       "unknown": "Terjadi kesalahan. Coba lagi."

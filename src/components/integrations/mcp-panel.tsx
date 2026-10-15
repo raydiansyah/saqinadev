@@ -90,7 +90,14 @@ export function McpPanel({
             )
           }
         >
-          <Field id={`${id}-name`} name="name" label={t("name")} required maxLength={60} />
+          <Field
+            id={`${id}-name`}
+            name="name"
+            label={t("name")}
+            placeholder={t("placeholders.name")}
+            required
+            maxLength={60}
+          />
           <Select id={`${id}-type`} name="serverType" label={t("serverType")} defaultValue="remote">
             {MCP_SERVER_TYPES.map((x) => (
               <option key={x} value={x}>
@@ -102,6 +109,7 @@ export function McpPanel({
             id={`${id}-endpoint`}
             name="endpoint"
             label={t("endpoint")}
+            placeholder={t("placeholders.endpoint")}
             required
             maxLength={300}
             className="sm:col-span-2"
@@ -113,13 +121,20 @@ export function McpPanel({
               </option>
             ))}
           </Select>
-          <Field id={`${id}-header`} name="authHeader" label={t("authHeader")} maxLength={60} />
+          <Field
+            id={`${id}-header`}
+            name="authHeader"
+            label={t("authHeader")}
+            placeholder={t("placeholders.authHeader")}
+            maxLength={60}
+          />
           <Field
             id={`${id}-secret`}
             name="secret"
             type="password"
             autoComplete="off"
             label={t("secret")}
+            placeholder={t("placeholders.secret")}
             maxLength={1000}
           />
           <div className="sm:col-span-2">

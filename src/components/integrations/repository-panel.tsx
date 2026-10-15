@@ -140,6 +140,7 @@ export function RepositoryPanel({
             id={`${id}-name`}
             name="fullName"
             label={t("fullName")}
+            placeholder={t("placeholders.fullName")}
             hint={t("fullNameHint")}
             defaultValue={repo?.fullName}
             required
@@ -151,14 +152,22 @@ export function RepositoryPanel({
             type="password"
             autoComplete="off"
             label={t("token")}
+            placeholder={t("placeholders.token")}
             hint={t("tokenHint")}
             maxLength={500}
           />
-          <Field id={`${id}-base`} name="baseUrl" label={t("baseUrl")} maxLength={300} />
+          <Field
+            id={`${id}-base`}
+            name="baseUrl"
+            label={t("baseUrl")}
+            placeholder={t("placeholders.baseUrl")}
+            maxLength={300}
+          />
           <Field
             id={`${id}-dev`}
             name="developmentBranch"
             label={t("developmentBranch")}
+            placeholder={t("placeholders.developmentBranch")}
             defaultValue={repo?.developmentBranch ?? ""}
             maxLength={120}
           />
@@ -166,6 +175,7 @@ export function RepositoryPanel({
             id={`${id}-prefix`}
             name="prefix"
             label={t("prefix")}
+            placeholder={t("placeholders.prefix")}
             hint={t("prefixHint")}
             defaultValue={repo?.agentBranchPrefix ?? "saqina/"}
             maxLength={40}

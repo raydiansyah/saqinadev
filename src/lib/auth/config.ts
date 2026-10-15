@@ -1,6 +1,7 @@
 import "server-only";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { APIError, createAuthMiddleware } from "better-auth/api";
 import { nextCookies } from "better-auth/next-js";
 import { captcha } from "better-auth/plugins";
 import { isCaptchaEnabled } from "@/lib/captcha/config";
@@ -9,6 +10,7 @@ import * as schema from "@/lib/db/schema";
 import { ensurePersonalOrg } from "@/lib/organizations/service";
 import { authEmails, getEmailSender } from "./email";
 import { trustedOrigins } from "./origins";
+import { PASSWORD_ENDPOINTS, passwordIssue } from "./password-policy";
 
 const google =
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
@@ -70,6 +72,20 @@ export const auth = betterAuth({
     },
   },
   socialProviders: google ? { google } : {},
+  hooks: {
+    // The real enforcement of the password rule: the forms only give early feedback.
+    before: createAuthMiddleware(async (ctx) => {
+      const field = PASSWORD_ENDPOINTS[ctx.path];
+      if (!field) return;
+      const value = (ctx.body as Record<string, unknown> | undefined)?.[field];
+      if (typeof value !== "string") return; // missing or malformed: Better Auth's own validation
+      if (passwordIssue(value))
+        throw new APIError("BAD_REQUEST", {
+          message: "Password must be at least 8 characters with numbers and symbols",
+          code: "PASSWORD_POLICY",
+        });
+    }),
+  },
   databaseHooks: {
     user: {
       create: {

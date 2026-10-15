@@ -84,6 +84,7 @@ export function CustomInvoiceForm({ slug, currency }: { slug: string; currency: 
         id={`${id}-title`}
         name="title"
         label={t("invoiceTitle")}
+        placeholder={t("invoiceTitlePlaceholder")}
         required
         minLength={2}
         maxLength={160}
@@ -115,6 +116,7 @@ export function CustomInvoiceForm({ slug, currency }: { slug: string; currency: 
                 <td className="py-1 pr-2">
                   <input
                     aria-label={t("description")}
+                    placeholder={t("descriptionPlaceholder")}
                     value={l.description}
                     required
                     maxLength={300}
@@ -125,6 +127,7 @@ export function CustomInvoiceForm({ slug, currency }: { slug: string; currency: 
                 <td className="py-1 pr-2">
                   <input
                     aria-label={t("quantity")}
+                    placeholder={t("quantityPlaceholder")}
                     type="number"
                     min={1}
                     max={10000}
@@ -138,6 +141,7 @@ export function CustomInvoiceForm({ slug, currency }: { slug: string; currency: 
                 <td className="py-1 pr-2">
                   <input
                     aria-label={t("unitPrice", { currency })}
+                    placeholder={t("unitPricePlaceholder")}
                     inputMode="decimal"
                     value={l.unit}
                     required
@@ -182,7 +186,14 @@ export function CustomInvoiceForm({ slug, currency }: { slug: string; currency: 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field id={`${id}-due`} name="dueDate" type="date" label={t("dueDate")} />
       </div>
-      <TextArea id={`${id}-notes`} name="notes" label={t("notes")} rows={2} maxLength={2000} />
+      <TextArea
+        id={`${id}-notes`}
+        name="notes"
+        label={t("notes")}
+        placeholder={t("notesPlaceholder")}
+        rows={2}
+        maxLength={2000}
+      />
       <BillingError error={error} />
       <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
         <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>

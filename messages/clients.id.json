@@ -28,6 +28,14 @@
       "address": "Alamat",
       "internalNotes": "Catatan internal",
       "internalNotesHint": "Catatan internal, tidak pernah ditampilkan ke klien.",
+      "placeholders": {
+        "name": "Budi Santoso",
+        "company": "PT Maju Jaya",
+        "email": "budi@majujaya.co.id",
+        "phone": "+62 812 3456 7890",
+        "address": "Jl. Sudirman No. 12, Jakarta Selatan",
+        "internalNotes": "Lebih suka WhatsApp, membayar dalam 14 hari"
+      },
       "create": "Buat klien",
       "creating": "Membuat...",
       "save": "Simpan perubahan",
@@ -56,6 +64,7 @@
       "invitations": "Undangan",
       "invitationsEmpty": "Belum ada undangan yang dikirim.",
       "inviteEmail": "Alamat email",
+      "inviteEmailPlaceholder": "budi@majujaya.co.id",
       "invite": "Buat undangan",
       "inviting": "Membuat...",
       "inviteCreated": "Undangan dibuat",

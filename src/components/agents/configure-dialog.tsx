@@ -61,6 +61,7 @@ export function ConfigureDialog({
           id={`${id}-model`}
           name="model"
           label={t("model")}
+          placeholder={t("placeholders.model")}
           defaultValue={configuration.model ?? ""}
           maxLength={300}
           autoComplete="off"
@@ -70,6 +71,7 @@ export function ConfigureDialog({
           id={`${id}-notes`}
           name="notes"
           label={t("notes")}
+          placeholder={t("placeholders.notes")}
           defaultValue={configuration.notes ?? ""}
           rows={4}
           maxLength={300}

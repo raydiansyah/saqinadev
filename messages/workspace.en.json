@@ -70,6 +70,10 @@
     "add": "Add requirement",
     "addTitle": "Add requirement",
     "editTitle": "Edit requirement",
+    "placeholders": {
+      "title": "Customer can export invoices as PDF",
+      "description": "Invoices are exported from the billing page with the company logo and tax number."
+    },
     "deleteConfirm": "Delete “{title}”? This cannot be undone.",
     "jump": "Jump to group",
     "empty": "No requirements yet. Complete the interview or add one yourself.",
@@ -121,6 +125,7 @@
     "new": "New document",
     "newTitle": "New document",
     "newLabel": "Title",
+    "newPlaceholder": "Project brief",
     "empty": "No documents yet.",
     "updated": "Updated {time}",
     "version": "v{version}",
@@ -141,6 +146,7 @@
     "approve": "Approve",
     "markDraft": "Back to draft",
     "editorLabel": "{file} content",
+    "editorPlaceholder": "# Project brief",
     "stale": "Someone saved a newer version. Copy your changes, then reload to continue from the latest version.",
     "reload": "Reload",
     "leaveWarning": "You have unsaved changes.",
@@ -158,6 +164,10 @@
     "description": "Goal, milestones and the tasks inside them. Simple on purpose.",
     "milestone": "Milestone {n}",
     "editMilestone": "Edit milestone",
+    "placeholders": {
+      "title": "Launch MVP",
+      "goal": "Customers can sign up, pay and use the core features."
+    },
     "fields": {
       "title": "Title",
       "goal": "Goal"
@@ -175,6 +185,10 @@
     "add": "Add task",
     "addTitle": "Add task",
     "editTitle": "Edit task",
+    "placeholders": {
+      "title": "Add password reset flow",
+      "description": "Send a reset link by email and expire it after 30 minutes."
+    },
     "empty": "No tasks yet. Add the first one or generate them from the interview.",
     "columnEmpty": "No tasks",
     "fields": {
@@ -222,6 +236,7 @@
         "disabled": "Disabled"
       },
       "instructions": "Instructions (optional)",
+      "instructionsPlaceholder": "Follow the existing form components and add tests",
       "submit": "Assign and start",
       "assigned": "Assigned. Open the run",
       "current": "Current run",
@@ -235,6 +250,10 @@
     "add": "Add memory",
     "addTitle": "Add to memory",
     "editTitle": "Edit memory",
+    "placeholders": {
+      "title": "Client prefers weekly updates on Friday",
+      "content": "Send a short summary by email every Friday afternoon. No calls unless urgent."
+    },
     "empty": "Nothing remembered yet. Important facts about architecture, product and preferences appear here.",
     "filterLabel": "Category",
     "all": "All",
@@ -272,6 +291,12 @@
     "description": "Why something was chosen. Memory is what the project knows; decisions explain the choices.",
     "add": "Create decision",
     "addTitle": "Record a decision",
+    "placeholders": {
+      "question": "Which payment gateway do we use?",
+      "context": "Most customers pay with bank transfer and e-wallets.",
+      "options": "Midtrans\nXendit\nStripe",
+      "reason": "Best local payment method coverage and simple integration."
+    },
     "empty": "No decisions yet. Important architectural or product decisions will appear here as your project evolves.",
     "fields": {
       "question": "Question",
@@ -308,6 +333,10 @@
     "configureHint": "Preferences only. Never paste API keys or tokens here; credentials get a secure store later.",
     "model": "Preferred model",
     "notes": "Notes for this agent",
+    "placeholders": {
+      "model": "claude-sonnet-5-5",
+      "notes": "Prefer concise answers and avoid new dependencies"
+    },
     "secretRejected": "That looks like a credential. Remove keys and tokens from the configuration.",
     "statuses": {
       "available": "Available",

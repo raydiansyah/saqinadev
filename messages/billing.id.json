@@ -18,6 +18,9 @@
       "value": "Nilai proyek ({currency})",
       "label": "Termin",
       "labelPlaceholder": "Uang muka",
+      "valuePlaceholder": "25.000.000",
+      "percentPlaceholder": "30",
+      "amountPlaceholder": "7.500.000",
       "type": "Jenis",
       "percent": "Persen",
       "fixed": "Nominal tetap",
@@ -75,6 +78,11 @@
       "title": "Invoice khusus",
       "hint": "Untuk pekerjaan di luar jadwal, misalnya permintaan perubahan. Dimulai sebagai draf.",
       "invoiceTitle": "Judul invoice",
+      "invoiceTitlePlaceholder": "Redesain website tahap 2",
+      "descriptionPlaceholder": "Dasbor laporan tambahan",
+      "quantityPlaceholder": "1",
+      "unitPricePlaceholder": "2.500.000",
+      "notesPlaceholder": "Pembayaran paling lambat 14 hari",
       "description": "Deskripsi",
       "quantity": "Jml",
       "unitPrice": "Harga satuan ({currency})",
@@ -95,6 +103,7 @@
       "method": "Metode",
       "reference": "Referensi (opsional)",
       "referencePlaceholder": "ID transfer atau nomor kuitansi",
+      "amountPlaceholder": "2.500.000",
       "save": "Catat pembayaran"
     },
     "methods": {
@@ -201,6 +210,10 @@
     "add": "Tambah fitur",
     "itemTitle": "Fitur",
     "itemDescription": "Deskripsi (opsional)",
+    "placeholders": {
+      "title": "Dasbor pelanggan",
+      "description": "Ringkasan pesanan dan invoice untuk tiap pelanggan."
+    },
     "category": "Kategori",
     "visible": "Terlihat oleh klien",
     "visibleBadge": "Terlihat klien",

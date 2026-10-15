@@ -72,22 +72,24 @@ beforeEach(async () => {
 describe("owner authorization", () => {
   it("rejects non-owners for every management function", async () => {
     const { id } = await createService(owner, input("svc-a"));
-    const attempts: Promise<unknown>[] = [
-      createService(member, input("svc-b")),
-      updateService(member, id, input("svc-a")),
-      setServiceFlag(member, id, { flag: "isPublished", value: true }),
-      setServiceFlag(member, id, { flag: "showPrice", value: true }),
-      moveService(member, id, "down"),
-      archiveService(member, id, true),
-      duplicateService(member, id),
-      seedStarterServices(member),
-      listServices(member),
-      getService(member, id),
-      listInquiries(member),
-      updateInquiryStatus(member, id, { status: "contacted" }),
-      convertInquiryToClient(member, id),
+    // Thunks, so each call starts only when its turn comes: eager promises that reject before
+    // they are awaited would surface as unhandled rejections.
+    const attempts: (() => Promise<unknown>)[] = [
+      () => createService(member, input("svc-b")),
+      () => updateService(member, id, input("svc-a")),
+      () => setServiceFlag(member, id, { flag: "isPublished", value: true }),
+      () => setServiceFlag(member, id, { flag: "showPrice", value: true }),
+      () => moveService(member, id, "down"),
+      () => archiveService(member, id, true),
+      () => duplicateService(member, id),
+      () => seedStarterServices(member),
+      () => listServices(member),
+      () => getService(member, id),
+      () => listInquiries(member),
+      () => updateInquiryStatus(member, id, { status: "contacted" }),
+      () => convertInquiryToClient(member, id),
     ];
-    for (const attempt of attempts) expect(await code(attempt)).toBe("AUTHORIZATION_ERROR");
+    for (const attempt of attempts) expect(await code(attempt())).toBe("AUTHORIZATION_ERROR");
     expect((await db.select().from(aiServices)).length).toBe(1);
   });
 });

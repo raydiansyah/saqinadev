@@ -81,6 +81,13 @@
       "whatsappHint": "Opsional, dengan kode negara",
       "message": "Kebutuhan",
       "messageHint": "Apa yang ingin Anda capai? Beberapa kalimat sudah cukup.",
+      "placeholders": {
+        "name": "Budi Santoso",
+        "company": "PT Maju Jaya",
+        "email": "budi@perusahaan.co.id",
+        "whatsapp": "+62 812 3456 7890",
+        "message": "Kami ingin chatbot yang menjawab pertanyaan umum pelanggan di WhatsApp."
+      },
       "consent": "Saya setuju untuk dihubungi terkait pertanyaan ini",
       "submit": "Kirim pertanyaan",
       "sending": "Mengirim",

@@ -135,6 +135,7 @@ function AgentRow({
                 id={`${id}-endpoint`}
                 name="endpoint"
                 label={t("endpoint")}
+                placeholder={t("placeholders.endpoint")}
                 defaultValue={agent.endpoint ?? ""}
                 maxLength={300}
               />
@@ -144,6 +145,7 @@ function AgentRow({
                 type="password"
                 autoComplete="off"
                 label={t("secret")}
+                placeholder={t("placeholders.secret")}
                 hint={t("secretHint")}
                 maxLength={500}
               />
@@ -244,6 +246,7 @@ function HandoffDialog({
         <TextArea
           id={`${id}-instructions`}
           label={t("instructions")}
+          placeholder={t("placeholders.instructions")}
           rows={3}
           maxLength={4000}
           value={input.instructions}
@@ -322,7 +325,14 @@ function CustomAgentDialog({ slug, onClose }: { slug: string; onClose: () => voi
           )
         }
       >
-        <Field id={`${id}-name`} name="name" label={t("customName")} required maxLength={60} />
+        <Field
+          id={`${id}-name`}
+          name="name"
+          label={t("customName")}
+          placeholder={t("placeholders.name")}
+          required
+          maxLength={60}
+        />
         <CapabilityChecksAgent />
         <FormError error={error} />
         <div className="flex justify-end">

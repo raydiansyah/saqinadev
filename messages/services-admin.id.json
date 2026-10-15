@@ -203,6 +203,68 @@
         "relatedNone": "Belum ada layanan lain untuk dikaitkan.",
         "hasErrors": "Ada kesalahan"
       },
+      "placeholders": {
+        "internalName": "Chatbot layanan pelanggan",
+        "slug": "customer-support-chatbot",
+        "displayOrder": "10",
+        "amount": "15000000",
+        "title": {
+          "en": "AI Customer Support Chatbot",
+          "id": "Chatbot Layanan Pelanggan AI"
+        },
+        "shortDescription": {
+          "en": "A chatbot that answers customer questions around the clock.",
+          "id": "Chatbot yang menjawab pertanyaan pelanggan sepanjang waktu."
+        },
+        "description": {
+          "en": "We build a chatbot trained on your own documents and connect it to WhatsApp and your website.",
+          "id": "Kami membangun chatbot yang dilatih dari dokumen Anda sendiri dan menghubungkannya ke WhatsApp dan situs web Anda."
+        },
+        "timeline": {
+          "en": "4 to 6 weeks",
+          "id": "4 sampai 6 minggu"
+        },
+        "problems": {
+          "en": "Slow replies to repeated questions",
+          "id": "Balasan lambat untuk pertanyaan yang berulang"
+        },
+        "capabilities": {
+          "en": "Answers from your product documents",
+          "id": "Menjawab dari dokumen produk Anda"
+        },
+        "useCases": {
+          "en": "Order status and FAQ support",
+          "id": "Dukungan status pesanan dan FAQ"
+        },
+        "included": {
+          "en": "Setup, training and one month of support",
+          "id": "Penyiapan, pelatihan, dan dukungan satu bulan"
+        },
+        "excluded": {
+          "en": "Third-party licence fees",
+          "id": "Biaya lisensi pihak ketiga"
+        },
+        "requirements": {
+          "en": "Access to your product documents",
+          "id": "Akses ke dokumen produk Anda"
+        },
+        "priceLabel": {
+          "en": "From IDR 15,000,000",
+          "id": "Mulai dari Rp15.000.000"
+        },
+        "ctaLabel": {
+          "en": "Request a quote",
+          "id": "Minta penawaran"
+        },
+        "metaTitle": {
+          "en": "AI Customer Support Chatbot | Saqina Dev",
+          "id": "Chatbot Layanan Pelanggan AI | Saqina Dev"
+        },
+        "metaDescription": {
+          "en": "Automate customer support with an AI chatbot trained on your own documents.",
+          "id": "Otomatiskan layanan pelanggan dengan chatbot AI yang dilatih dari dokumen Anda sendiri."
+        }
+      },
       "list": {
         "add": "Tambah butir",
         "addStep": "Tambah langkah",

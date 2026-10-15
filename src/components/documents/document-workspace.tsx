@@ -224,6 +224,7 @@ export function DocumentWorkspace({
               id={editorId}
               ref={editor}
               value={draft}
+              placeholder={t("editorPlaceholder")}
               onChange={(e) => {
                 setDraft(e.target.value);
                 setSave("dirty");

@@ -115,6 +115,7 @@ export function SignInForm({
           type="email"
           autoComplete="email"
           label={t("fields.email")}
+          placeholder={t("placeholders.email")}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           error={fields.email}
@@ -126,6 +127,7 @@ export function SignInForm({
           type="password"
           autoComplete="current-password"
           label={t("fields.password")}
+          placeholder={t("placeholders.password")}
           error={fields.password}
           required
         />

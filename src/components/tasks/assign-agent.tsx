@@ -126,6 +126,7 @@ export function AssignAgent({ slug, taskId }: { slug: string; taskId: string }) 
             onChange={(e) => setInstructions(e.target.value)}
             maxLength={2000}
             rows={2}
+            placeholder={t("instructionsPlaceholder")}
             className={cn(FIELD_CLASS, "min-h-16 py-2")}
           />
           <Button size="sm" variant="outline" disabled={pending || !agentId} onClick={submit}>

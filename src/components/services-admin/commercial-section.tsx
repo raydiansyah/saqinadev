@@ -42,6 +42,7 @@ export function CommercialSection({ state, set, errors }: SectionProps) {
             id="svc-amount"
             label={t("editor.commercial.amount")}
             hint={t("editor.commercial.amountHint", { currency: state.currency })}
+            placeholder={t("editor.placeholders.amount")}
             error={errorAt(errors, "priceAmount")}
             inputMode="decimal"
             value={state.priceAmount}
@@ -57,6 +58,7 @@ export function CommercialSection({ state, set, errors }: SectionProps) {
             lang={loc}
             label={`${t("editor.commercial.priceLabel")} (${loc.toUpperCase()})`}
             hint={t("editor.commercial.priceLabelHint")}
+            placeholder={t(`editor.placeholders.priceLabel.${loc}`)}
             error={errorAt(errors, `priceLabel.${loc}`)}
             value={state.priceLabel[loc]}
             maxLength={80}
@@ -93,6 +95,7 @@ export function CommercialSection({ state, set, errors }: SectionProps) {
             lang={loc}
             label={`${t("editor.commercial.ctaLabel")} (${loc.toUpperCase()})`}
             hint={t("editor.commercial.ctaLabelHint")}
+            placeholder={t(`editor.placeholders.ctaLabel.${loc}`)}
             error={errorAt(errors, `ctaLabel.${loc}`)}
             value={state.ctaLabel[loc]}
             maxLength={60}

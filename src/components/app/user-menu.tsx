@@ -6,7 +6,16 @@ import { signOutAction } from "@/app/[locale]/(app)/actions";
 import { Link, usePathname } from "@/i18n/navigation";
 
 /** Disclosure menu (no ARIA menu role: it holds a link and a form, not menu items). */
-export function UserMenu({ name, email }: { name: string; email: string }) {
+export function UserMenu({
+  name,
+  email,
+  role,
+}: {
+  name: string;
+  email: string;
+  /** Platform role: owners manage the platform, everyone else is a user. */
+  role: "owner" | "user";
+}) {
   const t = useTranslations("app.user");
   const locale = useLocale();
   const ref = useRef<HTMLDetailsElement>(null);
@@ -47,6 +56,16 @@ export function UserMenu({ name, email }: { name: string; email: string }) {
         <div className="border-b border-border px-3 pt-1 pb-3">
           <p className="truncate font-medium">{name}</p>
           <p className="truncate text-sm text-muted-foreground">{email}</p>
+          <p
+            className={
+              role === "owner"
+                ? "mt-2 inline-flex items-center rounded-full border border-primary/50 px-2 py-0.5 text-xs font-medium text-primary"
+                : "mt-2 inline-flex items-center rounded-full border border-border-strong px-2 py-0.5 text-xs font-medium text-muted-foreground"
+            }
+          >
+            <span className="sr-only">{t("role")}: </span>
+            {t(role === "owner" ? "roleOwner" : "roleUser")}
+          </p>
         </div>
         <Link
           href="/dashboard/settings"

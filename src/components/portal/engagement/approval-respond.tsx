@@ -35,6 +35,7 @@ export function ApprovalRespond({ slug, id }: { slug: string; id: string }) {
         <TextArea
           id={`approval-note-${id}`}
           label={t("noteLabel")}
+          placeholder={t("notePlaceholder")}
           hint={t("noteHint")}
           rows={4}
           value={note}
@@ -67,6 +68,7 @@ export function ApprovalRespond({ slug, id }: { slug: string; id: string }) {
       <TextArea
         id={`approval-optional-${id}`}
         label={t("optionalNoteLabel")}
+        placeholder={t("optionalNotePlaceholder")}
         rows={2}
         value={note}
         onChange={(e) => setNote(e.target.value)}

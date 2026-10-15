@@ -72,6 +72,7 @@ export function PaymentDialog({
             id={`${id}-amount`}
             name="amount"
             label={t("amount", { currency })}
+            placeholder={t("amountPlaceholder")}
             inputMode="decimal"
             defaultValue={String(fromMinor(target.balance, currency))}
             required

@@ -248,6 +248,7 @@ function ModelDialog({
               id={`${id}-model`}
               name="modelId"
               label={t("modelId")}
+              placeholder={t("placeholders.modelId")}
               required
               maxLength={120}
             />
@@ -257,6 +258,7 @@ function ModelDialog({
           id={`${id}-name`}
           name="displayName"
           label={t("displayName")}
+          placeholder={t("placeholders.displayName")}
           defaultValue={model?.displayName}
           required
           maxLength={80}
@@ -272,6 +274,7 @@ function ModelDialog({
           type="number"
           min={1}
           label={t("contextWindow")}
+          placeholder={t("placeholders.contextWindow")}
         />
         <FormError error={error} />
         <div className="flex justify-end gap-2 border-t border-border pt-4">

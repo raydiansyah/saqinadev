@@ -28,6 +28,7 @@ export function MessageForm({ slug }: { slug: string }) {
       <TextArea
         id="message-body"
         label={t("bodyLabel")}
+        placeholder={t("bodyPlaceholder")}
         rows={3}
         value={body}
         onChange={(e) => setBody(e.target.value)}

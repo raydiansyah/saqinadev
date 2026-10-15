@@ -70,6 +70,7 @@ export function DecisionDialog({ slug, onClose }: { slug: string; onClose: () =>
         <Field
           id={`${id}-question`}
           name="question"
+          placeholder={t("placeholders.question")}
           label={t("fields.question")}
           maxLength={300}
           error={fieldErrors.question}
@@ -78,6 +79,7 @@ export function DecisionDialog({ slug, onClose }: { slug: string; onClose: () =>
         <TextArea
           id={`${id}-context`}
           name="context"
+          placeholder={t("placeholders.context")}
           label={t("fields.context")}
           rows={3}
           maxLength={2000}
@@ -85,6 +87,7 @@ export function DecisionDialog({ slug, onClose }: { slug: string; onClose: () =>
         <TextArea
           id={`${id}-options`}
           name="options"
+          placeholder={t("placeholders.options")}
           label={t("fields.options")}
           hint={t("fields.optionsHint")}
           rows={4}
@@ -115,6 +118,7 @@ export function DecisionDialog({ slug, onClose }: { slug: string; onClose: () =>
         <TextArea
           id={`${id}-reason`}
           name="reason"
+          placeholder={t("placeholders.reason")}
           label={t("fields.reason")}
           rows={3}
           maxLength={2000}

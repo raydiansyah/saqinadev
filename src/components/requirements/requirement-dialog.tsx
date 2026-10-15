@@ -79,6 +79,7 @@ export function RequirementDialog({
         <Field
           id={`${id}-title`}
           name="title"
+          placeholder={t("placeholders.title")}
           label={t("fields.title")}
           defaultValue={initial.title}
           maxLength={160}
@@ -88,6 +89,7 @@ export function RequirementDialog({
         <TextArea
           id={`${id}-description`}
           name="description"
+          placeholder={t("placeholders.description")}
           label={t("fields.description")}
           defaultValue={initial.description}
           rows={3}

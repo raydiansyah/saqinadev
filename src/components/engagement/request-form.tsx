@@ -51,6 +51,7 @@ export function LogRequestButton({ slug }: { slug: string }) {
             id={`${id}-title`}
             name="title"
             label={t("requestTitle")}
+            placeholder={t("requestTitlePlaceholder")}
             required
             minLength={3}
             maxLength={160}

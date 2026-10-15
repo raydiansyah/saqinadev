@@ -56,6 +56,7 @@ export function ConfirmDialog({
               id="confirm-text"
               value={typed}
               autoComplete="off"
+              placeholder={confirmText}
               onChange={(e) => setTyped(e.target.value)}
               className="min-h-11 w-full rounded-md border border-border-strong bg-surface px-3.5 text-[0.9375rem] focus-visible:border-primary"
             />

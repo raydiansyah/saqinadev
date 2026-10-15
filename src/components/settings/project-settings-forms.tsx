@@ -100,6 +100,7 @@ export function GeneralForm({
           id={`${id}-name`}
           name="name"
           label={t("name")}
+          placeholder={t("namePlaceholder")}
           defaultValue={values.name}
           maxLength={80}
           required
@@ -110,6 +111,7 @@ export function GeneralForm({
           id={`${id}-description`}
           name="description"
           label={t("description")}
+          placeholder={t("descriptionPlaceholder")}
           defaultValue={values.description}
           rows={3}
           maxLength={2000}
@@ -144,13 +146,13 @@ export function TechnicalForm({
   const [strategy, setStrategy] = useState(values.buildStrategy);
   // Building with Saqina always deploys to <slug>.saqina.dev: nothing to configure.
   const managedDeploy = strategy === "saqina";
-  const text = (name: keyof SettingsValues, label: string, error?: string) => (
+  const text = (name: keyof SettingsValues, label: string, placeholder: string, error?: string) => (
     <Field
       id={`${id}-${name}`}
       name={name}
       label={label}
       defaultValue={values[name]}
-      placeholder={t("notSet")}
+      placeholder={placeholder}
       disabled={!canEdit}
       error={error}
     />
@@ -209,8 +211,13 @@ export function TechnicalForm({
               </option>
             ))}
           </Select>
-          {text("repoUrl", t("repoUrl"), save.fields.repoUrl ? t("invalidUrl") : undefined)}
-          {text("defaultBranch", t("defaultBranch"))}
+          {text(
+            "repoUrl",
+            t("repoUrl"),
+            t("repoUrlPlaceholder"),
+            save.fields.repoUrl ? t("invalidUrl") : undefined,
+          )}
+          {text("defaultBranch", t("defaultBranch"), t("defaultBranchPlaceholder"))}
           {managedDeploy ? (
             <div className="sm:col-span-2">
               <p className="text-sm font-medium">{t("deployProvider")}</p>
@@ -234,8 +241,13 @@ export function TechnicalForm({
                   </option>
                 ))}
               </Select>
-              {text("environment", t("environment"))}
-              {text("domain", t("domain"), save.fields.domain ? t("invalidDomain") : undefined)}
+              {text("environment", t("environment"), t("environmentPlaceholder"))}
+              {text(
+                "domain",
+                t("domain"),
+                t("domainPlaceholder"),
+                save.fields.domain ? t("invalidDomain") : undefined,
+              )}
             </>
           )}
         </div>

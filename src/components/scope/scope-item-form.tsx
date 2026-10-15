@@ -47,6 +47,7 @@ export function ScopeItemForm({
       <Field
         id={`${id}-title`}
         name="title"
+        placeholder={t("placeholders.title")}
         label={t("itemTitle")}
         defaultValue={initial.title}
         required
@@ -56,6 +57,7 @@ export function ScopeItemForm({
       <TextArea
         id={`${id}-description`}
         name="description"
+        placeholder={t("placeholders.description")}
         label={t("itemDescription")}
         defaultValue={initial.description}
         rows={2}

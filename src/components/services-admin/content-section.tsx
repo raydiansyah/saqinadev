@@ -32,6 +32,7 @@ export function ContentSection({
   const text = (field: "title" | "shortDescription" | "timeline") => ({
     id: `${uid}-${field}`,
     label: t(`content.${field}`),
+    placeholder: t(`placeholders.${field}.${loc}`),
     value: state[field][loc],
     error:
       errorAt(errors, `${field}.${loc}`) ??
@@ -65,6 +66,7 @@ export function ContentSection({
         <Field
           id={title.id}
           label={title.label}
+          placeholder={title.placeholder}
           value={title.value}
           error={title.error}
           maxLength={120}
@@ -73,6 +75,7 @@ export function ContentSection({
         <TextArea
           id={short.id}
           label={short.label}
+          placeholder={short.placeholder}
           value={short.value}
           error={short.error}
           rows={2}
@@ -82,6 +85,7 @@ export function ContentSection({
         <TextArea
           id={`${uid}-description`}
           label={t("content.description")}
+          placeholder={t(`placeholders.description.${loc}`)}
           value={state.description[loc]}
           error={errorAt(errors, `description.${loc}`)}
           rows={8}
@@ -91,6 +95,7 @@ export function ContentSection({
         <Field
           id={timeline.id}
           label={timeline.label}
+          placeholder={timeline.placeholder}
           value={timeline.value}
           error={timeline.error}
           maxLength={160}
@@ -102,6 +107,7 @@ export function ContentSection({
               key={`${field}-${loc}`}
               id={`${uid}-${field}`}
               label={t(`content.${field}`)}
+              placeholder={t(`placeholders.${field}.${loc}`)}
               values={state[field][loc]}
               error={errorAt(errors, `${field}.${loc}`)}
               onChange={(next) => set(field, setLocalized(state[field], next))}

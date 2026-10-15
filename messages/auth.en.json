@@ -4,13 +4,20 @@
     "or": "or",
     "google": "Continue with Google",
     "googleRedirecting": "Redirecting to Google…",
+    "placeholders": {
+      "name": "Budi Santoso",
+      "email": "budi@perusahaan.co.id",
+      "password": "Your password",
+      "newPassword": "At least 8 characters with numbers and symbols",
+      "confirmPassword": "Repeat the password"
+    },
     "fields": {
       "name": "Name",
       "email": "Email",
       "password": "Password",
       "confirmPassword": "Confirm password",
       "newPassword": "New password",
-      "passwordHint": "At least 8 characters."
+      "passwordHint": "At least 8 characters, with numbers and symbols."
     },
     "signIn": {
       "metaTitle": "Sign in",
@@ -80,6 +87,7 @@
       "userExists": "An account with this email already exists. Sign in instead.",
       "rateLimited": "Too many attempts. Wait a minute and try again.",
       "captcha": "Complete the security check, then try again.",
+      "passwordPolicy": "Use at least 8 characters with numbers and symbols, for example \"Saqina#2026\".",
       "network": "We couldn't reach the server. Check your connection and try again.",
       "oauth": "Google sign-in did not complete. Try again or use email.",
       "unknown": "Something went wrong. Try again."

@@ -18,6 +18,9 @@
       "value": "Project value ({currency})",
       "label": "Term",
       "labelPlaceholder": "Down payment",
+      "valuePlaceholder": "25,000,000",
+      "percentPlaceholder": "30",
+      "amountPlaceholder": "7,500,000",
       "type": "Type",
       "percent": "Percent",
       "fixed": "Fixed amount",
@@ -75,6 +78,11 @@
       "title": "Custom invoice",
       "hint": "For work outside the schedule, such as a change request. It starts as a draft.",
       "invoiceTitle": "Invoice title",
+      "invoiceTitlePlaceholder": "Website redesign phase 2",
+      "descriptionPlaceholder": "Extra reporting dashboard",
+      "quantityPlaceholder": "1",
+      "unitPricePlaceholder": "2,500,000",
+      "notesPlaceholder": "Payment due within 14 days",
       "description": "Description",
       "quantity": "Qty",
       "unitPrice": "Unit price ({currency})",
@@ -95,6 +103,7 @@
       "method": "Method",
       "reference": "Reference (optional)",
       "referencePlaceholder": "Transfer ID or receipt number",
+      "amountPlaceholder": "2,500,000",
       "save": "Record payment"
     },
     "methods": {
@@ -201,6 +210,10 @@
     "add": "Add feature",
     "itemTitle": "Feature",
     "itemDescription": "Description (optional)",
+    "placeholders": {
+      "title": "Customer dashboard",
+      "description": "Overview of orders and invoices for each customer."
+    },
     "category": "Category",
     "visible": "Visible to the client",
     "visibleBadge": "Client visible",

@@ -32,6 +32,11 @@
       "type": "Tipe",
       "adapter": "Protokol",
       "baseUrl": "Base URL",
+      "placeholders": {
+        "name": "Anthropic",
+        "baseUrl": "https://api.example.com/v1",
+        "secret": "Tempel kunci di sini"
+      },
       "baseUrlHint": "Wajib untuk penyedia custom dan compatible. Hanya https (localhost diizinkan saat development).",
       "secret": "API key",
       "secretHint": "Hanya bisa ditulis. Disimpan terenkripsi; tidak akan ditampilkan lagi. Kosongkan untuk mempertahankan kunci saat ini.",
@@ -95,6 +100,11 @@
       "capabilities": "Kemampuan",
       "capabilitiesHint": "Nyatakan apa yang didukung model ini. Saqina tidak menebak dari nama.",
       "contextWindow": "Jendela konteks (token)",
+      "placeholders": {
+        "modelId": "claude-sonnet-5-5",
+        "displayName": "Claude Sonnet",
+        "contextWindow": "200000"
+      },
       "status": "Status",
       "save": "Simpan",
       "enable": "Aktifkan",
@@ -147,6 +157,9 @@
       "owners": "Owner platform",
       "ownersHint": "Owner mengelola penyedia AI, model, dan kebijakan untuk semua proyek di instalasi ini.",
       "addOwner": "Tambah owner lewat email",
+      "placeholders": {
+        "ownerEmail": "owner@example.com"
+      },
       "promote": "Jadikan owner",
       "demote": "Hapus",
       "lastOwner": "Owner terakhir tidak bisa dihapus.",
@@ -176,6 +189,13 @@
       "provider": "Penyedia",
       "fullName": "Repository",
       "fullNameHint": "owner/nama (untuk development lokal: path absolut).",
+      "placeholders": {
+        "fullName": "owner/repository",
+        "token": "Tempel token di sini",
+        "baseUrl": "https://git.example.com/api/v1",
+        "developmentBranch": "develop",
+        "prefix": "saqina/"
+      },
       "baseUrl": "Base URL API (khusus self-hosted)",
       "token": "Access token",
       "tokenHint": "Hanya bisa ditulis. Gunakan token yang dibatasi ke repository ini.",
@@ -218,6 +238,12 @@
       "endpoint": "Endpoint",
       "authType": "Autentikasi",
       "authHeader": "Nama header",
+      "placeholders": {
+        "name": "Pencarian dokumen",
+        "endpoint": "https://mcp.example.com/sse",
+        "authHeader": "X-Api-Key",
+        "secret": "Tempel token di sini"
+      },
       "secret": "Token",
       "save": "Tambah",
       "connect": "Hubungkan dan temukan tool",
@@ -277,6 +303,11 @@
       "handOff": "Serahkan task",
       "custom": "Tambah agent custom",
       "customName": "Nama",
+      "placeholders": {
+        "endpoint": "https://agent.example.com/webhook",
+        "secret": "Tempel rahasia di sini",
+        "name": "Agent internal"
+      },
       "capabilities": "Kemampuan",
       "permissions": "Izin",
       "create": "Buat agent",
@@ -312,6 +343,10 @@
       "cancel": "Batalkan handoff",
       "resultTitle": "Hasil agent",
       "paste": "Tempel laporan agent",
+      "placeholders": {
+        "instructions": "Tambahkan tombol mode gelap di halaman pengaturan",
+        "paste": "Tempel hasil dari agent di sini"
+      },
       "pasteHint": "JSON sesuai format yang diminta, atau teks biasa (disimpan sebagai ringkasan).",
       "import": "Impor hasil",
       "noResult": "Belum ada hasil.",
@@ -366,6 +401,15 @@
     "stack": {
       "title": "Tech stack",
       "description": "Teknologi proyek. Dibagikan ke agent di setiap paket konteks.",
+      "placeholders": {
+        "frontend": "Next.js",
+        "backend": "Node.js",
+        "database": "PostgreSQL",
+        "auth": "Better Auth",
+        "hosting": "Vercel",
+        "repository": "GitHub",
+        "ai": "Claude"
+      },
       "keys": {
         "frontend": "Frontend",
         "backend": "Backend",

@@ -131,6 +131,7 @@ export function PlanDialog({
               id={`${id}-fee`}
               name="fee"
               label={t("fee", { currency })}
+              placeholder={t("feePlaceholder")}
               inputMode="decimal"
               defaultValue={plan ? String(fromMinor(plan.fee, currency)) : ""}
               required
@@ -155,6 +156,7 @@ export function PlanDialog({
               min={1}
               max={720}
               label={t("responseHours")}
+              placeholder={t("responseHoursPlaceholder")}
               defaultValue={plan?.responseHours ?? ""}
             />
             {plan ? (

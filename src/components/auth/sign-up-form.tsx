@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Field, Notice } from "@/components/ui/form";
 import { Link } from "@/i18n/navigation";
 import { signUp } from "@/lib/auth/client";
+import { passwordIssue } from "@/lib/auth/password-policy";
 import { safeNext } from "@/lib/auth/redirect";
 import { type AuthErrorKey, authErrorKey, isEmail } from "./auth-errors";
 import { Divider, GoogleButton } from "./google-button";
@@ -41,7 +42,7 @@ export function SignUpForm({
     const invalid: FieldErrors = {
       name: name.length < 2 ? t("errors.nameTooShort") : undefined,
       email: !email ? t("errors.required") : !isEmail(email) ? t("errors.invalidEmail") : undefined,
-      password: password.length < 8 ? t("errors.passwordTooShort") : undefined,
+      password: passwordIssue(password) ? t("errors.passwordPolicy") : undefined,
       confirm: confirm !== password ? t("errors.passwordMismatch") : undefined,
     };
     setFields(invalid);
@@ -98,6 +99,7 @@ export function SignUpForm({
           name="name"
           autoComplete="name"
           label={t("fields.name")}
+          placeholder={t("placeholders.name")}
           error={fields.name}
           maxLength={80}
           required
@@ -108,6 +110,7 @@ export function SignUpForm({
           type="email"
           autoComplete="email"
           label={t("fields.email")}
+          placeholder={t("placeholders.email")}
           error={fields.email}
           required
         />
@@ -117,6 +120,7 @@ export function SignUpForm({
           type="password"
           autoComplete="new-password"
           label={t("fields.password")}
+          placeholder={t("placeholders.newPassword")}
           hint={t("fields.passwordHint")}
           error={fields.password}
           minLength={8}
@@ -129,6 +133,7 @@ export function SignUpForm({
           type="password"
           autoComplete="new-password"
           label={t("fields.confirmPassword")}
+          placeholder={t("placeholders.confirmPassword")}
           error={fields.confirm}
           required
         />

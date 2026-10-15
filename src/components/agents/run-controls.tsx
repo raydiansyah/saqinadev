@@ -165,6 +165,7 @@ export function RunControls({
             onChange={(e) => setInstructions(e.target.value)}
             maxLength={2000}
             rows={3}
+            placeholder={t("instructionsPlaceholder")}
             aria-describedby={`${id}-hint`}
             className={cn(FIELD_CLASS, "min-h-20 py-2")}
           />

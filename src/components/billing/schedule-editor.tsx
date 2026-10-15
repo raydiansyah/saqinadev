@@ -129,6 +129,7 @@ export function ScheduleEditor({
           </label>
           <input
             id={`${id}-value`}
+            placeholder={t("valuePlaceholder")}
             inputMode="decimal"
             value={valueText}
             onChange={(e) => setValueText(e.target.value)}
@@ -211,6 +212,7 @@ export function ScheduleEditor({
                       <div className="flex items-center gap-1">
                         <input
                           aria-label={t("percentValue")}
+                          placeholder={t("percentPlaceholder")}
                           inputMode="decimal"
                           value={r.percent}
                           required
@@ -223,6 +225,7 @@ export function ScheduleEditor({
                     ) : (
                       <input
                         aria-label={t("amountValue", { currency })}
+                        placeholder={t("amountPlaceholder")}
                         inputMode="decimal"
                         value={r.amount}
                         required

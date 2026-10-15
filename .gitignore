@@ -58,3 +58,5 @@ graphify-out/
 # Local agent tooling state
 .swarm/
 ruvector.db
+agentdb.rvf
+agentdb.rvf.lock

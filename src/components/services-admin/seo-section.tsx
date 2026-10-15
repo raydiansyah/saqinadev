@@ -37,6 +37,7 @@ export function SeoSection({ state, set, errors }: SectionProps) {
                 </label>
                 <input
                   id={titleId}
+                  placeholder={t(`placeholders.metaTitle.${loc}`)}
                   value={state.metaTitle[loc]}
                   aria-describedby={`${titleId}-count`}
                   aria-invalid={errorAt(errors, `metaTitle.${loc}`) ? true : undefined}
@@ -54,6 +55,7 @@ export function SeoSection({ state, set, errors }: SectionProps) {
                 </label>
                 <textarea
                   id={descId}
+                  placeholder={t(`placeholders.metaDescription.${loc}`)}
                   rows={3}
                   value={state.metaDescription[loc]}
                   aria-describedby={`${descId}-count`}

@@ -106,6 +106,7 @@ export function RecommendationPanel({
                 list={`${inputId}-options`}
                 value={draft}
                 maxLength={200}
+                placeholder={t("changePlaceholder")}
                 onChange={(e) => setDraft(e.target.value)}
                 className={cn(FIELD_CLASS, "min-h-11 py-2.5")}
               />

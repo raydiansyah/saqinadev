@@ -16,6 +16,7 @@ export function BasicSection({ state, set, errors }: SectionProps) {
           id="svc-internal-name"
           label={t("editor.basic.internalName")}
           hint={t("editor.basic.internalNameHint")}
+          placeholder={t("editor.placeholders.internalName")}
           error={errorAt(errors, "internalName")}
           value={state.internalName}
           maxLength={120}
@@ -25,6 +26,7 @@ export function BasicSection({ state, set, errors }: SectionProps) {
           id="svc-slug"
           label={t("editor.basic.slug")}
           hint={t("editor.basic.slugHint")}
+          placeholder={t("editor.placeholders.slug")}
           error={errorAt(errors, "slug")}
           value={state.slug}
           maxLength={80}
@@ -50,6 +52,7 @@ export function BasicSection({ state, set, errors }: SectionProps) {
           id="svc-order"
           label={t("editor.basic.displayOrder")}
           hint={t("editor.basic.displayOrderHint")}
+          placeholder={t("editor.placeholders.displayOrder")}
           error={errorAt(errors, "displayOrder")}
           inputMode="numeric"
           value={state.displayOrder}

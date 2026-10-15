@@ -197,6 +197,7 @@ function ProviderDialog({
           id={`${id}-name`}
           name="name"
           label={t("name")}
+          placeholder={t("placeholders.name")}
           defaultValue={provider?.name}
           required
           maxLength={60}
@@ -231,6 +232,7 @@ function ProviderDialog({
           id={`${id}-base`}
           name="baseUrl"
           label={t("baseUrl")}
+          placeholder={t("placeholders.baseUrl")}
           hint={t("baseUrlHint")}
           defaultValue={provider?.baseUrl ?? ""}
           maxLength={300}
@@ -241,6 +243,7 @@ function ProviderDialog({
           type="password"
           autoComplete="off"
           label={t("secret")}
+          placeholder={t("placeholders.secret")}
           hint={t("secretHint")}
           maxLength={500}
         />

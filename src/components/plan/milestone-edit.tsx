@@ -64,6 +64,7 @@ export function MilestoneEdit({
             <Field
               id={`${id}-title`}
               name="title"
+              placeholder={t("placeholders.title")}
               label={t("fields.title")}
               defaultValue={milestone.title}
               maxLength={120}
@@ -73,6 +74,7 @@ export function MilestoneEdit({
             <TextArea
               id={`${id}-goal`}
               name="goal"
+              placeholder={t("placeholders.goal")}
               label={t("fields.goal")}
               defaultValue={milestone.goal}
               rows={3}

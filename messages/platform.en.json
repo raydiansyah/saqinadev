@@ -32,6 +32,11 @@
       "type": "Type",
       "adapter": "Protocol",
       "baseUrl": "Base URL",
+      "placeholders": {
+        "name": "Anthropic",
+        "baseUrl": "https://api.example.com/v1",
+        "secret": "Paste the key here"
+      },
       "baseUrlHint": "Required for custom and compatible providers. https only (localhost allowed in development).",
       "secret": "API key",
       "secretHint": "Write-only. Stored encrypted; never shown again. Leave empty to keep the current key.",
@@ -95,6 +100,11 @@
       "capabilities": "Capabilities",
       "capabilitiesHint": "Declare what this model supports. Saqina does not guess from names.",
       "contextWindow": "Context window (tokens)",
+      "placeholders": {
+        "modelId": "claude-sonnet-5-5",
+        "displayName": "Claude Sonnet",
+        "contextWindow": "200000"
+      },
       "status": "Status",
       "save": "Save",
       "enable": "Enable",
@@ -147,6 +157,9 @@
       "owners": "Platform owners",
       "ownersHint": "Owners manage AI providers, models and policy for every project on this installation.",
       "addOwner": "Add owner by email",
+      "placeholders": {
+        "ownerEmail": "owner@example.com"
+      },
       "promote": "Make owner",
       "demote": "Remove",
       "lastOwner": "The last owner cannot be removed.",
@@ -176,6 +189,13 @@
       "provider": "Provider",
       "fullName": "Repository",
       "fullNameHint": "owner/name (for local development: absolute path).",
+      "placeholders": {
+        "fullName": "owner/repository",
+        "token": "Paste the token here",
+        "baseUrl": "https://git.example.com/api/v1",
+        "developmentBranch": "develop",
+        "prefix": "saqina/"
+      },
       "baseUrl": "API base URL (self-hosted only)",
       "token": "Access token",
       "tokenHint": "Write-only. Use a token limited to this repository.",
@@ -218,6 +238,12 @@
       "endpoint": "Endpoint",
       "authType": "Authentication",
       "authHeader": "Header name",
+      "placeholders": {
+        "name": "Docs search",
+        "endpoint": "https://mcp.example.com/sse",
+        "authHeader": "X-Api-Key",
+        "secret": "Paste the token here"
+      },
       "secret": "Token",
       "save": "Add",
       "connect": "Connect and discover",
@@ -277,6 +303,11 @@
       "handOff": "Hand off a task",
       "custom": "Add custom agent",
       "customName": "Name",
+      "placeholders": {
+        "endpoint": "https://agent.example.com/webhook",
+        "secret": "Paste the secret here",
+        "name": "Internal agent"
+      },
       "capabilities": "Capabilities",
       "permissions": "Permissions",
       "create": "Create agent",
@@ -312,6 +343,10 @@
       "cancel": "Cancel handoff",
       "resultTitle": "Agent result",
       "paste": "Paste the agent's report",
+      "placeholders": {
+        "instructions": "Add a dark mode toggle to the settings page",
+        "paste": "Paste the agent result here"
+      },
       "pasteHint": "JSON in the requested format, or plain text (stored as the summary).",
       "import": "Import result",
       "noResult": "No result yet.",
@@ -366,6 +401,15 @@
     "stack": {
       "title": "Tech stack",
       "description": "What the project is built with. Shared with agents in every context package.",
+      "placeholders": {
+        "frontend": "Next.js",
+        "backend": "Node.js",
+        "database": "PostgreSQL",
+        "auth": "Better Auth",
+        "hosting": "Vercel",
+        "repository": "GitHub",
+        "ai": "Claude"
+      },
       "keys": {
         "frontend": "Frontend",
         "backend": "Backend",

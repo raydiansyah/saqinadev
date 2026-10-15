@@ -116,6 +116,14 @@
       "edit": "Edit",
       "doneEditing": "Done editing",
       "notePlaceholder": "What should change?",
+      "placeholders": {
+        "title": "Add password reset flow",
+        "description": "Send a reset link by email and expire it after 30 minutes.",
+        "body": "Shipped the login page. Next up is the password reset flow.",
+        "content": "Send a short summary by email every Friday afternoon.",
+        "reason": "Best local payment method coverage and simple integration.",
+        "instructions": "Follow the existing form components and add tests"
+      },
       "sendRevision": "Send request",
       "cancel": "Cancel",
       "statuses": {
@@ -374,6 +382,7 @@
         "agent": "Agent",
         "notConnected": "not connected",
         "instructions": "Instructions (optional)",
+        "instructionsPlaceholder": "Follow the existing form components and add tests",
         "instructionsHint": "Tell the agent what to do differently.",
         "submitReassign": "Reassign and start",
         "close": "Close",

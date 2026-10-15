@@ -36,6 +36,8 @@
       },
       "titleLabel": "Judul singkat",
       "titleHint": "Contoh: Tambahkan nomor telepon di halaman kontak",
+      "titlePlaceholder": "Perbarui nomor telepon di halaman kontak",
+      "bodyPlaceholder": "Halaman kontak masih menampilkan nomor lama. Seharusnya +62 812 3456 7890.",
       "bodyLabel": "Rincian",
       "bodyHint": "Apa yang Anda lihat, apa yang Anda harapkan, dan di mana. Boleh dikosongkan, tetapi sangat membantu.",
       "submit": "Kirim permintaan",
@@ -66,6 +68,7 @@
       "client": "Anda",
       "teamSide": "Tim proyek",
       "bodyLabel": "Pesan Anda",
+      "bodyPlaceholder": "Halo, bisakah demo hari Kamis dipindah ke pukul 14.00?",
       "send": "Kirim",
       "threadLabel": "Riwayat pesan"
     },
@@ -88,6 +91,8 @@
       "noteLabel": "Apa yang perlu diubah?",
       "noteHint": "Jelaskan sedetail mungkin agar tim bisa memperbaikinya dengan tepat.",
       "optionalNoteLabel": "Catatan (opsional)",
+      "notePlaceholder": "Logo di header terlalu kecil di ponsel.",
+      "optionalNotePlaceholder": "Sudah bagus, terima kasih.",
       "sendChanges": "Kirim",
       "cancel": "Batal",
       "yourNote": "Catatan Anda",
@@ -118,6 +123,7 @@
       "rejectTitle": "Tolak {number}?",
       "rejectBody": "Tim tidak akan mengerjakan perubahan ini. Anda bisa menyampaikan alasannya.",
       "noteLabel": "Catatan untuk tim (opsional)",
+      "notePlaceholder": "Biaya tambahan tidak masalah, silakan lanjutkan.",
       "confirmApprove": "Ya, setujui",
       "confirmReject": "Tolak",
       "cancel": "Batal"
