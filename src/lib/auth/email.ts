@@ -29,7 +29,9 @@ function resendSender(apiKey: string, from: string): EmailSender {
         body: JSON.stringify({ from, to, subject, text }),
       });
       if (!response.ok) {
-        log.error("email.send_failed", { status: response.status });
+        // Resend explains itself ("domain is not verified", "invalid from"); keep that for the logs.
+        const detail = await response.text().catch(() => "");
+        log.error("email.send_failed", { status: response.status, detail: detail.slice(0, 300) });
         throw new Error("Email could not be sent");
       }
     },

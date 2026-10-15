@@ -8,6 +8,7 @@ import { db } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
 import { ensurePersonalOrg } from "@/lib/organizations/service";
 import { authEmails, getEmailSender } from "./email";
+import { trustedOrigins } from "./origins";
 
 const google =
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
@@ -47,6 +48,7 @@ const captchaPlugins = isCaptchaEnabled()
 export const auth = betterAuth({
   appName: "Saqina Dev",
   baseURL: process.env.BETTER_AUTH_URL,
+  trustedOrigins: trustedOrigins(),
   secret: process.env.BETTER_AUTH_SECRET,
   database: drizzleAdapter(db, { provider: "pg", schema, usePlural: true }),
   emailAndPassword: {

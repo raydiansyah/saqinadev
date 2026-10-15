@@ -39,9 +39,9 @@ export function ForgotPasswordForm() {
         redirectTo: `/${locale}/reset-password`,
         fetchOptions: { headers: captcha.headers },
       });
-      // The same confirmation shows whether or not the account exists (no account enumeration).
-      if (result.error && (result.error.status === 429 || authErrorKey(result.error) === "captcha"))
-        setError(authErrorKey(result.error));
+      // Better Auth answers success whether or not the account exists (no account enumeration),
+      // so any error here is real (rate limit, captcha, rejected origin) and must be shown.
+      if (result.error) setError(authErrorKey(result.error));
       else setSentTo(email);
     } catch {
       setError("network");
