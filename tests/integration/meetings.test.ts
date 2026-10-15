@@ -8,10 +8,13 @@ import { createClient, setProjectClient } from "@/lib/clients/service";
 import { db } from "@/lib/db/client";
 import {
   activities,
+  changeRequests,
   meetingNoteItems,
   meetingNotes,
   notifications,
   projectMembers,
+  proposals,
+  requirements,
   scopeItems,
 } from "@/lib/db/schema";
 import { AppError } from "@/lib/errors";
@@ -26,8 +29,10 @@ import {
   teamDeleteNote,
   teamUpdateNote,
 } from "@/lib/meetings/notes";
+import { dismissItems, proposeFromNote } from "@/lib/meetings/propose";
 import { loadClientProjectAccess } from "@/lib/portal/access";
 import { clientNoteList } from "@/lib/portal/engagement-views";
+import { approveProposal } from "@/lib/proposals/service";
 import { createUser, resetDatabase } from "../helpers/db";
 import { project } from "../helpers/project";
 
@@ -385,5 +390,151 @@ describe("note analysis", () => {
     const otherSlug = await project(stranger, "A recipe sharing app for home cooks and friends.");
     const { provider } = fake(reply([]));
     expect(await code(analyzeNote(stranger, otherSlug, id, "en", { provider }))).toBe("NOT_FOUND");
+  });
+});
+
+describe("proposals from findings", () => {
+  const insertItem = async (noteId: string, position: number, over: Record<string, unknown>) => {
+    const [r] = await db
+      .insert(meetingNoteItems)
+      .values({
+        noteId,
+        position,
+        text: "A finding",
+        quote: "",
+        classification: "new_in_scope",
+        confidence: 80,
+        ...over,
+      })
+      .returning();
+    return r;
+  };
+  const analyzedNote = async () => {
+    const { id } = await teamCreateNote(owner, slug, note());
+    await db.update(meetingNotes).set({ status: "analyzed" }).where(eq(meetingNotes.id, id));
+    return id;
+  };
+
+  it("creates one pending proposal, applies nothing, and approval executes the actions", async () => {
+    const noteId = await analyzedNote();
+    const [req] = await db
+      .insert(requirements)
+      .values({
+        projectId,
+        group: "features",
+        title: "Login page",
+        description: "Email login.",
+        status: "confirmed",
+        source: "user",
+      })
+      .returning();
+    const items = [
+      await insertItem(noteId, 0, {
+        text: "Weekly sales report by email",
+        classification: "new_in_scope",
+      }),
+      await insertItem(noteId, 1, {
+        text: "Login must also support Google",
+        classification: "revision",
+        matchedType: "requirement",
+        matchedId: req.id,
+      }),
+      await insertItem(noteId, 2, {
+        text: "Build an iOS app",
+        classification: "out_of_scope",
+        rationale: "Not in scope.",
+      }),
+      await insertItem(noteId, 3, { text: "Client prefers blue", classification: "info" }),
+    ];
+    const reqBefore = (
+      await db.select().from(requirements).where(eq(requirements.projectId, projectId))
+    ).length;
+
+    const { proposalId } = await proposeFromNote(owner, slug, noteId, {
+      itemIds: items.map((i) => i.id),
+    });
+    const [proposal] = await db.select().from(proposals).where(eq(proposals.id, proposalId));
+    expect(proposal).toMatchObject({
+      type: "meeting_note",
+      status: "pending",
+      createdBy: owner.id,
+    });
+    const types = (proposal.payload as { actions: { type: string }[] }).actions.map((a) => a.type);
+    expect(types).toEqual([
+      "CREATE_REQUIREMENT",
+      "UPDATE_REQUIREMENT",
+      "CREATE_CHANGE_REQUEST",
+      "CREATE_MEMORY",
+    ]);
+    // Nothing is applied yet.
+    expect(
+      (await db.select().from(requirements).where(eq(requirements.projectId, projectId))).length,
+    ).toBe(reqBefore);
+    expect(await db.select().from(changeRequests)).toEqual([]);
+    expect((await items_(noteId)).every((i) => i.proposalId === proposalId)).toBe(true);
+
+    await approveProposal(owner, slug, { proposalId });
+    const all = await db.select().from(requirements).where(eq(requirements.projectId, projectId));
+    expect(all).toHaveLength(reqBefore + 1);
+    expect(all.find((r) => r.id === req.id)?.description).toContain(
+      "Login must also support Google",
+    );
+    const [cr] = await db.select().from(changeRequests);
+    expect(cr).toMatchObject({ status: "draft" });
+    expect(Number(cr.additionalCost)).toBe(0);
+  });
+
+  const items_ = async (noteId: string) =>
+    db.select().from(meetingNoteItems).where(eq(meetingNoteItems.noteId, noteId));
+
+  it("never turns duplicates, conflicts or unclear points into actions", async () => {
+    const noteId = await analyzedNote();
+    for (const [i, c] of (["duplicate", "conflict", "unclear"] as const).entries()) {
+      const item = await insertItem(noteId, i, { classification: c });
+      expect(await code(proposeFromNote(owner, slug, noteId, { itemIds: [item.id] }))).toBe(
+        "VALIDATION_ERROR",
+      );
+    }
+    const lost = await insertItem(noteId, 9, {
+      classification: "revision",
+      matchedType: "scope_item",
+      matchedId: "11111111-1111-4111-8111-111111111111",
+    });
+    expect(await code(proposeFromNote(owner, slug, noteId, { itemIds: [lost.id] }))).toBe(
+      "VALIDATION_ERROR",
+    );
+    expect(await db.select().from(proposals)).toEqual([]);
+  });
+
+  it("uses a finding only once and skips dismissed ones", async () => {
+    const noteId = await analyzedNote();
+    const a = await insertItem(noteId, 0, { classification: "info" });
+    const b = await insertItem(noteId, 1, { classification: "info" });
+    await proposeFromNote(owner, slug, noteId, { itemIds: [a.id] });
+    expect(await code(proposeFromNote(owner, slug, noteId, { itemIds: [a.id] }))).toBe("CONFLICT");
+    await dismissItems(owner, slug, noteId, { itemIds: [b.id] });
+    expect(await code(proposeFromNote(owner, slug, noteId, { itemIds: [b.id] }))).toBe("CONFLICT");
+  });
+
+  it("needs write access, an analyzed note and items of that note", async () => {
+    const noteId = await analyzedNote();
+    const item = await insertItem(noteId, 0, { classification: "info" });
+    expect(await code(proposeFromNote(viewer, slug, noteId, { itemIds: [item.id] }))).toBe(
+      "AUTHORIZATION_ERROR",
+    );
+    expect(await code(proposeFromNote(stranger, slug, noteId, { itemIds: [item.id] }))).toBe(
+      "NOT_FOUND",
+    );
+    const other = await analyzedNote();
+    expect(await code(proposeFromNote(owner, slug, other, { itemIds: [item.id] }))).toBe(
+      "NOT_FOUND",
+    );
+    const fresh = await teamCreateNote(owner, slug, note({ title: "Not analyzed" }));
+    expect(await code(proposeFromNote(owner, slug, fresh.id, { itemIds: [item.id] }))).toBe(
+      "CONFLICT",
+    );
+    expect(await code(proposeFromNote(owner, slug, noteId, { itemIds: [] }))).toBe(
+      "VALIDATION_ERROR",
+    );
   });
 });

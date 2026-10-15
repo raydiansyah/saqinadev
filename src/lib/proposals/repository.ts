@@ -28,7 +28,7 @@ export interface ProposalView {
 }
 
 export interface NewProposal {
-  type: "assistant" | "agent_result";
+  type: "assistant" | "agent_result" | "meeting_note";
   title: string;
   description: string;
   actions: PlannedAction[];

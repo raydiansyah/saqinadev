@@ -253,7 +253,7 @@ export const proposals = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     projectId: projectRef(),
-    /** `assistant` (from chat) or `agent_result` (from an agent run). */
+    /** `assistant` (from chat), `agent_result` (from an agent run) or `meeting_note`. */
     type: text("type").notNull(),
     title: text("title").notNull(),
     description: text("description").notNull().default(""),

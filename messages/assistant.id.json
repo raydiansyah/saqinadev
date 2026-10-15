@@ -228,7 +228,8 @@
       },
       "reminder": {
         "recipients": "Dikirim ke {count} user portal client di aplikasi, dan lewat email bila dikonfigurasi."
-      }
+      },
+      "meetingTitle": "Dari catatan meeting"
     },
     "run": {
       "title": "Run agent",

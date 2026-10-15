@@ -67,6 +67,16 @@
       "conflict": "Konflik",
       "info": "Informasi",
       "unclear": "Belum jelas"
-    }
+    },
+    "select": "Pilih “{text}”",
+    "createProposal": "Buat proposal dari yang dipilih",
+    "creatingProposal": "Membuat…",
+    "proposalCreated": "Proposal dibuat. Tinjau di Persetujuan.",
+    "viewApprovals": "Buka persetujuan",
+    "dismiss": "Abaikan yang dipilih",
+    "inProposal": "Sudah di proposal",
+    "dismissed": "Diabaikan",
+    "notActionable": "Tidak ada perubahan untuk diusulkan",
+    "findingsHint": "Pilih temuan yang dijadikan proposal. Tidak ada yang berubah sampai Anda menyetujuinya."
   }
 }

@@ -240,7 +240,10 @@
         "analyzed": "This note was already analyzed and can no longer be changed.",
         "notPending": "This note is no longer waiting for review. Reload to see the latest.",
         "reasonRequired": "Say why (at least 5 characters). The client will read it.",
-        "notReady": "This note is not ready for analysis yet. A client note needs your approval first."
+        "notReady": "This note is not ready for analysis yet. A client note needs your approval first.",
+        "notAnalyzed": "This note has not been analyzed yet.",
+        "itemTaken": "One of these findings is already in a proposal or was dismissed. Reload to see the latest.",
+        "notActionable": "One of the selected findings cannot become a change (duplicates, conflicts and unclear points stay as findings)."
       },
       "cr": {
         "notDraft": "Only draft change requests can be edited or sent.",

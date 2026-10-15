@@ -16,25 +16,7 @@ import { Notice, TextArea } from "@/components/ui/form";
 import type { MeetingItemClass, MeetingNoteStatus, MeetingVisibility } from "@/lib/domain/business";
 import { formatRelative } from "@/lib/format";
 import { NoteDialog, type NoteDraft } from "./note-dialog";
-
-export interface ItemView {
-  id: string;
-  text: string;
-  quote: string;
-  classification: MeetingItemClass;
-  confidence: number;
-  rationale: string;
-}
-
-const CLASS_TONE: Record<MeetingItemClass, ChipTone> = {
-  new_in_scope: "success",
-  revision: "info",
-  out_of_scope: "error",
-  duplicate: "neutral",
-  conflict: "warning",
-  info: "neutral",
-  unclear: "muted",
-};
+import { type ItemView, NoteFindings } from "./note-findings";
 
 export interface NoteView extends NoteDraft {
   items: ItemView[];
@@ -129,39 +111,8 @@ export function MeetingNotesPanel({
                 {n.reviewNote}
               </p>
             ) : null}
-            {n.items.length > 0 || n.status === "analyzed" ? (
-              <section className="mt-4 border-t border-border pt-4" aria-label={t("itemsTitle")}>
-                <h3 className="text-sm font-medium">{t("itemsTitle")}</h3>
-                {n.items.length === 0 ? (
-                  <p className="mt-2 text-sm text-muted-foreground">{t("noItems")}</p>
-                ) : (
-                  <ul className="mt-2 space-y-3">
-                    {n.items.map((i) => (
-                      <li key={i.id} className="rounded-md border border-border p-3 text-sm">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <Chip tone={CLASS_TONE[i.classification]}>
-                            {t(`classes.${i.classification}`)}
-                          </Chip>
-                          <span className="text-xs text-subtle-foreground">
-                            {t("confidence", { value: i.confidence })}
-                          </span>
-                        </div>
-                        <p className="mt-2 break-words">{i.text}</p>
-                        {i.quote ? (
-                          <p className="mt-1 text-xs break-words text-muted-foreground">
-                            {t("quote")}: “{i.quote}”
-                          </p>
-                        ) : null}
-                        {i.rationale ? (
-                          <p className="mt-1 text-xs break-words text-muted-foreground">
-                            {i.rationale}
-                          </p>
-                        ) : null}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </section>
+            {n.status === "analyzed" ? (
+              <NoteFindings slug={slug} noteId={n.id} items={n.items} canWrite={canWrite} />
             ) : null}
             {n.confirmed ? (
               <p className="mt-3 text-sm text-success">{t("confirmedByClient")}</p>

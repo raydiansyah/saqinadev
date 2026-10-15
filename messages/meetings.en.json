@@ -67,6 +67,16 @@
       "conflict": "Conflict",
       "info": "Information",
       "unclear": "Unclear"
-    }
+    },
+    "select": "Select “{text}”",
+    "createProposal": "Create proposal from selected",
+    "creatingProposal": "Creating…",
+    "proposalCreated": "Proposal created. Review it under Approvals.",
+    "viewApprovals": "Open approvals",
+    "dismiss": "Dismiss selected",
+    "inProposal": "In a proposal",
+    "dismissed": "Dismissed",
+    "notActionable": "No change to propose",
+    "findingsHint": "Pick the findings to turn into a proposal. Nothing changes until you approve it."
   }
 }

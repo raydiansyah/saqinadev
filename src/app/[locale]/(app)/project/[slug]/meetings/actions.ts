@@ -12,6 +12,7 @@ import {
   teamDeleteNote,
   teamUpdateNote,
 } from "@/lib/meetings/notes";
+import { dismissItems, proposeFromNote } from "@/lib/meetings/propose";
 
 const refresh = () => revalidatePath("/[locale]/project/[slug]", "layout");
 
@@ -50,5 +51,21 @@ export async function analyzeNoteAction(slug: string, id: string) {
     const result = await analyzeNote(await requireActor(), slug, id, (await getLocale()) as Locale);
     refresh();
     return { available: result.available };
+  });
+}
+
+/** One proposal from the selected findings; approving it is a separate step. */
+export async function proposeNoteAction(slug: string, id: string, itemIds: string[]) {
+  return runAction("meeting.propose", { slug, id }, async () => {
+    const result = await proposeFromNote(await requireActor(), slug, id, { itemIds });
+    refresh();
+    return result;
+  });
+}
+
+export async function dismissItemsAction(slug: string, id: string, itemIds: string[]) {
+  return runAction("meeting.dismiss", { slug, id }, async () => {
+    await dismissItems(await requireActor(), slug, id, { itemIds });
+    refresh();
   });
 }

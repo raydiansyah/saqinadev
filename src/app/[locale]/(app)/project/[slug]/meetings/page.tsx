@@ -51,6 +51,9 @@ export default async function MeetingsPage({
             classification: i.classification,
             confidence: i.confidence,
             rationale: i.rationale,
+            matchedType: i.matchedType,
+            proposed: i.proposalId !== null,
+            dismissed: i.dismissedAt !== null,
           })),
           createdAt: n.createdAt.toISOString(),
         }))}
