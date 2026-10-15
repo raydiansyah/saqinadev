@@ -3,7 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { runAction } from "@/lib/actions";
 import { requireActor } from "@/lib/auth/server";
-import { teamCreateNote, teamDeleteNote, teamUpdateNote } from "@/lib/meetings/notes";
+import {
+  reviewClientNote,
+  teamCreateNote,
+  teamDeleteNote,
+  teamUpdateNote,
+} from "@/lib/meetings/notes";
 
 const refresh = () => revalidatePath("/[locale]/project/[slug]", "layout");
 
@@ -25,6 +30,13 @@ export async function updateNoteAction(slug: string, id: string, input: unknown)
 export async function deleteNoteAction(slug: string, id: string) {
   return runAction("meeting.delete", { slug, id }, async () => {
     await teamDeleteNote(await requireActor(), slug, id);
+    refresh();
+  });
+}
+
+export async function reviewNoteAction(slug: string, id: string, input: unknown) {
+  return runAction("meeting.review", { slug, id }, async () => {
+    await reviewClientNote(await requireActor(), slug, id, input);
     refresh();
   });
 }

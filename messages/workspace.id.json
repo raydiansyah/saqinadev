@@ -61,6 +61,7 @@
       "meeting_note_updated": "{actor} mengubah catatan meeting “{title}”.",
       "meeting_note_deleted": "{actor} menghapus catatan meeting “{title}”.",
       "meeting_note_reviewed": "{actor} meninjau catatan meeting “{title}”.",
+      "meeting_note_confirmed": "{actor} mengonfirmasi catatan meeting “{title}”.",
       "meeting_note_analyzed": "{actor} meminta catatan meeting “{title}” dianalisis.",
       "pull_request_created": "Pull request “{title}” dibuka.",
       "stack_updated": "{actor} memperbarui tech stack ({title})."

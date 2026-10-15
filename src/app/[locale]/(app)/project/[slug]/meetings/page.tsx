@@ -38,6 +38,8 @@ export default async function MeetingsPage({
           side: n.side,
           visibility: n.visibility,
           status: n.status,
+          reviewNote: n.reviewNote,
+          confirmed: n.clientConfirmedAt !== null,
           createdAt: n.createdAt.toISOString(),
         }))}
       />

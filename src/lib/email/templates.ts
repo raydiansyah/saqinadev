@@ -119,6 +119,9 @@ export const EVENT_TITLES: Record<string, Copy> = {
   "change_request.sent": { en: "Change request to review", id: "Change request untuk ditinjau" },
   "invoice.issued": { en: "New invoice", id: "Invoice baru" },
   "message.posted": { en: "New message", id: "Pesan baru" },
+  "meeting_note.shared": { en: "Meeting notes shared", id: "Catatan meeting dibagikan" },
+  "meeting_note.accepted": { en: "Meeting note accepted", id: "Catatan meeting diterima" },
+  "meeting_note.declined": { en: "Meeting note declined", id: "Catatan meeting ditolak" },
   "client.reminder": { en: "Reminder", id: "Pengingat" },
 };
 const FALLBACK_TITLE: Copy = { en: "Project update", id: "Pembaruan project" };

@@ -6,7 +6,8 @@
       "messages": "Pesan",
       "approvals": "Persetujuan",
       "changes": "Permintaan perubahan",
-      "maintenance": "Pemeliharaan"
+      "maintenance": "Pemeliharaan",
+      "meetings": "Catatan meeting"
     },
     "errors": {
       "noteRequired": "Tuliskan apa yang perlu diubah sebelum mengirim.",
@@ -14,7 +15,8 @@
       "tooShort": "Terlalu singkat. Tambahkan beberapa kata lagi.",
       "tooLong": "Terlalu panjang. Persingkat sedikit.",
       "invalid": "Beberapa isian perlu diperiksa.",
-      "rateLimit": "Anda mengirim terlalu banyak sekaligus. Tunggu sebentar lalu coba lagi."
+      "rateLimit": "Anda mengirim terlalu banyak sekaligus. Tunggu sebentar lalu coba lagi.",
+      "notPending": "Catatan ini sudah ditinjau tim, jadi tidak bisa ditarik kembali."
     },
     "attention": {
       "title": "Perlu tindakan Anda",
@@ -160,6 +162,39 @@
       "requestTitle": "Perlu perbaikan atau pembaruan kecil?",
       "requestBody": "Kirim permintaan pemeliharaan. Tim akan memeriksa apakah ini ditanggung garansi, termasuk paket Anda, atau pekerjaan berbayar, dan memberi tahu Anda sebelum mulai.",
       "requestCta": "Kirim permintaan pemeliharaan"
+    },
+    "meetings": {
+      "title": "Catatan meeting",
+      "description": "Catatan dari meeting Anda dengan tim. Tambahkan yang Anda ingat atau ingin dicatat; tim membacanya dulu sebelum ada yang direncanakan.",
+      "formTitle": "Tambah catatan meeting",
+      "titleLabel": "Judul",
+      "titlePlaceholder": "Telepon soal halaman checkout",
+      "dateLabel": "Tanggal meeting",
+      "attendeesLabel": "Siapa yang hadir",
+      "attendeesPlaceholder": "Budi, Sari",
+      "bodyLabel": "Catatan",
+      "bodyPlaceholder": "Apa yang dibahas dan apa yang disepakati.",
+      "bodyHint": "Teks biasa. Maksimal 20.000 karakter.",
+      "send": "Kirim ke tim",
+      "sending": "Mengirim…",
+      "sent": "Terkirim. Tim akan meninjau dan memberi kabar.",
+      "listTitle": "Semua catatan",
+      "empty": "Belum ada catatan meeting.",
+      "from": {
+        "team": "Dari tim",
+        "client": "Dari Anda"
+      },
+      "status": {
+        "pending_review": "Menunggu review tim",
+        "accepted": "Diterima tim",
+        "declined": "Tidak diterima"
+      },
+      "reasonLabel": "Alasan dari tim",
+      "confirm": "Ini sudah benar",
+      "confirmed": "Anda mengonfirmasi ini pada {date}",
+      "withdraw": "Tarik kembali",
+      "withdrawing": "Menarik…",
+      "attendees": "Peserta"
     }
   }
 }

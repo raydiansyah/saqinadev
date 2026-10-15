@@ -109,6 +109,28 @@
             "body": "{number}: {title} in {project} is waiting for you"
           }
         }
+      },
+      "meeting_note": {
+        "submitted": {
+          "title": "New meeting note",
+          "body": "{title} in {project} is waiting for review"
+        },
+        "shared": {
+          "title": "Meeting notes shared",
+          "body": "{title} in {project}"
+        },
+        "accepted": {
+          "title": "Meeting note accepted",
+          "body": "{title} in {project} will be used for planning"
+        },
+        "declined": {
+          "title": "Meeting note declined",
+          "body": "{title} in {project} was not accepted"
+        },
+        "confirmed": {
+          "title": "Meeting note confirmed",
+          "body": "The client confirmed {title} in {project}"
+        }
       }
     }
   },

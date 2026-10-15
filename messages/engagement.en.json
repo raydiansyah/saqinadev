@@ -237,7 +237,9 @@
         "noRecipients": "No one has portal access for this client yet."
       },
       "meeting": {
-        "analyzed": "This note was already analyzed and can no longer be changed."
+        "analyzed": "This note was already analyzed and can no longer be changed.",
+        "notPending": "This note is no longer waiting for review. Reload to see the latest.",
+        "reasonRequired": "Say why (at least 5 characters). The client will read it."
       },
       "cr": {
         "notDraft": "Only draft change requests can be edited or sent.",

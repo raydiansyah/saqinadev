@@ -6,14 +6,17 @@ import { Notice } from "@/components/ui/form";
 type RunError = { code: string; field?: string } | null;
 
 /** Service field codes ("engagement.noteRequired", "cr.notSent", "tooShort") to copy keys. */
-const FIELD_KEYS: Record<string, "noteRequired" | "notSent" | "tooShort" | "tooLong" | "invalid"> =
-  {
-    "engagement.noteRequired": "noteRequired",
-    "cr.notSent": "notSent",
-    tooShort: "tooShort",
-    tooLong: "tooLong",
-    invalid: "invalid",
-  };
+const FIELD_KEYS: Record<
+  string,
+  "noteRequired" | "notSent" | "notPending" | "tooShort" | "tooLong" | "invalid"
+> = {
+  "engagement.noteRequired": "noteRequired",
+  "cr.notSent": "notSent",
+  "meeting.notPending": "notPending",
+  tooShort: "tooShort",
+  tooLong: "tooLong",
+  invalid: "invalid",
+};
 
 /** Plain-language text for an action failure; falls back to the generic app errors. */
 export function useEngagementErrorText(error: RunError): string | null {

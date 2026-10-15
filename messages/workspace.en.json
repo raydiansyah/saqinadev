@@ -61,6 +61,7 @@
       "meeting_note_updated": "{actor} edited the meeting note “{title}”.",
       "meeting_note_deleted": "{actor} deleted the meeting note “{title}”.",
       "meeting_note_reviewed": "{actor} reviewed the meeting note “{title}”.",
+      "meeting_note_confirmed": "{actor} confirmed the meeting note “{title}”.",
       "meeting_note_analyzed": "{actor} had the meeting note “{title}” analyzed.",
       "pull_request_created": "Pull request “{title}” opened.",
       "stack_updated": "{actor} updated the tech stack ({title})."

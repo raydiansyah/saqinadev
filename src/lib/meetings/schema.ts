@@ -21,4 +21,12 @@ export const noteInput = z.object({
 
 export const noteUpdate = noteInput.partial();
 
+/** The client has no visibility choice: what they write is shown to them and to the team. */
+export const clientNoteInput = noteInput.omit({ visibility: true });
+
+export const reviewInput = z.object({
+  decision: z.enum(["approve", "decline"]),
+  note: text(0, 1000).default(""),
+});
+
 export type NoteInput = z.output<typeof noteInput>;

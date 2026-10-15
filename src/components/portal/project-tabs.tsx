@@ -6,7 +6,14 @@ import { cn } from "@/lib/utils";
 
 const TABS = ["overview", "progress", "features", "documents", "invoices", "payments"] as const;
 /** Phase 6 engagement sections; labels live in the portalEngagement namespace. */
-const ENGAGEMENT_TABS = ["requests", "messages", "approvals", "changes", "maintenance"] as const;
+const ENGAGEMENT_TABS = [
+  "requests",
+  "messages",
+  "meetings",
+  "approvals",
+  "changes",
+  "maintenance",
+] as const;
 
 type Tab = (typeof TABS)[number] | (typeof ENGAGEMENT_TABS)[number];
 

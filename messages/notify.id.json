@@ -109,6 +109,28 @@
             "body": "{number}: {title} di {project} menunggu Anda"
           }
         }
+      },
+      "meeting_note": {
+        "submitted": {
+          "title": "Catatan meeting baru",
+          "body": "{title} di {project} menunggu review"
+        },
+        "shared": {
+          "title": "Catatan meeting dibagikan",
+          "body": "{title} di {project}"
+        },
+        "accepted": {
+          "title": "Catatan meeting diterima",
+          "body": "{title} di {project} akan dipakai untuk perencanaan"
+        },
+        "declined": {
+          "title": "Catatan meeting ditolak",
+          "body": "{title} di {project} tidak diterima"
+        },
+        "confirmed": {
+          "title": "Catatan meeting dikonfirmasi",
+          "body": "Klien mengonfirmasi {title} di {project}"
+        }
       }
     }
   },

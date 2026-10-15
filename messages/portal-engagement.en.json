@@ -6,7 +6,8 @@
       "messages": "Messages",
       "approvals": "Approvals",
       "changes": "Change requests",
-      "maintenance": "Maintenance"
+      "maintenance": "Maintenance",
+      "meetings": "Meeting notes"
     },
     "errors": {
       "noteRequired": "Tell the team what should change before you send this.",
@@ -14,7 +15,8 @@
       "tooShort": "This is too short. Add a few more words.",
       "tooLong": "This is too long. Shorten it a little.",
       "invalid": "Some fields need attention.",
-      "rateLimit": "You are sending a lot at once. Wait a minute and try again."
+      "rateLimit": "You are sending a lot at once. Wait a minute and try again.",
+      "notPending": "This note was already reviewed by the team, so it can no longer be withdrawn."
     },
     "attention": {
       "title": "Needs your attention",
@@ -160,6 +162,39 @@
       "requestTitle": "Need a fix or a small update?",
       "requestBody": "Send a maintenance request. The team checks whether it falls under warranty, your plan, or paid work, and tells you before starting.",
       "requestCta": "Send a maintenance request"
+    },
+    "meetings": {
+      "title": "Meeting notes",
+      "description": "Notes from your meetings with the team. Add what you remember or want to be on record; the team reads it before anything is planned from it.",
+      "formTitle": "Add a meeting note",
+      "titleLabel": "Title",
+      "titlePlaceholder": "Call about the checkout page",
+      "dateLabel": "Meeting date",
+      "attendeesLabel": "Who was there",
+      "attendeesPlaceholder": "Budi, Sari",
+      "bodyLabel": "Notes",
+      "bodyPlaceholder": "What was discussed and what was agreed.",
+      "bodyHint": "Plain text. Up to 20,000 characters.",
+      "send": "Send to the team",
+      "sending": "Sending…",
+      "sent": "Sent. The team will review it and let you know.",
+      "listTitle": "All notes",
+      "empty": "No meeting notes yet.",
+      "from": {
+        "team": "From the team",
+        "client": "From you"
+      },
+      "status": {
+        "pending_review": "Waiting for team review",
+        "accepted": "Accepted by the team",
+        "declined": "Not accepted"
+      },
+      "reasonLabel": "Reason from the team",
+      "confirm": "This is accurate",
+      "confirmed": "You confirmed this on {date}",
+      "withdraw": "Withdraw",
+      "withdrawing": "Withdrawing…",
+      "attendees": "Attendees"
     }
   }
 }

@@ -248,6 +248,7 @@ export const ACTIVITY_TYPES = [
   "meeting_note.updated",
   "meeting_note.deleted",
   "meeting_note.reviewed",
+  "meeting_note.confirmed",
   "meeting_note.analyzed",
 ] as const;
 export type ActivityType = (typeof ACTIVITY_TYPES)[number];
