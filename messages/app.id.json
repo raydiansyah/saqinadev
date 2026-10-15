@@ -97,7 +97,33 @@
           "network": "GitHub tidak dapat dihubungi. Coba lagi.",
           "provider_error": "GitHub mengembalikan error. Coba lagi nanti.",
           "too_large": "Ada file di repository ini yang terlalu besar untuk dibaca.",
-          "unsupported": "Host repository ini belum didukung."
+          "unsupported": "Host repository ini belum didukung.",
+          "github_not_connected": "Hubungkan lagi akun GitHub Anda, atau tempel token."
+        },
+        "connectTitle": "Akun GitHub",
+        "connect": "Hubungkan dengan GitHub",
+        "connectHint": "Hubungkan akun GitHub Anda untuk memilih repositori dari daftar Anda, termasuk yang private. Tidak perlu menyalin token. Anda bisa memutuskan kapan saja.",
+        "connectedAs": "Terhubung sebagai @{login}",
+        "disconnect": "Putuskan",
+        "flags": {
+          "connected": "GitHub terhubung sebagai @{login}.",
+          "denied": "Akses GitHub tidak diberikan. Hubungkan lagi jika ingin memilih dari repositori Anda.",
+          "invalid_state": "Percobaan koneksi kedaluwarsa atau tidak cocok dengan browser ini. Coba hubungkan lagi.",
+          "exchange_failed": "GitHub tidak menyelesaikan koneksi. Coba lagi.",
+          "profile_failed": "Terhubung, tetapi GitHub tidak mengirim data akun Anda. Coba lagi.",
+          "not_configured": "Koneksi ke GitHub belum diatur di server ini.",
+          "rate_limited": "Terlalu banyak percobaan. Coba lagi nanti."
+        },
+        "picker": {
+          "label": "Repositori Anda",
+          "search": "Cari berdasarkan nama",
+          "loading": "Memuat repositori Anda…",
+          "empty": "Tidak ada repositori untuk akun ini.",
+          "noMatch": "Tidak ada repositori yang cocok.",
+          "private": "private",
+          "public": "publik",
+          "load_failed": "Tidak bisa memuat repositori Anda. Coba lagi.",
+          "rate_limited": "Terlalu banyak permintaan. Coba lagi beberapa menit lagi."
         }
       },
       "metaTitle": "Proyek baru",
