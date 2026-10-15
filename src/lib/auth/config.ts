@@ -7,11 +7,13 @@ import { captcha } from "better-auth/plugins";
 import { isCaptchaEnabled } from "@/lib/captcha/config";
 import { db } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
+import { detectLocale } from "@/lib/email/locale";
 import { ensurePersonalOrg } from "@/lib/organizations/service";
 import { allow } from "@/lib/rate-limit";
 import { authEmails, getEmailSender } from "./email";
 import { trustedOrigins } from "./origins";
 import { PASSWORD_ENDPOINTS, passwordIssue } from "./password-policy";
+import { rememberLocale, storedLocale } from "./user-locale";
 
 const google =
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
@@ -23,6 +25,19 @@ const google =
 
 /** True when Google OAuth credentials are configured; the UI hides the button otherwise. */
 export const isGoogleEnabled = () => google !== undefined;
+
+/** The site language of the request that triggered a hook: its callback page or referring page. */
+function requestLocale(ctx: unknown) {
+  const c = ctx as {
+    body?: { callbackURL?: unknown };
+    query?: { callbackURL?: unknown };
+    request?: Request;
+  } | null;
+  return detectLocale({
+    callbackURL: c?.body?.callbackURL ?? c?.query?.callbackURL,
+    referer: c?.request?.headers.get("referer"),
+  });
+}
 
 /**
  * Turnstile guards every credential endpoint that anonymous visitors can reach. Production
@@ -61,15 +76,21 @@ export const auth = betterAuth({
     maxPasswordLength: 128,
     revokeSessionsOnPasswordReset: true,
     resetPasswordTokenExpiresIn: 60 * 60,
-    async sendResetPassword({ user, url }) {
-      await getEmailSender().send({ to: user.email, ...authEmails.reset(user.name, url) });
+    async sendResetPassword({ user, url }, request) {
+      const locale =
+        detectLocale({ url, referer: request?.headers.get("referer") }) ??
+        (await storedLocale(user.id));
+      await getEmailSender().send({ to: user.email, ...authEmails.reset(user.name, url, locale) });
     },
   },
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
-    async sendVerificationEmail({ user, url }) {
-      await getEmailSender().send({ to: user.email, ...authEmails.verify(user.name, url) });
+    async sendVerificationEmail({ user, url }, request) {
+      const locale =
+        detectLocale({ url, referer: request?.headers.get("referer") }) ??
+        (await storedLocale(user.id));
+      await getEmailSender().send({ to: user.email, ...authEmails.verify(user.name, url, locale) });
     },
   },
   socialProviders: google ? { google } : {},
@@ -91,8 +112,17 @@ export const auth = betterAuth({
     user: {
       create: {
         // Every account owns a personal organization from the start.
-        async after(user) {
+        async after(user, ctx) {
           await ensurePersonalOrg(user.id);
+          await rememberLocale(user.id, requestLocale(ctx));
+        },
+      },
+    },
+    session: {
+      create: {
+        // Each sign-in refreshes the language, so mail follows the site language they use now.
+        async after(session, ctx) {
+          await rememberLocale(session.userId, requestLocale(ctx));
         },
       },
     },

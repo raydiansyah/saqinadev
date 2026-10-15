@@ -36,7 +36,7 @@ export async function requirePlatformOwner(actor: Actor): Promise<void> {
 
 export async function listPlatformOwners() {
   return db
-    .select({ id: users.id, name: users.name, email: users.email })
+    .select({ id: users.id, name: users.name, email: users.email, locale: users.locale })
     .from(users)
     .where(eq(users.platformRole, "owner"));
 }

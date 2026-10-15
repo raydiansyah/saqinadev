@@ -12,6 +12,7 @@ import {
   projects,
   users,
 } from "@/lib/db/schema";
+import { notificationEmailMessage, toLocale } from "@/lib/email/templates";
 import { log } from "@/lib/log";
 
 /**
@@ -57,34 +58,8 @@ export async function notifyTx(executor: Executor, input: NotifyInput): Promise<
   return { ids: rows.map((r) => r.id), email: input.email ?? false };
 }
 
-/** Plain-text email in both languages; the recipient's locale is not stored yet. */
-export function emailFor(type: string, params: Record<string, string>, href: string | null) {
-  const base = (process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(
-    /\/$/,
-    "",
-  );
-  const detail = Object.values(params).filter(Boolean).join(" · ");
-  const link = href ? `${base}/en${href}` : base;
-  const linkId = href ? `${base}/id${href}` : base;
-  const subject = `Saqina Dev: ${EMAIL_SUBJECTS[type] ?? "Project update / Pembaruan project"}`;
-  return {
-    subject,
-    text: [detail, "", link, "", detail, linkId].join("\n"),
-  };
-}
-
-const EMAIL_SUBJECTS: Record<string, string> = {
-  "reminder.invoice_due": "Invoice due soon / Invoice segera jatuh tempo",
-  "reminder.invoice_overdue": "Invoice overdue / Invoice lewat jatuh tempo",
-  "reminder.approval_pending": "Approval waiting / Menunggu persetujuan",
-  "reminder.change_request_pending": "Change request waiting / Change request menunggu",
-  "reminder.maintenance_renewal": "Maintenance ends soon / Maintenance segera berakhir",
-  "approval.requested": "Approval requested / Permintaan persetujuan",
-  "change_request.sent": "Change request to review / Change request untuk ditinjau",
-  "invoice.issued": "New invoice / Invoice baru",
-  "message.posted": "New message / Pesan baru",
-  "client.reminder": "Reminder / Pengingat",
-};
+/** Branded HTML (with a plain-text twin) in the recipient's own language. */
+export const emailFor = notificationEmailMessage;
 
 /** Runs non in-app channels for notifications created in a committed transaction. */
 export async function deliver(pending: Pending | Pending[]): Promise<void> {
@@ -93,11 +68,11 @@ export async function deliver(pending: Pending | Pending[]): Promise<void> {
   if (ids.length === 0) return;
   const configured = Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM);
   const rows = await db
-    .select({ n: notifications, email: users.email })
+    .select({ n: notifications, email: users.email, locale: users.locale })
     .from(notifications)
     .innerJoin(users, eq(users.id, notifications.userId))
     .where(inArray(notifications.id, ids));
-  for (const { n, email } of rows) {
+  for (const { n, email, locale } of rows) {
     if (!configured) {
       await db
         .insert(notificationDeliveries)
@@ -105,7 +80,10 @@ export async function deliver(pending: Pending | Pending[]): Promise<void> {
       continue;
     }
     try {
-      await getEmailSender().send({ to: email, ...emailFor(n.type, n.params, n.href) });
+      await getEmailSender().send({
+        to: email,
+        ...emailFor(n.type, n.params, n.href, toLocale(locale)),
+      });
       await db
         .insert(notificationDeliveries)
         .values({ notificationId: n.id, channel: "email", status: "sent" });

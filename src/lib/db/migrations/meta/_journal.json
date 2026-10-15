@@ -57,6 +57,13 @@
       "when": 1792040954447,
       "tag": "0007_rate_limits",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1792053307120,
+      "tag": "0008_user_locale",
+      "breakpoints": true
     }
   ]
 }

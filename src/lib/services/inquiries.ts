@@ -10,6 +10,7 @@ import { createClient } from "@/lib/clients/service";
 import { db } from "@/lib/db/client";
 import { aiServices, serviceInquiries } from "@/lib/db/schema";
 import { INQUIRY_STATUSES, type InquiryStatus } from "@/lib/domain/services";
+import { inquiryEmailMessage, toLocale } from "@/lib/email/templates";
 import { AppError } from "@/lib/errors";
 import { log } from "@/lib/log";
 import { listPlatformOwners, requirePlatformOwner } from "@/lib/platform/roles";
@@ -78,15 +79,10 @@ export async function submitInquiry(input: unknown, context: { ip: string }) {
 /** Best effort: the inquiry is already saved, so a mail failure never fails the visitor. */
 async function notifyOwners(name: string, slug: string | null) {
   if (!process.env.RESEND_API_KEY || !process.env.EMAIL_FROM) return;
-  const base = (process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(
-    /\/$/,
-    "",
-  );
   for (const owner of await listPlatformOwners())
     await getEmailSender().send({
       to: owner.email,
-      subject: "New service inquiry / Pertanyaan layanan baru",
-      text: `${name}${slug ? ` · ${slug}` : ""}\n${base}/en/dashboard/services/inquiries\n\n${name}${slug ? ` · ${slug}` : ""}\n${base}/id/dashboard/services/inquiries`,
+      ...inquiryEmailMessage(name, slug, toLocale(owner.locale)),
     });
 }
 

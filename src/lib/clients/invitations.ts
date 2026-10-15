@@ -7,6 +7,7 @@ import type { Actor } from "@/lib/auth/actor";
 import { getEmailSender } from "@/lib/auth/email";
 import { db } from "@/lib/db/client";
 import { clientInvitations, clients, clientUsers, organizations } from "@/lib/db/schema";
+import { inviteEmailMessage, toLocale } from "@/lib/email/templates";
 import { AppError } from "@/lib/errors";
 import { allow } from "@/lib/rate-limit";
 import { parse } from "@/lib/validation";
@@ -77,16 +78,7 @@ export async function createInvitation(
   if (process.env.RESEND_API_KEY && process.env.EMAIL_FROM) {
     await getEmailSender().send({
       to: email,
-      subject: `${org.name} invited you to the project portal / mengundang Anda ke portal project`,
-      text: [
-        `${org.name} invited you to follow your projects with ${client.name} on Saqina Dev.`,
-        url,
-        "",
-        `${org.name} mengundang Anda memantau project ${client.name} di Saqina Dev.`,
-        url,
-        "",
-        "The link works once and expires in 7 days. / Tautan berlaku sekali, 7 hari.",
-      ].join("\n"),
+      ...inviteEmailMessage(org.name, client.name, url, toLocale(locale)),
     });
     emailed = true;
   }

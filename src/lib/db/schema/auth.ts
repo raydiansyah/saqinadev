@@ -14,6 +14,8 @@ export const users = pgTable("users", {
   /** Platform role (AI control plane). Not a project role; see lib/platform/roles. */
   platformRole: text("platform_role").$type<"user" | "owner">().notNull().default("user"),
   /** Navigation density: simple hides technical areas. Not a permission. */
+  /** Language the person last used on the site: the language of the email they receive. */
+  locale: text("locale"),
   uiMode: text("ui_mode").$type<"simple" | "advanced">().notNull().default("simple"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true })

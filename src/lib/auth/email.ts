@@ -1,10 +1,14 @@
 import "server-only";
+import type { Locale } from "@/i18n/locales";
+import { resetEmailMessage, verifyEmailMessage } from "@/lib/email/templates";
 import { log } from "@/lib/log";
 
 export interface EmailMessage {
   to: string;
   subject: string;
+  /** Plain-text twin, always present: clients that block HTML and spam filters read it. */
   text: string;
+  html?: string;
 }
 
 /** Sends transactional email. The implementation is chosen from the environment. */
@@ -22,11 +26,11 @@ const consoleSender: EmailSender = {
 /** Resend REST API, called with fetch so no SDK is needed. */
 function resendSender(apiKey: string, from: string): EmailSender {
   return {
-    async send({ to, subject, text }) {
+    async send({ to, subject, text, html }) {
       const response = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ from, to, subject, text }),
+        body: JSON.stringify({ from, to, subject, text, ...(html ? { html } : {}) }),
       });
       if (!response.ok) {
         // Resend explains itself ("domain is not verified", "invalid from"); keep that for the logs.
@@ -48,32 +52,10 @@ export function getEmailSender(): EmailSender {
   return consoleSender;
 }
 
-// The auth flow does not know the visitor's language, so messages carry both.
+// The language comes from the page the visitor was on (see lib/email/locale).
 export const authEmails = {
-  verify: (name: string, url: string): Omit<EmailMessage, "to"> => ({
-    subject: "Verify your Saqina Dev email / Verifikasi email Saqina Dev",
-    text: [
-      `Hi ${name},`,
-      "Confirm your email to finish creating your Saqina Dev account:",
-      url,
-      "",
-      "Konfirmasi email Anda untuk menyelesaikan pembuatan akun Saqina Dev:",
-      url,
-      "",
-      "If you did not sign up, ignore this email. / Abaikan email ini jika Anda tidak mendaftar.",
-    ].join("\n"),
-  }),
-  reset: (name: string, url: string): Omit<EmailMessage, "to"> => ({
-    subject: "Reset your Saqina Dev password / Atur ulang kata sandi Saqina Dev",
-    text: [
-      `Hi ${name},`,
-      "Use this link to choose a new password. It expires in one hour:",
-      url,
-      "",
-      "Gunakan tautan ini untuk membuat kata sandi baru. Berlaku satu jam:",
-      url,
-      "",
-      "If you did not ask for this, ignore this email. / Abaikan jika Anda tidak memintanya.",
-    ].join("\n"),
-  }),
+  verify: (name: string, url: string, locale: Locale): Omit<EmailMessage, "to"> =>
+    verifyEmailMessage(name, url, locale),
+  reset: (name: string, url: string, locale: Locale): Omit<EmailMessage, "to"> =>
+    resetEmailMessage(name, url, locale),
 };
