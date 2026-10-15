@@ -239,7 +239,8 @@
       "meeting": {
         "analyzed": "Catatan ini sudah dianalisis dan tidak bisa diubah lagi.",
         "notPending": "Catatan ini tidak lagi menunggu review. Muat ulang untuk melihat yang terbaru.",
-        "reasonRequired": "Jelaskan alasannya (minimal 5 karakter). Klien akan membacanya."
+        "reasonRequired": "Jelaskan alasannya (minimal 5 karakter). Klien akan membacanya.",
+        "notReady": "Catatan ini belum siap dianalisis. Catatan klien perlu persetujuan Anda dulu."
       },
       "cr": {
         "notDraft": "Hanya permintaan perubahan berstatus draf yang bisa diubah atau dikirim.",

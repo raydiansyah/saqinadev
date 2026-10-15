@@ -51,6 +51,22 @@
     "declineBody": "“{title}” will not be analyzed. The client will see your reason.",
     "declineReason": "Reason (at least 5 characters)",
     "reviewNote": "Review note",
-    "confirmedByClient": "The client confirmed this note is accurate."
+    "confirmedByClient": "The client confirmed this note is accurate.",
+    "analyze": "Analyze note",
+    "analyzing": "Analyzing…",
+    "analysisUnavailable": "No AI model is set up, so Saqina cannot read this note yet. Ask the platform owner to add one in AI & Models.",
+    "itemsTitle": "What Saqina found",
+    "noItems": "Nothing in this note needed a plan change.",
+    "confidence": "Confidence {value}%",
+    "quote": "From the note",
+    "classes": {
+      "new_in_scope": "New, in scope",
+      "revision": "Revises existing",
+      "out_of_scope": "Out of scope",
+      "duplicate": "Already planned",
+      "conflict": "Conflict",
+      "info": "Information",
+      "unclear": "Unclear"
+    }
   }
 }

@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import {
+  analyzeNoteAction,
   deleteNoteAction,
   reviewNoteAction,
 } from "@/app/[locale]/(app)/project/[slug]/meetings/actions";
@@ -11,12 +12,32 @@ import { Chip, type ChipTone } from "@/components/engagement/chip";
 import { EngagementError, useEngagementErrorText } from "@/components/engagement/engagement-error";
 import { useRun } from "@/components/platform/use-run";
 import { Button } from "@/components/ui/button";
-import { TextArea } from "@/components/ui/form";
-import type { MeetingNoteStatus, MeetingVisibility } from "@/lib/domain/business";
+import { Notice, TextArea } from "@/components/ui/form";
+import type { MeetingItemClass, MeetingNoteStatus, MeetingVisibility } from "@/lib/domain/business";
 import { formatRelative } from "@/lib/format";
 import { NoteDialog, type NoteDraft } from "./note-dialog";
 
+export interface ItemView {
+  id: string;
+  text: string;
+  quote: string;
+  classification: MeetingItemClass;
+  confidence: number;
+  rationale: string;
+}
+
+const CLASS_TONE: Record<MeetingItemClass, ChipTone> = {
+  new_in_scope: "success",
+  revision: "info",
+  out_of_scope: "error",
+  duplicate: "neutral",
+  conflict: "warning",
+  info: "neutral",
+  unclear: "muted",
+};
+
 export interface NoteView extends NoteDraft {
+  items: ItemView[];
   side: "client" | "team";
   status: MeetingNoteStatus;
   reviewNote: string | null;
@@ -64,6 +85,7 @@ export function MeetingNotesPanel({
   const [deleting, setDeleting] = useState<NoteView | null>(null);
   const [declining, setDeclining] = useState<NoteView | null>(null);
   const [reason, setReason] = useState("");
+  const [unavailable, setUnavailable] = useState(false);
   const { pending, error, run, clear } = useRun();
   const errorText = useEngagementErrorText(error);
 
@@ -107,6 +129,40 @@ export function MeetingNotesPanel({
                 {n.reviewNote}
               </p>
             ) : null}
+            {n.items.length > 0 || n.status === "analyzed" ? (
+              <section className="mt-4 border-t border-border pt-4" aria-label={t("itemsTitle")}>
+                <h3 className="text-sm font-medium">{t("itemsTitle")}</h3>
+                {n.items.length === 0 ? (
+                  <p className="mt-2 text-sm text-muted-foreground">{t("noItems")}</p>
+                ) : (
+                  <ul className="mt-2 space-y-3">
+                    {n.items.map((i) => (
+                      <li key={i.id} className="rounded-md border border-border p-3 text-sm">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Chip tone={CLASS_TONE[i.classification]}>
+                            {t(`classes.${i.classification}`)}
+                          </Chip>
+                          <span className="text-xs text-subtle-foreground">
+                            {t("confidence", { value: i.confidence })}
+                          </span>
+                        </div>
+                        <p className="mt-2 break-words">{i.text}</p>
+                        {i.quote ? (
+                          <p className="mt-1 text-xs break-words text-muted-foreground">
+                            {t("quote")}: “{i.quote}”
+                          </p>
+                        ) : null}
+                        {i.rationale ? (
+                          <p className="mt-1 text-xs break-words text-muted-foreground">
+                            {i.rationale}
+                          </p>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </section>
+            ) : null}
             {n.confirmed ? (
               <p className="mt-3 text-sm text-success">{t("confirmedByClient")}</p>
             ) : null}
@@ -129,6 +185,23 @@ export function MeetingNotesPanel({
                 </Button>
               </div>
             ) : null}
+            {canWrite && (n.status === "ready" || n.status === "approved_for_analysis") ? (
+              <div className="mt-4">
+                <Button
+                  size="sm"
+                  disabled={pending}
+                  onClick={() => {
+                    setUnavailable(false);
+                    run<{ available: boolean }>(
+                      () => analyzeNoteAction(slug, n.id),
+                      (r) => setUnavailable(!r.available),
+                    );
+                  }}
+                >
+                  {pending ? t("analyzing") : t("analyze")}
+                </Button>
+              </div>
+            ) : null}
             {canWrite && n.status !== "analyzed" ? (
               <div className="mt-4 flex gap-2">
                 <Button variant="outline" size="sm" onClick={() => setEditing(n)}>
@@ -146,6 +219,7 @@ export function MeetingNotesPanel({
         <NoteDialog slug={slug} open note={editing} onClose={() => setEditing(null)} />
       ) : null}
       {declining || deleting ? null : <EngagementError error={error} />}
+      {unavailable ? <Notice tone="warning">{t("analysisUnavailable")}</Notice> : null}
       <ConfirmDialog
         open={declining !== null}
         title={t("declineTitle")}

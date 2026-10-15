@@ -51,6 +51,22 @@
     "declineBody": "“{title}” tidak akan dianalisis. Klien akan melihat alasan Anda.",
     "declineReason": "Alasan (minimal 5 karakter)",
     "reviewNote": "Catatan review",
-    "confirmedByClient": "Klien mengonfirmasi catatan ini sudah benar."
+    "confirmedByClient": "Klien mengonfirmasi catatan ini sudah benar.",
+    "analyze": "Analisis catatan",
+    "analyzing": "Menganalisis…",
+    "analysisUnavailable": "Belum ada model AI yang diatur, jadi Saqina belum bisa membaca catatan ini. Minta pemilik platform menambahkannya di AI & Models.",
+    "itemsTitle": "Temuan Saqina",
+    "noItems": "Tidak ada isi catatan yang perlu mengubah rencana.",
+    "confidence": "Keyakinan {value}%",
+    "quote": "Dari catatan",
+    "classes": {
+      "new_in_scope": "Baru, dalam scope",
+      "revision": "Merevisi yang ada",
+      "out_of_scope": "Di luar scope",
+      "duplicate": "Sudah direncanakan",
+      "conflict": "Konflik",
+      "info": "Informasi",
+      "unclear": "Belum jelas"
+    }
   }
 }

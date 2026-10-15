@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { PageHeading } from "@/components/app/states";
 import { MeetingNotesPanel, NewNoteButton } from "@/components/meetings/meeting-notes-panel";
 import { can } from "@/lib/auth/permissions";
+import { listItemsByNote } from "@/lib/meetings/analyze";
 import { listNotes } from "@/lib/meetings/notes";
 import { projectPageAccess } from "@/lib/projects/page";
 
@@ -17,6 +18,9 @@ export default async function MeetingsPage({
   const { slug } = await params;
   const access = await projectPageAccess(slug);
   const [t, notes] = await Promise.all([getTranslations("meetings"), listNotes(access.project.id)]);
+  const items = await listItemsByNote(
+    notes.filter((n) => n.status === "analyzed").map((n) => n.id),
+  );
   const canWrite = can(access.role, "content:write");
 
   return (
@@ -40,6 +44,14 @@ export default async function MeetingsPage({
           status: n.status,
           reviewNote: n.reviewNote,
           confirmed: n.clientConfirmedAt !== null,
+          items: (items.get(n.id) ?? []).map((i) => ({
+            id: i.id,
+            text: i.text,
+            quote: i.quote,
+            classification: i.classification,
+            confidence: i.confidence,
+            rationale: i.rationale,
+          })),
           createdAt: n.createdAt.toISOString(),
         }))}
       />
