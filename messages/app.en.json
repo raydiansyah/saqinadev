@@ -73,6 +73,33 @@
       "startNew": "Start new project"
     },
     "newProject": {
+      "github": {
+        "tabs": "How to start",
+        "tabIdea": "From an idea",
+        "tabGithub": "Import from GitHub",
+        "title": "Import an existing project",
+        "body": "Saqina reads the README, PRD and docs in your repository and fills in the interview for you. You review the answers instead of starting from scratch.",
+        "repoLabel": "GitHub repository",
+        "repoPlaceholder": "acme/restaurant-pos or https://github.com/acme/restaurant-pos",
+        "repoHint": "Public repositories need nothing else.",
+        "tokenLabel": "Access token (private repositories only)",
+        "tokenPlaceholder": "Paste a read-only token here",
+        "tokenHint": "A fine-grained token with read access to Contents. It is stored encrypted and connects the repository to the project.",
+        "aiLabel": "Let AI read the documents",
+        "aiHint": "The repository documents are sent to your configured AI model to fill in the answers more accurately. Without it, simple rules are used and nothing leaves this server.",
+        "submit": "Import and review",
+        "pending": "Reading the repository…",
+        "errors": {
+          "invalid": "Enter a repository as owner/name or a GitHub URL.",
+          "auth_failed": "GitHub refused access. Check the token and its permissions.",
+          "not_found": "Repository not found. For a private repository, add a token.",
+          "rate_limited": "GitHub is limiting requests. Try again in a few minutes.",
+          "network": "Could not reach GitHub. Try again.",
+          "provider_error": "GitHub returned an error. Try again later.",
+          "too_large": "A file in this repository is too large to read.",
+          "unsupported": "This repository host is not supported yet."
+        }
+      },
       "metaTitle": "New project",
       "title": "What do you want to build?",
       "body": "Describe it in your own words. You can refine everything in the interview.",

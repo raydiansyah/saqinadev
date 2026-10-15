@@ -167,6 +167,38 @@
       }
     },
     "review": {
+      "ai": {
+        "title": "Tinjau dengan AI",
+        "body": "Model AI yang disetel oleh owner platform memeriksa jawaban ini dan dokumen yang diimpor, menandai yang meragukan atau belum ada, lalu mengusulkan nilai. Anda yang memutuskan apa yang diterapkan.",
+        "privacy": "Jawaban dan dokumen impor Anda akan dikirim ke model tersebut.",
+        "button": "Tinjau dengan AI",
+        "again": "Tinjau ulang",
+        "pending": "Meninjau…",
+        "reviewedBy": "Ditinjau oleh {model}",
+        "noModel": "Belum ada model AI yang disetel. Owner platform dapat menambahkannya di AI & Models.",
+        "suggestions": "Usulan nilai",
+        "noSuggestions": "Tidak ada perubahan yang diusulkan.",
+        "apply": "Terapkan",
+        "applied": "Diterapkan",
+        "applyAll": "Terapkan semua",
+        "levels": {
+          "ok": "Tampak benar",
+          "check": "Perlu dicek",
+          "missing": "Belum ada"
+        },
+        "fields": {
+          "projectType": "Jenis proyek",
+          "audience": "Pengguna",
+          "features": "Fitur",
+          "objective": "Tujuan",
+          "projectState": "Kondisi proyek",
+          "techPreference": "Preferensi teknologi",
+          "databaseNeed": "Perlu database",
+          "databaseChoice": "Database",
+          "versioning": "Version control",
+          "deployment": "Deployment"
+        }
+      },
       "metaTitle": "Review",
       "title": "Ini yang kami pahami",
       "summary": "Ringkasan proyek",

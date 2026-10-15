@@ -167,6 +167,38 @@
       }
     },
     "review": {
+      "ai": {
+        "title": "Review with AI",
+        "body": "The AI model set up by the platform owner checks these answers and your imported documents, flags what looks doubtful or missing, and suggests values. You decide what to apply.",
+        "privacy": "This sends your answers and imported documents to that model.",
+        "button": "Review with AI",
+        "again": "Review again",
+        "pending": "Reviewing…",
+        "reviewedBy": "Reviewed by {model}",
+        "noModel": "No AI model is set up yet. The platform owner can add one under AI & Models.",
+        "suggestions": "Suggested values",
+        "noSuggestions": "No changes suggested.",
+        "apply": "Apply",
+        "applied": "Applied",
+        "applyAll": "Apply all",
+        "levels": {
+          "ok": "Looks right",
+          "check": "Check this",
+          "missing": "Missing"
+        },
+        "fields": {
+          "projectType": "Project type",
+          "audience": "Audience",
+          "features": "Features",
+          "objective": "Objective",
+          "projectState": "Project state",
+          "techPreference": "Technology preference",
+          "databaseNeed": "Database needed",
+          "databaseChoice": "Database",
+          "versioning": "Version control",
+          "deployment": "Deployment"
+        }
+      },
       "metaTitle": "Review",
       "title": "Here is what we understood",
       "summary": "Project summary",

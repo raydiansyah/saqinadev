@@ -73,6 +73,33 @@
       "startNew": "Buat Project baru"
     },
     "newProject": {
+      "github": {
+        "tabs": "Cara memulai",
+        "tabIdea": "Dari sebuah ide",
+        "tabGithub": "Impor dari GitHub",
+        "title": "Impor proyek yang sudah ada",
+        "body": "Saqina membaca README, PRD, dan dokumen di repository Anda lalu mengisi interview untuk Anda. Anda cukup meninjau jawabannya, tidak mulai dari nol.",
+        "repoLabel": "Repository GitHub",
+        "repoPlaceholder": "acme/restaurant-pos atau https://github.com/acme/restaurant-pos",
+        "repoHint": "Repository publik tidak memerlukan isian lain.",
+        "tokenLabel": "Token akses (hanya untuk repository privat)",
+        "tokenPlaceholder": "Tempel token read-only di sini",
+        "tokenHint": "Token fine-grained dengan akses baca ke Contents. Disimpan terenkripsi dan menghubungkan repository ke proyek.",
+        "aiLabel": "Izinkan AI membaca dokumen",
+        "aiHint": "Dokumen repository dikirim ke model AI yang Anda konfigurasi agar jawaban lebih akurat. Tanpa ini dipakai aturan sederhana dan tidak ada data yang keluar dari server ini.",
+        "submit": "Impor dan tinjau",
+        "pending": "Membaca repository…",
+        "errors": {
+          "invalid": "Masukkan repository sebagai owner/nama atau URL GitHub.",
+          "auth_failed": "GitHub menolak akses. Periksa token dan izinnya.",
+          "not_found": "Repository tidak ditemukan. Untuk repository privat, tambahkan token.",
+          "rate_limited": "GitHub membatasi permintaan. Coba lagi beberapa menit lagi.",
+          "network": "GitHub tidak dapat dihubungi. Coba lagi.",
+          "provider_error": "GitHub mengembalikan error. Coba lagi nanti.",
+          "too_large": "Ada file di repository ini yang terlalu besar untuk dibaca.",
+          "unsupported": "Host repository ini belum didukung."
+        }
+      },
       "metaTitle": "Proyek baru",
       "title": "Apa yang ingin Anda bangun?",
       "body": "Jelaskan dengan kata-kata Anda sendiri. Semua bisa disempurnakan di interview.",

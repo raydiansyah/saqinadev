@@ -8,9 +8,39 @@ import { Notice, TextArea } from "@/components/ui/form";
 import { useRouter } from "@/i18n/navigation";
 import { clearState, loadState } from "@/lib/interview/storage";
 import type { Answers } from "@/lib/interview/types";
+import { ImportProjectForm } from "./import-project-form";
+
+/** Chooses how to start: describe an idea, or import an existing GitHub repository. */
+export function NewProjectForm() {
+  const t = useTranslations("app");
+  const [mode, setMode] = useState<"idea" | "github">("idea");
+  return (
+    <div className="space-y-6">
+      <div
+        role="radiogroup"
+        aria-label={t("newProject.github.tabs")}
+        className="flex flex-wrap gap-2"
+      >
+        {(["idea", "github"] as const).map((value) => (
+          <button
+            key={value}
+            type="button"
+            role="radio"
+            aria-checked={mode === value}
+            onClick={() => setMode(value)}
+            className="min-h-11 rounded-md border border-border px-4 text-sm aria-checked:border-primary aria-checked:text-foreground"
+          >
+            {value === "idea" ? t("newProject.github.tabIdea") : t("newProject.github.tabGithub")}
+          </button>
+        ))}
+      </div>
+      {mode === "idea" ? <IdeaForm /> : <ImportProjectForm />}
+    </div>
+  );
+}
 
 /** Starts a project from a sentence; optionally carries over the anonymous /start answers. */
-export function NewProjectForm() {
+function IdeaForm() {
   const t = useTranslations("app");
   const locale = useLocale();
   const id = useId();

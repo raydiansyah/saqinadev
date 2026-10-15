@@ -5,7 +5,7 @@ import type { Locale } from "@/i18n/locales";
 import { recordActivity } from "@/lib/activity/service";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess } from "@/lib/auth/permissions";
-import { db } from "@/lib/db/client";
+import { db, type Tx } from "@/lib/db/client";
 import { activities, projectMembers, projectSettings, projects } from "@/lib/db/schema";
 import {
   APPROVAL_POLICIES,
@@ -54,17 +54,29 @@ const startInput = z.object({
  * Creates a draft project with its interview. Words in the idea are read by the classifier;
  * what it finds is stored as inferred, never as confirmed.
  */
+export interface StartOptions {
+  isDemo?: boolean;
+  /** Use this name instead of deriving one from the idea (an imported repository's name). */
+  name?: string;
+  /** Imported descriptions are provisional, so they are stored as imported, not as the user's words. */
+  ideaSource?: "user" | "imported";
+  /** Runs in the creation transaction: extra writes succeed or fail together with the project. */
+  afterCreate?: (tx: Tx, created: { projectId: string; interviewId: string }) => Promise<void>;
+}
+
 export async function startProject(
   actor: Actor,
   input: unknown,
   locale: Locale,
-  options: { isDemo?: boolean } = {},
+  options: StartOptions = {},
 ): Promise<{ slug: string }> {
   const { idea, imported } = parse(startInput, input);
   const found = classify(idea);
   const answers = { ...EMPTY_ANSWERS, projectDescription: idea, projectType: found.projectType };
   const name =
-    projectName(answers, getEngineCopy(locale)) ?? idea.split(/\s+/).slice(0, 4).join(" ");
+    options.name ??
+    projectName(answers, getEngineCopy(locale)) ??
+    idea.split(/\s+/).slice(0, 4).join(" ");
 
   return db.transaction(async (tx) => {
     const { org } = await activeOrg(actor, tx);
@@ -90,7 +102,12 @@ export async function startProject(
     await tx.insert(projectSettings).values({ projectId: project.id });
 
     const interview = await insertInterview(tx, project.id);
-    await writeAnswers(tx, interview.id, { projectDescription: idea }, "user");
+    await writeAnswers(
+      tx,
+      interview.id,
+      { projectDescription: idea },
+      options.ideaSource === "imported" ? "imported" : "user",
+    );
     await writeAnswers(
       tx,
       interview.id,
@@ -129,6 +146,7 @@ export async function startProject(
       entityType: "interview",
       entityId: interview.id,
     });
+    await options.afterCreate?.(tx, { projectId: project.id, interviewId: interview.id });
     return { slug };
   });
 }

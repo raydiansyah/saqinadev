@@ -8,6 +8,7 @@ import type { Assumption } from "@/lib/interviews/analyzer";
 import type { ProjectIntelligence } from "@/lib/interviews/intelligence";
 import type { InterviewData, InterviewStep, QuestionKey } from "@/lib/interviews/model";
 import { cn } from "@/lib/utils";
+import { AiReviewPanel } from "./ai-review-panel";
 import { CreationSequence } from "./creation-sequence";
 import { RecommendationPanel } from "./recommendation-panel";
 
@@ -121,6 +122,8 @@ export function InterviewReview({
           ))}
         </dl>
       </section>
+
+      <AiReviewPanel slug={slug} data={data} onChange={onChange} />
 
       {conflicts.length > 0 ? (
         <section aria-labelledby="conflicts-heading">
