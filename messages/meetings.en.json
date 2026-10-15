@@ -1,0 +1,49 @@
+{
+  "meetings": {
+    "metaTitle": "Meeting notes",
+    "title": "Meeting notes",
+    "description": "Write down what was agreed. Saqina can later read a note and suggest what belongs in the plan; nothing changes without your approval.",
+    "add": "Add note",
+    "addTitle": "Add meeting note",
+    "editTitle": "Edit meeting note",
+    "empty": "No meeting notes yet. Add the first one after your next meeting.",
+    "fields": {
+      "title": "Title",
+      "date": "Meeting date",
+      "attendees": "Attendees",
+      "body": "Notes",
+      "visibility": "Visibility"
+    },
+    "placeholders": {
+      "title": "Kickoff with the client",
+      "attendees": "Budi (client), Sari (project lead)",
+      "body": "What was discussed, what was decided, what each person will do."
+    },
+    "bodyHint": "Plain text. Up to 20,000 characters.",
+    "visibility": {
+      "internal": "Internal (team only)",
+      "shared": "Shared with the client"
+    },
+    "status": {
+      "ready": "Saved",
+      "pending_review": "Waiting for team review",
+      "approved_for_analysis": "Approved for analysis",
+      "declined": "Declined",
+      "analyzed": "Analyzed"
+    },
+    "side": {
+      "team": "Team",
+      "client": "Client"
+    },
+    "by": "By {name}",
+    "attendeesLabel": "Attendees",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "deleteTitle": "Delete this note?",
+    "deleteBody": "“{title}” will be removed. This cannot be undone.",
+    "deleteConfirm": "Delete note"
+  }
+}

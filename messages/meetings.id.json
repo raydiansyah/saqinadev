@@ -1,0 +1,49 @@
+{
+  "meetings": {
+    "metaTitle": "Catatan meeting",
+    "title": "Catatan meeting",
+    "description": "Tulis apa yang disepakati. Nanti Saqina bisa membaca catatan dan menyarankan apa yang masuk ke rencana; tidak ada yang berubah tanpa persetujuan Anda.",
+    "add": "Tambah catatan",
+    "addTitle": "Tambah catatan meeting",
+    "editTitle": "Ubah catatan meeting",
+    "empty": "Belum ada catatan meeting. Tambahkan yang pertama setelah meeting berikutnya.",
+    "fields": {
+      "title": "Judul",
+      "date": "Tanggal meeting",
+      "attendees": "Peserta",
+      "body": "Catatan",
+      "visibility": "Visibilitas"
+    },
+    "placeholders": {
+      "title": "Kickoff dengan klien",
+      "attendees": "Budi (klien), Sari (ketua proyek)",
+      "body": "Apa yang dibahas, apa yang diputuskan, dan tugas masing-masing."
+    },
+    "bodyHint": "Teks biasa. Maksimal 20.000 karakter.",
+    "visibility": {
+      "internal": "Internal (hanya tim)",
+      "shared": "Dibagikan ke klien"
+    },
+    "status": {
+      "ready": "Tersimpan",
+      "pending_review": "Menunggu review tim",
+      "approved_for_analysis": "Disetujui untuk dianalisis",
+      "declined": "Ditolak",
+      "analyzed": "Sudah dianalisis"
+    },
+    "side": {
+      "team": "Tim",
+      "client": "Klien"
+    },
+    "by": "Oleh {name}",
+    "attendeesLabel": "Peserta",
+    "edit": "Ubah",
+    "delete": "Hapus",
+    "save": "Simpan",
+    "saving": "Menyimpan…",
+    "cancel": "Batal",
+    "deleteTitle": "Hapus catatan ini?",
+    "deleteBody": "“{title}” akan dihapus. Tindakan ini tidak bisa dibatalkan.",
+    "deleteConfirm": "Hapus catatan"
+  }
+}

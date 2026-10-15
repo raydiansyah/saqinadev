@@ -84,6 +84,7 @@
         "features": "Features",
         "billing": "Billing",
         "maintenance": "Maintenance",
+        "meetings": "Meeting notes",
         "requests": "Requests",
         "messages": "Messages",
         "clientApprovals": "Client approvals",

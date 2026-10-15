@@ -243,6 +243,12 @@ export const ACTIVITY_TYPES = [
   "maintenance.plan_updated",
   "maintenance.classified",
   "reminder.sent",
+  // Meeting notes
+  "meeting_note.submitted",
+  "meeting_note.updated",
+  "meeting_note.deleted",
+  "meeting_note.reviewed",
+  "meeting_note.analyzed",
 ] as const;
 export type ActivityType = (typeof ACTIVITY_TYPES)[number];
 

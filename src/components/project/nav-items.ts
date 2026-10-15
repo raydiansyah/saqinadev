@@ -30,6 +30,7 @@ export const PROJECT_NAV = [
     items: [
       { key: "requests", path: "/requests" },
       { key: "messages", path: "/messages" },
+      { key: "meetings", path: "/meetings" },
       { key: "clientApprovals", path: "/client-approvals" },
       { key: "changes", path: "/changes" },
     ],

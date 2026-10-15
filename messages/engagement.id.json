@@ -236,6 +236,9 @@
         "remindedToday": "Klien sudah diingatkan tentang ini hari ini.",
         "noRecipients": "Belum ada yang punya akses portal untuk klien ini."
       },
+      "meeting": {
+        "analyzed": "Catatan ini sudah dianalisis dan tidak bisa diubah lagi."
+      },
       "cr": {
         "notDraft": "Hanya permintaan perubahan berstatus draf yang bisa diubah atau dikirim.",
         "notSent": "Permintaan perubahan ini tidak sedang menunggu keputusan.",

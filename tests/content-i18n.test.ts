@@ -17,6 +17,8 @@ import enMessages from "../messages/en.json";
 import engagementEn from "../messages/engagement.en.json";
 import engagementId from "../messages/engagement.id.json";
 import idMessages from "../messages/id.json";
+import meetingsEn from "../messages/meetings.en.json";
+import meetingsId from "../messages/meetings.id.json";
 import notifyEn from "../messages/notify.en.json";
 import notifyId from "../messages/notify.id.json";
 import platformEn from "../messages/platform.en.json";
@@ -67,6 +69,7 @@ describe.each([
   ["notify messages", notifyEn, notifyId],
   ["services messages", servicesEn, servicesId],
   ["services admin messages", servicesAdminEn, servicesAdminId],
+  ["meetings messages", meetingsEn, meetingsId],
   ["site content", siteEn, siteId],
   ["legal documents", legalEn, legalId],
 ])("%s", (_, en, id) => {

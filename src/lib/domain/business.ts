@@ -87,3 +87,36 @@ export type ReminderAudience = (typeof REMINDER_AUDIENCES)[number];
 
 export const NOTIFICATION_CHANNELS = ["in_app", "email"] as const;
 export type NotificationChannel = (typeof NOTIFICATION_CHANNELS)[number];
+
+// ── Meeting notes ───────────────────────────────────────────────────────────────────────
+
+/**
+ * Team notes are saved as `ready`. A client note waits as `pending_review` until the team
+ * approves it for analysis (or declines it); `analyzed` means the agent has read it.
+ */
+export const MEETING_NOTE_STATUSES = [
+  "ready",
+  "pending_review",
+  "approved_for_analysis",
+  "declined",
+  "analyzed",
+] as const;
+export type MeetingNoteStatus = (typeof MEETING_NOTE_STATUSES)[number];
+
+/** `internal` notes are never shown to the client. Client-written notes are always theirs to see. */
+export const MEETING_VISIBILITIES = ["internal", "shared"] as const;
+export type MeetingVisibility = (typeof MEETING_VISIBILITIES)[number];
+
+export const MEETING_ITEM_CLASSES = [
+  "new_in_scope",
+  "revision",
+  "out_of_scope",
+  "duplicate",
+  "conflict",
+  "info",
+  "unclear",
+] as const;
+export type MeetingItemClass = (typeof MEETING_ITEM_CLASSES)[number];
+
+export const MEETING_MATCH_TYPES = ["requirement", "task", "scope_item", "decision"] as const;
+export type MeetingMatchType = (typeof MEETING_MATCH_TYPES)[number];

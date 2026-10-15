@@ -236,6 +236,9 @@
         "remindedToday": "The client was already reminded about this today.",
         "noRecipients": "No one has portal access for this client yet."
       },
+      "meeting": {
+        "analyzed": "This note was already analyzed and can no longer be changed."
+      },
       "cr": {
         "notDraft": "Only draft change requests can be edited or sent.",
         "notSent": "This change request is not waiting for a decision.",

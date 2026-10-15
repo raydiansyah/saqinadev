@@ -5,6 +5,7 @@ import type billing from "../messages/billing.en.json";
 import type clients from "../messages/clients.en.json";
 import type en from "../messages/en.json";
 import type engagement from "../messages/engagement.en.json";
+import type meetings from "../messages/meetings.en.json";
 import type notify from "../messages/notify.en.json";
 import type platform from "../messages/platform.en.json";
 import type portal from "../messages/portal.en.json";
@@ -33,6 +34,7 @@ declare module "next-intl" {
       typeof portalEngagement &
       typeof notify &
       typeof services &
-      typeof servicesAdmin;
+      typeof servicesAdmin &
+      typeof meetings;
   }
 }

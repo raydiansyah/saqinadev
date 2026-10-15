@@ -18,6 +18,10 @@ import type {
   MaintenanceClass,
   MaintenanceCycle,
   MaintenanceStatus,
+  MeetingItemClass,
+  MeetingMatchType,
+  MeetingNoteStatus,
+  MeetingVisibility,
   NotificationChannel,
   ReminderAudience,
   ReminderKind,
@@ -234,4 +238,61 @@ export const maintenancePlans = pgTable(
     updatedAt: updatedAt(),
   },
   (t) => [index("maintenance_plans_project_idx").on(t.projectId, t.endDate)],
+);
+
+/**
+ * Notes from a meeting, written by the team or by the client. A client note waits for team
+ * review before the agent reads it. Nothing here changes the plan: analysis only proposes.
+ */
+export const meetingNotes = pgTable(
+  "meeting_notes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: projectRef(),
+    authorId: userRef("author_id"),
+    side: text("side").$type<"client" | "team">().notNull(),
+    title: text("title").notNull(),
+    meetingDate: date("meeting_date", { mode: "string" }).notNull(),
+    attendees: text("attendees").notNull().default(""),
+    body: text("body").notNull(),
+    visibility: text("visibility").$type<MeetingVisibility>().notNull().default("internal"),
+    status: text("status").$type<MeetingNoteStatus>().notNull().default("ready"),
+    reviewedBy: userRef("reviewed_by"),
+    reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+    reviewNote: text("review_note"),
+    clientConfirmedBy: userRef("client_confirmed_by"),
+    clientConfirmedAt: timestamp("client_confirmed_at", { withTimezone: true }),
+    analyzedAt: timestamp("analyzed_at", { withTimezone: true }),
+    /** Short code of the last failed analysis; cleared on success. */
+    analysisError: text("analysis_error"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("meeting_notes_project_idx").on(t.projectId, t.status, t.createdAt.desc())],
+);
+
+/** One point the agent found in a note, with where it came from and how it was classified. */
+export const meetingNoteItems = pgTable(
+  "meeting_note_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    noteId: uuid("note_id")
+      .notNull()
+      .references(() => meetingNotes.id, { onDelete: "cascade" }),
+    position: integer("position").notNull(),
+    text: text("text").notNull(),
+    /** Verbatim excerpt of the note this item was taken from. */
+    quote: text("quote").notNull().default(""),
+    classification: text("classification").$type<MeetingItemClass>().notNull(),
+    /** 0 to 100. */
+    confidence: integer("confidence").notNull().default(0),
+    matchedType: text("matched_type").$type<MeetingMatchType>(),
+    matchedId: uuid("matched_id"),
+    rationale: text("rationale").notNull().default(""),
+    /** Set once the item is part of a proposal. */
+    proposalId: uuid("proposal_id"),
+    dismissedAt: timestamp("dismissed_at", { withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [index("meeting_note_items_note_idx").on(t.noteId, t.position)],
 );
