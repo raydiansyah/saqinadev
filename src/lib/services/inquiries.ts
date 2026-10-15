@@ -37,8 +37,8 @@ export async function submitInquiry(input: unknown, context: { ip: string }) {
     throw new AppError("VALIDATION_ERROR", "Captcha failed", { captcha: "services.captchaFailed" });
   const ipHash = hashIp(context.ip || "unknown");
   if (
-    !allow(`inquiry:ip:${ipHash}`, 5, 60 * 60 * 1000) ||
-    !allow(`inquiry:mail:${data.email}`, 3, 60 * 60 * 1000)
+    !(await allow(`inquiry:ip:${ipHash}`, 5, 60 * 60 * 1000)) ||
+    !(await allow(`inquiry:mail:${data.email}`, 3, 60 * 60 * 1000))
   )
     throw new AppError("RATE_LIMIT");
 

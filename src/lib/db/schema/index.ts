@@ -5,5 +5,6 @@ export * from "./engagement";
 export * from "./organizations";
 export * from "./platform";
 export * from "./projects";
+export * from "./rate-limits";
 export * from "./services";
 export * from "./workspace";

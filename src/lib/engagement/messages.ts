@@ -41,7 +41,7 @@ export async function listMessages(projectId: string, limit = 200): Promise<Mess
 
 async function post(party: Party, input: unknown) {
   const { body } = parse(z.object({ body: z.string().trim().min(1).max(4000) }), input);
-  if (!allow(`message:${party.actor.id}`, 30, 60_000)) throw new AppError("RATE_LIMIT");
+  if (!(await allow(`message:${party.actor.id}`, 30, 60_000))) throw new AppError("RATE_LIMIT");
   const pending = await db.transaction(async (tx) => {
     const [row] = await tx
       .insert(projectMessages)

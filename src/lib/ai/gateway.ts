@@ -85,7 +85,7 @@ async function recordUsage(input: {
  */
 export async function runAi<T>(call: AiCall<T>): Promise<AiOutcome<T>> {
   const projectId = call.access?.project.id ?? null;
-  if (projectId && !allow(`ai:${projectId}`, 120, 60_000)) throw new AppError("RATE_LIMIT");
+  if (projectId && !(await allow(`ai:${projectId}`, 120, 60_000))) throw new AppError("RATE_LIMIT");
 
   if (call.override) {
     const value = await call.run(call.override);

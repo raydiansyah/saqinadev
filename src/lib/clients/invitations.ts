@@ -36,7 +36,7 @@ export async function createInvitation(
 ): Promise<{ url: string; emailed: boolean }> {
   const { email } = parse(z.object({ email: z.email().trim().toLowerCase().max(200) }), input);
   const { org, client } = await loadClient(actor, clientId, true);
-  if (!allow(`invite:${actor.id}`, 20, 60 * 60 * 1000)) throw new AppError("RATE_LIMIT");
+  if (!(await allow(`invite:${actor.id}`, 20, 60 * 60 * 1000))) throw new AppError("RATE_LIMIT");
 
   const token = randomBytes(32).toString("base64url");
   await db.transaction(async (tx) => {
@@ -155,7 +155,8 @@ export async function acceptInvitation(
   actor: Actor,
   token: string,
 ): Promise<{ clientName: string }> {
-  if (!allow(`invite-accept:${actor.id}`, 10, 15 * 60 * 1000)) throw new AppError("RATE_LIMIT");
+  if (!(await allow(`invite-accept:${actor.id}`, 10, 15 * 60 * 1000)))
+    throw new AppError("RATE_LIMIT");
   if (!/^[\w-]{20,100}$/.test(token)) throw new AppError("NOT_FOUND");
   return db.transaction(async (tx) => {
     const [row] = await tx

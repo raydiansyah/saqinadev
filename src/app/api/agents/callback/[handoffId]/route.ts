@@ -24,7 +24,7 @@ export async function POST(
 ) {
   const { handoffId } = await ctx.params;
   if (!/^[0-9a-f-]{36}$/i.test(handoffId)) return reply(404, "not_found");
-  if (!allow(`callback:${handoffId}`, 10, 60_000)) return reply(429, "rate_limited");
+  if (!(await allow(`callback:${handoffId}`, 10, 60_000))) return reply(429, "rate_limited");
   const body = await request.text();
   if (body.length > 60_000) return reply(413, "too_large");
 

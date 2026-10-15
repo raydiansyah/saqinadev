@@ -14,7 +14,8 @@
     "db:migrate": "tsx --env-file=.env.local scripts/migrate.ts",
     "db:seed": "tsx --conditions=react-server --env-file=.env.local scripts/seed.ts",
     "db:create-owner": "tsx --conditions=react-server --env-file=.env.local scripts/create-owner.ts",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "smoke": "tsx scripts/smoke.ts"
   },
   "dependencies": {
     "better-auth": "^1.7.7",

@@ -31,7 +31,7 @@ export async function POST(request: Request, ctx: RouteContext<"/api/projects/[s
   if (!sameOrigin(request)) return json(403, "AUTHORIZATION_ERROR");
   const actor = await getActor();
   if (!actor) return json(401, "AUTHENTICATION_ERROR");
-  if (!allow(`assistant:${actor.id}`, 20, 60_000)) return json(429, "RATE_LIMIT");
+  if (!(await allow(`assistant:${actor.id}`, 20, 60_000))) return json(429, "RATE_LIMIT");
 
   const raw = await request.text();
   if (raw.length > MAX_BODY) return json(413, "VALIDATION_ERROR");

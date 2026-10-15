@@ -167,7 +167,7 @@ export async function executeTool(request: ToolRequest): Promise<ToolResult> {
   }
 
   const limit = tool.source === "git" && tool.riskLevel !== "low" ? 20 : 120;
-  if (!allow(`tool:${tool.source}:${access.project.id}`, limit, 60_000))
+  if (!(await allow(`tool:${tool.source}:${access.project.id}`, limit, 60_000)))
     throw new AppError("RATE_LIMIT");
 
   const started = performance.now();

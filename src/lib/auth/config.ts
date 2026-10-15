@@ -8,6 +8,7 @@ import { isCaptchaEnabled } from "@/lib/captcha/config";
 import { db } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
 import { ensurePersonalOrg } from "@/lib/organizations/service";
+import { allow } from "@/lib/rate-limit";
 import { authEmails, getEmailSender } from "./email";
 import { trustedOrigins } from "./origins";
 import { PASSWORD_ENDPOINTS, passwordIssue } from "./password-policy";
@@ -102,6 +103,13 @@ export const auth = betterAuth({
   },
   rateLimit: {
     enabled: true,
+    // Shared across serverless instances (the default memory store resets per cold start).
+    customStorage: {
+      async consume(key, rule) {
+        const allowed = await allow(`auth:${key}`, rule.max, rule.window * 1000);
+        return { allowed, retryAfter: allowed ? null : rule.window };
+      },
+    },
     window: 60,
     max: 100,
     // Credential endpoints get a much tighter budget than session reads.
