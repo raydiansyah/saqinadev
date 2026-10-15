@@ -217,6 +217,17 @@ describe("public catalog", () => {
   });
 });
 
+describe("coming soon and sitemap", () => {
+  it("keeps a Coming Soon detail page reachable and sitemap lists only visible services", async () => {
+    await createService(owner, input("soon", { isPublished: true, isComingSoon: true }));
+    await createService(owner, input("draft-one"));
+    await createService(owner, input("hidden-one", { isPublished: true, isPublic: false }));
+    const found = await getPublicService("soon", "en");
+    expect(found?.service.isComingSoon).toBe(true);
+    expect((await listSitemapServices()).map((r) => r.slug)).toEqual(["soon"]);
+  });
+});
+
 describe("inquiries", () => {
   const valid = {
     name: "Budi",
@@ -285,5 +296,32 @@ describe("inquiries", () => {
       (await db.select().from(clients)).filter((c) => c.email === "convert@example.com"),
     ).toHaveLength(1);
     expect(await db.select().from(projects)).toHaveLength(0);
+  });
+});
+
+describe("inquiry inbox search and paging", () => {
+  it("searches literally and pages through results", async () => {
+    const base = { message: "Need help", consent: true, locale: "en" as const };
+    await db.insert(serviceInquiries).values([
+      { ...base, name: "Alpha 100%", email: "a@example.com" },
+      { ...base, name: "Beta", email: "beta@corp.test", company: "Corp" },
+      ...Array.from({ length: 26 }, (_, i) => ({
+        ...base,
+        name: `Bulk ${i}`,
+        email: `bulk${i}@bulk.test`,
+      })),
+    ]);
+    expect((await listInquiries(owner, undefined, { q: "corp" })).map((r) => r.name)).toEqual([
+      "Beta",
+    ]);
+    // "%" is matched literally, not as a wildcard.
+    expect((await listInquiries(owner, undefined, { q: "100%" })).map((r) => r.name)).toEqual([
+      "Alpha 100%",
+    ]);
+    const first = await listInquiries(owner, undefined, { page: 1 });
+    const second = await listInquiries(owner, undefined, { page: 2 });
+    expect(first).toHaveLength(25);
+    expect(second.length).toBeGreaterThan(0);
+    expect(second.map((r) => r.id)).not.toContain(first[0].id);
   });
 });

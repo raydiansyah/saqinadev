@@ -1,6 +1,6 @@
 import "server-only";
 import { createHash } from "node:crypto";
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, ilike, or } from "drizzle-orm";
 import * as z from "zod";
 import { recordAudit } from "@/lib/audit/service";
 import type { Actor } from "@/lib/auth/actor";
@@ -90,16 +90,40 @@ async function notifyOwners(name: string, slug: string | null) {
     });
 }
 
-export async function listInquiries(actor: Actor, status?: InquiryStatus) {
+export const INQUIRY_PAGE_SIZE = 25;
+
+/** Owner inbox: optional status filter and text search, newest first, paged. */
+export async function listInquiries(
+  actor: Actor,
+  status?: InquiryStatus,
+  options: { q?: string; page?: number } = {},
+) {
   await requirePlatformOwner(actor);
-  return db
+  // Escape LIKE wildcards so the owner's text is matched literally.
+  const q = options.q
+    ?.trim()
+    .slice(0, 100)
+    .replace(/[\\%_]/g, "\\$&");
+  const where = and(
+    status && INQUIRY_STATUSES.includes(status) ? eq(serviceInquiries.status, status) : undefined,
+    q
+      ? or(
+          ilike(serviceInquiries.name, `%${q}%`),
+          ilike(serviceInquiries.email, `%${q}%`),
+          ilike(serviceInquiries.company, `%${q}%`),
+        )
+      : undefined,
+  );
+  const page = Math.max(1, Math.floor(options.page ?? 1));
+  const rows = await db
     .select()
     .from(serviceInquiries)
-    .where(
-      status && INQUIRY_STATUSES.includes(status) ? eq(serviceInquiries.status, status) : undefined,
-    )
+    .where(where)
     .orderBy(desc(serviceInquiries.createdAt))
-    .limit(200);
+    .limit(INQUIRY_PAGE_SIZE + 1)
+    .offset((page - 1) * INQUIRY_PAGE_SIZE);
+  // One extra row tells us whether a next page exists without a COUNT query.
+  return rows.length > INQUIRY_PAGE_SIZE ? rows.slice(0, INQUIRY_PAGE_SIZE) : rows;
 }
 
 export async function newInquiryCount(actor: Actor): Promise<number> {

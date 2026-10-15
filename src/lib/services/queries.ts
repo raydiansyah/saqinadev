@@ -1,5 +1,6 @@
 import "server-only";
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import { cache } from "react";
 import { db } from "@/lib/db/client";
 import { aiServices } from "@/lib/db/schema";
 import type { ServiceLocale } from "@/lib/domain/services";
@@ -21,7 +22,8 @@ export async function listPublicServices(locale: ServiceLocale): Promise<PublicS
   return rows.map((r) => toPublicService(r, locale));
 }
 
-export async function getPublicService(
+/** Memoized per request: generateMetadata and the page both read the same service. */
+export const getPublicService = cache(async function getPublicService(
   slug: string,
   locale: ServiceLocale,
 ): Promise<{ service: PublicService; related: PublicService[] } | null> {
@@ -43,7 +45,7 @@ export async function getPublicService(
     service: toPublicService(row, locale),
     related: related.map((r) => toPublicService(r, locale)),
   };
-}
+});
 
 /** For an old URL: where it lives now, if that service is still public. */
 export async function resolveServiceRedirect(slug: string): Promise<string | null> {

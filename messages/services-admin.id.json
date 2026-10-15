@@ -332,6 +332,10 @@
       "metaTitle": "Pertanyaan layanan",
       "filterLabel": "Saring menurut status",
       "filterAll": "Semua",
+      "searchLabel": "Cari pertanyaan",
+      "searchPlaceholder": "Nama, email atau perusahaan",
+      "prev": "Sebelumnya",
+      "next": "Berikutnya",
       "empty": {
         "title": "Tidak ada pertanyaan di sini",
         "body": "Pertanyaan dari situs web akan muncul di daftar ini."

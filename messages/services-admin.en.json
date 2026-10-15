@@ -332,6 +332,10 @@
       "metaTitle": "Service inquiries",
       "filterLabel": "Filter by status",
       "filterAll": "All",
+      "searchLabel": "Search inquiries",
+      "searchPlaceholder": "Name, email or company",
+      "prev": "Previous",
+      "next": "Next",
       "empty": {
         "title": "No inquiries here",
         "body": "Inquiries from the website appear in this list."
