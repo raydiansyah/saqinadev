@@ -24,6 +24,8 @@ interface PageMeta {
   /** Use the title as-is instead of the "%s · Saqina Dev" template. */
   absoluteTitle?: boolean;
   index?: boolean;
+  /** Absolute https image for link previews; omitted when the page has none. */
+  image?: string | null;
 }
 
 /** Shared metadata shape for every localised page. */
@@ -34,6 +36,7 @@ export function pageMetadata({
   description,
   absoluteTitle,
   index = true,
+  image,
 }: PageMeta): Metadata {
   return {
     title: absoluteTitle ? { absolute: title } : title,
@@ -47,8 +50,14 @@ export function pageMetadata({
       description,
       locale: OG_LOCALE[locale],
       alternateLocale: LOCALES.filter((l) => l !== locale).map((l) => OG_LOCALE[l]),
+      ...(image ? { images: [{ url: image }] } : {}),
     },
-    twitter: { card: "summary_large_image", title, description },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      ...(image ? { images: [image] } : {}),
+    },
     robots: { index, follow: true },
   };
 }
