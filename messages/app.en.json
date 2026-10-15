@@ -133,7 +133,15 @@
       "email": "Email",
       "session": "Session",
       "sessionBody": "Signing out ends this session on this device.",
-      "language": "Language"
+      "language": "Language",
+      "registration": {
+        "title": "Registration",
+        "description": "Allow new people to create an account. When off, only people with a valid client invitation can register. Existing accounts are not affected.",
+        "enabled": "New registrations are open",
+        "disabled": "New registrations are closed",
+        "toggle": "Allow new registrations",
+        "saved": "Saved."
+      }
     },
     "states": {
       "loading": "Loading…",

@@ -37,7 +37,10 @@
       "signIn": "Masuk",
       "terms": "Dengan membuat akun, Anda menyetujui <terms>Syarat dan Ketentuan</terms> serta <privacy>Kebijakan Privasi</privacy>.",
       "checkEmailTitle": "Cek email Anda",
-      "checkEmailBody": "Kami mengirim tautan konfirmasi ke {email}. Buka tautan itu untuk menyelesaikan pembuatan akun."
+      "checkEmailBody": "Kami mengirim tautan konfirmasi ke {email}. Buka tautan itu untuk menyelesaikan pembuatan akun.",
+      "closedTitle": "Pendaftaran ditutup",
+      "closedBody": "Akun baru belum dibuka saat ini. Jika Anda diundang oleh Saqina, buka tautan undangan dari email Anda. Jika tidak, hubungi kami untuk membahas proyek.",
+      "closedSignIn": "Masuk"
     },
     "forgot": {
       "metaTitle": "Atur ulang kata sandi",
@@ -90,7 +93,8 @@
       "passwordPolicy": "Gunakan minimal 8 karakter dengan angka dan simbol, misalnya \"Saqina#2026\".",
       "network": "Server tidak dapat dihubungi. Periksa koneksi Anda lalu coba lagi.",
       "oauth": "Masuk dengan Google tidak selesai. Coba lagi atau gunakan email.",
-      "unknown": "Terjadi kesalahan. Coba lagi."
+      "unknown": "Terjadi kesalahan. Coba lagi.",
+      "registrationClosed": "Pendaftaran ditutup. Gunakan tautan undangan dari email Anda, atau hubungi kami."
     }
   }
 }

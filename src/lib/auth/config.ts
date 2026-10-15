@@ -9,6 +9,7 @@ import { db } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
 import { detectLocale } from "@/lib/email/locale";
 import { ensurePersonalOrg } from "@/lib/organizations/service";
+import { canRegister } from "@/lib/platform/settings";
 import { allow } from "@/lib/rate-limit";
 import { authEmails, getEmailSender } from "./email";
 import { trustedOrigins } from "./origins";
@@ -111,6 +112,16 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
+        // The real gate for "registration off": covers email and Google sign-up alike. The 403 is
+        // answered by Better Auth with its generic sign-up response, so closed sign-up cannot be
+        // used to probe which emails already have an account.
+        async before(user) {
+          if (!(await canRegister(user.email)))
+            throw new APIError("FORBIDDEN", {
+              message: "Registration is closed",
+              code: "REGISTRATION_CLOSED",
+            });
+        },
         // Every account owns a personal organization from the start.
         async after(user, ctx) {
           await ensurePersonalOrg(user.id);

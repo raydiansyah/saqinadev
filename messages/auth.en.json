@@ -37,7 +37,10 @@
       "signIn": "Sign in",
       "terms": "By creating an account you agree to the <terms>Terms</terms> and <privacy>Privacy Policy</privacy>.",
       "checkEmailTitle": "Check your email",
-      "checkEmailBody": "We sent a confirmation link to {email}. Open it to finish creating your account."
+      "checkEmailBody": "We sent a confirmation link to {email}. Open it to finish creating your account.",
+      "closedTitle": "Registration is closed",
+      "closedBody": "New accounts are not being created right now. If you were invited by Saqina, open the invitation link from your email. Otherwise, contact us to discuss a project.",
+      "closedSignIn": "Sign in"
     },
     "forgot": {
       "metaTitle": "Reset password",
@@ -90,7 +93,8 @@
       "passwordPolicy": "Use at least 8 characters with numbers and symbols, for example \"Saqina#2026\".",
       "network": "We couldn't reach the server. Check your connection and try again.",
       "oauth": "Google sign-in did not complete. Try again or use email.",
-      "unknown": "Something went wrong. Try again."
+      "unknown": "Something went wrong. Try again.",
+      "registrationClosed": "Registration is closed. Use the invitation link from your email, or contact us."
     }
   }
 }

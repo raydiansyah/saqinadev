@@ -7,6 +7,7 @@ export type AuthErrorKey =
   | "passwordPolicy"
   | "rateLimited"
   | "captcha"
+  | "registrationClosed"
   | "network"
   | "unknown";
 
@@ -23,6 +24,8 @@ export function authErrorKey(
     case "USER_ALREADY_EXISTS":
     case "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL":
       return "userExists";
+    case "REGISTRATION_CLOSED":
+      return "registrationClosed";
     case "PASSWORD_TOO_SHORT":
       return "passwordTooShort";
     case "PASSWORD_POLICY":

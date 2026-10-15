@@ -38,8 +38,9 @@ export function DashboardNav({
     ...SIMPLE,
     ...(mode === "advanced" ? [{ key: "activity" as const, href: "/dashboard/activity" }] : []),
     { key: "settings", href: "/dashboard/settings" },
-    // The AI control plane is visible to platform owners in advanced mode (pages check again).
-    ...(isOwner && mode === "advanced" ? [{ key: "ai" as const, href: "/dashboard/ai" }] : []),
+    // The AI control plane (providers, models, policies) is owner-only in both modes: owners must
+    // be able to set up a provider even before they switch to advanced mode (pages check again).
+    ...(isOwner ? [{ key: "ai" as const, href: "/dashboard/ai" }] : []),
     // The public AI Services catalog is owner-managed in both modes (pages check again).
     ...(isOwner ? [{ key: "services" as const, href: "/dashboard/services" }] : []),
   ];

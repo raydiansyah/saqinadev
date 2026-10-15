@@ -336,3 +336,12 @@ export const repositoryConnections = pgTable("repository_connections", {
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });
+
+/** Platform-wide switches managed by the Owner. One row (id = 1); absent means defaults. */
+export const platformSettings = pgTable("platform_settings", {
+  id: smallint("id").primaryKey().default(1),
+  /** When false, only holders of a pending client invitation can create an account. */
+  registrationEnabled: boolean("registration_enabled").notNull().default(true),
+  updatedBy: userRef("updated_by"),
+  updatedAt: updatedAt(),
+});

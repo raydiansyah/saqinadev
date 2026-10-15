@@ -133,7 +133,15 @@
       "email": "Email",
       "session": "Sesi",
       "sessionBody": "Keluar akan mengakhiri sesi di perangkat ini.",
-      "language": "Bahasa"
+      "language": "Bahasa",
+      "registration": {
+        "title": "Pendaftaran",
+        "description": "Izinkan orang baru membuat akun. Saat nonaktif, hanya pemegang undangan klien yang valid yang bisa mendaftar. Akun yang sudah ada tidak terpengaruh.",
+        "enabled": "Pendaftaran baru dibuka",
+        "disabled": "Pendaftaran baru ditutup",
+        "toggle": "Izinkan pendaftaran baru",
+        "saved": "Tersimpan."
+      }
     },
     "states": {
       "loading": "Memuat…",

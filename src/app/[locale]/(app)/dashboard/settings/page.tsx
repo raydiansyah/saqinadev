@@ -5,7 +5,10 @@ import { PageHeading } from "@/components/app/states";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { Button } from "@/components/ui/button";
 import { requireActorPage } from "@/lib/auth/server";
+import { isPlatformOwner } from "@/lib/platform/roles";
+import { isRegistrationEnabled } from "@/lib/platform/settings";
 import { getUiMode } from "@/lib/users/preferences";
+import { RegistrationForm } from "./registration-form";
 import { WorkspaceModeForm } from "./workspace-mode-form";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,11 +18,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AccountSettingsPage() {
   const actor = await requireActorPage("/dashboard/settings");
-  const [t, tm, mode] = await Promise.all([
+  const [t, tm, mode, owner] = await Promise.all([
     getTranslations("app"),
     getTranslations("workspaceMode"),
     getUiMode(actor),
+    isPlatformOwner(actor),
   ]);
+  const registrationOpen = owner ? await isRegistrationEnabled() : true;
   return (
     <>
       <PageHeading title={t("settings.title")} />
@@ -48,6 +53,20 @@ export default async function AccountSettingsPage() {
           <p className="mt-1 text-sm text-muted-foreground">{tm("description")}</p>
           <WorkspaceModeForm mode={mode} />
         </section>
+        {owner ? (
+          <section
+            aria-labelledby="registration-heading"
+            className="rounded-lg border border-border p-5"
+          >
+            <h2 id="registration-heading" className="font-medium">
+              {t("settings.registration.title")}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t("settings.registration.description")}
+            </p>
+            <RegistrationForm enabled={registrationOpen} />
+          </section>
+        ) : null}
         <section aria-labelledby="session-heading" className="rounded-lg border border-border p-5">
           <h2 id="session-heading" className="font-medium">
             {t("settings.session")}
