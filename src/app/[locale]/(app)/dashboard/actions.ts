@@ -23,6 +23,7 @@ export async function startProjectAction(input: {
 export async function importProjectAction(input: {
   repo: string;
   token?: string;
+  useConnection?: boolean;
   useAi: boolean;
   locale: string;
 }) {

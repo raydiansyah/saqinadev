@@ -11,6 +11,7 @@ import { AppError } from "@/lib/errors";
 import { GIT_ADAPTERS } from "@/lib/git/adapters";
 import { connectRepository } from "@/lib/git/service";
 import { type GitAdapter, GitError } from "@/lib/git/types";
+import { withGithubToken } from "@/lib/github/connection";
 import { slugify } from "@/lib/interview/rules/profile";
 import { STEPS } from "@/lib/interviews/model";
 import { updateInterviewProgress, writeAnswers } from "@/lib/interviews/repository";
@@ -32,6 +33,8 @@ const importInput = z.object({
   repo: z.string().trim().min(3).max(300),
   /** Only needed for private repositories. Stored encrypted by the repository connection. */
   token: z.string().trim().max(500).optional(),
+  /** Use the token of the user's own GitHub connection. The browser never sees it. */
+  useConnection: z.boolean().default(false),
   /** Explicit consent to send the repository's documents to the configured AI provider. */
   useAi: z.boolean().default(false),
 });
@@ -55,6 +58,8 @@ export { docSlug };
 const withProvenance = (doc: RepoDoc, repo: string, branch: string) =>
   `> Imported from https://github.com/${repo}/blob/${branch}/${doc.path}${doc.truncated ? " (truncated)" : ""}\n\n${doc.content}`;
 
+type ImportData = z.output<typeof importInput>;
+
 export async function importFromGithub(
   actor: Actor,
   input: unknown,
@@ -62,14 +67,35 @@ export async function importFromGithub(
   options: ImportOptions = {},
 ): Promise<ImportResult> {
   const data = parse(importInput, input);
-  const fullName = parseRepoInput(data.repo);
-  if (!fullName) throw new AppError("VALIDATION_ERROR", "owner/name", { repo: "invalid" });
+  if (!parseRepoInput(data.repo))
+    throw new AppError("VALIDATION_ERROR", "owner/name", { repo: "invalid" });
   if (!(await allow(`import:${actor.id}`, 5, 60 * 60 * 1000))) throw new AppError("RATE_LIMIT");
+  if (!data.useConnection) return runImport(actor, data, data.token ?? null, locale, options);
+  // The connection wins over any pasted token: the secret stays on the server.
+  try {
+    return await withGithubToken(actor, (token) => runImport(actor, data, token, locale, options));
+  } catch (error) {
+    if (error instanceof AppError && error.code === "NOT_FOUND")
+      throw new AppError("VALIDATION_ERROR", "GitHub is not connected", {
+        repo: "github_not_connected",
+      });
+    throw error;
+  }
+}
+
+async function runImport(
+  actor: Actor,
+  data: ImportData,
+  token: string | null,
+  locale: Locale,
+  options: ImportOptions,
+): Promise<ImportResult> {
+  const fullName = parseRepoInput(data.repo) as string;
 
   const adapter = options.adapter ?? GIT_ADAPTERS.github;
   let snapshot: Awaited<ReturnType<typeof readRepository>>;
   try {
-    snapshot = await readRepository(adapter, { fullName, baseUrl: null }, data.token ?? null);
+    snapshot = await readRepository(adapter, { fullName, baseUrl: null }, token);
   } catch (error) {
     throw new AppError("VALIDATION_ERROR", "Repository could not be read", {
       repo: error instanceof GitError ? error.code : "provider_error",
@@ -165,7 +191,7 @@ export async function importFromGithub(
     await (options.connect ?? connectRepository)(actor, slug, {
       provider: "github",
       fullName: snapshot.info.fullName,
-      token: data.token,
+      token: token ?? undefined,
     });
     connected = true;
   } catch (error) {
