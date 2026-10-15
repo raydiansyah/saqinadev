@@ -5,6 +5,7 @@ import * as z from "zod";
 import { recordAudit } from "@/lib/audit/service";
 import type { Actor } from "@/lib/auth/actor";
 import { getEmailSender } from "@/lib/auth/email";
+import { verifyCaptcha } from "@/lib/captcha/verify";
 import { createClient } from "@/lib/clients/service";
 import { db } from "@/lib/db/client";
 import { aiServices, serviceInquiries } from "@/lib/db/schema";
@@ -32,6 +33,8 @@ const hashIp = (ip: string) =>
 export async function submitInquiry(input: unknown, context: { ip: string }) {
   const data = parse(inquiryInput, input);
   if (data.website) return { id: null };
+  if (!(await verifyCaptcha(data.captchaToken, context.ip)))
+    throw new AppError("VALIDATION_ERROR", "Captcha failed", { captcha: "services.captchaFailed" });
   const ipHash = hashIp(context.ip || "unknown");
   if (
     !allow(`inquiry:ip:${ipHash}`, 5, 60 * 60 * 1000) ||

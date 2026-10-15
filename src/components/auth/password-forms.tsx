@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { type SubmitEvent, useId, useState } from "react";
+import { useCaptcha } from "@/components/captcha/use-captcha";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Field, Notice } from "@/components/ui/form";
 import { Link } from "@/i18n/navigation";
@@ -16,6 +17,7 @@ export function ForgotPasswordForm() {
   const [fieldError, setFieldError] = useState<string>();
   const [error, setError] = useState<AuthErrorKey | null>(null);
   const [sentTo, setSentTo] = useState<string | null>(null);
+  const captcha = useCaptcha();
 
   async function onSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -25,17 +27,27 @@ export function ForgotPasswordForm() {
       return;
     }
     setFieldError(undefined);
+    if (captcha.enabled && !captcha.token) {
+      setError("captcha");
+      return;
+    }
     setPending(true);
     setError(null);
     try {
-      const result = await requestPasswordReset({ email, redirectTo: `/${locale}/reset-password` });
+      const result = await requestPasswordReset({
+        email,
+        redirectTo: `/${locale}/reset-password`,
+        fetchOptions: { headers: captcha.headers },
+      });
       // The same confirmation shows whether or not the account exists (no account enumeration).
-      if (result.error && result.error.status === 429) setError("rateLimited");
+      if (result.error && (result.error.status === 429 || authErrorKey(result.error) === "captcha"))
+        setError(authErrorKey(result.error));
       else setSentTo(email);
     } catch {
       setError("network");
     } finally {
       setPending(false);
+      captcha.reset();
     }
   }
 
@@ -63,6 +75,7 @@ export function ForgotPasswordForm() {
         error={fieldError}
         required
       />
+      {captcha.widget}
       {error ? <Notice tone="error">{t(`errors.${error}`)}</Notice> : null}
       <Button type="submit" className="w-full" disabled={pending}>
         {pending ? t("forgot.pending") : t("forgot.submit")}
@@ -86,6 +99,7 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
   const [fields, setFields] = useState<{ password?: string; confirm?: string }>({});
   const [state, setState] = useState<"form" | "done" | "invalid">(token ? "form" : "invalid");
   const [error, setError] = useState<AuthErrorKey | null>(null);
+  const captcha = useCaptcha();
 
   async function onSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -98,10 +112,18 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
     };
     setFields(invalid);
     if (invalid.password || invalid.confirm || !token) return;
+    if (captcha.enabled && !captcha.token) {
+      setError("captcha");
+      return;
+    }
     setPending(true);
     setError(null);
     try {
-      const result = await resetPassword({ newPassword: password, token });
+      const result = await resetPassword({
+        newPassword: password,
+        token,
+        fetchOptions: { headers: captcha.headers },
+      });
       if (result.error) {
         if (result.error.code === "INVALID_TOKEN") setState("invalid");
         else setError(authErrorKey(result.error));
@@ -112,6 +134,7 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
       setError("network");
     } finally {
       setPending(false);
+      captcha.reset();
     }
   }
 
@@ -158,6 +181,7 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
         error={fields.confirm}
         required
       />
+      {captcha.widget}
       {error ? <Notice tone="error">{t(`errors.${error}`)}</Notice> : null}
       <Button type="submit" className="w-full" disabled={pending}>
         {pending ? t("reset.pending") : t("reset.submit")}

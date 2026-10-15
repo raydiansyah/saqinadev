@@ -5,6 +5,7 @@ export type AuthErrorKey =
   | "userExists"
   | "passwordTooShort"
   | "rateLimited"
+  | "captcha"
   | "network"
   | "unknown";
 
@@ -23,6 +24,9 @@ export function authErrorKey(
       return "userExists";
     case "PASSWORD_TOO_SHORT":
       return "passwordTooShort";
+    case "VERIFICATION_FAILED":
+    case "MISSING_RESPONSE":
+      return "captcha";
   }
   // status 0 / undefined means the request never reached the server.
   return !error.status ? "network" : "unknown";

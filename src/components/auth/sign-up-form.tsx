@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { type SubmitEvent, useId, useState } from "react";
+import { useCaptcha } from "@/components/captcha/use-captcha";
 import { Button } from "@/components/ui/button";
 import { Field, Notice } from "@/components/ui/form";
 import { Link } from "@/i18n/navigation";
@@ -27,6 +28,7 @@ export function SignUpForm({
   const [error, setError] = useState<AuthErrorKey | null>(null);
   const [fields, setFields] = useState<FieldErrors>({});
   const [sentTo, setSentTo] = useState<string | null>(null);
+  const captcha = useCaptcha();
 
   async function onSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -44,11 +46,21 @@ export function SignUpForm({
     };
     setFields(invalid);
     if (Object.values(invalid).some(Boolean)) return;
+    if (captcha.enabled && !captcha.token) {
+      setError("captcha");
+      return;
+    }
 
     setPending(true);
     setError(null);
     try {
-      const result = await signUp.email({ name, email, password, callbackURL: destination });
+      const result = await signUp.email({
+        name,
+        email,
+        password,
+        callbackURL: destination,
+        fetchOptions: { headers: captcha.headers },
+      });
       if (result.error) {
         setError(authErrorKey(result.error));
         return;
@@ -58,6 +70,7 @@ export function SignUpForm({
       setError("network");
     } finally {
       setPending(false);
+      captcha.reset();
     }
   }
 
@@ -131,6 +144,7 @@ export function SignUpForm({
           </Notice>
         ) : null}
 
+        {captcha.widget}
         <Button type="submit" className="w-full" disabled={pending}>
           {pending ? t("signUp.pending") : t("signUp.submit")}
         </Button>

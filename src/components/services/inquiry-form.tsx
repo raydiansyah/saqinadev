@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { type FormEvent, useState, useTransition } from "react";
 import { submitInquiryAction } from "@/app/[locale]/(marketing)/services/actions";
+import { useCaptcha } from "@/components/captcha/use-captcha";
 import { Button } from "@/components/ui/button";
 import { Field, Notice, TextArea } from "@/components/ui/form";
 import type { FieldErrors } from "@/lib/errors";
@@ -27,6 +28,7 @@ export function InquiryForm({ locale, serviceSlug, disabled }: InquiryFormProps)
   const [pending, startTransition] = useTransition();
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [fields, setFields] = useState<FieldErrors>({});
+  const captcha = useCaptcha();
 
   const fieldError = (name: (typeof FIELDS)[number]) => {
     if (!fields[name]) return undefined;
@@ -39,6 +41,11 @@ export function InquiryForm({ locale, serviceSlug, disabled }: InquiryFormProps)
     const form = event.currentTarget;
     const data = new FormData(form);
     const text = (key: string) => String(data.get(key) ?? "");
+    if (captcha.enabled && !captcha.token) {
+      setFields({});
+      setStatus({ kind: "error", code: "CAPTCHA" });
+      return;
+    }
     startTransition(async () => {
       const result = await submitInquiryAction({
         serviceSlug,
@@ -49,8 +56,10 @@ export function InquiryForm({ locale, serviceSlug, disabled }: InquiryFormProps)
         message: text("message"),
         consent: data.get("consent") === "on",
         website: text("website"),
+        captchaToken: captcha.token ?? undefined,
         locale,
       });
+      captcha.reset();
       if (result.ok) {
         setFields({});
         setStatus({ kind: "success" });
@@ -58,7 +67,12 @@ export function InquiryForm({ locale, serviceSlug, disabled }: InquiryFormProps)
         return;
       }
       setFields(result.fields ?? {});
-      setStatus({ kind: "error", code: result.code, ref: result.ref });
+      // The service reports a failed check as a validation error on the "captcha" field.
+      setStatus({
+        kind: "error",
+        code: result.fields?.captcha ? "CAPTCHA" : result.code,
+        ref: result.ref,
+      });
     });
   }
 
@@ -157,17 +171,20 @@ export function InquiryForm({ locale, serviceSlug, disabled }: InquiryFormProps)
           </p>
         ) : null}
       </div>
+      {captcha.widget}
       <div aria-live="polite">
         {status.kind === "error" ? (
           <Notice tone="error">
             <p>
-              {status.code === "VALIDATION_ERROR"
-                ? t("errors.validation")
-                : status.code === "RATE_LIMIT"
-                  ? t("errors.rateLimit")
-                  : status.code === "NOT_FOUND"
-                    ? t("errors.notFound")
-                    : t("errors.generic")}
+              {status.code === "CAPTCHA"
+                ? t("errors.captcha")
+                : status.code === "VALIDATION_ERROR"
+                  ? t("errors.validation")
+                  : status.code === "RATE_LIMIT"
+                    ? t("errors.rateLimit")
+                    : status.code === "NOT_FOUND"
+                      ? t("errors.notFound")
+                      : t("errors.generic")}
             </p>
             {status.ref ? (
               <p className="mt-1 font-mono text-xs">{t("errors.reference", { ref: status.ref })}</p>

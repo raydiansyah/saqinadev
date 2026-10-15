@@ -2,6 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { type SubmitEvent, useId, useState } from "react";
+import { useCaptcha } from "@/components/captcha/use-captcha";
 import { Button } from "@/components/ui/button";
 import { Field, Notice } from "@/components/ui/form";
 import { Link } from "@/i18n/navigation";
@@ -30,6 +31,7 @@ export function SignInForm({
   const [fields, setFields] = useState<{ email?: string; password?: string }>({});
   const [email, setEmail] = useState("");
   const [resent, setResent] = useState(false);
+  const captcha = useCaptcha();
 
   async function onSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -45,6 +47,11 @@ export function SignInForm({
     };
     setFields(invalid);
     if (invalid.email || invalid.password) return;
+    if (captcha.enabled && !captcha.token) {
+      setError("captcha");
+      setStatus("error");
+      return;
+    }
 
     setStatus("loading");
     setError(null);
@@ -53,6 +60,7 @@ export function SignInForm({
         email: email.trim(),
         password,
         callbackURL: destination,
+        fetchOptions: { headers: captcha.headers },
       });
       if (result.error) {
         setError(authErrorKey(result.error));
@@ -63,12 +71,24 @@ export function SignInForm({
     } catch {
       setError("network");
       setStatus("error");
+    } finally {
+      captcha.reset();
     }
   }
 
   async function resendVerification() {
-    await authClient.sendVerificationEmail({ email: email.trim(), callbackURL: destination });
-    setResent(true);
+    if (captcha.enabled && !captcha.token) {
+      setError("captcha");
+      return;
+    }
+    const result = await authClient.sendVerificationEmail({
+      email: email.trim(),
+      callbackURL: destination,
+      fetchOptions: { headers: captcha.headers },
+    });
+    captcha.reset();
+    if (result.error) setError(authErrorKey(result.error));
+    else setResent(true);
   }
 
   const errorUrl = `/${locale}/sign-in${next ? `?next=${encodeURIComponent(next)}` : ""}`;
@@ -139,6 +159,7 @@ export function SignInForm({
           </Notice>
         ) : null}
 
+        {captcha.widget}
         <Button type="submit" className="w-full" disabled={status === "loading"}>
           {status === "loading" ? t("signIn.pending") : t("signIn.submit")}
         </Button>

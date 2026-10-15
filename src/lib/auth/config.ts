@@ -2,6 +2,8 @@ import "server-only";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
+import { captcha } from "better-auth/plugins";
+import { isCaptchaEnabled } from "@/lib/captcha/config";
 import { db } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
 import { ensurePersonalOrg } from "@/lib/organizations/service";
@@ -17,6 +19,26 @@ const google =
 
 /** True when Google OAuth credentials are configured; the UI hides the button otherwise. */
 export const isGoogleEnabled = () => google !== undefined;
+
+/**
+ * Turnstile guards every credential endpoint that anonymous visitors can reach. Production
+ * only: `isCaptchaEnabled` is false locally and in tests, so the plugin is not even loaded.
+ */
+const captchaPlugins = isCaptchaEnabled()
+  ? [
+      captcha({
+        provider: "cloudflare-turnstile",
+        secretKey: process.env.TURNSTILE_SECRET_KEY as string,
+        endpoints: [
+          "/sign-in/email",
+          "/sign-up/email",
+          "/request-password-reset",
+          "/reset-password",
+          "/send-verification-email",
+        ],
+      }),
+    ]
+  : [];
 
 /**
  * The only place that configures Better Auth. Application code goes through
@@ -74,7 +96,7 @@ export const auth = betterAuth({
   },
   telemetry: { enabled: false },
   // nextCookies must stay last: it writes Set-Cookie headers from server actions.
-  plugins: [nextCookies()],
+  plugins: [...captchaPlugins, nextCookies()],
 });
 
 export type AuthSession = typeof auth.$Infer.Session;

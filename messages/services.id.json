@@ -6,7 +6,7 @@
       "description": "Jelajahi solusi AI praktis untuk produktivitas, operasional bisnis, pemasaran, analitik video, dan alur kerja khusus. Temukan solusi yang sesuai dengan kebutuhan Anda, lalu diskusikan penerapannya bersama Saqina.",
       "explore": "Jelajahi Layanan",
       "discuss": "Diskusikan Kebutuhan Anda",
-      "visualLabel": "Area layanan yang terhubung dengan Saqina"
+      "visualLabel": "Area layanan AI yang terhubung ke Saqina"
     },
     "metaTitle": "Layanan AI untuk Pekerjaan Sehari-hari dan Bisnis",
     "metaDescription": "Solusi AI praktis untuk produktivitas, operasional bisnis, pemasaran, analitik video, dan alur kerja khusus. Temukan yang sesuai, lalu diskusikan bersama Saqina.",
@@ -101,6 +101,7 @@
         "fieldInvalid": "Periksa kembali kolom ini.",
         "validation": "Beberapa kolom perlu diperbaiki. Silakan periksa formulir.",
         "rateLimit": "Terlalu banyak pertanyaan dari koneksi Anda. Silakan coba lagi dalam satu jam.",
+        "captcha": "Selesaikan pemeriksaan keamanan, lalu kirim lagi.",
         "notFound": "Layanan ini sudah tidak tersedia. Muat ulang halaman lalu coba lagi.",
         "generic": "Kami tidak dapat mengirim pertanyaan Anda. Silakan coba lagi.",
         "reference": "Referensi: {ref}"

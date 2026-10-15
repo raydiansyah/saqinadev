@@ -79,6 +79,7 @@
       "emailNotVerified": "Konfirmasi email Anda sebelum masuk. Kami bisa mengirim ulang tautannya.",
       "userExists": "Akun dengan email ini sudah ada. Silakan masuk.",
       "rateLimited": "Terlalu banyak percobaan. Tunggu satu menit lalu coba lagi.",
+      "captcha": "Selesaikan pemeriksaan keamanan, lalu coba lagi.",
       "network": "Server tidak dapat dihubungi. Periksa koneksi Anda lalu coba lagi.",
       "oauth": "Masuk dengan Google tidak selesai. Coba lagi atau gunakan email.",
       "unknown": "Terjadi kesalahan. Coba lagi."

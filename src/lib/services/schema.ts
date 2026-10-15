@@ -117,6 +117,8 @@ export const inquiryInput = z.object({
   consent: z.literal(true),
   /** Honeypot: real visitors never see or fill this field. */
   website: z.string().max(500).optional(),
+  /** Cloudflare Turnstile token; only checked in production, where the form always sends one. */
+  captchaToken: z.string().max(2048).optional(),
   locale: z.enum(["en", "id"]).default("en"),
 });
 export type InquiryInput = z.output<typeof inquiryInput>;

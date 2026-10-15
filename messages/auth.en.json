@@ -79,6 +79,7 @@
       "emailNotVerified": "Confirm your email before signing in. We can send the link again.",
       "userExists": "An account with this email already exists. Sign in instead.",
       "rateLimited": "Too many attempts. Wait a minute and try again.",
+      "captcha": "Complete the security check, then try again.",
       "network": "We couldn't reach the server. Check your connection and try again.",
       "oauth": "Google sign-in did not complete. Try again or use email.",
       "unknown": "Something went wrong. Try again."

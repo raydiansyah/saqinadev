@@ -54,3 +54,7 @@ graphify-out/
 
 # Original generated assets (optimized copies live in public/landing)
 /design/landing-source/
+
+# Local agent tooling state
+.swarm/
+ruvector.db

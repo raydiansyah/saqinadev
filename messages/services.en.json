@@ -6,7 +6,7 @@
       "description": "Explore practical AI solutions for productivity, business operations, marketing, video analytics, and custom workflows. Find the right solution for your needs, then discuss the implementation with Saqina.",
       "explore": "Explore Services",
       "discuss": "Discuss Your Needs",
-      "visualLabel": "Service areas connected to Saqina"
+      "visualLabel": "AI service areas connected to Saqina"
     },
     "metaTitle": "AI Services for Everyday Work and Business",
     "metaDescription": "Practical AI solutions for productivity, business operations, marketing, video analytics and custom workflows. Find the right fit, then discuss it with Saqina.",
@@ -101,6 +101,7 @@
         "fieldInvalid": "Please check this field.",
         "validation": "Some fields need your attention. Please check the form.",
         "rateLimit": "Too many inquiries from your connection. Please try again in an hour.",
+        "captcha": "Complete the security check, then send again.",
         "notFound": "This service is no longer available. Reload the page and try again.",
         "generic": "We could not send your inquiry. Please try again.",
         "reference": "Reference: {ref}"
