@@ -249,6 +249,126 @@
   }
 }
 
+/*
+ * Services hero: five service nodes wired to the Saqina hub. Each wire carries a packet out
+ * to its node, the node pulses on arrival, and the hub breathes. --i staggers the nodes;
+ * --dx/--dy are the hub-to-node offset in viewBox units.
+ */
+@layer components {
+  .net-wire {
+    stroke-dasharray: 2 2;
+    animation: net-flow 1.4s linear infinite;
+  }
+  .net-packet {
+    transform-box: fill-box;
+    animation: net-travel 4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    animation-delay: calc(var(--i) * 0.8s);
+  }
+  .net-node {
+    animation: net-arrive 4s ease-out infinite;
+    animation-delay: calc(var(--i) * 0.8s);
+  }
+  .net-ping {
+    animation: net-ping 4s ease-out infinite;
+    animation-delay: calc(var(--i) * 0.8s);
+  }
+  .net-hub {
+    animation: net-breathe 4s ease-in-out infinite;
+  }
+  .net-halo {
+    animation: net-halo 4s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .net-wire,
+    .net-packet,
+    .net-node,
+    .net-ping,
+    .net-hub,
+    .net-halo {
+      animation: none;
+    }
+    .net-packet,
+    .net-ping {
+      opacity: 0;
+    }
+  }
+}
+
+@keyframes net-flow {
+  to {
+    stroke-dashoffset: -4;
+  }
+}
+@keyframes net-travel {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  52% {
+    transform: translate(calc(var(--dx) * 1px), calc(var(--dy) * 1px));
+    opacity: 1;
+  }
+  58%,
+  100% {
+    transform: translate(calc(var(--dx) * 1px), calc(var(--dy) * 1px));
+    opacity: 0;
+  }
+}
+@keyframes net-arrive {
+  0%,
+  50% {
+    transform: scale(1);
+    border-color: var(--border-strong);
+  }
+  58% {
+    transform: scale(1.14);
+    border-color: var(--primary);
+  }
+  80%,
+  100% {
+    transform: scale(1);
+    border-color: var(--border-strong);
+  }
+}
+@keyframes net-ping {
+  0%,
+  52% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  54% {
+    opacity: 0.7;
+  }
+  85%,
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+@keyframes net-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+@keyframes net-halo {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
 /* Markdown documents (PRD.md, PLAN.md, ...): readable, technical, no typography plugin. */
 @layer components {
   .markdown {
