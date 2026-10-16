@@ -7,6 +7,7 @@ import type { AiProvider } from "@/lib/ai/provider";
 import { recordAudit } from "@/lib/audit/service";
 import type { Actor } from "@/lib/auth/actor";
 import { documents, documentVersions } from "@/lib/db/schema";
+import { indexDocs } from "@/lib/docmap/index-docs";
 import { docSlug } from "@/lib/docsync/paths";
 import { AppError } from "@/lib/errors";
 import { GIT_ADAPTERS } from "@/lib/git/adapters";
@@ -198,6 +199,8 @@ async function runImport(
 
         // The repository's own PRD, plan and task list become the project's, right away.
         adopted = await adoptRepoDocsTx(tx, projectId, roleHints);
+        // What each document is for, recorded once; later syncs only look at what changed.
+        await indexDocs(tx, projectId, snapshot.docs, roleHints);
         if (snapshot.docs.length > 0)
           await recordActivity(tx, {
             projectId,

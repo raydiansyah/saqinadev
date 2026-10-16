@@ -18,7 +18,7 @@ const PRD =
 const PLAN =
   /^((project|implementation|development|delivery)[-_ ]?)?(plan|roadmap)\.(md|mdx|markdown|txt)$/i;
 const TASKS = /^(tasks?|todo|to-do|backlog|checklist|task[-_ ]?list)\.(md|mdx|markdown|txt)$/i;
-const NAME: Record<DocRole, RegExp> = { prd: PRD, plan: PLAN, tasks: TASKS };
+export const NAME: Record<DocRole, RegExp> = { prd: PRD, plan: PLAN, tasks: TASKS };
 
 const base = (path: string) => path.split("/").pop() ?? path;
 const depth = (path: string) => path.split("/").length;
@@ -42,7 +42,7 @@ const firstHeading = (text: string) => /^#\s+(.+)$/m.exec(text)?.[1] ?? "";
 const count = (text: string, re: RegExp) => text.match(re)?.length ?? 0;
 
 /** How strongly the text itself says it is this kind of document, 0 when it does not. */
-function contentScore(doc: RepoDoc, role: DocRole): number {
+export function contentScore(doc: RepoDoc, role: DocRole): number {
   const title = firstHeading(doc.content);
   const titled = TITLE[role].test(title) ? 3 : 0;
   if (role === "prd") {

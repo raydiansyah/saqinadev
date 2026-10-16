@@ -242,6 +242,21 @@
         "requirement_out_of_scope": "Requirement outside the agreed scope",
         "task_out_of_scope": "Task outside the agreed scope"
       }
+    },
+    "map": {
+      "title": "Document map ({count})",
+      "hint": "What each repository document is for, found from its name, folder and text. Only changed files are read again.",
+      "roles": {
+        "prd": "Product requirements",
+        "plan": "Plan",
+        "tasks": "Tasks",
+        "spec": "Specifications and design",
+        "memory": "Project memory",
+        "decision": "Decisions",
+        "process": "Process",
+        "client": "Client and meetings",
+        "other": "Other"
+      }
     }
   },
   "plan": {

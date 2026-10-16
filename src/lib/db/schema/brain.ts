@@ -85,3 +85,44 @@ export const prdFindings = pgTable(
     index("prd_findings_status_idx").on(t.projectId, t.status),
   ],
 );
+
+export const DOC_MAP_ROLES = [
+  "prd",
+  "plan",
+  "tasks",
+  "spec",
+  "memory",
+  "decision",
+  "process",
+  "client",
+  "other",
+] as const;
+export type DocMapRole = (typeof DOC_MAP_ROLES)[number];
+
+/**
+ * The project's documents and what each one is for. The hash lets a sync skip everything that did
+ * not change, so a repository with hundreds of files is read once, then only its changes.
+ * `classifiedBy: "user"` is a person's correction and is never replaced by a later guess.
+ */
+export const docIndex = pgTable(
+  "doc_index",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    path: text("path").notNull(),
+    hash: text("hash").notNull(),
+    role: text("role").$type<DocMapRole>().notNull(),
+    classifiedBy: text("classified_by")
+      .$type<"name" | "folder" | "content" | "ai" | "user">()
+      .notNull(),
+    confidence: integer("confidence").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [
+    uniqueIndex("doc_index_path_idx").on(t.projectId, t.path),
+    index("doc_index_role_idx").on(t.projectId, t.role),
+  ],
+);

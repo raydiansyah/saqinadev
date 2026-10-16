@@ -242,6 +242,21 @@
         "requirement_out_of_scope": "Kebutuhan di luar scope yang disepakati",
         "task_out_of_scope": "Tugas di luar scope yang disepakati"
       }
+    },
+    "map": {
+      "title": "Peta dokumen ({count})",
+      "hint": "Fungsi tiap dokumen repositori, dikenali dari nama, folder, dan isinya. Hanya berkas yang berubah dibaca ulang.",
+      "roles": {
+        "prd": "Kebutuhan produk",
+        "plan": "Rencana",
+        "tasks": "Tugas",
+        "spec": "Spesifikasi dan desain",
+        "memory": "Memori proyek",
+        "decision": "Keputusan",
+        "process": "Proses",
+        "client": "Klien dan rapat",
+        "other": "Lainnya"
+      }
     }
   },
   "plan": {

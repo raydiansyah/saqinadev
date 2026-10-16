@@ -6,7 +6,7 @@ import { decisions, documents, memories } from "@/lib/db/schema";
 import type { MemoryCategory } from "@/lib/domain/enums";
 import type { JournalIntent } from "./journal-plan";
 
-interface Entry {
+export interface Entry {
   title: string;
   content: string;
   category: MemoryCategory;
@@ -82,33 +82,39 @@ async function render(tx: Tx, projectId: string, intent: JournalIntent): Promise
 
 export type JournalResult = "created" | "updated" | "kept" | "skipped";
 
+export interface MemoryKey {
+  dedupeKey: string;
+  entityType: string;
+  entityId: string | null;
+  source: "system" | "imported";
+}
+
 /**
- * Writes one journal memory directly (no approval step): concise, keyed so the same fact is
- * updated in place, and never over text a person has edited. Unchanged text writes nothing, so a
- * burst of identical changes does not move the project's revision.
+ * Writes one keyed memory directly (no approval step): the same fact is updated in place, a
+ * person's edit is never overwritten, and unchanged text writes nothing, so a burst of identical
+ * changes does not move the project's revision.
  */
-export async function writeJournalEntry(
+export async function upsertMemoryEntry(
   tx: Tx,
   projectId: string,
-  intent: JournalIntent,
-): Promise<JournalResult> {
-  const entry = await render(tx, projectId, intent);
-  if (!entry) return "skipped";
+  entry: Entry,
+  key: MemoryKey,
+): Promise<Exclude<JournalResult, "skipped">> {
   const [row] = await tx
     .insert(memories)
     .values({
       projectId,
       ...entry,
-      source: "system",
+      source: key.source,
       createdBy: null,
-      entityType: intent.entityType,
-      entityId: intent.entityId,
-      dedupeKey: intent.dedupeKey,
+      entityType: key.entityType,
+      entityId: key.entityId,
+      dedupeKey: key.dedupeKey,
     })
     .onConflictDoUpdate({
       target: [memories.projectId, memories.dedupeKey],
       targetWhere: sql`${memories.dedupeKey} is not null`,
-      set: { ...entry, entityId: intent.entityId, updatedAt: new Date() },
+      set: { ...entry, entityId: key.entityId, updatedAt: new Date() },
       // A person's edit wins, and identical text is not a change.
       setWhere: and(
         isNull(memories.humanEditedAt),
@@ -123,7 +129,23 @@ export async function writeJournalEntry(
     type: row.inserted ? "memory.created" : "memory.updated",
     entityType: "memory",
     entityId: row.id,
-    metadata: { title: entry.title, category: entry.category, origin: "system" },
+    metadata: { title: entry.title, category: entry.category, origin: key.source },
   });
   return row.inserted ? "created" : "updated";
+}
+
+/** Writes the memory for one planned journal fact, read from the entity as it is now. */
+export async function writeJournalEntry(
+  tx: Tx,
+  projectId: string,
+  intent: JournalIntent,
+): Promise<JournalResult> {
+  const entry = await render(tx, projectId, intent);
+  if (!entry) return "skipped";
+  return upsertMemoryEntry(tx, projectId, entry, {
+    dedupeKey: intent.dedupeKey,
+    entityType: intent.entityType,
+    entityId: intent.entityId,
+    source: "system",
+  });
 }

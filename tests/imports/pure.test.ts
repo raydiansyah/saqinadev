@@ -62,7 +62,7 @@ describe("pickDocPaths", () => {
     ]);
   });
   it("caps the number of files and skips huge ones", () => {
-    const many = Array.from({ length: 30 }, (_, i) => file(`docs/note-${i}.md`));
+    const many = Array.from({ length: MAX_DOCS + 10 }, (_, i) => file(`docs/note-${i}.md`));
     expect(pickDocPaths([file("README.md")], many)).toHaveLength(MAX_DOCS);
     expect(pickDocPaths([file("README.md", 5_000_000)], [])).toEqual([]);
   });

@@ -8,6 +8,7 @@ import type { AiProvider } from "@/lib/ai/provider";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
+import { indexDocs } from "@/lib/docmap/index-docs";
 import { AppError } from "@/lib/errors";
 import { allow } from "@/lib/rate-limit";
 import { parse } from "@/lib/validation";
@@ -131,6 +132,7 @@ export async function syncRequirementsFromDocs(
       });
     // The repository's own PRD, plan and task list, where the project does not have its own yet.
     const adopted = await adoptRepoDocsTx(tx, writer.project.id, hints);
+    await indexDocs(tx, writer.project.id, docs, hints);
     return { ...added, adopted };
   });
   return { ...result, ai, aiProblem, noDocs: false };

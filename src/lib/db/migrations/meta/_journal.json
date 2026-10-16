@@ -113,6 +113,13 @@
       "when": 1792144694200,
       "tag": "0015_abnormal_retro_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1792145058467,
+      "tag": "0016_brainy_steel_serpent",
+      "breakpoints": true
     }
   ]
 }

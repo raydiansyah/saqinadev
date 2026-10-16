@@ -18,7 +18,7 @@ export interface RepoSnapshot {
   stack: DetectedStack;
 }
 
-export const MAX_DOCS = 30;
+export const MAX_DOCS = 60;
 export const MAX_DOC_CHARS = 100_000;
 
 /** "owner/name", a github.com URL, or an .git clone URL to "owner/name". */
