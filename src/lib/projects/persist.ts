@@ -177,6 +177,25 @@ export async function persistGeneratedProject(tx: Tx, input: PersistInput): Prom
   }
   await tx.insert(agents).values(generated.agents.map((a) => ({ projectId, ...a })));
 
+  // One change per kind of record the project starts with, so a reader that follows the change
+  // feed learns about them without scanning the project.
+  const origin = "system";
+  if (generated.memories.length > 0)
+    await recordActivity(tx, {
+      projectId,
+      actorId,
+      type: "memory.created",
+      entityType: "memory",
+      metadata: { count: generated.memories.length, origin },
+    });
+  if (generated.decisions.length > 0)
+    await recordActivity(tx, {
+      projectId,
+      actorId,
+      type: "decision.created",
+      entityType: "decision",
+      metadata: { count: generated.decisions.length, origin },
+    });
   await recordActivity(tx, {
     projectId,
     actorId,

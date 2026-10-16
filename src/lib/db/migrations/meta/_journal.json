@@ -92,6 +92,13 @@
       "when": 1792075399061,
       "tag": "0012_odd_talon",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1792144069222,
+      "tag": "0013_fair_silverclaw",
+      "breakpoints": true
     }
   ]
 }

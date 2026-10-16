@@ -1,7 +1,7 @@
 import "server-only";
 import { and, desc, eq, lt, or, sql } from "drizzle-orm";
 import { db, type Executor } from "@/lib/db/client";
-import { activities, projectMembers, projects, users } from "@/lib/db/schema";
+import { activities, projectChanges, projectMembers, projects, users } from "@/lib/db/schema";
 import type { ActivityType } from "@/lib/domain/enums";
 
 export type ActivityMetadata = Record<string, string | number | boolean | null>;
@@ -52,16 +52,27 @@ export async function recordActivity(executor: Executor, input: ActivityInput): 
     // now() is fixed for a whole transaction; a strictly increasing clock keeps events in order.
     createdAt: tick(),
   });
-  await executor
+  const moves = changesContext(input.type);
+  const [row] = await executor
     .update(projects)
     .set({
       updatedAt: new Date(),
       // Only changes to what agents read move the context version (not runs, tools, handoffs).
-      ...(changesContext(input.type)
-        ? { contextRevision: sql`${projects.contextRevision} + 1` }
-        : {}),
+      ...(moves ? { contextRevision: sql`${projects.contextRevision} + 1` } : {}),
     })
-    .where(eq(projects.id, input.projectId));
+    .where(eq(projects.id, input.projectId))
+    .returning({ revision: projects.contextRevision });
+  // The outbox row shares the transaction: a change and its record commit or roll back together.
+  if (moves && row)
+    await executor.insert(projectChanges).values({
+      projectId: input.projectId,
+      revision: row.revision,
+      type: input.type,
+      entityType: input.entityType,
+      entityId: input.entityId ?? null,
+      actorId: input.actorId,
+      origin: typeof input.metadata?.origin === "string" ? input.metadata.origin : null,
+    });
 }
 
 export interface ActivityView {

@@ -1,6 +1,7 @@
 import "server-only";
 import * as z from "zod";
 import type { Locale } from "@/i18n/locales";
+import { recordActivity } from "@/lib/activity/service";
 import { runAi } from "@/lib/ai/gateway";
 import type { AiProvider } from "@/lib/ai/provider";
 import { recordAudit } from "@/lib/audit/service";
@@ -197,6 +198,22 @@ async function runImport(
 
         // The repository's own PRD, plan and task list become the project's, right away.
         adopted = await adoptRepoDocsTx(tx, projectId, roleHints);
+        if (snapshot.docs.length > 0)
+          await recordActivity(tx, {
+            projectId,
+            actorId: actor.id,
+            type: "document.created",
+            entityType: "document",
+            metadata: { count: snapshot.docs.length, origin: "import" },
+          });
+        if (adopted.tasks > 0)
+          await recordActivity(tx, {
+            projectId,
+            actorId: actor.id,
+            type: "task.created",
+            entityType: "task",
+            metadata: { count: adopted.tasks, origin: "import" },
+          });
 
         // Straight to the review step: earlier steps count as done, the answers stay unconfirmed.
         await updateInterviewProgress(

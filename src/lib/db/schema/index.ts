@@ -1,6 +1,7 @@
 export * from "./assistant";
 export * from "./auth";
 export * from "./billing";
+export * from "./brain";
 export * from "./docsync";
 export * from "./engagement";
 export * from "./organizations";
