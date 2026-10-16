@@ -7,6 +7,7 @@ import { loadProjectAccess } from "@/lib/auth/permissions";
 import { db, type Tx } from "@/lib/db/client";
 import { projects } from "@/lib/db/schema";
 import { AppError } from "@/lib/errors";
+import { persistImportedRequirements } from "@/lib/imports/persist-requirements";
 import { persistGeneratedProject } from "@/lib/projects/persist";
 import { parse } from "@/lib/validation";
 import { createProjectIntelligence } from "./intelligence";
@@ -106,6 +107,11 @@ export async function completeInterview(actor: Actor, slug: string): Promise<{ s
       data,
       gen: intelligence.gen,
     });
+    // An imported repository's own documents add the requirements the catalogue cannot know.
+    const fromDocs = await persistImportedRequirements(tx, {
+      projectId: project.id,
+      actorId: actor.id,
+    });
     await markInterviewCompleted(tx, interview.id);
     await recordActivity(tx, {
       projectId: project.id,
@@ -117,6 +123,7 @@ export async function completeInterview(actor: Actor, slug: string): Promise<{ s
         confirmed: analysis.counts.confirmed,
         inferred: analysis.counts.inferred,
         unknown: analysis.counts.unknown,
+        fromDocs,
       },
     });
     return { slug };
