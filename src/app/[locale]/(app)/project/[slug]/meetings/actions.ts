@@ -54,7 +54,17 @@ export async function analyzeNoteAction(slug: string, id: string, locale: string
       isLocale(locale) ? locale : DEFAULT_LOCALE,
     );
     refresh();
-    return { available: result.available, reason: result.available ? null : result.reason };
+    return {
+      available: result.available,
+      problem: result.available
+        ? null
+        : {
+            reason: result.reason,
+            model: result.model,
+            missing: result.missing,
+            code: result.code,
+          },
+    };
   });
 }
 

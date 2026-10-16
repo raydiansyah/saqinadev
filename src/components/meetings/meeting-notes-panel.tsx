@@ -13,6 +13,7 @@ import { EngagementError, useEngagementErrorText } from "@/components/engagement
 import { useRun } from "@/components/platform/use-run";
 import { Button } from "@/components/ui/button";
 import { Notice, TextArea } from "@/components/ui/form";
+import type { NoModelExplanation } from "@/lib/ai/diagnostics";
 import type { MeetingItemClass, MeetingNoteStatus, MeetingVisibility } from "@/lib/domain/business";
 import { formatRelative } from "@/lib/format";
 import { NoteDialog, type NoteDraft } from "./note-dialog";
@@ -67,7 +68,8 @@ export function MeetingNotesPanel({
   const [deleting, setDeleting] = useState<NoteView | null>(null);
   const [declining, setDeclining] = useState<NoteView | null>(null);
   const [reason, setReason] = useState("");
-  const [unavailable, setUnavailable] = useState<"no_model" | "provider_failed" | null>(null);
+  const [unavailable, setUnavailable] = useState<NoModelExplanation | null>(null);
+  const caps = useTranslations("platform.models.capabilityNames");
   const { pending, error, run, clear } = useRun();
   const errorText = useEngagementErrorText(error);
 
@@ -143,9 +145,9 @@ export function MeetingNotesPanel({
                   disabled={pending}
                   onClick={() => {
                     setUnavailable(null);
-                    run<{ available: boolean; reason: "no_model" | "provider_failed" | null }>(
+                    run<{ available: boolean; problem: NoModelExplanation | null }>(
                       () => analyzeNoteAction(slug, n.id, locale),
-                      (r) => setUnavailable(r.available ? null : r.reason),
+                      (r) => setUnavailable(r.available ? null : r.problem),
                     );
                   }}
                 >
@@ -172,7 +174,11 @@ export function MeetingNotesPanel({
       {declining || deleting ? null : <EngagementError error={error} />}
       {unavailable ? (
         <Notice tone="warning">
-          {unavailable === "provider_failed" ? t("providerFailed") : t("analysisUnavailable")}
+          {t(`unavailable.${unavailable.reason}`, {
+            model: unavailable.model ?? "",
+            missing: (unavailable.missing ?? []).map((c) => caps(c)).join(", "),
+            code: unavailable.code ?? "",
+          })}
         </Notice>
       ) : null}
       <ConfirmDialog

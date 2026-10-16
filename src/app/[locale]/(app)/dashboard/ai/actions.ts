@@ -7,6 +7,8 @@ import {
   createModel,
   createProvider,
   disconnectProvider,
+  fetchProviderModels,
+  importModels,
   setDefaults,
   setPolicy,
   setProviderEnabled,
@@ -39,6 +41,8 @@ export const updateProviderAction = wrap("provider.update", updateProvider);
 export const setProviderEnabledAction = wrap("provider.enable", setProviderEnabled);
 export const disconnectProviderAction = wrap("provider.disconnect", disconnectProvider);
 export const testProviderAction = wrap("provider.test", testProvider);
+export const fetchProviderModelsAction = wrap("model.fetch", fetchProviderModels);
+export const importModelsAction = wrap("model.import", importModels);
 export const createModelAction = wrap("model.create", createModel);
 export const updateModelAction = wrap("model.update", updateModel);
 export const setDefaultsAction = wrap("model.defaults", setDefaults);

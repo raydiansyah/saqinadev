@@ -54,7 +54,6 @@
     "confirmedByClient": "Klien mengonfirmasi catatan ini sudah benar.",
     "analyze": "Analisis catatan",
     "analyzing": "Menganalisis…",
-    "analysisUnavailable": "Belum ada model AI yang diatur, jadi Saqina belum bisa membaca catatan ini. Minta pemilik platform menambahkannya di AI & Models.",
     "itemsTitle": "Temuan Saqina",
     "noItems": "Tidak ada isi catatan yang perlu mengubah rencana.",
     "confidence": "Keyakinan {value}%",
@@ -78,6 +77,11 @@
     "dismissed": "Diabaikan",
     "notActionable": "Tidak ada perubahan untuk diusulkan",
     "findingsHint": "Pilih temuan yang dijadikan proposal. Tidak ada yang berubah sampai Anda menyetujuinya.",
-    "providerFailed": "Model AI tidak menjawab. Periksa provider di AI & Models, lalu coba lagi."
+    "unavailable": {
+      "no_model": "Belum ada model AI yang dipilih. Minta owner platform memilih model default di AI & Models → Models.",
+      "capability_missing": "“{model}” belum ditandai mampu memberi jawaban terstruktur (kurang: {missing}). Minta owner platform mengaktifkannya di AI & Models → Models.",
+      "model_unavailable": "“{model}” belum bisa dipakai: model atau providernya nonaktif, atau koneksi provider gagal diuji. Periksa AI & Models.",
+      "provider_failed": "“{model}” tidak menjawab ({code}). Periksa kunci provider dan id model di AI & Models."
+    }
   }
 }

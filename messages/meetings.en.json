@@ -54,7 +54,6 @@
     "confirmedByClient": "The client confirmed this note is accurate.",
     "analyze": "Analyze note",
     "analyzing": "Analyzing…",
-    "analysisUnavailable": "No AI model is set up, so Saqina cannot read this note yet. Ask the platform owner to add one in AI & Models.",
     "itemsTitle": "What Saqina found",
     "noItems": "Nothing in this note needed a plan change.",
     "confidence": "Confidence {value}%",
@@ -78,6 +77,11 @@
     "dismissed": "Dismissed",
     "notActionable": "No change to propose",
     "findingsHint": "Pick the findings to turn into a proposal. Nothing changes until you approve it.",
-    "providerFailed": "The AI model did not answer. Check the provider in AI & Models, then try again."
+    "unavailable": {
+      "no_model": "No AI model is chosen yet. Ask the platform owner to pick a default model under AI & Models → Models.",
+      "capability_missing": "“{model}” is not marked as able to return structured answers (missing: {missing}). Ask the platform owner to enable it under AI & Models → Models.",
+      "model_unavailable": "“{model}” cannot be used right now: the model or its provider is disabled, or the provider connection failed its test. Check AI & Models.",
+      "provider_failed": "“{model}” did not answer ({code}). Check the provider key and the model id under AI & Models."
+    }
   }
 }

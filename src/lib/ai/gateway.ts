@@ -12,8 +12,9 @@ import { withSecret } from "@/lib/secrets/service";
 import { ADAPTERS } from "./adapters";
 import { AiProviderError } from "./adapters/http";
 import { resolutionInput } from "./catalog";
+import { type AiDiagnostics, NO_DIAGNOSTICS } from "./diagnostics";
 import { MockAiProvider } from "./mock";
-import { type CatalogModel, resolveModel } from "./model-resolver";
+import { type CatalogModel, missingCapabilities, resolveModel } from "./model-resolver";
 import type { AiProvider } from "./provider";
 import { getAiProvider } from "./registry";
 
@@ -34,6 +35,15 @@ export interface AiOutcome<T> {
   source: ResolvedSource;
   fallbackUsed: boolean;
   deterministic: boolean;
+  /** Why configured models were skipped or failed; empty when one answered. */
+  diagnostics: AiDiagnostics;
+}
+
+/** Thrown when nothing answered, including the server's own model. Carries the reasons. */
+export class AiCallFailed extends Error {
+  constructor(readonly diagnostics: AiDiagnostics) {
+    super("ai_call_failed");
+  }
 }
 
 export interface AiCall<T> {
@@ -99,6 +109,7 @@ export async function runAi<T>(call: AiCall<T>): Promise<AiOutcome<T>> {
       source: call.override.deterministic ? "rules" : "system",
       fallbackUsed: false,
       deterministic: call.override.deterministic,
+      diagnostics: NO_DIAGNOSTICS,
     };
   }
 
@@ -113,6 +124,23 @@ export async function runAi<T>(call: AiCall<T>): Promise<AiOutcome<T>> {
         )
     : [];
   const requested = resolution.chain[0]?.model ?? null;
+  const catalog = new Map(input.catalog.map((m) => [m.id, m]));
+  const diagnostics: AiDiagnostics = {
+    configured: Boolean(input.platform.defaultModelId || input.platform.fallbackModelId),
+    rejected: resolution.rejected.flatMap((r) => {
+      const model = catalog.get(r.modelId);
+      return model
+        ? [
+            {
+              label: label(model),
+              reason: r.reason,
+              missing: missingCapabilities(model, resolution.required),
+            },
+          ]
+        : [];
+    }),
+    failed: [],
+  };
 
   for (const [index, candidate] of resolution.chain.entries()) {
     const provider = providers.find((p) => p.id === candidate.model.providerId);
@@ -148,6 +176,7 @@ export async function runAi<T>(call: AiCall<T>): Promise<AiOutcome<T>> {
         source: candidate.source,
         fallbackUsed,
         deterministic: false,
+        diagnostics: { ...diagnostics, failed: diagnostics.failed },
       };
     } catch (error) {
       const code =
@@ -169,6 +198,7 @@ export async function runAi<T>(call: AiCall<T>): Promise<AiOutcome<T>> {
           .update(aiProviders)
           .set({ status: "unauthorized" })
           .where(eq(aiProviders.id, provider.id));
+      diagnostics.failed.push({ label: label(candidate.model), code });
       log.warn("ai.candidate_failed", { model: candidate.model.modelId, code });
     }
   }
@@ -176,7 +206,18 @@ export async function runAi<T>(call: AiCall<T>): Promise<AiOutcome<T>> {
   // Nothing configured worked: the env model if present, otherwise rules. Recorded either way.
   const system = getAiProvider();
   const started = performance.now();
-  const value = await call.run(system);
+  let value: T;
+  try {
+    value = await call.run(system);
+  } catch (error) {
+    if (isAbort(error)) throw error;
+    // The server's own model failed too: report every reason instead of a bare error.
+    diagnostics.failed.push({
+      label: system.config.model,
+      code: error instanceof AiProviderError ? error.code : "failed",
+    });
+    throw new AiCallFailed(diagnostics);
+  }
   if (!system.deterministic)
     await recordUsage({
       projectId,
@@ -196,6 +237,7 @@ export async function runAi<T>(call: AiCall<T>): Promise<AiOutcome<T>> {
     source: system.deterministic ? "rules" : "system",
     fallbackUsed: Boolean(requested),
     deterministic: system.deterministic,
+    diagnostics,
   };
 }
 

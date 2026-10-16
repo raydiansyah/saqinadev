@@ -176,7 +176,6 @@
         "again": "Review again",
         "pending": "Reviewing…",
         "reviewedBy": "Reviewed by {model}",
-        "noModel": "No AI model is set up yet. The platform owner can add one under AI & Models.",
         "suggestions": "Suggested values",
         "noSuggestions": "No changes suggested.",
         "apply": "Apply",
@@ -198,6 +197,12 @@
           "databaseChoice": "Database",
           "versioning": "Version control",
           "deployment": "Deployment"
+        },
+        "reasons": {
+          "no_model": "No AI model is chosen yet. The platform owner can pick a default model under AI & Models → Models.",
+          "capability_missing": "“{model}” is not marked as able to return structured answers (missing: {missing}). The platform owner can enable it for this model under AI & Models → Models.",
+          "model_unavailable": "“{model}” cannot be used right now: the model or its provider is disabled, or the provider connection failed its test. Check AI & Models.",
+          "provider_failed": "“{model}” did not answer ({code}). Check the provider key and the model id under AI & Models."
         }
       },
       "metaTitle": "Review",

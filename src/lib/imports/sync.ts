@@ -2,7 +2,8 @@ import "server-only";
 import * as z from "zod";
 import type { Locale } from "@/i18n/locales";
 import { recordActivity } from "@/lib/activity/service";
-import { runAi } from "@/lib/ai/gateway";
+import { explainNoModel, type NoModelExplanation } from "@/lib/ai/diagnostics";
+import { AiCallFailed, runAi } from "@/lib/ai/gateway";
 import type { AiProvider } from "@/lib/ai/provider";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess } from "@/lib/auth/permissions";
@@ -24,7 +25,9 @@ export interface SyncResult {
   fromRules: number;
   fromAi: number;
   /** Null when AI was not asked for. */
-  ai: "used" | "no_model" | "provider_failed" | null;
+  ai: "used" | "unavailable" | null;
+  /** Why the model did not read the documents, when it was asked to and could not. */
+  aiProblem?: NoModelExplanation;
   /** The project has no repository documents to read. */
   noDocs: boolean;
 }
@@ -54,6 +57,7 @@ export async function syncRequirementsFromDocs(
 
   let extra: ExtractedRequirement[] = [];
   let ai: SyncResult["ai"] = null;
+  let aiProblem: NoModelExplanation | undefined;
   if (useAi) {
     if (!(await allow(`ai-req:${actor.id}`, 5, HOUR))) throw new AppError("RATE_LIMIT");
     const language = locale === "id" ? "Indonesian" : "English";
@@ -70,10 +74,17 @@ export async function syncRequirementsFromDocs(
       if (outcome.value && !outcome.deterministic) {
         extra = outcome.value;
         ai = "used";
-      } else ai = "no_model";
+      } else {
+        ai = "unavailable";
+        aiProblem = explainNoModel(outcome.diagnostics);
+      }
     } catch (error) {
       if (error instanceof AppError) throw error;
-      ai = "provider_failed";
+      ai = "unavailable";
+      aiProblem =
+        error instanceof AiCallFailed
+          ? explainNoModel(error.diagnostics)
+          : { reason: "provider_failed" };
     }
   }
 
@@ -95,5 +106,5 @@ export async function syncRequirementsFromDocs(
       });
     return added;
   });
-  return { ...result, ai, noDocs: false };
+  return { ...result, ai, aiProblem, noDocs: false };
 }

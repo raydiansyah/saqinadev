@@ -98,7 +98,7 @@
       "modelId": "Model id",
       "displayName": "Display name",
       "capabilities": "Capabilities",
-      "capabilitiesHint": "Declare what this model supports. Saqina does not guess from names.",
+      "capabilitiesHint": "Declare what this model supports. “Structured output” is needed for AI review, note analysis and reading documents. Models fetched from a provider get a best guess you can correct here.",
       "contextWindow": "Context window (tokens)",
       "placeholders": {
         "modelId": "claude-sonnet-5-5",
@@ -131,7 +131,35 @@
         "unavailable": "Unavailable",
         "configuration_error": "Configuration error"
       },
-      "edit": "Edit"
+      "edit": "Edit",
+      "fetch": {
+        "open": "Fetch models",
+        "title": "Fetch models from a provider",
+        "hint": "Lists the chat models your key can use. Pick the ones to add; you can change their abilities afterwards with Edit.",
+        "provider": "Provider",
+        "fetch": "Fetch models",
+        "refetch": "Fetch again",
+        "fetching": "Fetching…",
+        "none": "This provider did not list any chat models. Add one by hand with its model id.",
+        "search": "Search models",
+        "selectAll": "Select all new",
+        "clear": "Clear",
+        "alreadyAdded": "Already added",
+        "addSelected": "Add {count} selected",
+        "adding": "Adding…",
+        "added": "Added {count} models. {skipped} were already there.",
+        "done": "Done",
+        "errors": {
+          "auth_failed": "The provider refused the key. Check it on the Providers tab.",
+          "network": "Could not reach the provider. Check the address and try again.",
+          "rate_limited": "The provider is limiting requests. Try again in a few minutes.",
+          "no_credential": "This provider has no key yet. Add one on the Providers tab.",
+          "bad_response": "The provider answered in a format we do not recognise.",
+          "unknown": "Could not fetch the models. Try again."
+        }
+      },
+      "makeDefault": "Make default",
+      "defaultUnusable": "“{model}” is chosen here but cannot be used right now: the model or its provider is disabled, or the provider connection failed its test. Test the provider on the Providers tab."
     },
     "mapping": {
       "title": "Agent model mapping",

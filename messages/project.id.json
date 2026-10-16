@@ -176,7 +176,6 @@
         "again": "Tinjau ulang",
         "pending": "Meninjau…",
         "reviewedBy": "Ditinjau oleh {model}",
-        "noModel": "Belum ada model AI yang disetel. Owner platform dapat menambahkannya di AI & Models.",
         "suggestions": "Usulan nilai",
         "noSuggestions": "Tidak ada perubahan yang diusulkan.",
         "apply": "Terapkan",
@@ -198,6 +197,12 @@
           "databaseChoice": "Database",
           "versioning": "Version control",
           "deployment": "Deployment"
+        },
+        "reasons": {
+          "no_model": "Belum ada model AI yang dipilih. Owner platform bisa memilih model default di AI & Models → Models.",
+          "capability_missing": "“{model}” belum ditandai mampu memberi jawaban terstruktur (kurang: {missing}). Owner platform bisa mengaktifkannya untuk model ini di AI & Models → Models.",
+          "model_unavailable": "“{model}” belum bisa dipakai: model atau providernya nonaktif, atau koneksi provider gagal diuji. Periksa AI & Models.",
+          "provider_failed": "“{model}” tidak menjawab ({code}). Periksa kunci provider dan id model di AI & Models."
         }
       },
       "metaTitle": "Review",

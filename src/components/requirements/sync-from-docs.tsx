@@ -11,6 +11,7 @@ import type { SyncResult } from "@/lib/imports/sync";
 /** For imported projects: read the repository documents again and add what is missing. */
 export function SyncFromDocs({ slug }: { slug: string }) {
   const t = useTranslations("requirements.sync");
+  const caps = useTranslations("platform.models.capabilityNames");
   const locale = useLocale();
   const id = useId();
   const [useAi, setUseAi] = useState(false);
@@ -61,9 +62,14 @@ export function SyncFromDocs({ slug }: { slug: string }) {
                 ? t("added", { count: result.added })
                 : t("nothingNew")}
           </Notice>
-          {result.ai === "no_model" ? <Notice tone="warning">{t("noModel")}</Notice> : null}
-          {result.ai === "provider_failed" ? (
-            <Notice tone="warning">{t("providerFailed")}</Notice>
+          {result.aiProblem ? (
+            <Notice tone="warning">
+              {t(`unavailable.${result.aiProblem.reason}`, {
+                model: result.aiProblem.model ?? "",
+                missing: (result.aiProblem.missing ?? []).map((c) => caps(c)).join(", "),
+                code: result.aiProblem.code ?? "",
+              })}
+            </Notice>
           ) : null}
         </div>
       ) : null}

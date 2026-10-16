@@ -3,7 +3,8 @@ import { asc, eq, inArray } from "drizzle-orm";
 import * as z from "zod";
 import type { Locale } from "@/i18n/locales";
 import { recordActivity } from "@/lib/activity/service";
-import { type ResolvedSource, runAi } from "@/lib/ai/gateway";
+import { explainNoModel, type NoModelExplanation } from "@/lib/ai/diagnostics";
+import { AiCallFailed, type ResolvedSource, runAi } from "@/lib/ai/gateway";
 import type { AiProvider } from "@/lib/ai/provider";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess } from "@/lib/auth/permissions";
@@ -57,7 +58,7 @@ const SYSTEM = [
 
 export type AnalysisResult =
   | { available: true; items: MeetingItem[]; model: string; source: ResolvedSource }
-  | { available: false; reason: "no_model" | "provider_failed" };
+  | ({ available: false } & NoModelExplanation);
 
 /**
  * A team note is ready to analyze as saved; a client note only after the team approved it.
@@ -122,10 +123,15 @@ export async function analyzeNote(
       .update(meetingNotes)
       .set({ analysisError: "provider_failed" })
       .where(eq(meetingNotes.id, id));
-    return { available: false, reason: "provider_failed" };
+    const why =
+      error instanceof AiCallFailed
+        ? explainNoModel(error.diagnostics)
+        : { reason: "provider_failed" as const };
+    return { available: false, ...why };
   }
   // Without a configured model nothing is guessed: the note stays as it is.
-  if (!outcome.value || outcome.deterministic) return { available: false, reason: "no_model" };
+  if (!outcome.value || outcome.deterministic)
+    return { available: false, ...explainNoModel(outcome.diagnostics) };
 
   const parsed = ANALYSIS_SCHEMA.safeParse(outcome.value);
   if (!parsed.success) {

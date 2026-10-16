@@ -87,7 +87,7 @@ describe("AI review of the interview", () => {
   it("reports that no model is available instead of faking a review", async () => {
     const { provider: p, seen } = provider(REPLY, true);
     const review = await reviewInterviewWithAi(owner, slug, "en", { provider: p });
-    expect(review).toEqual({ available: false });
+    expect(review).toEqual({ available: false, reason: "no_model" });
     expect(seen.calls).toBe(0);
   });
 

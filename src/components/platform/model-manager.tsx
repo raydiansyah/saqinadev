@@ -10,9 +10,10 @@ import {
 import { Dialog } from "@/components/app/dialog";
 import { EmptyState } from "@/components/app/states";
 import { Button } from "@/components/ui/button";
-import { Field, Select } from "@/components/ui/form";
+import { Field, Notice, Select } from "@/components/ui/form";
 import type { CatalogModel } from "@/lib/ai/model-resolver";
 import { MODEL_CAPABILITIES, type ModelCapability } from "@/lib/domain/enums";
+import { FetchModelsDialog } from "./fetch-models-dialog";
 import { FormError } from "./form-error";
 import { useRun } from "./use-run";
 
@@ -60,8 +61,14 @@ export function ModelManager({
   const caps = useTranslations("platform.models.capabilityNames");
   const id = useId();
   const [editing, setEditing] = useState<CatalogModel | "new" | null>(null);
+  const [fetching, setFetching] = useState(false);
   const { pending, error, run } = useRun();
   const options = models.filter(usable);
+  // A default that is chosen but cannot be used would otherwise show as an empty select.
+  const unusableDefaults = [defaultModelId, fallbackModelId].flatMap((id) => {
+    const m = models.find((x) => x.id === id);
+    return m && !usable(m) ? [m] : [];
+  });
 
   return (
     <div className="space-y-8">
@@ -70,9 +77,19 @@ export function ModelManager({
           <h2 id={`${id}-models`} className="font-semibold">
             {t("title")}
           </h2>
-          <Button size="sm" disabled={providers.length === 0} onClick={() => setEditing("new")}>
-            {t("add")}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={providers.length === 0}
+              onClick={() => setFetching(true)}
+            >
+              {t("fetch.open")}
+            </Button>
+            <Button size="sm" disabled={providers.length === 0} onClick={() => setEditing("new")}>
+              {t("add")}
+            </Button>
+          </div>
         </div>
         <FormError error={error} />
         {models.length === 0 ? (
@@ -117,6 +134,24 @@ export function ModelManager({
                         {t("edit")}
                         <span className="sr-only">: {m.displayName}</span>
                       </Button>
+                      {usable(m) && m.id !== defaultModelId ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          disabled={pending}
+                          onClick={() =>
+                            run(() =>
+                              setDefaultsAction({
+                                defaultModelId: m.id,
+                                fallbackModelId: m.id === fallbackModelId ? null : fallbackModelId,
+                              }),
+                            )
+                          }
+                        >
+                          {t("makeDefault")}
+                          <span className="sr-only">: {m.displayName}</span>
+                        </Button>
+                      ) : null}
                       <Button
                         size="sm"
                         variant="ghost"
@@ -148,6 +183,11 @@ export function ModelManager({
           {t("defaults")}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">{t("unavailable")}</p>
+        {unusableDefaults.map((m) => (
+          <Notice key={m.id} tone="warning" className="mt-3">
+            {t("defaultUnusable", { model: `${m.providerName} / ${m.displayName}` })}
+          </Notice>
+        ))}
         <form
           // Remount after a save so the selects show the stored values.
           key={`${defaultModelId}-${fallbackModelId}`}
@@ -184,6 +224,9 @@ export function ModelManager({
           </div>
         </form>
       </section>
+      {fetching ? (
+        <FetchModelsDialog providers={providers} onClose={() => setFetching(false)} />
+      ) : null}
       {editing ? (
         <ModelDialog
           model={editing === "new" ? null : editing}
@@ -266,7 +309,12 @@ function ModelDialog({
         <fieldset>
           <legend className="text-sm font-medium">{t("capabilities")}</legend>
           <p className="mb-2 text-xs text-muted-foreground">{t("capabilitiesHint")}</p>
-          <CapabilityChecks name="capabilities" value={model?.capabilities ?? ["text"]} />
+          <CapabilityChecks
+            name="capabilities"
+            value={
+              model?.capabilities ?? ["text", "streaming", "tool_calling", "structured_output"]
+            }
+          />
         </fieldset>
         <Field
           id={`${id}-ctx`}

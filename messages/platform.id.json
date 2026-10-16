@@ -98,7 +98,7 @@
       "modelId": "Id model",
       "displayName": "Nama tampilan",
       "capabilities": "Kemampuan",
-      "capabilitiesHint": "Nyatakan apa yang didukung model ini. Saqina tidak menebak dari nama.",
+      "capabilitiesHint": "Tentukan apa yang didukung model ini. “Structured output” dibutuhkan untuk tinjauan AI, analisis catatan, dan pembacaan dokumen. Model yang diambil dari provider diberi perkiraan awal yang bisa Anda koreksi di sini.",
       "contextWindow": "Jendela konteks (token)",
       "placeholders": {
         "modelId": "claude-sonnet-5-5",
@@ -131,7 +131,35 @@
         "unavailable": "Tidak tersedia",
         "configuration_error": "Konfigurasi bermasalah"
       },
-      "edit": "Ubah"
+      "edit": "Ubah",
+      "fetch": {
+        "open": "Ambil model",
+        "title": "Ambil model dari provider",
+        "hint": "Menampilkan model chat yang bisa dipakai kunci Anda. Pilih yang mau ditambahkan; kemampuannya bisa diubah nanti lewat Ubah.",
+        "provider": "Provider",
+        "fetch": "Ambil model",
+        "refetch": "Ambil lagi",
+        "fetching": "Mengambil…",
+        "none": "Provider ini tidak menampilkan model chat. Tambahkan manual dengan id modelnya.",
+        "search": "Cari model",
+        "selectAll": "Pilih semua yang baru",
+        "clear": "Kosongkan",
+        "alreadyAdded": "Sudah ditambahkan",
+        "addSelected": "Tambahkan {count} terpilih",
+        "adding": "Menambahkan…",
+        "added": "Menambahkan {count} model. {skipped} sudah ada.",
+        "done": "Selesai",
+        "errors": {
+          "auth_failed": "Provider menolak kunci. Periksa di tab Providers.",
+          "network": "Tidak bisa menjangkau provider. Periksa alamatnya lalu coba lagi.",
+          "rate_limited": "Provider membatasi permintaan. Coba lagi beberapa menit lagi.",
+          "no_credential": "Provider ini belum punya kunci. Tambahkan di tab Providers.",
+          "bad_response": "Provider menjawab dalam format yang tidak kami kenali.",
+          "unknown": "Tidak bisa mengambil model. Coba lagi."
+        }
+      },
+      "makeDefault": "Jadikan default",
+      "defaultUnusable": "“{model}” dipilih di sini tetapi belum bisa dipakai: model atau providernya nonaktif, atau koneksi provider gagal diuji. Uji provider di tab Providers."
     },
     "mapping": {
       "title": "Pemetaan model agent",

@@ -133,10 +133,14 @@
       "added": "Menambahkan {count} requirement. Tinjau di bawah.",
       "nothingNew": "Tidak ada yang baru: semua requirement di dokumen sudah ada di sini.",
       "noDocs": "Proyek ini tidak punya dokumen repositori untuk dibaca.",
-      "noModel": "Belum ada model AI yang diatur, jadi hanya daftar di dokumen yang dibaca.",
-      "providerFailed": "Model AI tidak menjawab, jadi hanya daftar di dokumen yang dibaca.",
       "rateLimit": "Terlalu banyak permintaan. Coba lagi nanti.",
-      "failed": "Tidak bisa memperbarui dari dokumen. Coba lagi."
+      "failed": "Tidak bisa memperbarui dari dokumen. Coba lagi.",
+      "unavailable": {
+        "no_model": "Belum ada model AI yang dipilih. Minta owner platform memilih model default di AI & Models → Models.",
+        "capability_missing": "“{model}” belum ditandai mampu memberi jawaban terstruktur (kurang: {missing}). Minta owner platform mengaktifkannya di AI & Models → Models.",
+        "model_unavailable": "“{model}” belum bisa dipakai: model atau providernya nonaktif, atau koneksi provider gagal diuji. Periksa AI & Models.",
+        "provider_failed": "“{model}” tidak menjawab ({code}). Periksa kunci provider dan id model di AI & Models."
+      }
     }
   },
   "documents": {

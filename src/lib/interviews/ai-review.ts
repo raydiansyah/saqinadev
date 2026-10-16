@@ -2,7 +2,8 @@ import "server-only";
 import { and, asc, eq, like } from "drizzle-orm";
 import * as z from "zod";
 import type { Locale } from "@/i18n/locales";
-import { type ResolvedSource, runAi } from "@/lib/ai/gateway";
+import { explainNoModel, type NoModelExplanation } from "@/lib/ai/diagnostics";
+import { AiCallFailed, type ResolvedSource, runAi } from "@/lib/ai/gateway";
 import type { AiProvider } from "@/lib/ai/provider";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess } from "@/lib/auth/permissions";
@@ -63,7 +64,7 @@ export type AiReview =
       model: string;
       source: ResolvedSource;
     }
-  | { available: false };
+  | ({ available: false } & NoModelExplanation);
 
 const SYSTEM = [
   "You review the answers of a software project interview and advise the person filling it in.",
@@ -117,38 +118,48 @@ export async function reviewInterviewWithAi(
   });
   const language = locale === "id" ? "Indonesian" : "English";
 
-  const outcome = await runAi({
-    access,
-    operation: "structured_analysis",
-    required: ["structured_output"],
-    override: options.provider,
-    run: async (client) =>
-      client.deterministic
-        ? null
-        : client.generateObject(
-            {
-              system: SYSTEM,
-              segments: [
-                {
-                  kind: "project_data",
-                  label: "interview answers and where each came from",
-                  content: JSON.stringify({
-                    answers: data.answers,
-                    details: data.details,
-                    sources: data.sources,
-                  }),
-                },
-                ...docSegments,
-              ],
-              userMessage: `Review these answers. Write the summary and notes in ${language}.`,
-              draft: "{}",
-              maxOutputTokens: 1500,
-            },
-            REVIEW_SCHEMA,
-            "interview_review",
-          ),
-  });
-  if (!outcome.value || outcome.deterministic) return { available: false };
+  let outcome: Awaited<ReturnType<typeof runAi<unknown>>>;
+  try {
+    outcome = await runAi({
+      access,
+      operation: "structured_analysis",
+      required: ["structured_output"],
+      override: options.provider,
+      run: async (client) =>
+        client.deterministic
+          ? null
+          : client.generateObject(
+              {
+                system: SYSTEM,
+                segments: [
+                  {
+                    kind: "project_data",
+                    label: "interview answers and where each came from",
+                    content: JSON.stringify({
+                      answers: data.answers,
+                      details: data.details,
+                      sources: data.sources,
+                    }),
+                  },
+                  ...docSegments,
+                ],
+                userMessage: `Review these answers. Write the summary and notes in ${language}.`,
+                draft: "{}",
+                maxOutputTokens: 1500,
+              },
+              REVIEW_SCHEMA,
+              "interview_review",
+            ),
+    });
+  } catch (error) {
+    // Every configured model and the server's own failed: say why, do not crash the page.
+    if (error instanceof AiCallFailed)
+      return { available: false, ...explainNoModel(error.diagnostics) };
+    throw error;
+  }
+  // No model ran: explain whether none is chosen, one lacks a capability, or one is unusable.
+  if (!outcome.value || outcome.deterministic)
+    return { available: false, ...explainNoModel(outcome.diagnostics) };
 
   // Whatever a provider returned, only schema-valid output reaches the person.
   const parsed = REVIEW_SCHEMA.safeParse(outcome.value);

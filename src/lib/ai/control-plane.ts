@@ -17,6 +17,7 @@ import {
   AGENT_ROLES,
   MODEL_CAPABILITIES,
   MODEL_STATUSES,
+  type ModelCapability,
   PROVIDER_ADAPTERS,
   PROVIDER_TYPES,
 } from "@/lib/domain/enums";
@@ -28,6 +29,7 @@ import { recordTest, revokeCredential, storeCredential, withSecret } from "@/lib
 import { parse } from "@/lib/validation";
 import { ADAPTERS } from "./adapters";
 import { loadCatalog, platformSettings } from "./catalog";
+import { displayNameFor, inferCapabilities, isChatModel } from "./model-capabilities";
 import { DEFAULT_POLICY, modelUsable, validateMapping } from "./model-resolver";
 
 /**
@@ -480,4 +482,96 @@ export async function controlPlaneOverview(actor: Actor) {
     connectedMcp: mcpN.n,
     gitConnections: gitN.n,
   };
+}
+
+export interface FetchedModel {
+  modelId: string;
+  displayName: string;
+  capabilities: ModelCapability[];
+  /** Already in the registry for this provider. */
+  added: boolean;
+}
+
+/**
+ * Asks the provider which models its key can use. Read-only: nothing is saved and the provider's
+ * status is left alone. Only chat models are offered, each with its likely abilities.
+ */
+export async function fetchProviderModels(actor: Actor, input: unknown) {
+  await requirePlatformOwner(actor);
+  const { providerId } = parse(z.object({ providerId: z.uuid() }), input);
+  const [row] = await db.select().from(aiProviders).where(eq(aiProviders.id, providerId));
+  if (!row) throw new AppError("NOT_FOUND");
+  if (!row.credentialId) return { ok: false as const, code: "no_credential" as const, models: [] };
+  const adapter = ADAPTERS[row.adapter];
+  const result = await withSecret(row.credentialId, { kind: "ai_provider" }, (secret) =>
+    adapter.test({ baseUrl: row.baseUrl, configuration: row.configuration }, secret),
+  );
+  if (!result.ok) return { ok: false as const, code: result.code, models: [] };
+  const have = new Set(
+    (
+      await db
+        .select({ modelId: aiModels.modelId })
+        .from(aiModels)
+        .where(eq(aiModels.providerId, providerId))
+    ).map((m) => m.modelId),
+  );
+  const models: FetchedModel[] = [...new Set(result.models ?? [])]
+    .filter(isChatModel)
+    .sort()
+    .map((modelId) => ({
+      modelId,
+      displayName: displayNameFor(modelId),
+      capabilities: inferCapabilities(row.adapter, modelId),
+      added: have.has(modelId),
+    }));
+  return { ok: true as const, code: "ok" as const, models };
+}
+
+const importInput = z.object({
+  providerId: z.uuid(),
+  models: z
+    .array(
+      z.object({
+        modelId: z.string().trim().min(1).max(120),
+        displayName: z.string().trim().min(1).max(80),
+        capabilities: z.array(z.enum(MODEL_CAPABILITIES)).max(MODEL_CAPABILITIES.length),
+      }),
+    )
+    .min(1)
+    .max(100),
+});
+
+/** Adds the chosen models to the registry. Models that already exist are left as they are. */
+export async function importModels(actor: Actor, input: unknown) {
+  await requirePlatformOwner(actor);
+  const data = parse(importInput, input);
+  return db.transaction(async (tx) => {
+    const [provider] = await tx
+      .select({ id: aiProviders.id })
+      .from(aiProviders)
+      .where(eq(aiProviders.id, data.providerId));
+    if (!provider) throw new AppError("NOT_FOUND");
+    const unique = [...new Map(data.models.map((m) => [m.modelId, m])).values()];
+    const rows = await tx
+      .insert(aiModels)
+      .values(unique.map((m) => ({ ...m, providerId: data.providerId })))
+      .onConflictDoNothing()
+      .returning({ id: aiModels.id, modelId: aiModels.modelId });
+    if (rows.length > 0)
+      await recordAudit(tx, {
+        actorId: actor.id,
+        scope: "platform",
+        type: "model.imported",
+        entityType: "ai_provider",
+        entityId: data.providerId,
+        metadata: {
+          count: rows.length,
+          models: rows
+            .map((r) => r.modelId)
+            .join(",")
+            .slice(0, 500),
+        },
+      });
+    return { added: rows.length, skipped: unique.length - rows.length };
+  });
 }

@@ -238,14 +238,18 @@ describe("reading prose documents with AI", () => {
     const none = await syncRequirementsFromDocs(owner, slug, { useAi: true }, "en", {
       provider: fakeAi(null, true).provider,
     });
-    expect(none).toMatchObject({ ai: "no_model", fromAi: 0 });
+    expect(none).toMatchObject({ ai: "unavailable", aiProblem: { reason: "no_model" }, fromAi: 0 });
     expect(none.added).toBeGreaterThan(0);
 
     const other = await imported(LISTED, false);
     const broken = await syncRequirementsFromDocs(owner, other.slug, { useAi: true }, "en", {
       provider: fakeAi(new Error("401 invalid x-api-key")).provider,
     });
-    expect(broken).toMatchObject({ ai: "provider_failed", fromAi: 0 });
+    expect(broken).toMatchObject({
+      ai: "unavailable",
+      aiProblem: { reason: "provider_failed" },
+      fromAi: 0,
+    });
     expect(broken.added).toBeGreaterThan(0);
   });
 
@@ -254,7 +258,11 @@ describe("reading prose documents with AI", () => {
     const bad = await syncRequirementsFromDocs(owner, slug, { useAi: true }, "en", {
       provider: fakeAi({ items: [{ title: "x", group: "nope", quote: "q" }] }).provider,
     });
-    expect(bad).toMatchObject({ ai: "provider_failed", added: 0 });
+    expect(bad).toMatchObject({
+      ai: "unavailable",
+      aiProblem: { reason: "provider_failed" },
+      added: 0,
+    });
     const spy = fakeAi(reply([good]));
     await syncRequirementsFromDocs(owner, slug, {}, "en", { provider: spy.provider });
     expect(spy.seen.calls).toBe(0);

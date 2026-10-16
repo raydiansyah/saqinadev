@@ -29,6 +29,7 @@ export function AiReviewPanel({
   onChange: (next: InterviewData) => void;
 }) {
   const t = useTranslations("project.review");
+  const caps = useTranslations("platform.models.capabilityNames");
   const errorsT = useTranslations("app.errors");
   const locale = useLocale();
   const [pending, startTransition] = useTransition();
@@ -82,7 +83,15 @@ export function AiReviewPanel({
 
       <div aria-live="polite" className="mt-4 space-y-4">
         {error ? <Notice tone="error">{error}</Notice> : null}
-        {review && !review.available ? <Notice tone="info">{t("ai.noModel")}</Notice> : null}
+        {review && !review.available ? (
+          <Notice tone="warning">
+            {t(`ai.reasons.${review.reason}`, {
+              model: review.model ?? "",
+              missing: (review.missing ?? []).map((c) => caps(c)).join(", "),
+              code: review.code ?? "",
+            })}
+          </Notice>
+        ) : null}
         {review?.available ? (
           <>
             <p className="text-xs text-muted-foreground">
