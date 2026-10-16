@@ -66,3 +66,6 @@ agentdb.rvf.lock
 
 # Local Neon CLI settings for scripts/neon-migrate.sh
 .env.neon
+
+# Written by the Neon CLI (neon link / neonctl): local org and project context
+.neon

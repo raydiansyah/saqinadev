@@ -106,8 +106,10 @@ esac
 echo "Target  : $HOST / $DB  (project $NEON_PROJECT_ID, branch ${NEON_BRANCH:-default})"
 
 if [ "$ASSUME_YES" -ne 1 ]; then
+  # A command run without a terminal (a tool, CI, `!` in an editor) cannot be asked anything.
+  [ -t 0 ] || fail "no terminal to ask for confirmation. Run it in a terminal, or add --yes"
   printf 'Apply pending migrations to this database? Type "yes" to continue: '
-  read -r answer
+  read -r answer || answer=""
   [ "$answer" = "yes" ] || fail "cancelled, nothing was changed"
 fi
 
