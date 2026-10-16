@@ -1,4 +1,4 @@
-import { index, integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { index, integer, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { users } from "./auth";
 import { projects } from "./projects";
 
@@ -25,6 +25,8 @@ export const projectChanges = pgTable(
     actorId: text("actor_id").references(() => users.id, { onDelete: "set null" }),
     /** "human" | "ai" | "agent" | "import" | "system" when the caller says so; else null. */
     origin: text("origin"),
+    /** The activity metadata (titles, slugs, counts); never content. */
+    detail: jsonb("detail").$type<Record<string, string | number | boolean | null>>(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     processedAt: timestamp("processed_at", { withTimezone: true }),
   },

@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   boolean,
   index,
@@ -178,10 +179,22 @@ export const memories = pgTable(
     importance: text("importance").$type<"high" | "normal">().notNull().default("normal"),
     source: text("source").$type<MemorySource>().notNull(),
     createdBy: userRef("created_by"),
+    /** What this memory is about ("decision", "document", "stack"…), for the graph and journal. */
+    entityType: text("entity_type"),
+    entityId: text("entity_id"),
+    /** Stable key of a journal entry: the same fact is updated in place, never duplicated. */
+    dedupeKey: text("dedupe_key"),
+    /** Set when a person edits the text; the journal never overwrites it after that. */
+    humanEditedAt: timestamp("human_edited_at", { withTimezone: true }),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
-  (t) => [index("memories_project_idx").on(t.projectId, t.createdAt.desc())],
+  (t) => [
+    index("memories_project_idx").on(t.projectId, t.createdAt.desc()),
+    uniqueIndex("memories_dedupe_idx")
+      .on(t.projectId, t.dedupeKey)
+      .where(sql`${t.dedupeKey} is not null`),
+  ],
 );
 
 export const decisions = pgTable(

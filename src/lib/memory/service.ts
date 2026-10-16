@@ -89,7 +89,8 @@ export async function updateMemory(
     const { project } = await loadProjectAccess(actor, { slug }, "content:write", tx);
     const [row] = await tx
       .update(memories)
-      .set(data)
+      // A person edited this text; the journal will not overwrite it.
+      .set({ ...data, humanEditedAt: new Date() })
       .where(and(eq(memories.id, id), eq(memories.projectId, project.id)))
       .returning();
     if (!row) throw new AppError("NOT_FOUND");

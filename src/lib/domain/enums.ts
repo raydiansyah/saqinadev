@@ -125,6 +125,9 @@ export const MEMORY_SOURCES = [
   "user",
   "agent",
   "assistant",
+  // Written by the memory journal from what changed in the project, or read from imported docs.
+  "system",
+  "imported",
 ] as const;
 export type MemorySource = (typeof MEMORY_SOURCES)[number];
 

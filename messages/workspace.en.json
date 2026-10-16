@@ -354,7 +354,9 @@
       "recommendation": "Project recommendation",
       "user": "You",
       "agent": "Agent",
-      "assistant": "Saqina"
+      "assistant": "Saqina",
+      "system": "System",
+      "imported": "Imported"
     },
     "edited": "edited"
   },

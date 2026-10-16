@@ -1,5 +1,6 @@
 import "server-only";
 import { and, desc, eq, lt, or, sql } from "drizzle-orm";
+import { scheduleProjectBrain } from "@/lib/brain/schedule";
 import { db, type Executor } from "@/lib/db/client";
 import { activities, projectChanges, projectMembers, projects, users } from "@/lib/db/schema";
 import type { ActivityType } from "@/lib/domain/enums";
@@ -72,7 +73,9 @@ export async function recordActivity(executor: Executor, input: ActivityInput): 
       entityId: input.entityId ?? null,
       actorId: input.actorId,
       origin: typeof input.metadata?.origin === "string" ? input.metadata.origin : null,
+      detail: input.metadata ?? null,
     });
+  if (moves && row) scheduleProjectBrain(input.projectId);
 }
 
 export interface ActivityView {

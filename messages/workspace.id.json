@@ -354,7 +354,9 @@
       "recommendation": "Rekomendasi proyek",
       "user": "Anda",
       "agent": "Agent",
-      "assistant": "Saqina"
+      "assistant": "Saqina",
+      "system": "Sistem",
+      "imported": "Diimpor"
     },
     "edited": "diubah"
   },
