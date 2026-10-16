@@ -1,7 +1,10 @@
 import "server-only";
-import { and, lt, ne, sql } from "drizzle-orm";
+import { and, isNotNull, lt, ne, sql } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import {
+  aiUsageRecords,
+  auditEvents,
+  notifications,
   rateLimits,
   serviceInquiries,
   sessions,
@@ -9,7 +12,7 @@ import {
   webhookDeliveries,
 } from "@/lib/db/schema";
 
-const DAY_MS = 24 * 60 * 60 * 1000;
+import { cutoff, RETENTION_DAYS } from "./retention";
 
 /** Positive whole number of days from the environment, or null when unset or invalid. */
 export function retentionDays(value: string | undefined): number | null {
@@ -40,19 +43,40 @@ export async function runMaintenance(
     .where(lt(rateLimits.windowStart, sql`${now.toISOString()}::timestamptz - interval '1 day'`))
     .returning({ key: rateLimits.key });
 
-  // GitHub redelivers within hours at most; a week of ids is plenty to catch a replay.
   const staleDeliveries = await db
     .delete(webhookDeliveries)
-    .where(lt(webhookDeliveries.receivedAt, new Date(now.getTime() - 7 * DAY_MS)))
+    .where(lt(webhookDeliveries.receivedAt, cutoff(now, RETENTION_DAYS.webhookDeliveries)))
     .returning({ id: webhookDeliveries.id });
+  const readNotifications = await db
+    .delete(notifications)
+    .where(
+      and(
+        isNotNull(notifications.readAt),
+        lt(notifications.readAt, cutoff(now, RETENTION_DAYS.notificationsRead)),
+      ),
+    )
+    .returning({ id: notifications.id });
+  const oldUsage = await db
+    .delete(aiUsageRecords)
+    .where(lt(aiUsageRecords.createdAt, cutoff(now, RETENTION_DAYS.aiUsage)))
+    .returning({ id: aiUsageRecords.id });
+  const oldAudit = await db
+    .delete(auditEvents)
+    .where(lt(auditEvents.createdAt, cutoff(now, RETENTION_DAYS.auditEvents)))
+    .returning({ id: auditEvents.id });
 
   const days = retentionDays(env.INQUIRY_RETENTION_DAYS);
   let inquiries = 0;
   if (days) {
-    const cutoff = new Date(now.getTime() - days * DAY_MS);
+    const inquiryCutoff = cutoff(now, days);
     const removed = await db
       .delete(serviceInquiries)
-      .where(and(lt(serviceInquiries.createdAt, cutoff), ne(serviceInquiries.status, "converted")))
+      .where(
+        and(
+          lt(serviceInquiries.createdAt, inquiryCutoff),
+          ne(serviceInquiries.status, "converted"),
+        ),
+      )
       .returning({ id: serviceInquiries.id });
     inquiries = removed.length;
   }
@@ -61,6 +85,9 @@ export async function runMaintenance(
     verifications: expiredVerifications.length,
     rateLimits: staleLimits.length,
     webhookDeliveries: staleDeliveries.length,
+    notifications: readNotifications.length,
+    aiUsage: oldUsage.length,
+    auditEvents: oldAudit.length,
     inquiries,
     inquiryRetentionDays: days,
   };

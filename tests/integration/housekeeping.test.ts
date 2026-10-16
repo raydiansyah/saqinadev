@@ -1,7 +1,15 @@
 import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/lib/db/client";
-import { rateLimits, serviceInquiries, sessions, verifications } from "@/lib/db/schema";
+import {
+  aiUsageRecords,
+  auditEvents,
+  notifications,
+  rateLimits,
+  serviceInquiries,
+  sessions,
+  verifications,
+} from "@/lib/db/schema";
 import { retentionDays, runMaintenance } from "@/lib/housekeeping/service";
 import { createUser, resetDatabase } from "../helpers/db";
 
@@ -58,6 +66,43 @@ describe("runMaintenance", () => {
     expect(
       await db.select().from(serviceInquiries).where(eq(serviceInquiries.status, "new")),
     ).toHaveLength(1);
+  });
+
+  it("applies the retention table: old read notifications, usage and audit go, unread and recent stay", async () => {
+    const user = await createUser();
+    const old = new Date(Date.now() - 800 * day);
+    const recent = new Date(Date.now() - 5 * day);
+    const note = (title: string, readAt: Date | null, createdAt: Date) => ({
+      userId: user.id,
+      type: "mention" as never,
+      dedupKey: title,
+      readAt,
+      createdAt,
+    });
+    await db
+      .insert(notifications)
+      .values([
+        note("old read", old, old),
+        note("old unread", null, old),
+        note("recent read", recent, recent),
+      ] as never);
+    await db.insert(auditEvents).values([
+      { scope: "platform", type: "x.old", entityType: "t", createdAt: old },
+      { scope: "platform", type: "x.new", entityType: "t", createdAt: recent },
+    ] as never);
+    await db.insert(aiUsageRecords).values([
+      { operation: "chat", durationMs: 1, status: "succeeded", createdAt: old },
+      { operation: "chat", durationMs: 1, status: "succeeded", createdAt: recent },
+    ] as never);
+
+    const result = await runMaintenance(new Date(), {});
+    expect(result).toMatchObject({ notifications: 1, auditEvents: 1, aiUsage: 1 });
+    expect((await db.select().from(notifications)).map((n) => n.dedupKey).sort()).toEqual([
+      "old unread",
+      "recent read",
+    ]);
+    expect((await db.select().from(auditEvents)).map((e) => e.type)).toEqual(["x.new"]);
+    expect(await db.select().from(aiUsageRecords)).toHaveLength(1);
   });
 
   it("parses the retention setting strictly", () => {
