@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 import {
   saveDocumentAction,
@@ -9,11 +9,11 @@ import {
 } from "@/app/[locale]/(app)/project/[slug]/documents/actions";
 import { SaveIndicator, type SaveState } from "@/components/app/save-indicator";
 import { AskSaqinaButton } from "@/components/assistant/command-center";
+import { LocalTime } from "@/components/primitives/local-time";
 import { Button } from "@/components/ui/button";
 import { FIELD_CLASS, Notice } from "@/components/ui/form";
 import { useRouter } from "@/i18n/navigation";
 import type { DocumentStatus } from "@/lib/domain/enums";
-import { formatRelative } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { type DocSyncInfo, SyncBadge } from "./sync-badge";
 
@@ -56,7 +56,6 @@ export function DocumentWorkspace({
 }) {
   const t = useTranslations("documents");
   const errors = useTranslations("app.errors");
-  const locale = useLocale();
   const router = useRouter();
   const editorId = useId();
   const [mode, setMode] = useState<Mode>("preview");
@@ -144,7 +143,7 @@ export function DocumentWorkspace({
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <h1 className="font-mono text-sm font-medium">{file}</h1>
           <span className="text-xs text-muted-foreground">
-            {t("updated", { time: formatRelative(new Date(base.updatedAt), locale) })}
+            {t("updatedAt")} <LocalTime iso={base.updatedAt} />
           </span>
           <span className="font-mono text-xs text-subtle-foreground">
             {t("version", { version: base.version })}

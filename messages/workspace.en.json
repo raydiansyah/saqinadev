@@ -95,7 +95,8 @@
       "priority": "Priority",
       "status": "Status",
       "source": "Source",
-      "confidence": "Confidence"
+      "confidence": "Confidence",
+      "updated": "Updated"
     },
     "priorities": {
       "critical": "Critical",
@@ -223,7 +224,8 @@
         "useRepoHint": "The repository text is saved as a new version here.",
         "cancel": "Cancel"
       }
-    }
+    },
+    "updatedAt": "Updated"
   },
   "plan": {
     "metaTitle": "Plan",
@@ -309,7 +311,9 @@
       "assigned": "Assigned. Open the run",
       "current": "Current run",
       "openRun": "Open run"
-    }
+    },
+    "updatedAt": "Updated",
+    "doneAt": "Done"
   },
   "memory": {
     "metaTitle": "Memory",
@@ -351,7 +355,8 @@
       "user": "You",
       "agent": "Agent",
       "assistant": "Saqina"
-    }
+    },
+    "edited": "edited"
   },
   "decisions": {
     "metaTitle": "Decisions",

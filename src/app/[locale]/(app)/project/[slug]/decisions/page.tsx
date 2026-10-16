@@ -5,7 +5,6 @@ import { CreateDecisionButton } from "@/components/decisions/decision-buttons";
 import { DecisionCard } from "@/components/decisions/decision-card";
 import { can } from "@/lib/auth/permissions";
 import { listDecisions } from "@/lib/decisions/service";
-import { formatDateTime } from "@/lib/format";
 import { projectPageAccess } from "@/lib/projects/page";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -37,12 +36,7 @@ export default async function DecisionsPage({
         <ol className="space-y-4">
           {decisions.map((d) => (
             <li key={d.id}>
-              <DecisionCard
-                slug={slug}
-                decision={d}
-                createdLabel={formatDateTime(d.createdAt, locale)}
-                canEdit={canEdit}
-              />
+              <DecisionCard slug={slug} decision={d} canEdit={canEdit} />
             </li>
           ))}
         </ol>

@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useId } from "react";
 import { RunStatusChip } from "@/components/assistant/blocks/run-card";
+import { LocalTime } from "@/components/primitives/local-time";
 import { Button } from "@/components/ui/button";
 import { FIELD_CLASS } from "@/components/ui/form";
 import { Link } from "@/i18n/navigation";
@@ -62,6 +63,10 @@ export function TaskCard({
           </>
         ) : null}
       </div>
+      <p className="mt-2 text-xs text-subtle-foreground">
+        {done && task.completedAt ? t("doneAt") : t("updatedAt")}{" "}
+        <LocalTime iso={done && task.completedAt ? task.completedAt : task.updatedAt} />
+      </p>
       {run ? (
         <Link
           href={`/project/${slug}/agents/runs/${run.runId}`}

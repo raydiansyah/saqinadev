@@ -95,7 +95,8 @@
       "priority": "Prioritas",
       "status": "Status",
       "source": "Sumber",
-      "confidence": "Keyakinan"
+      "confidence": "Keyakinan",
+      "updated": "Diperbarui"
     },
     "priorities": {
       "critical": "Kritis",
@@ -223,7 +224,8 @@
         "useRepoHint": "Teks repositori disimpan di sini sebagai versi baru.",
         "cancel": "Batal"
       }
-    }
+    },
+    "updatedAt": "Diperbarui"
   },
   "plan": {
     "metaTitle": "Plan",
@@ -309,7 +311,9 @@
       "assigned": "Ditugaskan. Buka run",
       "current": "Run saat ini",
       "openRun": "Buka run"
-    }
+    },
+    "updatedAt": "Diperbarui",
+    "doneAt": "Selesai"
   },
   "memory": {
     "metaTitle": "Memory",
@@ -351,7 +355,8 @@
       "user": "Anda",
       "agent": "Agent",
       "assistant": "Saqina"
-    }
+    },
+    "edited": "diubah"
   },
   "decisions": {
     "metaTitle": "Keputusan",

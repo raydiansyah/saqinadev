@@ -11,11 +11,11 @@ import { ConfirmDialog } from "@/components/app/confirm-dialog";
 import { Chip, type ChipTone } from "@/components/engagement/chip";
 import { EngagementError, useEngagementErrorText } from "@/components/engagement/engagement-error";
 import { useRun } from "@/components/platform/use-run";
+import { LocalTime } from "@/components/primitives/local-time";
 import { Button } from "@/components/ui/button";
 import { Notice, TextArea } from "@/components/ui/form";
 import type { NoModelExplanation } from "@/lib/ai/diagnostics";
 import type { MeetingItemClass, MeetingNoteStatus, MeetingVisibility } from "@/lib/domain/business";
-import { formatRelative } from "@/lib/format";
 import { NoteDialog, type NoteDraft } from "./note-dialog";
 import { type ItemView, NoteFindings } from "./note-findings";
 
@@ -91,7 +91,7 @@ export function MeetingNotesPanel({
                 <p className="mt-1 text-xs text-subtle-foreground">
                   <time dateTime={n.meetingDate}>{n.meetingDate}</time>
                   {" · "}
-                  {formatRelative(new Date(n.createdAt), locale)}
+                  <LocalTime iso={n.createdAt} />
                 </p>
               </div>
               <div className="flex flex-wrap gap-1.5">

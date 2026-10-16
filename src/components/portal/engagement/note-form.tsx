@@ -71,11 +71,7 @@ export function NoteForm({ slug }: { slug: string }) {
         maxLength={20000}
       />
       <EngagementError error={error} />
-      {sent && !error ? (
-        <Notice tone="success">
-          {t("sent")}
-        </Notice>
-      ) : null}
+      {sent && !error ? <Notice tone="success">{t("sent")}</Notice> : null}
       <Button type="submit" disabled={pending}>
         {pending ? t("sending") : t("send")}
       </Button>

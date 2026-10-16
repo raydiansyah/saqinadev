@@ -16,6 +16,9 @@ export interface TaskItem {
   priority: Priority;
   source: TaskSource;
   milestoneId: string | null;
+  /** ISO timestamps, shown on the card. */
+  updatedAt: string;
+  completedAt: string | null;
 }
 
 export interface MilestoneOption {

@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { AskSaqinaButton } from "@/components/assistant/command-center";
+import { LocalTime } from "@/components/primitives/local-time";
 import type { DecisionView } from "@/lib/decisions/service";
 import { cn } from "@/lib/utils";
 import { DecisionStatusToggle } from "./decision-buttons";
@@ -14,12 +15,10 @@ const STATUS_TONE = {
 export async function DecisionCard({
   slug,
   decision: d,
-  createdLabel,
   canEdit,
 }: {
   slug: string;
   decision: DecisionView;
-  createdLabel: string;
   canEdit: boolean;
 }) {
   const t = await getTranslations("decisions");
@@ -40,9 +39,7 @@ export async function DecisionCard({
             <span className={cn("rounded-md border px-2 py-0.5 font-mono", STATUS_TONE[d.status])}>
               {t(`statuses.${d.status}`)}
             </span>
-            <time dateTime={d.createdAt.toISOString()} className="text-subtle-foreground">
-              {createdLabel}
-            </time>
+            <LocalTime iso={d.createdAt} className="text-subtle-foreground" />
           </p>
           <h2 id={`decision-${d.id}`} className="mt-2 text-lg font-semibold text-pretty">
             {d.question}

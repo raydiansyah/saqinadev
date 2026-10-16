@@ -1,4 +1,4 @@
-import { dayKey, formatTime } from "@/lib/format";
+import { dayKey } from "@/lib/format";
 import type { MemoryView } from "@/lib/memory/service";
 import type { MemoryDayGroup } from "./memory-feed";
 
@@ -40,7 +40,7 @@ export function groupMemoriesByDay(
       importance: m.importance,
       source: m.source,
       createdAt: m.createdAt.toISOString(),
-      time: formatTime(m.createdAt, locale),
+      updatedAt: m.updatedAt.toISOString(),
     });
   }
   return groups;

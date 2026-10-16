@@ -6,6 +6,7 @@ import { deleteRequirementAction } from "@/app/[locale]/(app)/project/[slug]/req
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
 import { EmptyState } from "@/components/app/states";
 import { AskSaqinaButton } from "@/components/assistant/command-center";
+import { LocalTime } from "@/components/primitives/local-time";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/form";
 import {
@@ -183,6 +184,12 @@ export function RequirementList({
                       <div className="flex gap-1">
                         <dt className="text-subtle-foreground">{t("meta.confidence")}</dt>
                         <dd>{t(`confidences.${r.confidence}`)}</dd>
+                      </div>
+                      <div className="flex gap-1">
+                        <dt className="text-subtle-foreground">{t("meta.updated")}</dt>
+                        <dd>
+                          <LocalTime iso={r.updatedAt} />
+                        </dd>
                       </div>
                     </dl>
                   </li>

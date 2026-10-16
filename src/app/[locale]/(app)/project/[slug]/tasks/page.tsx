@@ -34,6 +34,8 @@ export default async function TasksPage({ params }: PageProps<"/[locale]/project
         priority: task.priority,
         source: task.source,
         milestoneId: task.milestoneId,
+        updatedAt: task.updatedAt.toISOString(),
+        completedAt: task.completedAt?.toISOString() ?? null,
       }))}
     />
   );

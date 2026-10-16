@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { LocalTime } from "@/components/primitives/local-time";
 import type { MemoryCategory, MemorySource } from "@/lib/domain/enums";
 import { EditMemoryButton } from "./memory-buttons";
 
@@ -11,7 +12,7 @@ export interface MemoryFeedItem {
   source: MemorySource;
   /** ISO timestamp for <time dateTime>. */
   createdAt: string;
-  time: string;
+  updatedAt: string;
 }
 
 export interface MemoryDayGroup {
@@ -77,9 +78,12 @@ export async function MemoryFeed({
                       </span>
                     ) : null}
                     <span className="text-subtle-foreground">{t(`sources.${m.source}`)}</span>
-                    <time dateTime={m.createdAt} className="font-mono text-subtle-foreground">
-                      {m.time}
-                    </time>
+                    <LocalTime iso={m.createdAt} className="font-mono text-subtle-foreground" />
+                    {Date.parse(m.updatedAt) - Date.parse(m.createdAt) > 60_000 ? (
+                      <span className="text-subtle-foreground">
+                        {t("edited")} <LocalTime iso={m.updatedAt} className="font-mono" />
+                      </span>
+                    ) : null}
                   </p>
                 </article>
               </li>
