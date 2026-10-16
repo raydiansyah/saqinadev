@@ -390,7 +390,19 @@
       "system": "System",
       "imported": "Imported"
     },
-    "edited": "edited"
+    "edited": "edited",
+    "views": {
+      "label": "View",
+      "list": "List",
+      "graph": "Graph"
+    },
+    "graph": {
+      "label": "Memory map with {count} memories",
+      "hub": "Project",
+      "hidden": "{count} older memories are not drawn. The list shows all of them.",
+      "pick": "Select a node to read the memory. The list view has the full text.",
+      "about": "about {entity}"
+    }
   },
   "decisions": {
     "metaTitle": "Decisions",

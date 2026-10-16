@@ -54,3 +54,11 @@ repository / query                      drizzle queries only, no rules
   See [delivery.md](delivery.md) for the allowlist, version locking and licence check.
 - Next.js here has breaking changes from older versions: read `node_modules/next/dist/docs/` before
   using an API (see `AGENTS.md`).
+
+## Project brain (one write path, many readers)
+
+Changes are recorded once (`recordActivity` writes the `project_changes` outbox) and consumed once
+(`src/lib/brain/process.ts`): memory journal, PRD check, document map. Readers use `getProjectBrain` and
+`get_changes` instead of scanning. A new feature that changes what agents read must go through
+`recordActivity` so it shows up here. See [ADR 0003](../adr/0003-project-brain.md).
+

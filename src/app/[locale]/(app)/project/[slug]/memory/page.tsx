@@ -5,6 +5,8 @@ import { CategoryFilter } from "@/components/memory/category-filter";
 import { groupMemoriesByDay } from "@/components/memory/group-by-day";
 import { AddMemoryButton } from "@/components/memory/memory-buttons";
 import { MemoryFeed } from "@/components/memory/memory-feed";
+import { MemoryGraph } from "@/components/memory/memory-graph";
+import { ViewToggle } from "@/components/memory/view-toggle";
 import { can } from "@/lib/auth/permissions";
 import { MEMORY_CATEGORIES, type MemoryCategory } from "@/lib/domain/enums";
 import { listMemories } from "@/lib/memory/service";
@@ -22,12 +24,16 @@ function parseCategory(value: string | string[] | undefined): MemoryCategory | u
     : undefined;
 }
 
+const DAY_MS = 86_400_000;
+
 export default async function MemoryPage({
   params,
   searchParams,
 }: PageProps<"/[locale]/project/[slug]/memory">) {
   const { slug } = await params;
-  const category = parseCategory((await searchParams).category);
+  const query = await searchParams;
+  const category = parseCategory(query.category);
+  const view = query.view === "graph" ? "graph" : "list";
   const access = await projectPageAccess(slug);
   const [memories, t, locale] = await Promise.all([
     listMemories(access, category),
@@ -44,8 +50,24 @@ export default async function MemoryPage({
   return (
     <>
       <PageHeading title={t("title")} description={t("description")} actions={addButton} />
-      <CategoryFilter slug={slug} active={category} />
-      {groups.length > 0 ? (
+      <ViewToggle slug={slug} view={view} category={category} />
+      <CategoryFilter slug={slug} active={category} view={view} />
+      {view === "graph" && memories.length > 0 ? (
+        <MemoryGraph
+          slug={slug}
+          items={memories.map((m) => ({
+            id: m.id,
+            title: m.title,
+            content: m.content,
+            category: m.category,
+            importance: m.importance,
+            source: m.source,
+            entityType: m.entityType,
+            createdAt: m.createdAt.toISOString(),
+            isNew: Date.now() - m.createdAt.getTime() < DAY_MS,
+          }))}
+        />
+      ) : groups.length > 0 ? (
         <MemoryFeed slug={slug} groups={groups} canEdit={canEdit} />
       ) : (
         <EmptyState

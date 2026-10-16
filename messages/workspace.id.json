@@ -390,7 +390,19 @@
       "system": "Sistem",
       "imported": "Diimpor"
     },
-    "edited": "diubah"
+    "edited": "diubah",
+    "views": {
+      "label": "Tampilan",
+      "list": "Daftar",
+      "graph": "Grafik"
+    },
+    "graph": {
+      "label": "Peta memori dengan {count} memori",
+      "hub": "Proyek",
+      "hidden": "{count} memori lebih lama tidak digambar. Daftar menampilkan semuanya.",
+      "pick": "Pilih sebuah node untuk membaca memorinya. Tampilan daftar memuat teks lengkap.",
+      "about": "tentang {entity}"
+    }
   },
   "decisions": {
     "metaTitle": "Keputusan",

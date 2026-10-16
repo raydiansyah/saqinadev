@@ -7,17 +7,25 @@ import { cn } from "@/lib/utils";
 export async function CategoryFilter({
   slug,
   active,
+  view = "list",
 }: {
   slug: string;
   active: MemoryCategory | undefined;
+  view?: "list" | "graph";
 }) {
   const t = await getTranslations("memory");
   const base = `/project/${slug}/memory`;
+  const viewParam = view === "graph" ? "view=graph" : "";
   const entries: { key: string; href: string; label: string; current: boolean }[] = [
-    { key: "all", href: base, label: t("all"), current: !active },
+    {
+      key: "all",
+      href: viewParam ? `${base}?${viewParam}` : base,
+      label: t("all"),
+      current: !active,
+    },
     ...MEMORY_CATEGORIES.map((c) => ({
       key: c,
-      href: `${base}?category=${c}`,
+      href: `${base}?category=${c}${viewParam ? `&${viewParam}` : ""}`,
       label: t(`categories.${c}`),
       current: active === c,
     })),
