@@ -34,7 +34,7 @@ jobs:
     env:
       DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/saqinadev_test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # Full history: the coverage check compares against the base branch.
           fetch-depth: 0
@@ -96,7 +96,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -126,6 +126,6 @@ jobs:
     container:
       image: semgrep/semgrep:latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Semgrep (OSS rules, fails on findings)
         run: semgrep scan --config p/default --config p/typescript --config p/react --error --metrics off src
