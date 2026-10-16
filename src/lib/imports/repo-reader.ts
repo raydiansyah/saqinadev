@@ -43,7 +43,15 @@ function priority(path: string, inDocs: boolean): number {
     return inDocs ? 1 : 0;
   if (/^readme(\.\w+)?$/i.test(name)) return inDocs ? 4 : 2;
   if (/^(agents|claude)\.md$/i.test(name)) return 3;
-  if (/^(architecture|design|roadmap|plan|overview)\.(md|mdx|txt)$/i.test(name)) return 5;
+  // The plan and the task list become the project's own PLAN and tasks, so they must be read.
+  if (
+    /^((project|implementation|development|delivery)[-_ ]?)?(plan|roadmap)\.(md|mdx|txt)$/i.test(
+      name,
+    ) ||
+    /^(tasks?|todo|to-do|backlog|checklist|task[-_ ]?list)\.(md|mdx|txt)$/i.test(name)
+  )
+    return inDocs ? 1 : 0;
+  if (/^(architecture|design|overview)\.(md|mdx|txt)$/i.test(name)) return 5;
   return inDocs ? 6 : 7;
 }
 

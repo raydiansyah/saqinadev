@@ -106,12 +106,15 @@ describe("import from GitHub", () => {
     const [project] = await db.select().from(projects).where(eq(projects.slug, result.slug));
     expect(project.name).toBe("Restaurant POS");
     const docs = await db.select().from(documents).where(eq(documents.projectId, project.id));
+    // The repository's PRD.md is the project's PRD; the other files stay as copied documents.
     expect(docs.map((d) => d.slug).sort()).toEqual([
+      "prd",
       "repo-docs-architecture",
-      "repo-prd",
       "repo-readme",
     ]);
-    expect(docs.find((d) => d.slug === "repo-prd")?.content).toContain(
+    const prd = docs.find((d) => d.slug === "prd");
+    expect(prd?.type).toBe("prd");
+    expect(prd?.content).toContain(
       "Imported from https://github.com/acme/restaurant-pos/blob/main/PRD.md",
     );
 
@@ -139,7 +142,13 @@ describe("import from GitHub", () => {
     const slugs = (
       await db.select().from(documents).where(eq(documents.projectId, project.id))
     ).map((d) => d.slug);
-    expect(slugs).toEqual(expect.arrayContaining(["prd", "plan", "repo-prd", "repo-readme"]));
+    // The imported PRD is kept, not replaced by a generated one; the missing plan is generated.
+    expect(slugs.filter((x) => x === "prd")).toHaveLength(1);
+    expect(slugs).toEqual(expect.arrayContaining(["prd", "plan", "repo-readme"]));
+    const prd = (await db.select().from(documents).where(eq(documents.projectId, project.id))).find(
+      (d) => d.slug === "prd",
+    );
+    expect(prd?.content).toContain("Imported from https://github.com/acme/restaurant-pos");
   });
 
   it("uses the AI only with consent, and only when a real model answers", async () => {

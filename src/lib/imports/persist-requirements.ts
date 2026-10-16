@@ -1,5 +1,5 @@
 import "server-only";
-import { and, eq, like } from "drizzle-orm";
+import { and, eq, like, or } from "drizzle-orm";
 import { db, type Executor, type Tx } from "@/lib/db/client";
 import { documents, requirements } from "@/lib/db/schema";
 import {
@@ -14,12 +14,18 @@ const PROVENANCE = /^> Imported from \S+?\/blob\/[^/\s]+\/(\S+?)(?: \(truncated\
 /** A requirement taken from a document says so in its description; nothing else does. */
 export const SOURCE_MARK = "Source: ";
 
+/** Copied from the repository: the repo-* files, and a PRD or plan that was promoted from one. */
+const fromRepository = or(
+  like(documents.slug, "repo-%"),
+  like(documents.content, "> Imported from %"),
+);
+
 /** The repository documents of a project, without the line that records where they came from. */
 export async function loadRepoDocs(tx: Executor, projectId: string): Promise<SourceDoc[]> {
   const docs = await tx
     .select({ slug: documents.slug, content: documents.content })
     .from(documents)
-    .where(and(eq(documents.projectId, projectId), like(documents.slug, "repo-%")));
+    .where(and(eq(documents.projectId, projectId), fromRepository));
   return docs.map((d) => {
     const m = PROVENANCE.exec(d.content);
     return { path: m?.[1] ?? d.slug, content: m ? d.content.slice(m[0].length) : d.content };
@@ -90,7 +96,7 @@ export async function hasRepoDocs(projectId: string): Promise<boolean> {
   const [row] = await db
     .select({ id: documents.id })
     .from(documents)
-    .where(and(eq(documents.projectId, projectId), like(documents.slug, "repo-%")))
+    .where(and(eq(documents.projectId, projectId), fromRepository))
     .limit(1);
   return Boolean(row);
 }

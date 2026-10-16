@@ -124,8 +124,8 @@
     },
     "summary": "{confirmed} terkonfirmasi · {inferred} disimpulkan · {unknown} belum diketahui · {conflicting} bertentangan",
     "sync": {
-      "title": "Requirement dari dokumen repositori",
-      "body": "Baca ulang README dan PRD lalu tambahkan requirement yang belum ada di proyek ini. Tidak ada yang diubah atau dihapus, dan semua yang ditambahkan ditandai sebagai imported sampai Anda mengonfirmasinya.",
+      "title": "Requirement, PRD, plan, dan task dari repositori",
+      "body": "Baca ulang dokumen repositori. Requirement yang belum ada ditambahkan, dan PRD, plan, serta daftar task dari repositori dipakai jika proyek belum punya sendiri. Yang sudah Anda ubah tetap dipertahankan, dan semua yang ditambahkan ditandai sebagai imported sampai Anda konfirmasi.",
       "aiLabel": "Biarkan AI membaca dokumen",
       "aiHint": "Membantu jika dokumen berupa paragraf, bukan daftar. Dokumen dikirim ke model AI yang Anda atur, dan hanya butir yang bisa dikutip dari teks yang disimpan.",
       "run": "Perbarui dari dokumen",
@@ -140,6 +140,15 @@
         "capability_missing": "“{model}” belum ditandai mampu memberi jawaban terstruktur (kurang: {missing}). Minta owner platform mengaktifkannya di AI & Models → Models.",
         "model_unavailable": "“{model}” belum bisa dipakai: model atau providernya nonaktif, atau koneksi provider gagal diuji. Periksa AI & Models.",
         "provider_failed": "“{model}” tidak menjawab ({code}). Periksa kunci provider dan id model di AI & Models."
+      },
+      "adopted": {
+        "prd": "PRD sekarang berasal dari repositori.",
+        "plan": "Plan sekarang berasal dari repositori.",
+        "tasks": "Menambahkan {count} task dari repositori."
+      },
+      "kept": {
+        "prd": "PRD Anda dipertahankan: sudah diubah, jadi versi repositori tidak dipakai.",
+        "plan": "Plan Anda dipertahankan: sudah diubah, jadi versi repositori tidak dipakai."
       }
     }
   },
@@ -275,7 +284,8 @@
       "plan": "Dari plan",
       "user": "Ditambahkan",
       "agent": "Agent",
-      "assistant": "Saqina"
+      "assistant": "Saqina",
+      "imported": "Diimpor"
     },
     "agent": {
       "title": "Agent",

@@ -11,6 +11,7 @@ import { db } from "@/lib/db/client";
 import { AppError } from "@/lib/errors";
 import { allow } from "@/lib/rate-limit";
 import { parse } from "@/lib/validation";
+import { type AdoptResult, adoptRepoDocsTx } from "./adopt";
 import { addDocRequirementsTx, loadRepoDocs } from "./persist-requirements";
 import type { ExtractedRequirement } from "./requirements";
 import { extractRequirementsWithAi } from "./requirements-ai";
@@ -28,6 +29,8 @@ export interface SyncResult {
   ai: "used" | "unavailable" | null;
   /** Why the model did not read the documents, when it was asked to and could not. */
   aiProblem?: NoModelExplanation;
+  /** What the repository's PRD, plan and task list became in the project. */
+  adopted: AdoptResult;
   /** The project has no repository documents to read. */
   noDocs: boolean;
 }
@@ -53,7 +56,15 @@ export async function syncRequirementsFromDocs(
   if (!(await allow(`req-sync:${actor.id}`, 20, HOUR))) throw new AppError("RATE_LIMIT");
 
   const docs = await loadRepoDocs(db, access.project.id);
-  if (docs.length === 0) return { added: 0, fromRules: 0, fromAi: 0, ai: null, noDocs: true };
+  if (docs.length === 0)
+    return {
+      added: 0,
+      fromRules: 0,
+      fromAi: 0,
+      ai: null,
+      noDocs: true,
+      adopted: { prd: "none", plan: "none", tasks: 0 },
+    };
 
   let extra: ExtractedRequirement[] = [];
   let ai: SyncResult["ai"] = null;
@@ -104,7 +115,9 @@ export async function syncRequirementsFromDocs(
         entityType: "requirement",
         metadata: { title: `${added.added} from repository documents`, count: added.added },
       });
-    return added;
+    // The repository's own PRD, plan and task list, where the project does not have its own yet.
+    const adopted = await adoptRepoDocsTx(tx, writer.project.id);
+    return { ...added, adopted };
   });
   return { ...result, ai, aiProblem, noDocs: false };
 }

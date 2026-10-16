@@ -124,8 +124,8 @@
     },
     "summary": "{confirmed} confirmed · {inferred} inferred · {unknown} unknown · {conflicting} conflicting",
     "sync": {
-      "title": "Requirements from your repository documents",
-      "body": "Read the README and PRD again and add the requirements this project does not have yet. Nothing is changed or removed, and everything added is marked as imported until you confirm it.",
+      "title": "Requirements, PRD, plan and tasks from your repository",
+      "body": "Read the repository documents again. Requirements the project does not have yet are added, and the repository's PRD, plan and task list are used where the project has none of its own. Anything you edited is kept, and everything added is marked as imported until you confirm it.",
       "aiLabel": "Let AI read the documents",
       "aiHint": "Helps when the documents are written as paragraphs instead of lists. The documents are sent to your configured AI model, and only items it can quote from the text are kept.",
       "run": "Update from documents",
@@ -140,6 +140,15 @@
         "capability_missing": "“{model}” is not marked as able to return structured answers (missing: {missing}). Ask the platform owner to enable it under AI & Models → Models.",
         "model_unavailable": "“{model}” cannot be used right now: the model or its provider is disabled, or the provider connection failed its test. Check AI & Models.",
         "provider_failed": "“{model}” did not answer ({code}). Check the provider key and the model id under AI & Models."
+      },
+      "adopted": {
+        "prd": "The PRD now comes from the repository.",
+        "plan": "The plan now comes from the repository.",
+        "tasks": "Added {count} tasks from the repository."
+      },
+      "kept": {
+        "prd": "Kept your PRD: it was edited, so the repository's version was not used.",
+        "plan": "Kept your plan: it was edited, so the repository's version was not used."
       }
     }
   },
@@ -275,7 +284,8 @@
       "plan": "From plan",
       "user": "Added",
       "agent": "Agent",
-      "assistant": "Saqina"
+      "assistant": "Saqina",
+      "imported": "Imported"
     },
     "agent": {
       "title": "Agent",

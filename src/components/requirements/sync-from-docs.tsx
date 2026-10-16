@@ -17,6 +17,12 @@ export function SyncFromDocs({ slug }: { slug: string }) {
   const [useAi, setUseAi] = useState(false);
   const [result, setResult] = useState<SyncResult | null>(null);
   const { pending, error, run } = useRun();
+  const changed =
+    result !== null &&
+    (result.added > 0 ||
+      result.adopted.prd === "adopted" ||
+      result.adopted.plan === "adopted" ||
+      result.adopted.tasks > 0);
 
   return (
     <section aria-labelledby={`${id}-h`} className="mb-6 rounded-lg border border-border p-4">
@@ -55,13 +61,27 @@ export function SyncFromDocs({ slug }: { slug: string }) {
       ) : null}
       {result && !error ? (
         <div className="mt-3 space-y-2" role="status">
-          <Notice tone={result.added > 0 ? "success" : "info"}>
+          <Notice tone={changed ? "success" : "info"}>
             {result.noDocs
               ? t("noDocs")
-              : result.added > 0
+              : changed
                 ? t("added", { count: result.added })
                 : t("nothingNew")}
           </Notice>
+          {(["prd", "plan"] as const).map((k) =>
+            result.adopted[k] === "adopted" ? (
+              <Notice key={k} tone="success">
+                {t(`adopted.${k}`)}
+              </Notice>
+            ) : result.adopted[k] === "kept" ? (
+              <Notice key={k} tone="info">
+                {t(`kept.${k}`)}
+              </Notice>
+            ) : null,
+          )}
+          {result.adopted.tasks > 0 ? (
+            <Notice tone="success">{t("adopted.tasks", { count: result.adopted.tasks })}</Notice>
+          ) : null}
           {result.aiProblem ? (
             <Notice tone="warning">
               {t(`unavailable.${result.aiProblem.reason}`, {

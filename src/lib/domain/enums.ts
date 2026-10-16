@@ -103,7 +103,7 @@ export const TASK_STATUSES = [
 ] as const;
 export type TaskStatus = (typeof TASK_STATUSES)[number];
 
-export const TASK_SOURCES = ["plan", "user", "agent", "assistant"] as const;
+export const TASK_SOURCES = ["plan", "user", "agent", "assistant", "imported"] as const;
 export type TaskSource = (typeof TASK_SOURCES)[number];
 
 export const MEMORY_CATEGORIES = [

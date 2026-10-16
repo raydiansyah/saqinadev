@@ -1,5 +1,5 @@
 import "server-only";
-import { eq } from "drizzle-orm";
+import { and, count, eq, inArray } from "drizzle-orm";
 import { recordActivity } from "@/lib/activity/service";
 import type { Tx } from "@/lib/db/client";
 import {
@@ -86,37 +86,56 @@ export async function persistGeneratedProject(tx: Tx, input: PersistInput): Prom
     );
   }
 
-  const docs = await tx
-    .insert(documents)
-    .values([
-      {
-        projectId,
-        type: "prd",
-        title: "PRD",
-        slug: "prd",
-        content: generated.prd,
-        createdBy: actorId,
-        updatedBy: actorId,
-      },
-      {
-        projectId,
-        type: "plan",
-        title: "PLAN",
-        slug: "plan",
-        content: generated.plan,
-        createdBy: actorId,
-        updatedBy: actorId,
-      },
-    ])
-    .returning({ id: documents.id, content: documents.content });
-  await tx
-    .insert(documentVersions)
-    .values(
-      docs.map((d) => ({ documentId: d.id, version: 1, content: d.content, createdBy: actorId })),
-    );
+  // An imported repository may already have brought its own PRD and plan: those stay.
+  const have = new Set(
+    (
+      await tx
+        .select({ slug: documents.slug })
+        .from(documents)
+        .where(and(eq(documents.projectId, projectId), inArray(documents.slug, ["prd", "plan"])))
+    ).map((d) => d.slug),
+  );
+  const generatedDocs = [
+    {
+      projectId,
+      type: "prd" as const,
+      title: "PRD",
+      slug: "prd",
+      content: generated.prd,
+      createdBy: actorId,
+      updatedBy: actorId,
+    },
+    {
+      projectId,
+      type: "plan" as const,
+      title: "PLAN",
+      slug: "plan",
+      content: generated.plan,
+      createdBy: actorId,
+      updatedBy: actorId,
+    },
+  ].filter((d) => !have.has(d.slug));
+  if (generatedDocs.length > 0) {
+    const docs = await tx
+      .insert(documents)
+      .values(generatedDocs)
+      .returning({ id: documents.id, content: documents.content });
+    await tx
+      .insert(documentVersions)
+      .values(
+        docs.map((d) => ({ documentId: d.id, version: 1, content: d.content, createdBy: actorId })),
+      );
+  }
+
+  // Tasks the repository already brought are the plan; generated ones would only duplicate them.
+  const [{ existingTasks }] = await tx
+    .select({ existingTasks: count() })
+    .from(tasks)
+    .where(eq(tasks.projectId, projectId));
+  const generatedMilestones = Number(existingTasks) > 0 ? [] : generated.milestones;
 
   let position = 0;
-  for (const [index, milestone] of generated.milestones.entries()) {
+  for (const [index, milestone] of generatedMilestones.entries()) {
     const [row] = await tx
       .insert(milestones)
       .values({ projectId, title: milestone.title, goal: milestone.goal, position: index })

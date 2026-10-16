@@ -212,7 +212,8 @@ async function upsertLink(
 /** Where a document lives in the repository, or why it does not sync. */
 function resolvePath(doc: DocRow, link: LinkRow | undefined, repo: string, docsPath: string) {
   if (link) return { path: link.path };
-  if (doc.slug.startsWith("repo-")) {
+  // Copied files, and a PRD or plan promoted from one, keep the path they came from.
+  if (doc.slug.startsWith("repo-") || parseProvenance(doc.content)) {
     const prov = parseProvenance(doc.content);
     // Truncated imports would overwrite the rest of the file; other repositories are not ours.
     if (!prov || prov.truncated || prov.repo.toLowerCase() !== repo.toLowerCase()) return null;

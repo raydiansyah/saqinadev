@@ -19,6 +19,7 @@ import { log } from "@/lib/log";
 import { startProject } from "@/lib/projects/service";
 import { allow } from "@/lib/rate-limit";
 import { parse } from "@/lib/validation";
+import { adoptRepoDocsTx } from "./adopt";
 import { analyzeRules, analyzeWithAi, finalizeAnswers, mergeAnalysis } from "./analyze";
 import { parseRepoInput, type RepoDoc, readRepository } from "./repo-reader";
 
@@ -41,6 +42,8 @@ const importInput = z.object({
 
 export interface ImportResult {
   slug: string;
+  /** What the repository's own PRD, plan and task list became in the project. */
+  adopted: { prd: boolean; plan: boolean; tasks: number };
   documents: number;
   /** A language model improved on the rules (false when AI was declined or unavailable). */
   usedAi: boolean;
@@ -125,6 +128,11 @@ async function runImport(
   }
   const final = finalizeAnswers(analysis);
 
+  let adopted: Awaited<ReturnType<typeof adoptRepoDocsTx>> = {
+    prd: "none",
+    plan: "none",
+    tasks: 0,
+  };
   const { slug } = await startProject(
     actor,
     { idea: analysis.description, imported: final.answers },
@@ -162,6 +170,9 @@ async function runImport(
           );
         }
 
+        // The repository's own PRD, plan and task list become the project's, right away.
+        adopted = await adoptRepoDocsTx(tx, projectId);
+
         // Straight to the review step: earlier steps count as done, the answers stay unconfirmed.
         await updateInterviewProgress(
           tx,
@@ -198,5 +209,15 @@ async function runImport(
     // The project and its documents are already in place; connecting can be retried by hand.
     log.warn("import.connect_failed", { error: String(error) });
   }
-  return { slug, documents: snapshot.docs.length, usedAi, connected };
+  return {
+    slug,
+    documents: snapshot.docs.length,
+    usedAi,
+    connected,
+    adopted: {
+      prd: adopted.prd === "adopted",
+      plan: adopted.plan === "adopted",
+      tasks: adopted.tasks,
+    },
+  };
 }
