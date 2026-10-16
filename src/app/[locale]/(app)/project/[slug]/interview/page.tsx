@@ -26,7 +26,11 @@ export default async function InterviewPage({
   if (state.status === "completed") {
     return (
       <div className="max-w-xl">
-        <p className="text-muted-foreground">{t("completed")}</p>
+        <p className="text-muted-foreground">
+          {state.data.sources.projectDescription === "imported"
+            ? t("completedImported")
+            : t("completed")}
+        </p>
         <Link
           href={`/project/${slug}/requirements`}
           className={buttonVariants({ className: "mt-6" })}

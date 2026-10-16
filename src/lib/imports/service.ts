@@ -15,13 +15,16 @@ import { withGithubToken } from "@/lib/github/connection";
 import { slugify } from "@/lib/interview/rules/profile";
 import { STEPS } from "@/lib/interviews/model";
 import { updateInterviewProgress, writeAnswers } from "@/lib/interviews/repository";
+import { completeInterview } from "@/lib/interviews/service";
 import { log } from "@/lib/log";
 import { startProject } from "@/lib/projects/service";
 import { allow } from "@/lib/rate-limit";
 import { parse } from "@/lib/validation";
 import { adoptRepoDocsTx } from "./adopt";
 import { analyzeRules, analyzeWithAi, finalizeAnswers, mergeAnalysis } from "./analyze";
+import { DOC_ROLES, type DocRole, mapDocs } from "./map-docs";
 import { parseRepoInput, type RepoDoc, readRepository } from "./repo-reader";
+import { classifyDocsWithAi } from "./roles-ai";
 
 /**
  * Starts a project from an existing GitHub repository: reads its docs and manifests, fills the
@@ -48,6 +51,11 @@ export interface ImportResult {
   /** A language model improved on the rules (false when AI was declined or unavailable). */
   usedAi: boolean;
   connected: boolean;
+  /**
+   * The workspace is ready: requirements, PRD, plan and tasks exist. The interview is optional
+   * for an imported project. False only when the answers have conflicts a person must settle.
+   */
+  completed: boolean;
 }
 
 export interface ImportOptions {
@@ -126,6 +134,23 @@ async function runImport(
       log.warn("import.ai_failed", { error: String(error) });
     }
   }
+  // Documents with unusual names: a model (with consent) says which is the PRD, plan or tasks.
+  let roleHints: Partial<Record<DocRole, string>> = {};
+  const byName = mapDocs(snapshot.docs);
+  if (data.useAi && snapshot.docs.length > 1 && DOC_ROLES.some((r) => !byName[r])) {
+    try {
+      const outcome = await runAi({
+        operation: "structured_analysis",
+        required: ["structured_output"],
+        override: options.aiProvider,
+        run: async (client) =>
+          client.deterministic ? null : classifyDocsWithAi(snapshot.docs, client),
+      });
+      if (outcome.value && !outcome.deterministic) roleHints = outcome.value;
+    } catch (error) {
+      log.warn("import.roles_failed", { error: String(error) });
+    }
+  }
   const final = finalizeAnswers(analysis);
 
   let adopted: Awaited<ReturnType<typeof adoptRepoDocsTx>> = {
@@ -171,7 +196,7 @@ async function runImport(
         }
 
         // The repository's own PRD, plan and task list become the project's, right away.
-        adopted = await adoptRepoDocsTx(tx, projectId);
+        adopted = await adoptRepoDocsTx(tx, projectId, roleHints);
 
         // Straight to the review step: earlier steps count as done, the answers stay unconfirmed.
         await updateInterviewProgress(
@@ -209,11 +234,21 @@ async function runImport(
     // The project and its documents are already in place; connecting can be retried by hand.
     log.warn("import.connect_failed", { error: String(error) });
   }
+  // An imported project needs no interview: what the repository says is already the workspace.
+  let completed = false;
+  try {
+    await completeInterview(actor, slug);
+    completed = true;
+  } catch (error) {
+    // Unresolved conflicts or an unexpected problem: the project stays on the review step.
+    log.warn("import.complete_failed", { error: String(error) });
+  }
   return {
     slug,
     documents: snapshot.docs.length,
     usedAi,
     connected,
+    completed,
     adopted: {
       prd: adopted.prd === "adopted",
       plan: adopted.plan === "adopted",

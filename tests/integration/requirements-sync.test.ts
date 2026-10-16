@@ -86,13 +86,20 @@ let owner: Actor;
 let viewer: Actor;
 let stranger: Actor;
 
-async function imported(files: Record<string, string>, complete = true) {
+async function imported(files: Record<string, string>, _complete = true) {
   const { slug } = await importFromGithub(owner, { repo: "acme/bakery" }, "en", {
     adapter: adapter(files),
     connect: vi.fn(async () => undefined),
   });
-  if (complete) await completeInterview(owner, slug);
   const access = await loadProjectAccess(owner, { slug }, "project:read");
+  // An import now sets the workspace up at once, requirements from the documents included.
+  // These tests are about catching up later, so start from a project that lacks them.
+  const all = await db
+    .select()
+    .from(requirements)
+    .where(eq(requirements.projectId, access.project.id));
+  for (const r of all.filter((x) => x.description.includes("Source: ")))
+    await db.delete(requirements).where(eq(requirements.id, r.id));
   await db
     .insert(projectMembers)
     .values({ projectId: access.project.id, userId: viewer.id, role: "viewer" });
@@ -134,6 +141,8 @@ describe("updating requirements from the repository documents", () => {
 
   it("brings an already finished project up to date, without touching what exists", async () => {
     const { slug, projectId } = await imported(LISTED);
+    // The helper starts without the document requirements: add them, then play the rest.
+    await syncRequirementsFromDocs(owner, slug, {}, "en");
     const rows = await db.select().from(requirements).where(eq(requirements.projectId, projectId));
     const loyalty = rows.find((r) => /loyalty/i.test(r.title));
     expect(loyalty).toBeDefined();

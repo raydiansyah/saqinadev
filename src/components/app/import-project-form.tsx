@@ -73,7 +73,12 @@ export function ImportProjectForm({ github }: { github: GithubState }) {
       }
       // The token has done its job: it is now stored encrypted by the repository connection.
       setToken("");
-      router.push(`/project/${result.data.slug}/interview`);
+      // A ready workspace needs no interview; only unresolved conflicts send the user there.
+      router.push(
+        result.data.completed
+          ? `/project/${result.data.slug}`
+          : `/project/${result.data.slug}/interview`,
+      );
     });
   }
 

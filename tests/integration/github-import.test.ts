@@ -93,9 +93,9 @@ describe("import from GitHub", () => {
     expect(result).toMatchObject({ documents: 3, usedAi: false, connected: true });
 
     const state = await getInterviewState(owner, result.slug);
-    expect(state.step).toBe("review");
-    expect(state.status).toBe("in_progress");
-    expect(state.completedSteps).toContain("project");
+    // The repository already says what the interview would ask: the workspace is ready.
+    expect(result.completed).toBe(true);
+    expect(state.status).toBe("completed");
     expect(state.data.answers.projectState).toBe("existing");
     expect(state.data.answers.ownStack.frontend).toBe("Next.js");
     expect(state.data.answers.ownStack.database).toBe("PostgreSQL");
@@ -107,7 +107,9 @@ describe("import from GitHub", () => {
     expect(project.name).toBe("Restaurant POS");
     const docs = await db.select().from(documents).where(eq(documents.projectId, project.id));
     // The repository's PRD.md is the project's PRD; the other files stay as copied documents.
+    // The plan was not in the repository, so the setup generated one.
     expect(docs.map((d) => d.slug).sort()).toEqual([
+      "plan",
       "prd",
       "repo-docs-architecture",
       "repo-readme",
@@ -168,7 +170,8 @@ describe("import from GitHub", () => {
       connect,
     });
     expect(b.usedAi).toBe(true);
-    expect(allowed.calls).toBe(1);
+    // One call reads the answers, one tells the documents apart (the plan and tasks are missing).
+    expect(allowed.calls).toBe(2);
     const [project] = await db.select().from(projects).where(eq(projects.slug, b.slug));
     expect(project.name).toBe("Kasir Resto");
     const state = await getInterviewState(owner, b.slug);

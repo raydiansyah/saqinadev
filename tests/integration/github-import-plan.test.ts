@@ -1,13 +1,14 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { AiProvider } from "@/lib/ai/provider";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
-import { documents, milestones, projects, tasks } from "@/lib/db/schema";
+import { documents, milestones, projects, requirements, tasks } from "@/lib/db/schema";
 import { type FileEntry, type GitAdapter, GitError } from "@/lib/git/types";
 import { importFromGithub } from "@/lib/imports/service";
 import { syncRequirementsFromDocs } from "@/lib/imports/sync";
-import { completeInterview } from "@/lib/interviews/service";
+import { completeInterview, getInterviewState } from "@/lib/interviews/service";
 import { createUser, resetDatabase } from "../helpers/db";
 
 const FILES: Record<string, string> = {
@@ -43,9 +44,19 @@ function adapter(files: Record<string, string>): GitAdapter {
     }),
     listFiles: async (_ref, _token, input) => {
       const dir = input.path ? `${input.path}/` : "";
-      return Object.keys(files)
-        .filter((p) => p.startsWith(dir) && !p.slice(dir.length).includes("/"))
-        .map((p): FileEntry => ({ path: p, type: "file", size: files[p].length }));
+      const out: FileEntry[] = [];
+      const seen = new Set<string>();
+      for (const p of Object.keys(files)) {
+        if (!p.startsWith(dir)) continue;
+        const rest = p.slice(dir.length);
+        const [head, ...tail] = rest.split("/");
+        // A subfolder is listed once, as a folder, the way a real host lists it.
+        if (tail.length > 0) {
+          if (!seen.has(head)) out.push({ path: `${dir}${head}`, type: "dir" });
+          seen.add(head);
+        } else out.push({ path: p, type: "file", size: files[p].length });
+      }
+      return out;
     },
     readFile: async (_ref, _token, input) => {
       if (!(input.path in files)) throw new GitError("not_found");
@@ -137,32 +148,47 @@ describe("PRD, plan and tasks of an imported project", () => {
   });
 
   it("generates what the repository lacks, and only that", async () => {
-    const { slug, docs, taskRows } = await run({
+    const { docs, taskRows } = await run({
       "README.md": FILES["README.md"],
       "package.json": FILES["package.json"],
     });
-    expect((await docs()).some((d) => d.slug === "prd")).toBe(false);
-    expect(await taskRows()).toEqual([]);
-    await completeInterview(owner, slug);
     const all = await docs();
+    // No PRD, plan or task list in the repository: the workspace still gets its own.
     expect(all.find((d) => d.slug === "prd")?.content).not.toContain("Imported from");
+    expect(all.some((d) => d.slug === "plan")).toBe(true);
     expect((await taskRows()).length).toBeGreaterThan(0);
+    expect((await taskRows()).every((t) => t.source === "plan")).toBe(true);
   });
 
-  it("brings an earlier import up to date, replacing only untouched generated ones", async () => {
-    const { slug, project, docs, taskRows } = await run();
-    // Recreate how an import looked before: the copies sit as repo-* and the project's own
-    // PRD, plan and tasks were generated from the interview.
-    await db.delete(tasks).where(eq(tasks.projectId, project.id));
-    await db.delete(milestones).where(eq(milestones.projectId, project.id));
+  /** An import as it worked before: copies as repo-*, and a generated PRD, plan and tasks. */
+  async function legacyize(projectId: string) {
+    await db.delete(tasks).where(eq(tasks.projectId, projectId));
+    await db.delete(milestones).where(eq(milestones.projectId, projectId));
     for (const [from, to] of [
       ["prd", "repo-prd"],
       ["plan", "repo-plan"],
     ] as const)
-      await db.update(documents).set({ slug: to, type: "custom" }).where(eq(documents.slug, from));
-    await completeInterview(owner, slug);
-    expect((await docs()).find((d) => d.slug === "prd")?.content).not.toContain("pickup slot");
-    expect((await taskRows()).every((t) => t.source === "plan")).toBe(true);
+      await db
+        .update(documents)
+        .set({ slug: to, type: "custom" })
+        .where(and(eq(documents.projectId, projectId), eq(documents.slug, from)));
+    await db.insert(documents).values([
+      { projectId, type: "prd", title: "PRD", slug: "prd", content: "# Generated PRD" },
+      { projectId, type: "plan", title: "PLAN", slug: "plan", content: "# Generated plan" },
+    ]);
+    const [m] = await db
+      .insert(milestones)
+      .values({ projectId, title: "Generated", goal: "", position: 0 })
+      .returning();
+    await db.insert(tasks).values([
+      { projectId, milestoneId: m.id, title: "Generated one", source: "plan", status: "backlog" },
+      { projectId, milestoneId: m.id, title: "Generated two", source: "plan", status: "todo" },
+    ]);
+  }
+
+  it("brings an earlier import up to date, replacing only untouched generated ones", async () => {
+    const { slug, project, docs, taskRows } = await run();
+    await legacyize(project.id);
 
     const result = await syncRequirementsFromDocs(owner, slug, {}, "en");
     expect(result.adopted).toEqual({ prd: "adopted", plan: "adopted", tasks: 4 });
@@ -182,19 +208,12 @@ describe("PRD, plan and tasks of an imported project", () => {
 
   it("never replaces a PRD or tasks a person has worked on", async () => {
     const { slug, project, docs, taskRows } = await run();
-    for (const [from, to] of [
-      ["prd", "repo-prd"],
-      ["plan", "repo-plan"],
-    ] as const)
-      await db.update(documents).set({ slug: to, type: "custom" }).where(eq(documents.slug, from));
-    await db.delete(tasks).where(eq(tasks.projectId, project.id));
-    await db.delete(milestones).where(eq(milestones.projectId, project.id));
-    await completeInterview(owner, slug);
+    await legacyize(project.id);
     // Someone edits the generated PRD and picks up a task.
     await db
       .update(documents)
       .set({ version: 2, content: "Our own PRD" })
-      .where(eq(documents.slug, "prd"));
+      .where(and(eq(documents.projectId, project.id), eq(documents.slug, "prd")));
     const [task] = await taskRows();
     await db.update(tasks).set({ status: "in_progress" }).where(eq(tasks.id, task.id));
     const before = (await taskRows()).length;
@@ -210,5 +229,102 @@ describe("PRD, plan and tasks of an imported project", () => {
     const { slug } = await run();
     const access = await loadProjectAccess(owner, { slug }, "project:read");
     expect(access.project.slug).toBe(slug);
+  });
+
+  it("is ready to use at once: the interview is done and optional", async () => {
+    const { project } = await run();
+    const state = await getInterviewState(owner, project.slug);
+    expect(state.status).toBe("completed");
+    const reqs = await db.select().from(requirements).where(eq(requirements.projectId, project.id));
+    expect(reqs.length).toBeGreaterThan(0);
+    // The name read from the repository survives the setup.
+    expect(project.name).toBe("Bakery Orders");
+    const [after] = await db.select().from(projects).where(eq(projects.id, project.id));
+    expect(after.name).toBe("Bakery Orders");
+  });
+
+  it("finds a PRD, plan and tasks deep inside docs, under names nobody agreed on", async () => {
+    const { docs, taskRows } = await run({
+      "README.md": FILES["README.md"],
+      "package.json": FILES["package.json"],
+      "docs/produk/kebutuhan.md":
+        "# Kebutuhan Produk\n\n## Fitur\n- Pemesanan slot pengambilan\n\n## Tujuan\n- Kurangi antrean\n",
+      "docs/strategy/q4/rollout.md":
+        "# Roadmap for the first release\n\n## Phase 1\nOrdering.\n\n## Phase 2\nKitchen.\n",
+      "docs/work/next.md":
+        "# Sprint notes\n\n- [ ] Pickup slots\n- [x] Set up\n- [ ] Emails\n- [ ] Print list\n- [ ] Refunds\n",
+    });
+    const all = await docs();
+    expect(all.find((d) => d.slug === "prd")?.content).toContain("Pemesanan slot pengambilan");
+    expect(all.find((d) => d.slug === "plan")?.content).toContain("Phase 2");
+    expect((await taskRows()).map((t) => t.title)).toContain("Pickup slots");
+  });
+
+  describe("with a model's help", () => {
+    const WEIRD = {
+      "README.md": FILES["README.md"],
+      "package.json": FILES["package.json"],
+      "docs/strategy/v1.md":
+        "We will build the bakery app. Customers reserve slots and bakers print a list.",
+      "docs/notes/misc.md": "Random thoughts about colours.",
+    };
+    const model = (roles: unknown[]) => {
+      let roleCalls = 0;
+      const p = {
+        deterministic: false,
+        config: { provider: "mock" as const, model: "m" },
+        generate: async () => "",
+        stream: async function* () {},
+        generateObject: async (_r: unknown, _s: unknown, name: string) => {
+          if (name === "document_roles") {
+            roleCalls += 1;
+            return { documents: roles };
+          }
+          return {
+            name: "Bakery Orders",
+            description: "An ordering app for a neighbourhood bakery.",
+            projectType: null,
+            audience: [],
+            features: [],
+            platforms: [],
+            authMethods: [],
+          };
+        },
+      };
+      return { provider: p as unknown as AiProvider, calls: () => roleCalls };
+    };
+    const runWith = async (provider: AiProvider, useAi: boolean) => {
+      const { slug } = await importFromGithub(owner, { repo: "acme/bakery", useAi }, "en", {
+        adapter: adapter(WEIRD),
+        aiProvider: provider,
+        connect: vi.fn(async () => undefined),
+      });
+      const [project] = await db.select().from(projects).where(eq(projects.slug, slug));
+      return db.select().from(documents).where(eq(documents.projectId, project.id));
+    };
+
+    it("uses its picks for documents the names and text do not reveal", async () => {
+      const m = model([{ path: "docs/strategy/v1.md", role: "prd", confidence: 90 }]);
+      const all = await runWith(m.provider, true);
+      expect(all.find((d) => d.slug === "prd")?.content).toContain("Customers reserve slots");
+      expect(m.calls()).toBe(1);
+    });
+
+    it("ignores picks of documents that do not exist or that it is unsure about", async () => {
+      const m = model([
+        { path: "docs/made-up.md", role: "prd", confidence: 99 },
+        { path: "docs/notes/misc.md", role: "plan", confidence: 30 },
+      ]);
+      const all = await runWith(m.provider, true);
+      expect(all.find((d) => d.slug === "prd")?.content).not.toContain("Imported from");
+      expect(all.find((d) => d.slug === "plan")?.content).not.toContain("Imported from");
+    });
+
+    it("never asks without consent", async () => {
+      const m = model([{ path: "docs/strategy/v1.md", role: "prd", confidence: 90 }]);
+      const all = await runWith(m.provider, false);
+      expect(m.calls()).toBe(0);
+      expect(all.find((d) => d.slug === "prd")?.content).not.toContain("Customers reserve slots");
+    });
   });
 });

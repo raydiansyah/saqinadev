@@ -165,7 +165,8 @@
         "label": "Batasan",
         "placeholder": "Harus rilis sebelum Ramadan. Staf memakai tablet Android bersama.",
         "timeline": "Timeline"
-      }
+      },
+      "completedImported": "Proyek ini diimport dari GitHub, jadi disiapkan dari isi repositori dan tidak perlu interview. Requirement, PRD, plan, dan task sudah siap. Jawabannya dibaca dari repositori dan ditandai imported sampai Anda mengonfirmasinya."
     },
     "review": {
       "ai": {

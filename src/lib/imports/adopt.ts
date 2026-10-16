@@ -3,7 +3,7 @@ import { and, eq, like } from "drizzle-orm";
 import type { Tx } from "@/lib/db/client";
 import { documents, milestones, tasks } from "@/lib/db/schema";
 import { parseProvenance, stripProvenance } from "@/lib/docsync/paths";
-import { mapDocs } from "./map-docs";
+import { type DocRole, mapDocs } from "./map-docs";
 import type { RepoDoc } from "./repo-reader";
 import { parseTasks } from "./tasks";
 
@@ -109,7 +109,12 @@ async function adoptTasks(
   return total;
 }
 
-export async function adoptRepoDocsTx(tx: Tx, projectId: string): Promise<AdoptResult> {
+export async function adoptRepoDocsTx(
+  tx: Tx,
+  projectId: string,
+  /** Paths a model chose per role, for documents the file names do not give away. */
+  hints: Partial<Record<DocRole, string>> = {},
+): Promise<AdoptResult> {
   const rows = await tx
     .select({
       id: documents.id,
@@ -131,7 +136,7 @@ export async function adoptRepoDocsTx(tx: Tx, projectId: string): Promise<AdoptR
       truncated: prov.truncated,
     });
   }
-  const mapped = mapDocs(docs);
+  const mapped = mapDocs(docs, hints);
   const prd = await promote(
     tx,
     projectId,

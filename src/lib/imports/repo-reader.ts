@@ -18,7 +18,7 @@ export interface RepoSnapshot {
   stack: DetectedStack;
 }
 
-export const MAX_DOCS = 10;
+export const MAX_DOCS = 30;
 export const MAX_DOC_CHARS = 100_000;
 
 /** "owner/name", a github.com URL, or an .git clone URL to "owner/name". */
@@ -78,6 +78,49 @@ export function pickDocPaths(root: FileEntry[], docs: FileEntry[]): string[] {
     .map((c) => c.path);
 }
 
+/** Folders whose documents describe the product. `docs` is always tried, the others when present. */
+const DOC_DIRS =
+  /^(docs?|documentation|specs?|design|planning|plans?|requirements|prd|tasks?|\.taskmaster)$/i;
+const MAX_DEPTH = 3;
+const MAX_LIST_CALLS = 24;
+const MAX_LISTED = 400;
+
+/**
+ * Every file in the documentation folders, however deep, within bounds: a few levels, a few
+ * dozen listings, a few hundred entries. Paths come back complete (`docs/api/overview.md`).
+ */
+export async function listDocTree(
+  adapter: GitAdapter,
+  ref: RepoRef,
+  token: string | null,
+  branch: string,
+  root: FileEntry[],
+): Promise<FileEntry[]> {
+  const found = root
+    .filter((f) => f.type === "dir" && DOC_DIRS.test(f.path.split("/").pop() ?? ""))
+    .map((f) => f.path);
+  let queue = [...new Set(["docs", ...found])];
+  const out: FileEntry[] = [];
+  let calls = 0;
+  for (let level = 0; level < MAX_DEPTH && queue.length > 0 && out.length < MAX_LISTED; level++) {
+    const dirs = queue.slice(0, Math.max(0, MAX_LIST_CALLS - calls));
+    calls += dirs.length;
+    const lists = await Promise.all(
+      dirs.map((dir) => adapter.listFiles(ref, token, { path: dir, ref: branch }).catch(() => [])),
+    );
+    const next: string[] = [];
+    lists.forEach((entries, i) => {
+      for (const entry of entries) {
+        const path = entry.path.startsWith(`${dirs[i]}/`) ? entry.path : `${dirs[i]}/${entry.path}`;
+        if (entry.type === "dir") next.push(path);
+        else out.push({ ...entry, path });
+      }
+    });
+    queue = next;
+  }
+  return out.slice(0, MAX_LISTED);
+}
+
 export async function readRepository(
   adapter: GitAdapter,
   ref: RepoRef,
@@ -85,18 +128,13 @@ export async function readRepository(
 ): Promise<RepoSnapshot> {
   const info = await adapter.getRepository(ref, token);
   const branch = info.defaultBranch;
-  const [root, docs] = await Promise.all([
-    adapter.listFiles(ref, token, { ref: branch }),
-    adapter.listFiles(ref, token, { path: "docs", ref: branch }).catch(() => []),
-  ]);
+  const root = await adapter.listFiles(ref, token, { ref: branch });
+  const docs = await listDocTree(adapter, ref, token, branch, root);
 
   const read = async (path: string) =>
     adapter.readFile(ref, token, { path, ref: branch }).catch(() => "");
 
-  const paths = pickDocPaths(
-    root,
-    docs.map((f) => ({ ...f, path: f.path.startsWith("docs/") ? f.path : `docs/${f.path}` })),
-  );
+  const paths = pickDocPaths(root, docs);
   const contents = await Promise.all(paths.map(read));
   const found = paths
     .map((path, i) => ({ path, text: contents[i] ?? "" }))

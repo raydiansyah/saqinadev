@@ -12,9 +12,11 @@ import { AppError } from "@/lib/errors";
 import { allow } from "@/lib/rate-limit";
 import { parse } from "@/lib/validation";
 import { type AdoptResult, adoptRepoDocsTx } from "./adopt";
+import { DOC_ROLES, type DocRole, mapDocs } from "./map-docs";
 import { addDocRequirementsTx, loadRepoDocs } from "./persist-requirements";
 import type { ExtractedRequirement } from "./requirements";
 import { extractRequirementsWithAi } from "./requirements-ai";
+import { classifyDocsWithAi } from "./roles-ai";
 
 const input = z.object({
   /** Explicit consent to send the repository's documents to the configured AI model. */
@@ -67,6 +69,7 @@ export async function syncRequirementsFromDocs(
     };
 
   let extra: ExtractedRequirement[] = [];
+  let hints: Partial<Record<DocRole, string>> = {};
   let ai: SyncResult["ai"] = null;
   let aiProblem: NoModelExplanation | undefined;
   if (useAi) {
@@ -79,11 +82,22 @@ export async function syncRequirementsFromDocs(
         required: ["structured_output"],
         override: options.provider,
         // Without a real model nothing is guessed: the rules above are the whole answer.
-        run: async (client) =>
-          client.deterministic ? null : extractRequirementsWithAi(docs, client, language),
+        run: async (client) => {
+          if (client.deterministic) return null;
+          const items = await extractRequirementsWithAi(docs, client, language);
+          // Documents the file names do not give away: the model says which is PRD, plan, tasks.
+          const repoDocs = docs.map((d) => ({ ...d, truncated: false }));
+          const byName = mapDocs(repoDocs);
+          // Telling the documents apart is a bonus: failing at it never loses the requirements.
+          const roles = DOC_ROLES.some((r) => !byName[r])
+            ? await classifyDocsWithAi(repoDocs, client).catch(() => ({}))
+            : {};
+          return { items, roles };
+        },
       });
       if (outcome.value && !outcome.deterministic) {
-        extra = outcome.value;
+        extra = outcome.value.items;
+        hints = outcome.value.roles;
         ai = "used";
       } else {
         ai = "unavailable";
@@ -116,7 +130,7 @@ export async function syncRequirementsFromDocs(
         metadata: { title: `${added.added} from repository documents`, count: added.added },
       });
     // The repository's own PRD, plan and task list, where the project does not have its own yet.
-    const adopted = await adoptRepoDocsTx(tx, writer.project.id);
+    const adopted = await adoptRepoDocsTx(tx, writer.project.id, hints);
     return { ...added, adopted };
   });
   return { ...result, ai, aiProblem, noDocs: false };

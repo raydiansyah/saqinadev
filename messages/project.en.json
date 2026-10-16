@@ -165,7 +165,8 @@
         "label": "Constraints",
         "placeholder": "Must launch before Ramadan. Staff use shared Android tablets.",
         "timeline": "Timeline"
-      }
+      },
+      "completedImported": "This project was imported from GitHub, so it was set up from what the repository says and no interview was needed. Requirements, PRD, plan and tasks are ready. The answers were read from the repository and are marked as imported until you confirm them."
     },
     "review": {
       "ai": {

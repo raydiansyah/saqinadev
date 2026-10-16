@@ -42,8 +42,10 @@ export async function persistGeneratedProject(tx: Tx, input: PersistInput): Prom
   await tx
     .update(projects)
     .set({
-      name: generated.name,
-      description: generated.description,
+      // An imported project keeps the name and description read from its repository.
+      ...(input.data.sources.projectDescription === "imported"
+        ? {}
+        : { name: generated.name, description: generated.description }),
       status: "planning",
       complexity: input.complexity,
       platform: input.platform,
