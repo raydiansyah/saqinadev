@@ -122,7 +122,22 @@
       "medium": "Medium",
       "low": "Low"
     },
-    "summary": "{confirmed} confirmed · {inferred} inferred · {unknown} unknown · {conflicting} conflicting"
+    "summary": "{confirmed} confirmed · {inferred} inferred · {unknown} unknown · {conflicting} conflicting",
+    "sync": {
+      "title": "Requirements from your repository documents",
+      "body": "Read the README and PRD again and add the requirements this project does not have yet. Nothing is changed or removed, and everything added is marked as imported until you confirm it.",
+      "aiLabel": "Let AI read the documents",
+      "aiHint": "Helps when the documents are written as paragraphs instead of lists. The documents are sent to your configured AI model, and only items it can quote from the text are kept.",
+      "run": "Update from documents",
+      "running": "Reading the documents…",
+      "added": "Added {count} requirements. Review them below.",
+      "nothingNew": "Nothing new: every requirement in the documents is already here.",
+      "noDocs": "This project has no repository documents to read.",
+      "noModel": "No AI model is set up, so only the lists in the documents were read.",
+      "providerFailed": "The AI model did not answer, so only the lists in the documents were read.",
+      "rateLimit": "Too many requests. Try again later.",
+      "failed": "Could not update from the documents. Try again."
+    }
   },
   "documents": {
     "metaTitle": "Documents",

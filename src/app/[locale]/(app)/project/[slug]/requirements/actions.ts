@@ -1,8 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { DEFAULT_LOCALE, isLocale } from "@/i18n/locales";
 import { runAction } from "@/lib/actions";
 import { requireActor } from "@/lib/auth/server";
+import { syncRequirementsFromDocs } from "@/lib/imports/sync";
 import {
   createRequirement,
   deleteRequirement,
@@ -29,5 +31,19 @@ export async function deleteRequirementAction(slug: string, id: string) {
   return runAction("requirement.delete", { slug }, async () => {
     await deleteRequirement(await requireActor(), slug, { id });
     refresh();
+  });
+}
+
+/** Reads the repository documents again and adds the requirements the project does not have. */
+export async function syncRequirementsAction(slug: string, useAi: boolean, locale: string) {
+  return runAction("requirement.sync_docs", { slug }, async () => {
+    const result = await syncRequirementsFromDocs(
+      await requireActor(),
+      slug,
+      { useAi },
+      isLocale(locale) ? locale : DEFAULT_LOCALE,
+    );
+    if (result.added > 0) refresh();
+    return result;
   });
 }

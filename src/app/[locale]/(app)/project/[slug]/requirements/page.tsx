@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { PageHeading } from "@/components/app/states";
 import { RequirementList } from "@/components/requirements/requirement-list";
+import { SyncFromDocs } from "@/components/requirements/sync-from-docs";
 import { isLocale } from "@/i18n/locales";
 import { can } from "@/lib/auth/permissions";
 import { REQUIREMENT_GROUPS } from "@/lib/domain/enums";
+import { hasRepoDocs } from "@/lib/imports/persist-requirements";
 import { getProjectCopy } from "@/lib/interviews/copy";
 import { projectPageAccess } from "@/lib/projects/page";
 import { listRequirements } from "@/lib/requirements/service";
@@ -19,7 +21,10 @@ export default async function RequirementsPage({
 }: PageProps<"/[locale]/project/[slug]/requirements">) {
   const { slug, locale } = await params;
   const access = await projectPageAccess(slug);
-  const items = await listRequirements(access);
+  const [items, repoDocs] = await Promise.all([
+    listRequirements(access),
+    hasRepoDocs(access.project.id),
+  ]);
   const t = await getTranslations("requirements");
   const copy = getProjectCopy(isLocale(locale) ? locale : "en");
   const counts = { confirmed: 0, inferred: 0, unknown: 0, conflicting: 0 };
@@ -31,6 +36,7 @@ export default async function RequirementsPage({
       {items.length > 0 ? (
         <p className="-mt-4 mb-6 font-mono text-xs text-muted-foreground">{t("summary", counts)}</p>
       ) : null}
+      {repoDocs && can(access.role, "content:write") ? <SyncFromDocs slug={slug} /> : null}
       <RequirementList
         slug={slug}
         items={items}

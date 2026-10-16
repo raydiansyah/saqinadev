@@ -122,7 +122,22 @@
       "medium": "Sedang",
       "low": "Rendah"
     },
-    "summary": "{confirmed} terkonfirmasi · {inferred} disimpulkan · {unknown} belum diketahui · {conflicting} bertentangan"
+    "summary": "{confirmed} terkonfirmasi · {inferred} disimpulkan · {unknown} belum diketahui · {conflicting} bertentangan",
+    "sync": {
+      "title": "Requirement dari dokumen repositori",
+      "body": "Baca ulang README dan PRD lalu tambahkan requirement yang belum ada di proyek ini. Tidak ada yang diubah atau dihapus, dan semua yang ditambahkan ditandai sebagai imported sampai Anda mengonfirmasinya.",
+      "aiLabel": "Biarkan AI membaca dokumen",
+      "aiHint": "Membantu jika dokumen berupa paragraf, bukan daftar. Dokumen dikirim ke model AI yang Anda atur, dan hanya butir yang bisa dikutip dari teks yang disimpan.",
+      "run": "Perbarui dari dokumen",
+      "running": "Membaca dokumen…",
+      "added": "Menambahkan {count} requirement. Tinjau di bawah.",
+      "nothingNew": "Tidak ada yang baru: semua requirement di dokumen sudah ada di sini.",
+      "noDocs": "Proyek ini tidak punya dokumen repositori untuk dibaca.",
+      "noModel": "Belum ada model AI yang diatur, jadi hanya daftar di dokumen yang dibaca.",
+      "providerFailed": "Model AI tidak menjawab, jadi hanya daftar di dokumen yang dibaca.",
+      "rateLimit": "Terlalu banyak permintaan. Coba lagi nanti.",
+      "failed": "Tidak bisa memperbarui dari dokumen. Coba lagi."
+    }
   },
   "documents": {
     "metaTitle": "Dokumen",

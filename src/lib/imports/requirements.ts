@@ -152,7 +152,7 @@ function extractFromDoc(doc: SourceDoc): ExtractedRequirement[] {
 /** Two items name the same thing when most of the shorter one's words appear in the other. */
 const stem = (t: string) => (t.length > 4 ? t.replace(/(es|s|e)$/, "") : t);
 
-function similar(a: string, b: string): boolean {
+export function similar(a: string, b: string): boolean {
   const ta = scopeTokens(a).map(stem);
   const tb = new Set(scopeTokens(b).map(stem));
   if (ta.length === 0 || tb.size === 0) return false;

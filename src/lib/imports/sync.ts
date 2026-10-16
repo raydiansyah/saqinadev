@@ -1,0 +1,99 @@
+import "server-only";
+import * as z from "zod";
+import type { Locale } from "@/i18n/locales";
+import { recordActivity } from "@/lib/activity/service";
+import { runAi } from "@/lib/ai/gateway";
+import type { AiProvider } from "@/lib/ai/provider";
+import type { Actor } from "@/lib/auth/actor";
+import { loadProjectAccess } from "@/lib/auth/permissions";
+import { db } from "@/lib/db/client";
+import { AppError } from "@/lib/errors";
+import { allow } from "@/lib/rate-limit";
+import { parse } from "@/lib/validation";
+import { addDocRequirementsTx, loadRepoDocs } from "./persist-requirements";
+import type { ExtractedRequirement } from "./requirements";
+import { extractRequirementsWithAi } from "./requirements-ai";
+
+const input = z.object({
+  /** Explicit consent to send the repository's documents to the configured AI model. */
+  useAi: z.boolean().default(false),
+});
+
+export interface SyncResult {
+  added: number;
+  fromRules: number;
+  fromAi: number;
+  /** Null when AI was not asked for. */
+  ai: "used" | "no_model" | "provider_failed" | null;
+  /** The project has no repository documents to read. */
+  noDocs: boolean;
+}
+
+const HOUR = 60 * 60 * 1000;
+
+/**
+ * Brings the requirements of an imported project up to date with its repository documents:
+ * for projects whose interview was finished before this existed, after the documents changed,
+ * or when they are written as prose. Only requirements the project does not have yet are
+ * added; nothing is changed or removed. With consent, a model also reads the documents, and
+ * only what it can back with a quote from them is kept.
+ */
+export async function syncRequirementsFromDocs(
+  actor: Actor,
+  slug: string,
+  raw: unknown,
+  locale: Locale,
+  options: { provider?: AiProvider } = {},
+): Promise<SyncResult> {
+  const { useAi } = parse(input, raw);
+  const access = await loadProjectAccess(actor, { slug }, "content:write");
+  if (!(await allow(`req-sync:${actor.id}`, 20, HOUR))) throw new AppError("RATE_LIMIT");
+
+  const docs = await loadRepoDocs(db, access.project.id);
+  if (docs.length === 0) return { added: 0, fromRules: 0, fromAi: 0, ai: null, noDocs: true };
+
+  let extra: ExtractedRequirement[] = [];
+  let ai: SyncResult["ai"] = null;
+  if (useAi) {
+    if (!(await allow(`ai-req:${actor.id}`, 5, HOUR))) throw new AppError("RATE_LIMIT");
+    const language = locale === "id" ? "Indonesian" : "English";
+    try {
+      const outcome = await runAi({
+        access,
+        operation: "structured_analysis",
+        required: ["structured_output"],
+        override: options.provider,
+        // Without a real model nothing is guessed: the rules above are the whole answer.
+        run: async (client) =>
+          client.deterministic ? null : extractRequirementsWithAi(docs, client, language),
+      });
+      if (outcome.value && !outcome.deterministic) {
+        extra = outcome.value;
+        ai = "used";
+      } else ai = "no_model";
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      ai = "provider_failed";
+    }
+  }
+
+  const result = await db.transaction(async (tx) => {
+    const writer = await loadProjectAccess(actor, { slug }, "content:write", tx);
+    const added = await addDocRequirementsTx(tx, {
+      projectId: writer.project.id,
+      actorId: actor.id,
+      docs,
+      extra,
+    });
+    if (added.added > 0)
+      await recordActivity(tx, {
+        projectId: writer.project.id,
+        actorId: actor.id,
+        type: "requirement.created",
+        entityType: "requirement",
+        metadata: { title: `${added.added} from repository documents`, count: added.added },
+      });
+    return added;
+  });
+  return { ...result, ai, noDocs: false };
+}
