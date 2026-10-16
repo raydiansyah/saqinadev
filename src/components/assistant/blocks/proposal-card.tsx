@@ -7,6 +7,7 @@ import {
   rejectProposalAction,
   requestRevisionAction,
 } from "@/app/[locale]/(app)/project/[slug]/assistant/actions";
+import { AiLabel } from "@/components/primitives/ai-label";
 import { Button } from "@/components/ui/button";
 import { FIELD_CLASS } from "@/components/ui/form";
 import { Link } from "@/i18n/navigation";
@@ -101,7 +102,9 @@ export function ProposalCard({
                 ? t("meetingTitle")
                 : t("title")}
           </p>
-          <h3 className="mt-0.5 text-sm font-semibold text-pretty">{proposal.title}</h3>
+          <h3 className="mt-0.5 text-sm font-semibold text-pretty">
+            {proposal.title} <AiLabel />
+          </h3>
           {proposal.description ? (
             <p className="mt-1 text-sm text-muted-foreground text-pretty">{proposal.description}</p>
           ) : null}

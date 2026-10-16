@@ -1,6 +1,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { aiReviewAction } from "@/app/[locale]/(app)/project/[slug]/interview/actions";
+import { AiLabel } from "@/components/primitives/ai-label";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/form";
 import type { AiReview, SuggestableKey } from "@/lib/interviews/ai-review";
@@ -71,7 +72,7 @@ export function AiReviewPanel({
       className="rounded-lg border border-border bg-surface p-5"
     >
       <h2 id="ai-review-heading" className="font-semibold">
-        {t("ai.title")}
+        {t("ai.title")} <AiLabel />
       </h2>
       <p className="mt-1 text-sm text-muted-foreground">{t("ai.body")}</p>
       <p className="mt-1 text-xs text-subtle-foreground">{t("ai.privacy")}</p>

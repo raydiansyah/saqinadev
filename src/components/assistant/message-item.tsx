@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { AiLabel } from "@/components/primitives/ai-label";
 import { cn } from "@/lib/utils";
 import { ProposalCard } from "./blocks/proposal-card";
 import { RunCard } from "./blocks/run-card";
@@ -54,6 +55,7 @@ export function MessageItem({
         )}
       >
         {mine ? t("you") : t("saqina")}
+        {mine ? null : <AiLabel className="ml-2" />}
       </p>
       {message.content ? (
         <p

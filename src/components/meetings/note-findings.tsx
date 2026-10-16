@@ -9,6 +9,7 @@ import {
 import { Chip, type ChipTone } from "@/components/engagement/chip";
 import { EngagementError } from "@/components/engagement/engagement-error";
 import { useRun } from "@/components/platform/use-run";
+import { AiLabel } from "@/components/primitives/ai-label";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Notice } from "@/components/ui/form";
 import { Link } from "@/i18n/navigation";
@@ -75,7 +76,9 @@ export function NoteFindings({
 
   return (
     <section className="mt-4 border-t border-border pt-4" aria-label={t("itemsTitle")}>
-      <h3 className="text-sm font-medium">{t("itemsTitle")}</h3>
+      <h3 className="text-sm font-medium">
+        {t("itemsTitle")} <AiLabel />
+      </h3>
       {items.length === 0 ? (
         <p className="mt-2 text-sm text-muted-foreground">{t("noItems")}</p>
       ) : (

@@ -10,28 +10,28 @@ or adds a processor. Current processors to keep listed: Neon (database), Vercel 
 (email), the configured AI providers, GitHub (repositories), Cloudflare Turnstile, and Sentry once enabled.
 Placeholders (`[COMPANY NAME]`, `[CONTACT EMAIL]`) must be filled before launch.
 
-## UU PDP / GDPR capabilities (Planned)
+## UU PDP / GDPR capabilities
 
 | Right or duty | What the product does |
 |---|---|
 | Lawful basis | Stated per purpose in the policy; consent is explicit where it is the basis (public forms, AI processing of documents) |
 | Consent log | Who consented, to what, when, which version of the text (stored with the record or in an audit event) |
-| Access and portability | Account data export as JSON, available to the user |
-| Erasure | Account deletion that removes personal data and anonymises audit references; project data the user owns is handled by the owner flow |
+| Access and portability | `/api/account/export` JSON download in Settings (Enforced, audited, rate limited) |
+| Erasure | Settings > Delete account (Enforced): typed email, refused while it would destroy shared projects or leave no platform owner |
 | Rectification | Profile and client records are editable |
 | Breach handling | Incident runbook: detect, contain, assess, notify the regulator within the legal window and affected people |
 
-## Data retention (Planned: automatic job in `/api/cron/maintenance`)
+## Data retention (Enforced: `src/lib/housekeeping/retention.ts`, run daily by `/api/cron/maintenance`)
 
 | Data | Keep | Then |
 |---|---|---|
 | Rate-limit rows | days | delete (already) |
 | Notifications read | 90 days | delete |
-| Public inquiries not converted | 12 months | delete or anonymise |
-| AI usage records | 13 months | aggregate, delete detail |
-| Webhook deliveries | 30 days | delete |
-| Audit events | 24 months | archive or delete |
-| Deleted account | 30 days grace | erase |
+| Public inquiries not converted | until `INQUIRY_RETENTION_DAYS` is set (owner decides) | delete |
+| AI usage records | 13 months | delete detail |
+| Webhook deliveries | 7 days | delete |
+| Audit events | 24 months | delete |
+| Deleted account | immediate (no grace period) | erase; audit keeps a pseudonymous subject |
 
 The owner confirms these durations; the job reads them from one config so the policy and the code agree.
 

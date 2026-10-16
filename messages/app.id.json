@@ -222,6 +222,10 @@
     },
     "time": {
       "justNow": "baru saja"
+    },
+    "ai": {
+      "label": "AI",
+      "title": "Dibuat oleh AI. Bisa keliru: periksa sebelum dijadikan acuan."
     }
   }
 }

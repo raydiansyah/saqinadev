@@ -118,11 +118,29 @@ export const en: Record<LegalDocId, LegalDocument> = {
         ],
       },
       {
+        id: "ai-processing",
+        heading: "AI-generated content",
+        blocks: [
+          {
+            p: 'Some output in Saqina Dev is produced by an AI model: the AI review of an interview, analysis of meeting notes, requirements read from your documents, assistant replies and agent proposals. It is marked "AI" wherever you see it, because it can be wrong. Nothing an AI proposes changes your project until a person approves it. We do not use your content to train models; the providers\' own terms apply to what is sent to them.',
+          },
+        ],
+      },
+      {
         id: "retention",
         heading: "How long we keep data",
         blocks: [
           {
             p: "Project data is kept until you delete the project; deletion in project settings is immediate and permanent. Account data is kept while your account exists. After an account is deleted, residual copies in backups are removed within [BACKUP RETENTION PERIOD].",
+          },
+          {
+            list: [
+              "Notifications you have read: 90 days after you read them.",
+              "Webhook delivery records: 7 days.",
+              "Per-request AI usage records (model, tokens, duration; never your content): 13 months.",
+              "Audit trail of platform changes: 24 months.",
+              "Expired sessions and sign-in codes: removed automatically every day.",
+            ],
           },
         ],
       },
@@ -142,7 +160,7 @@ export const en: Record<LegalDocId, LegalDocument> = {
             ],
           },
           {
-            p: "You can edit or delete your projects yourself at any time. Self-service account deletion is not available yet: write to [CONTACT EMAIL] and we will delete your account within the period set by law.",
+            p: "You can edit or delete your projects yourself at any time. In Settings you can download a copy of your data as a JSON file and delete your account yourself. Deletion removes your account, sessions, keys, notifications and the projects only you belong to; what you wrote in projects that others use stays, without your name. You cannot delete an account while you still own a project or organization that other people use, or if you are the only platform owner: hand it over first. For anything else, write to [CONTACT EMAIL].",
           },
         ],
       },

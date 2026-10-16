@@ -118,11 +118,29 @@ export const id: Record<LegalDocId, LegalDocument> = {
         ],
       },
       {
+        id: "ai-processing",
+        heading: "Konten buatan AI",
+        blocks: [
+          {
+            p: 'Sebagian keluaran di Saqina Dev dibuat oleh model AI: tinjauan AI atas wawancara, analisis catatan rapat, kebutuhan yang dibaca dari dokumen Anda, balasan asisten, dan usulan agen. Keluaran itu diberi tanda "AI" di mana pun tampil, karena bisa keliru. Tidak ada usulan AI yang mengubah proyek Anda sebelum disetujui seseorang. Kami tidak memakai konten Anda untuk melatih model; ketentuan penyedia berlaku atas data yang dikirim kepada mereka.',
+          },
+        ],
+      },
+      {
         id: "retention",
         heading: "Berapa lama data disimpan",
         blocks: [
           {
             p: "Data proyek disimpan sampai Anda menghapus proyek; penghapusan di pengaturan proyek berlaku langsung dan permanen. Data akun disimpan selama akun Anda ada. Setelah akun dihapus, salinan sisa di cadangan dihapus dalam [MASA SIMPAN CADANGAN].",
+          },
+          {
+            list: [
+              "Notifikasi yang sudah dibaca: 90 hari setelah dibaca.",
+              "Catatan pengiriman webhook: 7 hari.",
+              "Catatan pemakaian AI per permintaan (model, token, durasi; tidak pernah isi Anda): 13 bulan.",
+              "Jejak audit perubahan platform: 24 bulan.",
+              "Sesi dan kode masuk yang kedaluwarsa: dihapus otomatis setiap hari.",
+            ],
           },
         ],
       },
@@ -142,7 +160,7 @@ export const id: Record<LegalDocId, LegalDocument> = {
             ],
           },
           {
-            p: "Anda dapat mengubah atau menghapus proyek sendiri kapan saja. Penghapusan akun secara mandiri belum tersedia: kirim permintaan ke [EMAIL KONTAK] dan kami akan menghapus akun Anda dalam jangka waktu yang ditetapkan hukum.",
+            p: "Anda dapat mengubah atau menghapus proyek sendiri kapan saja. Di Pengaturan Anda dapat mengunduh salinan data sebagai berkas JSON dan menghapus akun sendiri. Penghapusan menghapus akun, sesi, kunci, notifikasi, dan proyek yang hanya Anda anggotai; tulisan Anda di proyek yang dipakai orang lain tetap ada, tanpa nama Anda. Akun tidak dapat dihapus selama Anda masih memiliki proyek atau organisasi yang dipakai orang lain, atau jika Anda satu-satunya owner platform: serahkan dulu. Untuk hal lain, tulis ke [EMAIL KONTAK].",
           },
         ],
       },
