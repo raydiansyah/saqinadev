@@ -4,10 +4,12 @@ import { signOutAction } from "@/app/[locale]/(app)/actions";
 import { PageHeading } from "@/components/app/states";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { Button } from "@/components/ui/button";
+import { planDeletion } from "@/lib/account/delete";
 import { requireActorPage } from "@/lib/auth/server";
 import { isPlatformOwner } from "@/lib/platform/roles";
 import { isRegistrationEnabled } from "@/lib/platform/settings";
 import { getUiMode } from "@/lib/users/preferences";
+import { AccountDataForm } from "./account-data-form";
 import { RegistrationForm } from "./registration-form";
 import { WorkspaceModeForm } from "./workspace-mode-form";
 
@@ -24,6 +26,7 @@ export default async function AccountSettingsPage() {
     getUiMode(actor),
     isPlatformOwner(actor),
   ]);
+  const plan = await planDeletion(actor);
   const registrationOpen = owner ? await isRegistrationEnabled() : true;
   return (
     <>
@@ -67,6 +70,13 @@ export default async function AccountSettingsPage() {
             <RegistrationForm enabled={registrationOpen} />
           </section>
         ) : null}
+        <section aria-labelledby="data-heading" className="rounded-lg border border-border p-5">
+          <h2 id="data-heading" className="font-medium">
+            {t("settings.account.title")}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">{t("settings.account.description")}</p>
+          <AccountDataForm blockers={plan.blockers} sharedProjects={plan.sharedProjects} />
+        </section>
         <section aria-labelledby="session-heading" className="rounded-lg border border-border p-5">
           <h2 id="session-heading" className="font-medium">
             {t("settings.session")}

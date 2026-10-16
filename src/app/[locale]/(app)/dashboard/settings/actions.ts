@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { deleteAccount } from "@/lib/account/delete";
 import { runAction } from "@/lib/actions";
 import { requireActor } from "@/lib/auth/server";
 import { setRegistrationEnabled } from "@/lib/platform/settings";
@@ -19,5 +20,11 @@ export async function setRegistrationAction(input: unknown) {
     await setRegistrationEnabled(await requireActor(), input);
     // The sign-up page reads this switch on every request.
     revalidatePath("/[locale]/sign-up", "page");
+  });
+}
+
+export async function deleteAccountAction(input: unknown) {
+  return runAction("account.delete", {}, async () => {
+    await deleteAccount(await requireActor(), input);
   });
 }

@@ -204,7 +204,11 @@
       "invalid": "Nilai tidak valid.",
       "exists": "Sudah ada.",
       "capability": "Model yang dipilih tidak mendukung kemampuan yang diwajibkan",
-      "unavailable": "Model itu tidak tersedia."
+      "unavailable": "Model itu tidak tersedia.",
+      "accountEmailMismatch": "Email tidak cocok dengan akun Anda.",
+      "accountBlockedLastPlatformOwner": "Anda satu-satunya owner platform. Serahkan peran dulu.",
+      "accountBlockedOwnsSharedProjects": "Anda masih memiliki proyek yang dipakai orang lain.",
+      "accountBlockedOwnsSharedOrganizations": "Anda masih memiliki organisasi dengan anggota lain."
     }
   },
   "integrations": {

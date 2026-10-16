@@ -167,6 +167,25 @@
         "disabled": "Pendaftaran baru ditutup",
         "toggle": "Izinkan pendaftaran baru",
         "saved": "Tersimpan."
+      },
+      "account": {
+        "title": "Data Anda",
+        "description": "Unduh salinan data Anda di Saqina, atau hapus akun.",
+        "exportTitle": "Ekspor data Anda",
+        "exportBody": "Berkas JSON berisi profil, keanggotaan, tulisan dan aktivitas Anda. Kunci dan token tidak pernah disertakan.",
+        "exportButton": "Unduh data saya",
+        "deleteTitle": "Hapus akun",
+        "deleteBody": "Ini menghapus akun, sesi, kunci, notifikasi, dan proyek yang hanya Anda anggotai. Tulisan Anda di proyek bersama tetap ada, tanpa nama Anda. Tidak dapat dibatalkan.",
+        "deleteConfirm": "Ketik email Anda untuk konfirmasi",
+        "deleteButton": "Hapus akun saya",
+        "deleting": "Menghapus…",
+        "blockedTitle": "Sebelum bisa dihapus",
+        "blocked": {
+          "lastPlatformOwner": "Anda satu-satunya owner platform. Serahkan peran ini ke orang lain dulu.",
+          "ownsSharedProjects": "Anda memiliki proyek yang dipakai orang lain: {projects}. Pindahkan atau hapus dulu.",
+          "ownsSharedOrganizations": "Anda memiliki organisasi yang punya anggota lain. Pindahkan atau hapus dulu."
+        },
+        "solo": "{count, plural, =0 {Tidak ada proyek} other {# proyek yang hanya Anda anggotai}} ikut dihapus bersama akun."
       }
     },
     "states": {

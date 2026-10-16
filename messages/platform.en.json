@@ -204,7 +204,11 @@
       "invalid": "Invalid value.",
       "exists": "Already exists.",
       "capability": "The selected model does not support the required capabilities",
-      "unavailable": "That model is not available."
+      "unavailable": "That model is not available.",
+      "accountEmailMismatch": "The email does not match your account.",
+      "accountBlockedLastPlatformOwner": "You are the only platform owner. Hand the role over first.",
+      "accountBlockedOwnsSharedProjects": "You still own projects other people use.",
+      "accountBlockedOwnsSharedOrganizations": "You still own an organization with other members."
     }
   },
   "integrations": {
