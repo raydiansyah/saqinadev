@@ -1,0 +1,41 @@
+# Review routing by risk lane (see docs/standards/governance.md).
+# The last matching pattern wins, so lanes go from low to high risk.
+# Replace the handle with a team (@org/team) when there is one.
+
+# Yellow: business logic, actions, pages
+/src/lib/                       @raydiansyah
+/src/app/                       @raydiansyah
+
+# Green: presentation, copy, docs, tests
+/src/components/                @raydiansyah
+/messages/                      @raydiansyah
+/src/content/                   @raydiansyah
+/docs/                          @raydiansyah
+/tests/                         @raydiansyah
+
+# Red: a person reads and verifies every line. AI-written changes also need an adversarial review.
+/src/lib/auth/                  @raydiansyah
+/src/proxy.ts                   @raydiansyah
+/src/lib/security-headers.ts    @raydiansyah
+/src/lib/permissions*           @raydiansyah
+/src/lib/platform/              @raydiansyah
+/src/lib/portal/access.ts       @raydiansyah
+/src/lib/organizations/         @raydiansyah
+/src/lib/billing/               @raydiansyah
+/src/lib/money.ts               @raydiansyah
+/src/lib/clients/               @raydiansyah
+/src/lib/secrets/               @raydiansyah
+/src/lib/github/                @raydiansyah
+/src/lib/ai/control-plane.ts    @raydiansyah
+/src/lib/ai/adapters/           @raydiansyah
+/src/lib/mcp/                   @raydiansyah
+/src/lib/tools/                 @raydiansyah
+/src/lib/agents/capabilities.ts @raydiansyah
+/src/lib/net/                   @raydiansyah
+/src/lib/db/schema/             @raydiansyah
+/src/lib/db/migrations/         @raydiansyah
+/src/app/api/                   @raydiansyah
+/scripts/                       @raydiansyah
+/.github/                       @raydiansyah
+/package.json                   @raydiansyah
+/pnpm-lock.yaml                 @raydiansyah
