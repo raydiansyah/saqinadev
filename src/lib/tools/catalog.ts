@@ -89,6 +89,69 @@ export const STATIC_TOOLS: StaticTool[] = [
     agentPermission: "read_memory",
   },
   {
+    source: "internal",
+    name: "get_changes",
+    description:
+      "What changed in the project after a revision (from read_project or an earlier call). Use it instead of re-reading everything.",
+    inputSchema: {
+      type: "object",
+      properties: { sinceRevision: { type: "integer", minimum: 0 } },
+      required: ["sinceRevision"],
+      additionalProperties: false,
+    },
+    riskLevel: "low",
+    agentPermission: "read_project",
+  },
+  {
+    source: "internal",
+    name: "read_doc_map",
+    description:
+      "Where the project's documents are and what each is for (PRD, plan, tasks, spec, memory, decision, process, client).",
+    inputSchema: { type: "object", properties: {}, additionalProperties: false },
+    riskLevel: "low",
+    agentPermission: "read_project",
+  },
+  {
+    source: "internal",
+    name: "list_prd_findings",
+    description: "Open places where the PRD and the rest of the project disagree.",
+    inputSchema: { type: "object", properties: {}, additionalProperties: false },
+    riskLevel: "low",
+    agentPermission: "read_prd",
+  },
+  {
+    source: "internal",
+    name: "write_memory",
+    description:
+      "Append one concise memory (a decision, constraint or lesson worth keeping). It never edits existing memory; an identical entry is not added twice.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        title: str(160),
+        content: str(2000),
+        category: {
+          type: "string",
+          enum: [
+            "architecture",
+            "product",
+            "design",
+            "technical",
+            "business",
+            "user_preference",
+            "decision",
+            "constraint",
+            "integration",
+          ],
+        },
+        importance: { type: "string", enum: ["high", "normal"] },
+      },
+      required: ["title", "content"],
+      additionalProperties: false,
+    },
+    riskLevel: "medium",
+    agentPermission: "write_memory",
+  },
+  {
     source: "git",
     name: "list_branches",
     description: "Branches of the connected repository.",

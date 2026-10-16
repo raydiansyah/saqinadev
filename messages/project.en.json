@@ -298,7 +298,8 @@
           "read_prd": "Read PRD and documents",
           "read_tasks": "Read tasks",
           "read_memory": "Read memory",
-          "write_documents": "Propose document changes"
+          "write_documents": "Propose document changes",
+          "write_memory": "Add project memory"
         },
         "expiry": "Expires after",
         "expiryOptions": {

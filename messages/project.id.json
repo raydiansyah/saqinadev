@@ -298,7 +298,8 @@
           "read_prd": "Baca PRD dan dokumen",
           "read_tasks": "Baca tugas",
           "read_memory": "Baca memori",
-          "write_documents": "Usulkan perubahan dokumen"
+          "write_documents": "Usulkan perubahan dokumen",
+          "write_memory": "Menambah memori proyek"
         },
         "expiry": "Kedaluwarsa setelah",
         "expiryOptions": {

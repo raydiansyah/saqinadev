@@ -20,6 +20,7 @@ const SCOPES = [
   "read_tasks",
   "read_memory",
   "write_documents",
+  "write_memory",
 ] as const;
 const DEFAULT_SCOPES: readonly string[] = ["read_project", "read_prd", "read_tasks", "read_memory"];
 const EXPIRIES = ["30", "90", "365", "never"] as const;

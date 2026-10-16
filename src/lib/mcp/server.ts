@@ -28,6 +28,10 @@ export const MCP_TOOL_NAMES = [
   "read_document",
   "search_memory",
   "propose_document_change",
+  "get_changes",
+  "read_doc_map",
+  "list_prd_findings",
+  "write_memory",
 ] as const;
 
 const MAX_BODY = 60_000;

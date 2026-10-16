@@ -27,6 +27,7 @@ export const TOKEN_SCOPES = [
   "read_tasks",
   "read_memory",
   "write_documents",
+  "write_memory",
 ] as const;
 export type TokenScope = (typeof TOKEN_SCOPES)[number];
 
@@ -57,7 +58,7 @@ export async function createAgentToken(
 ): Promise<CreatedToken> {
   const data = parse(createInput, input);
   const access = await loadProjectAccess(actor, { slug }, "project:update");
-  if (data.scopes.includes("write_documents") && !can(access.role, "content:write"))
+  if (data.scopes.some((s) => s.startsWith("write_")) && !can(access.role, "content:write"))
     throw new AppError("AUTHORIZATION_ERROR");
   if (!(await allow(`mcp-token:${actor.id}`, 20, 60 * 60 * 1000))) throw new AppError("RATE_LIMIT");
 

@@ -2,6 +2,7 @@ import "server-only";
 import { createHash } from "node:crypto";
 import { agentCan } from "@/lib/agents/capabilities";
 import type { ProjectAccess } from "@/lib/auth/permissions";
+import { getProjectBrain, renderBrain } from "@/lib/brain/brain";
 import type { AgentPermission, HandoffFormat } from "@/lib/domain/enums";
 import { getRepository } from "@/lib/git/service";
 import { getTechStack } from "@/lib/projects/stack";
@@ -42,10 +43,11 @@ export async function buildContextPackage(
     instructions?: string;
   } = {},
 ): Promise<ContextPackage> {
-  const [context, stack, repo] = await Promise.all([
+  const [context, stack, repo, brain] = await Promise.all([
     getProjectContext(access),
     getTechStack(access),
     getRepository(access),
+    getProjectBrain(access),
   ]);
   const serialized = serializeContext(context);
   const stackLines = Object.entries(stack).map(([k, v]) => `- ${k}: ${v?.value} (${v?.source})`);
@@ -53,6 +55,7 @@ export async function buildContextPackage(
     ...serialized,
     "PROJECT.md": `${serialized["PROJECT.md"]}\n\n## Tech stack\n\n${stackLines.join("\n") || "_Not set._"}\n`,
   };
+  all["BRAIN.md"] = renderBrain(brain);
   if (options.task) {
     all["TASK.md"] = [
       `# Task: ${options.task.title}`,

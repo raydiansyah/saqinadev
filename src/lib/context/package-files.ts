@@ -4,6 +4,7 @@ import type { AgentPermission } from "@/lib/domain/enums";
 /** Which package files need which read permission. TASK.md is the job itself. */
 export const PACKAGE_FILE_NEEDS: Record<string, AgentPermission | null> = {
   "PROJECT.md": "read_project",
+  "BRAIN.md": "read_project",
   "PRD.md": "read_prd",
   "PLAN.md": "read_tasks",
   "TASKS.md": "read_tasks",

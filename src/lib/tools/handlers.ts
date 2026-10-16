@@ -1,15 +1,19 @@
 import "server-only";
 import { and, asc, eq } from "drizzle-orm";
 import type { ProjectAccess } from "@/lib/auth/permissions";
+import { getChangesSince } from "@/lib/brain/brain";
+import { listPrdFindings } from "@/lib/brain/prd-findings";
 import { db } from "@/lib/db/client";
 import { documents, mcpConnections } from "@/lib/db/schema";
+import { listDocMap } from "@/lib/docmap/index-docs";
 import { isSyncType } from "@/lib/docsync/paths";
+import type { MemoryCategory } from "@/lib/domain/enums";
 import { AppError } from "@/lib/errors";
 import type { EventBatch } from "@/lib/events/emitter";
 import { assertWritableBranch, getRepository, withRepo } from "@/lib/git/service";
 import { McpError } from "@/lib/mcp/client";
 import { withMcpClient } from "@/lib/mcp/service";
-import { listMemories } from "@/lib/memory/service";
+import { createMemoryTx, listMemories } from "@/lib/memory/service";
 import { getTechStack } from "@/lib/projects/stack";
 import { createProposalTx } from "@/lib/proposals/repository";
 import type { ToolActor } from "./executor";
@@ -127,6 +131,49 @@ async function internal(tool: ToolRow, input: Input, { access, actor, batch }: H
         status: "pending_approval",
         message: "A project member must approve the change in Saqina before it is applied.",
       };
+    }
+    case "get_changes": {
+      const since = Number(input.sinceRevision);
+      const { upToDate, changes, truncated } = await getChangesSince(access, since);
+      return {
+        revision: access.project.contextRevision,
+        sinceRevision: since,
+        upToDate,
+        changes,
+        truncated,
+      };
+    }
+    case "read_doc_map":
+      return {
+        revision: access.project.contextRevision,
+        documents: await listDocMap(db, access.project.id),
+      };
+    case "list_prd_findings":
+      return {
+        revision: access.project.contextRevision,
+        findings: (await listPrdFindings(access)).map((f) => ({
+          kind: f.kind,
+          subject: f.subject,
+        })),
+      };
+    case "write_memory": {
+      // Append-only: an entry with the same title and text is already known, anything else is new.
+      const data = {
+        title: String(input.title).trim(),
+        content: String(input.content).trim(),
+        category: (str(input.category) ?? "technical") as MemoryCategory,
+        importance: (str(input.importance) ?? "normal") as "high" | "normal",
+      };
+      const existing = (await listMemories(access)).find(
+        (m) => m.title.toLowerCase() === data.title.toLowerCase() && m.content === data.content,
+      );
+      if (existing) return { id: existing.id, created: false };
+      const row = await db.transaction((tx) =>
+        createMemoryTx(tx, access, data, {
+          via: "agent",
+        }),
+      );
+      return { id: row.id, created: true };
     }
     case "search_memory": {
       const q = (str(input.query) ?? "").toLowerCase();

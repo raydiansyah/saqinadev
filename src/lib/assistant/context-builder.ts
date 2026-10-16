@@ -5,6 +5,7 @@ import { type AgentRow, listAgentRegistry } from "@/lib/agents/registry";
 import type { PromptSegment } from "@/lib/ai/provider";
 import { can, type ProjectAccess } from "@/lib/auth/permissions";
 import { type ProjectBilling, projectBilling } from "@/lib/billing/summary";
+import { getProjectBrain, type ProjectBrain } from "@/lib/brain/brain";
 import { type ChangeRequest, listChangeRequests } from "@/lib/change-requests/service";
 import { db } from "@/lib/db/client";
 import { decisions, documents, memories, requirements, tasks } from "@/lib/db/schema";
@@ -110,6 +111,8 @@ export interface AssistantContext {
   prd?: { content: string; version: number; status: string } | null;
   decisions?: DecisionView[];
   memories?: MemoryView[];
+  /** Document map and open PRD findings, so the assistant need not scan the project. */
+  brain?: ProjectBrain;
   recommendations?: StoredRecommendation[];
   activity?: ActivityView[];
   agents?: AgentRow[];
@@ -230,6 +233,8 @@ export async function buildContext(
     needs.has("requirements") && listRequirements(access).then((r) => (ctx.requirements = r)),
     needs.has("tasks") && listTasks(access).then((r) => (ctx.tasks = r)),
     needs.has("decisions") && listDecisions(access).then((r) => (ctx.decisions = r)),
+    (needs.has("memory") || needs.has("prd")) &&
+      getProjectBrain(access).then((r) => (ctx.brain = r)),
     needs.has("memory") && listMemories(access).then((r) => (ctx.memories = r.slice(0, 30))),
     needs.has("recommendations") &&
       listRecommendations(access).then((r) => (ctx.recommendations = r)),
@@ -348,6 +353,15 @@ export function contextSegments(ctx: AssistantContext): PromptSegment[] {
       kind: "project_data",
       label: "memory",
       content: ctx.memories.map((m) => `- ${m.title}: ${m.content}`).join("\n"),
+    });
+  if (ctx.brain && (ctx.brain.docMap.length > 0 || ctx.brain.prdFindings.length > 0))
+    segments.push({
+      kind: "project_data",
+      label: "document map and open PRD findings",
+      content: [
+        ...ctx.brain.docMap.map((d) => `- ${d.role}: ${d.path}`),
+        ...ctx.brain.prdFindings.map((f) => `- finding (${f.kind}): ${f.subject}`),
+      ].join("\n"),
     });
   if (ctx.scope?.length)
     segments.push({
