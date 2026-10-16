@@ -36,7 +36,8 @@ const pattern = (query: string) => `%${query.replace(/[\\%_]/g, (c) => `\\${c}`)
  * The interface (query in, typed hits out) stays when full-text search replaces it.
  */
 export async function search(actor: Actor, rawQuery: string): Promise<SearchHit[]> {
-  const query = rawQuery.trim().slice(0, 100);
+  // A NUL character would make PostgreSQL fail the query; no real search contains one.
+  const query = rawQuery.replaceAll("\u0000", "").trim().slice(0, 100);
   if (query.length < 2) return [];
   const like = pattern(query);
   // Membership scopes every query; there is no path to another user's data.
