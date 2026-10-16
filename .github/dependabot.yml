@@ -1,0 +1,20 @@
+version: 2
+
+# Weekly update pull requests. Security updates open immediately regardless of this schedule.
+# Each one goes through the same pipeline and review as any other change (docs/standards/delivery.md).
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+    labels: [dependencies]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    labels: [dependencies]

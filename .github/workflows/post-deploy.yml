@@ -1,0 +1,32 @@
+name: Post-deploy smoke test
+
+# Vercel reports each deployment to GitHub. After a production deployment succeeds, run the smoke test.
+# A failure here is the signal to roll back (docs/runbook.md). Previews are skipped: they may sit
+# behind Vercel deployment protection, which the smoke test cannot pass.
+
+on:
+  deployment_status
+
+permissions:
+  contents: read
+  deployments: read
+
+jobs:
+  smoke:
+    if: >-
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment.environment == 'Production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Smoke test the deployment
+        env:
+          TARGET_URL: ${{ github.event.deployment_status.environment_url || github.event.deployment_status.target_url }}
+        run: pnpm smoke "$TARGET_URL"

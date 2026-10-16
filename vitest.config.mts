@@ -18,6 +18,14 @@ export default defineConfig({
   },
   test: {
     include: ["tests/**/*.test.ts"],
+    // `pnpm test:coverage` (needs @vitest/coverage-v8). The per-file bar for new and changed code is
+    // enforced by `pnpm check:coverage`; the global thresholds below only stop the baseline sliding.
+    coverage: {
+      provider: "v8",
+      reporter: ["text-summary", "json-summary", "lcov"],
+      include: ["src/lib/**/*.ts", "src/app/api/**/*.ts", "src/app/**/actions.ts"],
+      exclude: ["**/*.d.ts", "src/lib/db/migrations/**", "src/lib/interview/copy/**"],
+    },
     environment: "node",
     // Integration tests share one database; run files one at a time.
     fileParallelism: false,
