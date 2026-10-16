@@ -229,7 +229,8 @@
       "reminder": {
         "recipients": "Dikirim ke {count} user portal client di aplikasi, dan lewat email bila dikonfigurasi."
       },
-      "meetingTitle": "Dari catatan meeting"
+      "meetingTitle": "Dari catatan meeting",
+      "prdCheckTitle": "Dari pengecekan PRD"
     },
     "run": {
       "title": "Run agent",

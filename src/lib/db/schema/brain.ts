@@ -1,4 +1,13 @@
-import { index, integer, jsonb, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  index,
+  integer,
+  jsonb,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { users } from "./auth";
 import { projects } from "./projects";
 
@@ -33,5 +42,46 @@ export const projectChanges = pgTable(
   (t) => [
     index("project_changes_revision_idx").on(t.projectId, t.revision),
     index("project_changes_pending_idx").on(t.projectId, t.createdAt),
+  ],
+);
+
+export const PRD_FINDING_KINDS = [
+  "placeholder_section",
+  "requirement_not_in_prd",
+  "requirement_out_of_scope",
+  "task_out_of_scope",
+] as const;
+export type PrdFindingKind = (typeof PRD_FINDING_KINDS)[number];
+
+/**
+ * Where the project and its PRD disagree. Rebuilt whenever the inputs change: a finding opens
+ * when the disagreement appears and resolves by itself when it disappears. A dismissed finding
+ * stays dismissed while the same disagreement persists.
+ */
+export const prdFindings = pgTable(
+  "prd_findings",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    /** kind + entity: the same disagreement always has the same fingerprint. */
+    fingerprint: text("fingerprint").notNull(),
+    kind: text("kind").$type<PrdFindingKind>().notNull(),
+    entityType: text("entity_type"),
+    entityId: text("entity_id"),
+    subject: text("subject").notNull(),
+    status: text("status").$type<"open" | "resolved" | "dismissed">().notNull().default("open"),
+    openedAtRevision: integer("opened_at_revision").notNull(),
+    lastSeenRevision: integer("last_seen_revision").notNull(),
+    proposalId: uuid("proposal_id"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+    dismissedAt: timestamp("dismissed_at", { withTimezone: true }),
+    dismissedBy: text("dismissed_by").references(() => users.id, { onDelete: "set null" }),
+  },
+  (t) => [
+    uniqueIndex("prd_findings_fingerprint_idx").on(t.projectId, t.fingerprint),
+    index("prd_findings_status_idx").on(t.projectId, t.status),
   ],
 );

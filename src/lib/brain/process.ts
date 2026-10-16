@@ -4,6 +4,7 @@ import { db } from "@/lib/db/client";
 import { projectChanges } from "@/lib/db/schema";
 import { writeJournalEntry } from "./journal";
 import { type ChangeRow, planJournal } from "./journal-plan";
+import { reconcilePrdFindings } from "./prd-findings";
 
 export interface ProcessResult {
   processed: number;
@@ -13,6 +14,8 @@ export interface ProcessResult {
 }
 
 const BATCH = 200;
+/** Changes that can make the PRD and the rest of the project disagree. */
+const PRD_INPUTS = new Set(["document", "requirement", "task", "scope", "interview"]);
 
 /**
  * Consumes the project's pending changes once: plans which facts changed, writes the memory
@@ -44,6 +47,10 @@ export async function processProjectChanges(projectId: string): Promise<ProcessR
       else if (outcome === "updated") result.updated++;
       else if (outcome === "kept") result.kept++;
     }
+    // The PRD check reads the whole project, so it runs once per batch and only when something it
+    // compares has changed.
+    if (pending.some((c) => PRD_INPUTS.has(c.type.split(".")[0])))
+      await reconcilePrdFindings(tx, projectId);
     await tx
       .update(projectChanges)
       .set({ processedAt: new Date() })

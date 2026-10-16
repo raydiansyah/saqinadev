@@ -100,7 +100,9 @@ export function ProposalCard({
               ? t("agentTitle")
               : proposal.type === "meeting_note"
                 ? t("meetingTitle")
-                : t("title")}
+                : proposal.type === "prd_check"
+                  ? t("prdCheckTitle")
+                  : t("title")}
           </p>
           <h3 className="mt-0.5 text-sm font-semibold text-pretty">
             {proposal.title} <AiLabel />

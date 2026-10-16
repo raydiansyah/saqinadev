@@ -56,7 +56,7 @@ export function analyzeRequirements(
 }
 
 /** Splits markdown into `## ` sections. */
-function sections(markdown: string): { heading: string; body: string }[] {
+export function sections(markdown: string): { heading: string; body: string }[] {
   const out: { heading: string; body: string }[] = [];
   for (const part of markdown.split(/^## /m).slice(1)) {
     const [heading, ...rest] = part.split("\n");

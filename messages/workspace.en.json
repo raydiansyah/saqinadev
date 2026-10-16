@@ -225,7 +225,24 @@
         "cancel": "Cancel"
       }
     },
-    "updatedAt": "Updated"
+    "updatedAt": "Updated",
+    "prdCheck": {
+      "title": "{count, plural, one {The PRD and the project disagree in 1 place} other {The PRD and the project disagree in # places}}",
+      "hint": "Checked after every change. A finding closes by itself once it is fixed. Updating the PRD always goes through a proposal you approve.",
+      "select": "Select: {subject}",
+      "inProposal": "Already in a proposal",
+      "propose": "Propose PRD update",
+      "dismiss": "Dismiss",
+      "viewApprovals": "View approvals",
+      "proposalCreated": "Proposal created. It waits for review in Approvals.",
+      "failed": "Could not do that. Only requirements missing from the PRD can be proposed.",
+      "kinds": {
+        "placeholder_section": "Empty section",
+        "requirement_not_in_prd": "Not in the PRD",
+        "requirement_out_of_scope": "Requirement outside the agreed scope",
+        "task_out_of_scope": "Task outside the agreed scope"
+      }
+    }
   },
   "plan": {
     "metaTitle": "Plan",

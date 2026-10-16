@@ -229,7 +229,8 @@
       "reminder": {
         "recipients": "Goes to {count, plural, one {# client portal user} other {# client portal users}} in-app, and by email when configured."
       },
-      "meetingTitle": "From a meeting note"
+      "meetingTitle": "From a meeting note",
+      "prdCheckTitle": "From the PRD check"
     },
     "run": {
       "title": "Agent run",

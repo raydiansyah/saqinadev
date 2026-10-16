@@ -225,7 +225,24 @@
         "cancel": "Batal"
       }
     },
-    "updatedAt": "Diperbarui"
+    "updatedAt": "Diperbarui",
+    "prdCheck": {
+      "title": "{count, plural, one {PRD dan proyek berbeda di 1 tempat} other {PRD dan proyek berbeda di # tempat}}",
+      "hint": "Dicek setelah setiap perubahan. Temuan menutup sendiri begitu diperbaiki. Perubahan PRD selalu lewat usulan yang Anda setujui.",
+      "select": "Pilih: {subject}",
+      "inProposal": "Sudah ada di usulan",
+      "propose": "Usulkan perubahan PRD",
+      "dismiss": "Abaikan",
+      "viewApprovals": "Lihat persetujuan",
+      "proposalCreated": "Usulan dibuat. Menunggu review di Persetujuan.",
+      "failed": "Tidak bisa dilakukan. Hanya kebutuhan yang belum ada di PRD yang bisa diusulkan.",
+      "kinds": {
+        "placeholder_section": "Bagian kosong",
+        "requirement_not_in_prd": "Belum ada di PRD",
+        "requirement_out_of_scope": "Kebutuhan di luar scope yang disepakati",
+        "task_out_of_scope": "Tugas di luar scope yang disepakati"
+      }
+    }
   },
   "plan": {
     "metaTitle": "Plan",
