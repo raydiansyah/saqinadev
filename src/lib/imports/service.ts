@@ -1,4 +1,5 @@
 import "server-only";
+import { eq, sql } from "drizzle-orm";
 import * as z from "zod";
 import type { Locale } from "@/i18n/locales";
 import { recordActivity } from "@/lib/activity/service";
@@ -6,7 +7,8 @@ import { runAi } from "@/lib/ai/gateway";
 import type { AiProvider } from "@/lib/ai/provider";
 import { recordAudit } from "@/lib/audit/service";
 import type { Actor } from "@/lib/auth/actor";
-import { documents, documentVersions } from "@/lib/db/schema";
+import { db } from "@/lib/db/client";
+import { documents, documentVersions, repositoryConnections } from "@/lib/db/schema";
 import { indexDocs } from "@/lib/docmap/index-docs";
 import { docSlug } from "@/lib/docsync/paths";
 import { AppError } from "@/lib/errors";
@@ -250,6 +252,13 @@ async function runImport(
       token: token ?? undefined,
     });
     connected = true;
+    // GitHub stays the source: its documents are pulled, nothing of ours is ever sent back.
+    await db
+      .update(repositoryConnections)
+      .set({ docSyncEnabled: true, docSyncMode: "pull_only", docsSyncError: null })
+      .where(
+        eq(repositoryConnections.projectId, sql`(select id from projects where slug = ${slug})`),
+      );
   } catch (error) {
     // The project and its documents are already in place; connecting can be retried by hand.
     log.warn("import.connect_failed", { error: String(error) });

@@ -117,7 +117,10 @@ export async function persistGeneratedProject(tx: Tx, input: PersistInput): Prom
       createdBy: actorId,
       updatedBy: actorId,
     },
-  ].filter((d) => !have.has(d.slug));
+  ].filter(
+    // An imported project's documents come from its repository only: nothing is written for it.
+    (d) => !have.has(d.slug) && input.data.sources.projectDescription !== "imported",
+  );
   if (generatedDocs.length > 0) {
     const docs = await tx
       .insert(documents)
@@ -135,7 +138,12 @@ export async function persistGeneratedProject(tx: Tx, input: PersistInput): Prom
     .select({ existingTasks: count() })
     .from(tasks)
     .where(eq(tasks.projectId, projectId));
-  const generatedMilestones = Number(existingTasks) > 0 ? [] : generated.milestones;
+  // An imported project's tasks come from its repository documents or not at all, until a person
+  // runs the interview or writes a PRD.
+  const generatedMilestones =
+    Number(existingTasks) > 0 || input.data.sources.projectDescription === "imported"
+      ? []
+      : generated.milestones;
 
   let position = 0;
   for (const [index, milestone] of generatedMilestones.entries()) {

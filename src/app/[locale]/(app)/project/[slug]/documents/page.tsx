@@ -10,6 +10,7 @@ import { can } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
 import { listDocMap } from "@/lib/docmap/index-docs";
 import { listDocLinkStates } from "@/lib/docsync/config";
+import { schedulePullIfStale } from "@/lib/docsync/schedule";
 import { fileName, getDocument, listDocuments } from "@/lib/documents/service";
 import { formatRelative } from "@/lib/format";
 import { projectPageAccess } from "@/lib/projects/page";
@@ -25,6 +26,7 @@ export default async function DocumentsPage({
   const { slug } = await params;
   const access = await projectPageAccess(slug);
   const docs = await listDocuments(access);
+  schedulePullIfStale(access.project.id);
   const t = await getTranslations("documents");
   const share = await getTranslations("billing.share");
   const canShare = can(access.role, "project:update");

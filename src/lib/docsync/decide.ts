@@ -15,6 +15,8 @@ export type SyncAction =
   | "pull"
   /** Both sides changed to the same text: just record it. */
   | "adopt"
+  /** Pull-only, both sides changed: whichever was written last wins (the engine compares times). */
+  | "newest"
   /** Both changed differently: keep both and ask. */
   | "conflict"
   /** The file was deleted in the repository: keep the document and ask. */
@@ -35,7 +37,7 @@ export interface SyncDecision {
   merged: boolean;
 }
 
-export function decide(input: SyncInput): SyncDecision {
+export function decide(input: SyncInput, options: { pullOnly?: boolean } = {}): SyncDecision {
   const { local, remote, pushed } = input;
   const merged = remote !== null && pushed !== null && remote === pushed;
   // After a merge the repository caught up with Saqina; that is not a change by someone else.
@@ -44,6 +46,15 @@ export function decide(input: SyncInput): SyncDecision {
   if (remote === null && remoteSeen !== null) return { action: "remote_missing", merged };
 
   const remoteChanged = remote !== remoteSeen;
+
+  // GitHub is the only source: nothing is ever sent. When the repository moved, it is taken unless
+  // Saqina holds a different text, and then the more recent of the two wins ("newest").
+  if (options.pullOnly) {
+    if (!remoteChanged) return { action: "none", merged };
+    if (local === remote) return { action: "adopt", merged };
+    const localAhead = remoteSeen === null || local !== remoteSeen;
+    return { action: localAhead ? "newest" : "pull", merged };
+  }
 
   if (!remoteChanged) {
     // Only Saqina may have moved: send it unless that exact text is already on the sync branch.

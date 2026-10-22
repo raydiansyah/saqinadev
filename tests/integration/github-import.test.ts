@@ -107,9 +107,8 @@ describe("import from GitHub", () => {
     expect(project.name).toBe("Restaurant POS");
     const docs = await db.select().from(documents).where(eq(documents.projectId, project.id));
     // The repository's PRD.md is the project's PRD; the other files stay as copied documents.
-    // The plan was not in the repository, so the setup generated one.
+    // The plan was not in the repository, and nothing is generated in its place.
     expect(docs.map((d) => d.slug).sort()).toEqual([
-      "plan",
       "prd",
       "repo-docs-architecture",
       "repo-readme",
@@ -144,9 +143,10 @@ describe("import from GitHub", () => {
     const slugs = (
       await db.select().from(documents).where(eq(documents.projectId, project.id))
     ).map((d) => d.slug);
-    // The imported PRD is kept, not replaced by a generated one; the missing plan is generated.
+    // The imported PRD is kept, and no plan is generated: documents come from the repository only.
     expect(slugs.filter((x) => x === "prd")).toHaveLength(1);
-    expect(slugs).toEqual(expect.arrayContaining(["prd", "plan", "repo-readme"]));
+    expect(slugs).toEqual(expect.arrayContaining(["prd", "repo-readme"]));
+    expect(slugs).not.toContain("plan");
     const prd = (await db.select().from(documents).where(eq(documents.projectId, project.id))).find(
       (d) => d.slug === "prd",
     );

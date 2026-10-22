@@ -108,6 +108,12 @@ export interface DocSyncOps {
     token: string | null,
     input: { number: number; title: string; body: string },
   ): Promise<void>;
+  /** When the file at `path` last changed on `ref`, or null when the host does not know. */
+  lastChangeAt(
+    ref: RepoRef,
+    token: string | null,
+    input: { path: string; ref: string },
+  ): Promise<Date | null>;
   /** Moves a branch (force). Only ever used on the dedicated docs-sync branch. */
   resetBranch(
     ref: RepoRef,

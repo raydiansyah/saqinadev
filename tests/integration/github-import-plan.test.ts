@@ -153,11 +153,10 @@ describe("PRD, plan and tasks of an imported project", () => {
       "package.json": FILES["package.json"],
     });
     const all = await docs();
-    // No PRD, plan or task list in the repository: the workspace still gets its own.
-    expect(all.find((d) => d.slug === "prd")?.content).not.toContain("Imported from");
-    expect(all.some((d) => d.slug === "plan")).toBe(true);
-    expect((await taskRows()).length).toBeGreaterThan(0);
-    expect((await taskRows()).every((t) => t.source === "plan")).toBe(true);
+    // No PRD or plan in the repository: no document is written for it. Documents follow GitHub only.
+    expect(all.some((d) => d.slug === "prd" || d.slug === "plan")).toBe(false);
+    // Nor tasks: they stay empty until a person runs the interview or writes a PRD.
+    expect(await taskRows()).toHaveLength(0);
   });
 
   /** An import as it worked before: copies as repo-*, and a generated PRD, plan and tasks. */
@@ -316,15 +315,14 @@ describe("PRD, plan and tasks of an imported project", () => {
         { path: "docs/notes/misc.md", role: "plan", confidence: 30 },
       ]);
       const all = await runWith(m.provider, true);
-      expect(all.find((d) => d.slug === "prd")?.content).not.toContain("Imported from");
-      expect(all.find((d) => d.slug === "plan")?.content).not.toContain("Imported from");
+      expect(all.some((d) => d.slug === "prd" || d.slug === "plan")).toBe(false);
     });
 
     it("never asks without consent", async () => {
       const m = model([{ path: "docs/strategy/v1.md", role: "prd", confidence: 90 }]);
       const all = await runWith(m.provider, false);
       expect(m.calls()).toBe(0);
-      expect(all.find((d) => d.slug === "prd")?.content).not.toContain("Customers reserve slots");
+      expect(all.some((d) => d.slug === "prd")).toBe(false);
     });
   });
 });

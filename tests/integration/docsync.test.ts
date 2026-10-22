@@ -410,3 +410,66 @@ describe("document sync: running safely", () => {
     expect(hashContent("a\r\n")).toBe(hashContent("a\n"));
   });
 });
+
+describe("document sync: pull-only (GitHub is the source)", () => {
+  beforeEach(async () => {
+    await setup();
+    await db.update(repositoryConnections).set({ docSyncMode: "pull_only" });
+  });
+
+  it("never sends anything: no branch, no pull request, the repository is untouched", async () => {
+    const host = fakeHost();
+    const summary = await syncProject(projectId, { adapter: host.adapter });
+    expect(summary).toMatchObject({ pushed: 0, pulled: 0, conflicts: 0, prUrl: null });
+    expect(host.prs).toHaveLength(0);
+    expect(host.main().size).toBe(0);
+    expect(host.log.filter((l) => l.startsWith("commit") || l.startsWith("pr"))).toHaveLength(0);
+  });
+
+  it("when both sides changed, the more recent write wins: GitHub if it is newer", async () => {
+    const host = fakeHost({ "docs/PRD.md": "# PRD\n\nFrom GitHub, first.\n" });
+    await syncProject(projectId, { adapter: host.adapter });
+    expect((await doc("prd")).content).toBe("# PRD\n\nFrom GitHub, first.\n");
+
+    await edit("prd", "# PRD\n\nA local edit.\n");
+    const idle = await syncProject(projectId, { adapter: host.adapter });
+    expect(idle).toMatchObject({ pulled: 0, pushed: 0, conflicts: 0 });
+    expect((await doc("prd")).content).toBe("# PRD\n\nA local edit.\n");
+
+    const before = await versions("prd");
+    host.editMain("docs/PRD.md", "# PRD\n\nFrom GitHub, later.\n", new Date(Date.now() + 60_000));
+    const pulled = await syncProject(projectId, { adapter: host.adapter });
+    expect(pulled).toMatchObject({ pulled: 1, pushed: 0, conflicts: 0 });
+    expect((await doc("prd")).content).toBe("# PRD\n\nFrom GitHub, later.\n");
+    expect(await versions("prd")).toBe(before + 1);
+    expect(host.prs).toHaveLength(0);
+  });
+
+  it("keeps the Saqina text when it was written after the GitHub change", async () => {
+    const host = fakeHost({ "docs/PRD.md": "# PRD\n\nFrom GitHub.\n" });
+    await syncProject(projectId, { adapter: host.adapter });
+    host.editMain("docs/PRD.md", "# PRD\n\nOlder GitHub edit.\n", new Date(Date.now() - 60_000));
+    await edit("prd", "# PRD\n\nA newer local edit.\n");
+    const summary = await syncProject(projectId, { adapter: host.adapter });
+    expect(summary).toMatchObject({ pulled: 0, pushed: 0, conflicts: 0 });
+    expect((await doc("prd")).content).toBe("# PRD\n\nA newer local edit.\n");
+    expect(host.prs).toHaveLength(0);
+  });
+
+  it("keeps the 'Imported from' header of a copied document when it follows GitHub", async () => {
+    const header = "> Imported from https://github.com/acme/shop/blob/main/README.md\n\n";
+    await db.insert(documents).values({
+      projectId,
+      type: "custom",
+      title: "README.md (GitHub)",
+      slug: "repo-readme",
+      content: `${header}# Shop\n\nOld.\n`,
+    });
+    const host = fakeHost({ "README.md": "# Shop\n\nOld.\n" });
+    await syncProject(projectId, { adapter: host.adapter });
+    host.editMain("README.md", "# Shop\n\nNew on GitHub.\n");
+    const summary = await syncProject(projectId, { adapter: host.adapter });
+    expect(summary.pulled).toBe(1);
+    expect((await doc("repo-readme")).content).toBe(`${header}# Shop\n\nNew on GitHub.\n`);
+  });
+});

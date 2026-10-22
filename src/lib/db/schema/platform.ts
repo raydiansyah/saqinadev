@@ -324,6 +324,11 @@ export const repositoryConnections = pgTable("repository_connections", {
   lastSyncedAt: timestamp("last_synced_at", { withTimezone: true }),
   /** Two-way document sync (docs/ folder <-> project documents). Off until enabled. */
   docSyncEnabled: boolean("doc_sync_enabled").notNull().default(false),
+  /**
+   * two_way: Saqina edits go to GitHub as a pull request. pull_only: GitHub is the only source;
+   * documents follow the repository and nothing is ever sent back (set for imported projects).
+   */
+  docSyncMode: text("doc_sync_mode").$type<"two_way" | "pull_only">().notNull().default("two_way"),
   docsPath: text("docs_path").notNull().default("docs"),
   webhookCredentialId: uuid("webhook_credential_id").references(() => credentials.id, {
     onDelete: "set null",

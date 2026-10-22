@@ -21,7 +21,7 @@ import { GitError, type SyncAdapter } from "@/lib/git/types";
 import { log } from "@/lib/log";
 import { notifyTx, teamRecipients } from "@/lib/notifications/service";
 import { withSecret } from "@/lib/secrets/service";
-import { decide } from "./decide";
+import { decide, type SyncAction } from "./decide";
 import { hashContent, normalizeContent } from "./hash";
 import {
   cleanDocsPath,
@@ -307,15 +307,31 @@ async function runLocked(connection: Connection, adapter: SyncAdapter, summary: 
       const local = hashContent(localText);
       const remoteText = remote.get(path) ?? null;
       const remoteHash = remoteText === null ? null : hashContent(remoteText);
-      const decision = decide({
-        local,
-        remote: remoteHash,
-        remoteSeen: link?.remoteHash ?? null,
-        pushed: link?.pushedHash ?? null,
-      });
+      const decision = decide(
+        {
+          local,
+          remote: remoteHash,
+          remoteSeen: link?.remoteHash ?? null,
+          pushed: link?.pushedHash ?? null,
+        },
+        { pullOnly: connection.docSyncMode === "pull_only" },
+      );
       const link0 = { projectId, documentId: doc.id, path };
 
-      switch (decision.action) {
+      let action: SyncAction | "keep" = decision.action;
+      if (action === "newest") {
+        // Both sides changed: the more recent write wins. A time the host cannot give means GitHub.
+        const changedAt = await adapter
+          .lastChangeAt(ref, token, { path, ref: base })
+          .catch(() => null);
+        action = !changedAt || changedAt.getTime() >= doc.updatedAt.getTime() ? "pull" : "keep";
+      }
+
+      switch (action) {
+        case "keep":
+          // Saqina's text is the newer one: it stays, and the repository's current text is noted.
+          await upsertLink(db, { ...link0, remoteHash, pushedHash: null, state: "synced" });
+          break;
         case "none": {
           if (decision.merged) summary.merged += 1;
           const pending = link?.pushedHash && !decision.merged;
@@ -355,7 +371,8 @@ async function runLocked(connection: Connection, adapter: SyncAdapter, summary: 
               await tx.execute(sql`select set_config('docsync.skip', 'on', true)`);
               await saveDocumentTx(tx, access, {
                 docSlug: doc.slug,
-                content: remoteText ?? "",
+                // A copied document keeps its "Imported from" header: other features find it by that.
+                content: `${doc.content.slice(0, doc.content.length - stripProvenance(doc.content).length)}${remoteText ?? ""}`,
                 baseVersion: doc.version,
                 source: "sync",
               });

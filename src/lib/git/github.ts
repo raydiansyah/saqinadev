@@ -178,6 +178,15 @@ export const githubAdapter: GitAdapter & DocSyncOps = {
       .map((e) => ({ path: e.path, size: e.size ?? 0, sha: e.sha }));
   },
 
+  async lastChangeAt(ref, token, input) {
+    const [latest] = await gitFetch<{ commit: { committer?: { date?: string } } }[]>(
+      `${repo(ref)}/commits?sha=${encodeURIComponent(input.ref)}&path=${path(input.path)}&per_page=1`,
+      { headers: headers(token) },
+    );
+    const date = latest?.commit.committer?.date;
+    return date ? new Date(date) : null;
+  },
+
   async findOpenPullRequest(ref, token, input) {
     const owner = ref.fullName.split("/")[0];
     const [open] = await gitFetch<{ number: number; html_url: string }[]>(

@@ -18,6 +18,8 @@ export function fakeHost(initial: Record<string, string> = {}) {
     body: string;
   }[] = [];
   const log: string[] = [];
+  // When each file on main last changed; files the host starts with count as "now".
+  const changedAt = new Map<string, Date>(Object.keys(initial).map((p) => [p, new Date()]));
   let commitDelayMs = 0;
   let failWith: GitError | null = null;
 
@@ -93,6 +95,9 @@ export function fakeHost(initial: Record<string, string> = {}) {
       if (pr) Object.assign(pr, { title: input.title, body: input.body });
       log.push(`pr-update ${input.number}`);
     },
+    async lastChangeAt(_ref, _t, input) {
+      return input.ref === "main" ? (changedAt.get(input.path) ?? null) : null;
+    },
     async resetBranch(_ref, _t, input) {
       const target = [...branches.keys()].find((n) => sha(n) === input.to);
       branches.set(input.name, new Map(need(target ?? "main")));
@@ -106,8 +111,9 @@ export function fakeHost(initial: Record<string, string> = {}) {
     prs,
     main: () => branches.get("main") as Map<string, string>,
     branch: (name: string) => branches.get(name),
-    editMain(path: string, content: string) {
+    editMain(path: string, content: string, at: Date = new Date()) {
       need("main").set(path, content);
+      changedAt.set(path, at);
       bump("main");
     },
     removeFromMain(path: string) {

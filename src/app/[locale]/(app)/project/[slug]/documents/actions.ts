@@ -3,8 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { getLocale } from "next-intl/server";
 import { runAction } from "@/lib/actions";
+import { loadProjectAccess } from "@/lib/auth/permissions";
 import { requireActor } from "@/lib/auth/server";
 import { getConflictRemote } from "@/lib/docsync/config";
+import { pullFromGithub } from "@/lib/docsync/pull";
 import { scheduleDocSync } from "@/lib/docsync/schedule";
 import { generateBusinessDocument } from "@/lib/documents/business";
 import {
@@ -21,7 +23,12 @@ export async function saveDocumentAction(
   input: { docSlug: string; content: string; baseVersion: number },
 ) {
   return runAction("document.save", { slug, doc: input.docSlug }, async () => {
-    const row = await saveDocument(await requireActor(), slug, input);
+    const actor = await requireActor();
+    // GitHub first: a project that follows GitHub reads it before the edit is saved, so a newer
+    // file there reaches the editor as a version conflict instead of being overwritten.
+    await loadProjectAccess(actor, { slug }, "content:write");
+    await pullFromGithub({ slug }, 30_000);
+    const row = await saveDocument(actor, slug, input);
     refresh();
     scheduleDocSync({ slug });
     return { version: row.version, updatedAt: row.updatedAt.toISOString() };

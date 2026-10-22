@@ -1,0 +1,1 @@
+ALTER TABLE "repository_connections" ADD COLUMN "doc_sync_mode" text DEFAULT 'two_way' NOT NULL;
