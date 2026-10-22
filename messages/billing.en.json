@@ -30,12 +30,15 @@
       "computed": "Amount",
       "add": "Add term",
       "remove": "Remove term",
-      "save": "Save schedule",
+      "save": "Save terms",
       "locked": "Invoiced",
       "empty": "No terms yet. Add one, or save the value alone.",
       "total": "Terms total",
       "matches": "Terms add up to the project value.",
-      "mismatch": "Terms add up to {total}, the value is {value}."
+      "mismatch": "Terms add up to {total}, the value is {value}.",
+      "saveValue": "Save project value",
+      "whyDisabled": "The button works once the term total equals the project value.",
+      "needValue": "Enter the project value first."
     },
     "terms": {
       "title": "Ready to invoice",
@@ -251,6 +254,36 @@
       "visible": "Visible to the client",
       "save": "Save",
       "saved": "Saved"
+    },
+    "release": {
+      "title": "Is the system ready?",
+      "hint": "Answer for the team. Each answer shows who gave it and when, and asks to be confirmed again when tasks or milestones change afterwards.",
+      "build": {
+        "question": "Has the system finished building?"
+      },
+      "review": {
+        "question": "Has the system been reviewed?"
+      },
+      "deploy": {
+        "question": "Has the system been deployed?"
+      },
+      "unanswered": "Not answered yet",
+      "yes": "Yes",
+      "no": "Not yet",
+      "by": "by {name}",
+      "stale": "Tasks changed since. Confirm it is still true.",
+      "answerYes": "Yes",
+      "answerNo": "Not yet",
+      "allCurrent": "Built, reviewed and deployed, and up to date.",
+      "confirmAgain": "Something changed after these answers. Confirm each one again so it is up to date.",
+      "notYet": "Not finished yet.",
+      "tasks": "Plan: {done} of {total} tasks done",
+      "notes": {
+        "open_tasks": "{count, plural, one {# task is still open} other {# tasks are still open}} in the plan.",
+        "tasks_in_review": "{count, plural, one {# task is} other {# tasks are}} still in review.",
+        "needs_build_and_review": "Deploy is answered yes, but build and review are not both yes.",
+        "all_tasks_done": "Every task in the plan is done. Has the system finished building?"
+      }
     }
   }
 }

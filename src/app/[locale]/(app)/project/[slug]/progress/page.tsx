@@ -4,9 +4,11 @@ import { getTranslations } from "next-intl/server";
 import { PageHeading } from "@/components/app/states";
 import { MilestoneEditor } from "@/components/progress/milestone-editor";
 import { ProgressView } from "@/components/progress/progress-view";
+import { ReleaseChecklist } from "@/components/progress/release-checklist";
 import { can } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
 import { milestones, tasks } from "@/lib/db/schema";
+import { getDeliveryOverview } from "@/lib/delivery/service";
 import { clientProgress } from "@/lib/portal/progress";
 import { projectPageAccess } from "@/lib/projects/page";
 
@@ -39,12 +41,23 @@ export default async function ProgressPage({
     getTranslations("progress"),
   ]);
   const progress = clientProgress(stages, taskRows);
+  const delivery = await getDeliveryOverview(access);
 
   return (
     <>
       <PageHeading title={t("title")} description={t("description")} />
       <div className="max-w-3xl space-y-6">
         <ProgressView progress={progress} />
+        <ReleaseChecklist
+          slug={slug}
+          canAnswer={can(access.role, "project:update")}
+          tasks={delivery.tasks}
+          notes={delivery.notes}
+          checks={delivery.checks.map((c) => ({
+            ...c,
+            answeredAt: c.answeredAt ? c.answeredAt.toISOString() : null,
+          }))}
+        />
         {can(access.role, "project:update") && stages.length > 0 ? (
           <MilestoneEditor slug={slug} milestones={stages} />
         ) : null}

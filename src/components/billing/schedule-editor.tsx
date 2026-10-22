@@ -306,9 +306,25 @@ export function ScheduleEditor({
             >
               {t("add")}
             </Button>
-            <Button type="submit" size="sm" disabled={pending || !matches}>
-              {t("save")}
-            </Button>
+            <div className="flex flex-wrap items-center justify-end gap-3">
+              {valueMinor === null ? (
+                <p id={`${id}-why`} className="text-xs text-muted-foreground">
+                  {t("needValue")}
+                </p>
+              ) : !matches ? (
+                <p id={`${id}-why`} className="text-xs text-muted-foreground">
+                  {t("whyDisabled")}
+                </p>
+              ) : null}
+              <Button
+                type="submit"
+                disabled={pending || !matches || valueMinor === null}
+                aria-describedby={`${id}-why`}
+              >
+                {/* With no terms yet this saves only the project value, so it says so. */}
+                {rows.length === 0 && locked.length === 0 ? t("saveValue") : t("save")}
+              </Button>
+            </div>
           </div>
         ) : null}
         <BillingError error={error} />

@@ -190,6 +190,13 @@
       "when": 1792659211710,
       "tag": "0026_docsync_mode",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1792707358740,
+      "tag": "0027_delivery_checks",
+      "breakpoints": true
     }
   ]
 }

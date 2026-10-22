@@ -30,12 +30,15 @@
       "computed": "Nominal",
       "add": "Tambah termin",
       "remove": "Hapus termin",
-      "save": "Simpan jadwal",
+      "save": "Simpan termin",
       "locked": "Sudah ditagih",
       "empty": "Belum ada termin. Tambahkan termin, atau simpan nilainya saja.",
       "total": "Total termin",
       "matches": "Total termin sama dengan nilai proyek.",
-      "mismatch": "Total termin {total}, sedangkan nilai proyek {value}."
+      "mismatch": "Total termin {total}, sedangkan nilai proyek {value}.",
+      "saveValue": "Simpan nilai proyek",
+      "whyDisabled": "Tombol aktif setelah total termin sama dengan nilai proyek.",
+      "needValue": "Isi nilai proyek dulu."
     },
     "terms": {
       "title": "Siap ditagih",
@@ -251,6 +254,36 @@
       "visible": "Terlihat oleh klien",
       "save": "Simpan",
       "saved": "Tersimpan"
+    },
+    "release": {
+      "title": "Apakah sistem sudah siap?",
+      "hint": "Dijawab oleh tim. Setiap jawaban menampilkan siapa dan kapan menjawab, dan minta dikonfirmasi ulang bila task atau milestone berubah setelahnya.",
+      "build": {
+        "question": "Apakah sistem sudah selesai di-build?"
+      },
+      "review": {
+        "question": "Apakah sistem sudah di-review?"
+      },
+      "deploy": {
+        "question": "Apakah sistem sudah di-deploy?"
+      },
+      "unanswered": "Belum dijawab",
+      "yes": "Ya",
+      "no": "Belum",
+      "by": "oleh {name}",
+      "stale": "Task berubah sejak itu. Konfirmasi bahwa ini masih benar.",
+      "answerYes": "Ya",
+      "answerNo": "Belum",
+      "allCurrent": "Sudah di-build, di-review, dan di-deploy, serta sudah terbaru.",
+      "confirmAgain": "Ada perubahan setelah jawaban ini. Konfirmasi tiap jawaban lagi agar sudah terbaru.",
+      "notYet": "Belum selesai.",
+      "tasks": "Plan: {done} dari {total} task selesai",
+      "notes": {
+        "open_tasks": "Masih ada {count} task yang belum selesai di plan.",
+        "tasks_in_review": "Masih ada {count} task yang berstatus review.",
+        "needs_build_and_review": "Deploy dijawab Ya, tetapi build dan review belum sama-sama Ya.",
+        "all_tasks_done": "Semua task di plan sudah selesai. Apakah sistem sudah selesai di-build?"
+      }
     }
   }
 }
