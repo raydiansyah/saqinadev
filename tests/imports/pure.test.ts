@@ -56,6 +56,15 @@ describe("pickDocPaths", () => {
     expect(paths).not.toContain("docs/diagram.png");
     expect(paths).not.toContain("package.json");
   });
+  it("reads every file of a documentation folder, even ones named like noise elsewhere", () => {
+    const paths = pickDocPaths(
+      [file("SECURITY.md")],
+      [file("docs/security.md"), file("docs/license-faq.md")],
+    );
+    expect(paths).toContain("docs/security.md");
+    expect(paths).toContain("docs/license-faq.md");
+    expect(paths).not.toContain("SECURITY.md");
+  });
   it("reads an extensionless README, common in older repositories", () => {
     expect(pickDocPaths([file("README"), file("LICENSE"), file("Makefile")], [])).toEqual([
       "README",

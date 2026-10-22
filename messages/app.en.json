@@ -81,6 +81,8 @@
         "body": "Saqina reads the README, PRD and docs in your repository and fills in the interview for you. You review the answers instead of starting from scratch.",
         "repoLabel": "GitHub repository",
         "repoPlaceholder": "acme/restaurant-pos or https://github.com/acme/restaurant-pos",
+        "docsLabel": "Documentation folder (optional)",
+        "docsHint": "Everything in this folder is read and shown in Saqina, and your client can read it. Leave empty for docs. It keeps following GitHub.",
         "repoHint": "Public repositories need nothing else.",
         "tokenLabel": "Access token (private repositories only)",
         "tokenPlaceholder": "Paste a read-only token here",
@@ -90,6 +92,7 @@
         "submit": "Import and review",
         "pending": "Reading the repository…",
         "errors": {
+          "docsPath": "Use a folder name inside the repository, like docs or documentation/product.",
           "invalid": "Enter a repository as owner/name or a GitHub URL.",
           "auth_failed": "GitHub refused access. Check the token and its permissions.",
           "not_found": "Repository not found. For a private repository, add a token.",

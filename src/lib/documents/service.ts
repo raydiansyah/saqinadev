@@ -93,9 +93,11 @@ async function writeVersion(
   content: string,
   actorId: string,
   source: VersionSource | null,
+  /** Text that GitHub itself changed: the repository is the review, so sharing stays. */
+  keepSharing = false,
 ) {
   const version = doc.version + 1;
-  const demote = doc.clientVisible;
+  const demote = doc.clientVisible && !keepSharing;
   const [row] = await tx
     .update(documents)
     .set({
@@ -119,6 +121,8 @@ export interface SaveDocumentTxInput {
   baseVersion: number;
   source: VersionSource;
   trace?: Trace;
+  /** Do not withdraw the approval of a shared document (a pull from GitHub in a pull-only project). */
+  keepSharing?: boolean;
 }
 
 /**
@@ -143,7 +147,7 @@ export async function saveDocumentTx(tx: Tx, access: ProjectAccess, input: SaveD
   if (doc.content === input.content)
     return { version: doc.version, updatedAt: doc.updatedAt, changed: false, demoted: false };
 
-  const row = await writeVersion(tx, doc, input.content, actor.id, input.source);
+  const row = await writeVersion(tx, doc, input.content, actor.id, input.source, input.keepSharing);
   await recordActivity(tx, {
     projectId: project.id,
     actorId: actor.id,
@@ -213,7 +217,7 @@ export async function appendDocumentSectionTx(
 export async function insertSyncedDocumentTx(
   tx: Tx,
   access: ProjectAccess,
-  input: { slug: string; title: string; content: string },
+  input: { slug: string; title: string; content: string; shared?: boolean },
 ): Promise<{ id: string }> {
   const { project, actor } = access;
   if (input.content.length > MAX_CONTENT)
@@ -226,6 +230,8 @@ export async function insertSyncedDocumentTx(
       title: input.title,
       slug: input.slug,
       content: input.content,
+      // Read from GitHub and shown to the client: GitHub is the review.
+      ...(input.shared ? { status: "approved" as const, clientVisible: true } : {}),
       createdBy: actor.id,
       updatedBy: actor.id,
     })

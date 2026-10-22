@@ -38,14 +38,17 @@ export function ImportProjectForm({ github }: { github: GithubState }) {
   const [repo, setRepo] = useState("");
   const [token, setToken] = useState("");
   const [useAi, setUseAi] = useState(false);
+  const [docsPath, setDocsPath] = useState("");
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [docsError, setDocsError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const connected = github.login !== null;
 
   function onSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     setFieldError(null);
+    setDocsError(null);
     setError(null);
     if (repo.trim().length < 3) {
       setFieldError(t("newProject.github.errors.invalid"));
@@ -58,9 +61,14 @@ export function ImportProjectForm({ github }: { github: GithubState }) {
         token: connected ? undefined : token.trim() || undefined,
         useConnection: connected,
         useAi,
+        docsPath: docsPath.trim() || undefined,
         locale,
       });
       if (!result.ok) {
+        if (result.fields?.docsPath) {
+          setDocsError(t("newProject.github.errors.docsPath"));
+          return;
+        }
         const code = result.fields?.repo;
         if (code)
           setFieldError(
@@ -114,6 +122,19 @@ export function ImportProjectForm({ github }: { github: GithubState }) {
           maxLength={500}
         />
       )}
+      <Field
+        id={`${id}-docs`}
+        name="docsPath"
+        label={t("newProject.github.docsLabel")}
+        placeholder="docs"
+        hint={t("newProject.github.docsHint")}
+        value={docsPath}
+        onChange={(e) => setDocsPath(e.target.value)}
+        error={docsError ?? undefined}
+        autoComplete="off"
+        spellCheck={false}
+        maxLength={100}
+      />
       <label className="flex min-h-11 items-start gap-3 text-sm">
         <input
           type="checkbox"

@@ -18,7 +18,7 @@ export interface RepoSnapshot {
   stack: DetectedStack;
 }
 
-export const MAX_DOCS = 60;
+export const MAX_DOCS = 200;
 export const MAX_DOC_CHARS = 100_000;
 
 /** "owner/name", a github.com URL, or an .git clone URL to "owner/name". */
@@ -55,22 +55,22 @@ function priority(path: string, inDocs: boolean): number {
   return inDocs ? 6 : 7;
 }
 
-/** Which files to read, in order, capped. Pure so it can be tested without a repository. */
+/**
+ * Which files to read, in order, capped. Pure so it can be tested without a repository.
+ * Everything in a documentation folder is read; at the top level, changelogs, licences and
+ * contribution rules say nothing about what the product is and are left out.
+ */
 export function pickDocPaths(root: FileEntry[], docs: FileEntry[]): string[] {
   const candidates = [
     ...root
       .filter((f) => f.type === "file" && TEXT_FILE.test(f.path))
+      .filter(
+        (f) =>
+          !/^(changelog|license|licence|contributing|code[-_]of[-_]conduct|security)/i.test(f.path),
+      )
       .map((f) => ({ f, d: false })),
     ...docs.filter((f) => f.type === "file" && TEXT_FILE.test(f.path)).map((f) => ({ f, d: true })),
-  ]
-    // Changelogs, licences and contribution rules say nothing about what the product is.
-    .filter(
-      ({ f }) =>
-        !/(^|\/)(changelog|license|licence|contributing|code[-_]of[-_]conduct|security)/i.test(
-          f.path,
-        ),
-    )
-    .filter(({ f }) => (f.size ?? 0) <= MAX_DOC_CHARS * 2);
+  ].filter(({ f }) => (f.size ?? 0) <= MAX_DOC_CHARS * 2);
   return candidates
     .map(({ f, d }) => ({ path: f.path, rank: priority(f.path, d) }))
     .sort((a, b) => a.rank - b.rank || a.path.localeCompare(b.path))
@@ -81,9 +81,9 @@ export function pickDocPaths(root: FileEntry[], docs: FileEntry[]): string[] {
 /** Folders whose documents describe the product. `docs` is always tried, the others when present. */
 const DOC_DIRS =
   /^(docs?|documentation|specs?|design|planning|plans?|requirements|prd|tasks?|\.taskmaster)$/i;
-const MAX_DEPTH = 3;
-const MAX_LIST_CALLS = 24;
-const MAX_LISTED = 400;
+const MAX_DEPTH = 6;
+const MAX_LIST_CALLS = 80;
+const MAX_LISTED = 800;
 
 /**
  * Every file in the documentation folders, however deep, within bounds: a few levels, a few
@@ -95,11 +95,13 @@ export async function listDocTree(
   token: string | null,
   branch: string,
   root: FileEntry[],
+  /** The folder the person named; `docs` when none. Always listed, whatever it is called. */
+  docsPath = "docs",
 ): Promise<FileEntry[]> {
   const found = root
     .filter((f) => f.type === "dir" && DOC_DIRS.test(f.path.split("/").pop() ?? ""))
     .map((f) => f.path);
-  let queue = [...new Set(["docs", ...found])];
+  let queue = [...new Set([docsPath, "docs", ...found])];
   const out: FileEntry[] = [];
   let calls = 0;
   for (let level = 0; level < MAX_DEPTH && queue.length > 0 && out.length < MAX_LISTED; level++) {
@@ -121,21 +123,27 @@ export async function listDocTree(
   return out.slice(0, MAX_LISTED);
 }
 
+const READ_BATCH = 10;
+
 export async function readRepository(
   adapter: GitAdapter,
   ref: RepoRef,
   token: string | null,
+  options: { docsPath?: string } = {},
 ): Promise<RepoSnapshot> {
   const info = await adapter.getRepository(ref, token);
   const branch = info.defaultBranch;
   const root = await adapter.listFiles(ref, token, { ref: branch });
-  const docs = await listDocTree(adapter, ref, token, branch, root);
+  const docs = await listDocTree(adapter, ref, token, branch, root, options.docsPath);
 
   const read = async (path: string) =>
     adapter.readFile(ref, token, { path, ref: branch }).catch(() => "");
 
   const paths = pickDocPaths(root, docs);
-  const contents = await Promise.all(paths.map(read));
+  // A few at a time: a documentation folder can hold a couple of hundred files.
+  const contents: string[] = [];
+  for (let i = 0; i < paths.length; i += READ_BATCH)
+    contents.push(...(await Promise.all(paths.slice(i, i + READ_BATCH).map(read))));
   const found = paths
     .map((path, i) => ({ path, text: contents[i] ?? "" }))
     .filter((d) => d.text.trim().length > 0)

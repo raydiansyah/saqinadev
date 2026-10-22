@@ -81,6 +81,8 @@
         "body": "Saqina membaca README, PRD, dan dokumen di repository Anda lalu mengisi interview untuk Anda. Anda cukup meninjau jawabannya, tidak mulai dari nol.",
         "repoLabel": "Repository GitHub",
         "repoPlaceholder": "acme/restaurant-pos atau https://github.com/acme/restaurant-pos",
+        "docsLabel": "Folder dokumentasi (opsional)",
+        "docsHint": "Semua isi folder ini dibaca dan ditampilkan di Saqina, dan klien Anda bisa membacanya. Kosongkan untuk docs. Isinya terus mengikuti GitHub.",
         "repoHint": "Repository publik tidak memerlukan isian lain.",
         "tokenLabel": "Token akses (hanya untuk repository privat)",
         "tokenPlaceholder": "Tempel token read-only di sini",
@@ -90,6 +92,7 @@
         "submit": "Impor dan tinjau",
         "pending": "Membaca repository…",
         "errors": {
+          "docsPath": "Isi nama folder di dalam repository, misalnya docs atau documentation/product.",
           "invalid": "Masukkan repository sebagai owner/nama atau URL GitHub.",
           "auth_failed": "GitHub menolak akses. Periksa token dan izinnya.",
           "not_found": "Repository tidak ditemukan. Untuk repository privat, tambahkan token.",

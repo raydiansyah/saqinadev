@@ -10,7 +10,7 @@ import type { Actor } from "@/lib/auth/actor";
 import { db } from "@/lib/db/client";
 import { documents, documentVersions, repositoryConnections } from "@/lib/db/schema";
 import { indexDocs } from "@/lib/docmap/index-docs";
-import { docSlug } from "@/lib/docsync/paths";
+import { cleanDocsPath, DEFAULT_DOCS_PATH, docSlug } from "@/lib/docsync/paths";
 import { AppError } from "@/lib/errors";
 import { GIT_ADAPTERS } from "@/lib/git/adapters";
 import { connectRepository } from "@/lib/git/service";
@@ -23,6 +23,7 @@ import { completeInterview } from "@/lib/interviews/service";
 import { log } from "@/lib/log";
 import { startProject } from "@/lib/projects/service";
 import { allow } from "@/lib/rate-limit";
+import { containsSecret } from "@/lib/secrets/scan";
 import { parse } from "@/lib/validation";
 import { adoptRepoDocsTx } from "./adopt";
 import { analyzeRules, analyzeWithAi, finalizeAnswers, mergeAnalysis } from "./analyze";
@@ -45,6 +46,8 @@ const importInput = z.object({
   useConnection: z.boolean().default(false),
   /** Explicit consent to send the repository's documents to the configured AI provider. */
   useAi: z.boolean().default(false),
+  /** Folder of the repository whose documents are read, shown and kept in sync. Default `docs`. */
+  docsPath: z.string().trim().max(100).optional(),
 });
 
 export interface ImportResult {
@@ -84,6 +87,8 @@ export async function importFromGithub(
   const data = parse(importInput, input);
   if (!parseRepoInput(data.repo))
     throw new AppError("VALIDATION_ERROR", "owner/name", { repo: "invalid" });
+  if (data.docsPath && !cleanDocsPath(data.docsPath))
+    throw new AppError("VALIDATION_ERROR", "Invalid folder", { docsPath: "invalid" });
   if (!(await allow(`import:${actor.id}`, 5, 60 * 60 * 1000))) throw new AppError("RATE_LIMIT");
   if (!data.useConnection) return runImport(actor, data, data.token ?? null, locale, options);
   // The connection wins over any pasted token: the secret stays on the server.
@@ -106,11 +111,12 @@ async function runImport(
   options: ImportOptions,
 ): Promise<ImportResult> {
   const fullName = parseRepoInput(data.repo) as string;
+  const docsPath = cleanDocsPath(data.docsPath) ?? DEFAULT_DOCS_PATH;
 
   const adapter = options.adapter ?? GIT_ADAPTERS.github;
   let snapshot: Awaited<ReturnType<typeof readRepository>>;
   try {
-    snapshot = await readRepository(adapter, { fullName, baseUrl: null }, token);
+    snapshot = await readRepository(adapter, { fullName, baseUrl: null }, token, { docsPath });
   } catch (error) {
     throw new AppError("VALIDATION_ERROR", "Repository could not be read", {
       repo: error instanceof GitError ? error.code : "provider_error",
@@ -184,6 +190,11 @@ async function runImport(
                 title: `${doc.path} (GitHub)`,
                 slug: docSlug(doc.path, taken),
                 content: withProvenance(doc, snapshot.info.fullName, snapshot.info.defaultBranch),
+                // Everything in the documentation folder is shown to the client, as GitHub has it.
+                // A text that looks like a secret stays internal.
+                ...(doc.path.startsWith(`${docsPath}/`) && !containsSecret(doc.content)
+                  ? { status: "approved" as const, clientVisible: true }
+                  : {}),
                 createdBy: actor.id,
                 updatedBy: actor.id,
               })),
@@ -255,7 +266,7 @@ async function runImport(
     // GitHub stays the source: its documents are pulled, nothing of ours is ever sent back.
     await db
       .update(repositoryConnections)
-      .set({ docSyncEnabled: true, docSyncMode: "pull_only", docsSyncError: null })
+      .set({ docSyncEnabled: true, docSyncMode: "pull_only", docsPath, docsSyncError: null })
       .where(
         eq(repositoryConnections.projectId, sql`(select id from projects where slug = ${slug})`),
       );

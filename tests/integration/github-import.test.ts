@@ -246,3 +246,61 @@ describe("import from GitHub", () => {
     );
   });
 });
+
+describe("import from GitHub: the documentation folder", () => {
+  let owner: Actor;
+  const connect = vi.fn(async () => undefined);
+  beforeEach(async () => {
+    await resetDatabase();
+    owner = await createUser("Owner", "owner@example.test");
+  });
+
+  const docsOf = async (slug: string) => {
+    const [project] = await db.select().from(projects).where(eq(projects.slug, slug));
+    return db.select().from(documents).where(eq(documents.projectId, project.id));
+  };
+
+  it("shows everything in docs to the client, and keeps the rest internal", async () => {
+    const { slug } = await importFromGithub(owner, { repo: "acme/shop" }, "en", {
+      adapter: fakeAdapter({
+        ...FILES,
+        "docs/security-model.md": "# Security model\n\nHow sessions are protected.\n",
+        "docs/runbook.md": "# Runbook\n\nSteps to deploy.\n",
+        "docs/keys.md": `# Keys\n\nUse AKIA${"A".repeat(16)} for backups.\n`,
+      }),
+      connect,
+    });
+    const docs = await docsOf(slug);
+    const bySlug = new Map(docs.map((d) => [d.slug, d]));
+    // A file name that looks like noise at the top level is still read inside docs.
+    for (const s of ["repo-docs-security-model", "repo-docs-runbook", "repo-docs-architecture"]) {
+      expect(bySlug.get(s)?.clientVisible, s).toBe(true);
+      expect(bySlug.get(s)?.status, s).toBe("approved");
+    }
+    // A text that looks like a secret is imported but never shown to the client.
+    expect(bySlug.get("repo-docs-keys")?.clientVisible).toBe(false);
+    // Files outside the folder stay internal.
+    expect(bySlug.get("repo-readme")?.clientVisible).toBe(false);
+  });
+
+  it("reads another folder when one is named, and rejects an unsafe one", async () => {
+    const files = {
+      ...FILES,
+      "documentation/product/vision.md": "# Vision\n\nWhere this goes.\n",
+    };
+    const { slug } = await importFromGithub(
+      owner,
+      { repo: "acme/shop", docsPath: "documentation/product" },
+      "en",
+      { adapter: fakeAdapter(files), connect },
+    );
+    const vision = (await docsOf(slug)).find((d) => d.slug === "repo-documentation-product-vision");
+    expect(vision?.clientVisible).toBe(true);
+    await expect(
+      importFromGithub(owner, { repo: "acme/shop", docsPath: "../etc" }, "en", {
+        adapter: fakeAdapter(),
+        connect,
+      }),
+    ).rejects.toMatchObject({ code: "VALIDATION_ERROR" });
+  });
+});

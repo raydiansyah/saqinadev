@@ -456,6 +456,21 @@ describe("document sync: pull-only (GitHub is the source)", () => {
     expect(host.prs).toHaveLength(0);
   });
 
+  it("keeps a shared document visible to the client when GitHub updates it, and shows new files", async () => {
+    const host = fakeHost({ "docs/guide.md": "# Guide\n\nFirst.\n" });
+    await syncProject(projectId, { adapter: host.adapter });
+    // A file that appeared in the docs folder becomes a document the client can read.
+    const created = await doc("repo-docs-guide");
+    expect(created).toMatchObject({ clientVisible: true, status: "approved" });
+
+    host.editMain("docs/guide.md", "# Guide\n\nSecond.\n", new Date(Date.now() + 60_000));
+    const summary = await syncProject(projectId, { adapter: host.adapter });
+    expect(summary.pulled).toBe(1);
+    const after = await doc("repo-docs-guide");
+    expect(after.content).toBe("# Guide\n\nSecond.\n");
+    expect(after).toMatchObject({ clientVisible: true, status: "approved" });
+  });
+
   it("keeps the 'Imported from' header of a copied document when it follows GitHub", async () => {
     const header = "> Imported from https://github.com/acme/shop/blob/main/README.md\n\n";
     await db.insert(documents).values({

@@ -27,6 +27,7 @@ export async function importProjectAction(input: {
   token?: string;
   useConnection?: boolean;
   useAi: boolean;
+  docsPath?: string;
   locale: string;
 }) {
   return runAction("project.import_github", { repo: input.repo }, async () => {

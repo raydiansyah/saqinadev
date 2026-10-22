@@ -20,6 +20,7 @@ import { assertWritableBranch } from "@/lib/git/service";
 import { GitError, type SyncAdapter } from "@/lib/git/types";
 import { log } from "@/lib/log";
 import { notifyTx, teamRecipients } from "@/lib/notifications/service";
+import { containsSecret } from "@/lib/secrets/scan";
 import { withSecret } from "@/lib/secrets/service";
 import { decide, type SyncAction } from "./decide";
 import { hashContent, normalizeContent } from "./hash";
@@ -375,6 +376,7 @@ async function runLocked(connection: Connection, adapter: SyncAdapter, summary: 
                 content: `${doc.content.slice(0, doc.content.length - stripProvenance(doc.content).length)}${remoteText ?? ""}`,
                 baseVersion: doc.version,
                 source: "sync",
+                keepSharing: connection.docSyncMode === "pull_only",
               });
             });
             summary.pulled += 1;
@@ -420,6 +422,8 @@ async function runLocked(connection: Connection, adapter: SyncAdapter, summary: 
           slug: docSlug(file.path, slugs),
           title: `${file.path.split("/").pop()} (GitHub)`,
           content: text,
+          // A GitHub-sourced project shows its docs folder to the client (unless it holds a secret).
+          shared: connection.docSyncMode === "pull_only" && !containsSecret(text),
         });
       });
       summary.created += 1;

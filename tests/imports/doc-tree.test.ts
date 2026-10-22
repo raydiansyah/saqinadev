@@ -65,7 +65,19 @@ describe("listDocTree", () => {
     expect(out.map((f) => f.path)).toEqual(["specs/s.md"]);
   });
 
-  it("stops at three levels and ignores folders it cannot list", async () => {
+  it("lists the folder the person named, whatever it is called", async () => {
+    const out = await listDocTree(
+      adapter({ "handbook/team": [file("handbook/team/a.md")], docs: [] }),
+      ref,
+      null,
+      "main",
+      [],
+      "handbook/team",
+    );
+    expect(out.map((f) => f.path)).toEqual(["handbook/team/a.md"]);
+  });
+
+  it("stops at six levels and ignores folders it cannot list", async () => {
     const calls: string[] = [];
     const out = await listDocTree(
       adapter(
@@ -73,7 +85,10 @@ describe("listDocTree", () => {
           docs: [dir("docs/l1")],
           "docs/l1": [dir("docs/l1/l2"), file("docs/l1/a.md")],
           "docs/l1/l2": [dir("docs/l1/l2/l3"), file("docs/l1/l2/b.md")],
-          "docs/l1/l2/l3": [file("docs/l1/l2/l3/c.md")],
+          "docs/l1/l2/l3": [dir("docs/l1/l2/l3/l4"), file("docs/l1/l2/l3/c.md")],
+          "docs/l1/l2/l3/l4": [dir("docs/l1/l2/l3/l4/l5"), file("docs/l1/l2/l3/l4/d.md")],
+          "docs/l1/l2/l3/l4/l5": [dir("docs/l1/l2/l3/l4/l5/l6"), file("docs/l1/l2/l3/l4/l5/e.md")],
+          "docs/l1/l2/l3/l4/l5/l6": [file("docs/l1/l2/l3/l4/l5/l6/f.md")],
         },
         (p) => calls.push(p),
       ),
@@ -82,18 +97,24 @@ describe("listDocTree", () => {
       "main",
       [],
     );
-    expect(out.map((f) => f.path).sort()).toEqual(["docs/l1/a.md", "docs/l1/l2/b.md"]);
-    expect(calls).not.toContain("docs/l1/l2/l3");
+    expect(out.map((f) => f.path).sort()).toEqual([
+      "docs/l1/a.md",
+      "docs/l1/l2/b.md",
+      "docs/l1/l2/l3/c.md",
+      "docs/l1/l2/l3/l4/d.md",
+      "docs/l1/l2/l3/l4/l5/e.md",
+    ]);
+    expect(calls).not.toContain("docs/l1/l2/l3/l4/l5/l6");
     // A missing docs folder is not an error.
     expect(await listDocTree(adapter({}), ref, null, "main", [])).toEqual([]);
   });
 
   it("bounds the number of listings", async () => {
     const onList = vi.fn();
-    const many = Array.from({ length: 60 }, (_, i) => dir(`docs/d${i}`));
+    const many = Array.from({ length: 200 }, (_, i) => dir(`docs/d${i}`));
     const tree: Record<string, FileEntry[]> = { docs: many };
     for (const d of many) tree[d.path] = [file(`${d.path}/x.md`)];
     await listDocTree(adapter(tree, onList), ref, null, "main", []);
-    expect(onList.mock.calls.length).toBeLessThanOrEqual(24);
+    expect(onList.mock.calls.length).toBeLessThanOrEqual(80);
   });
 });
