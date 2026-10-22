@@ -31,6 +31,9 @@ Placeholders (`[COMPANY NAME]`, `[CONTACT EMAIL]`) must be filled before launch.
 | AI usage records | 13 months | delete detail |
 | Webhook deliveries | 7 days | delete |
 | Audit events | 24 months | delete |
+| Memory retrieval telemetry (hashes and counts, no text) | 90 days | delete |
+| Finished memory jobs | 30 days | delete |
+| Skill usage records (agent, run, outcome, short note) | 13 months | delete |
 | Deleted account | immediate (no grace period) | erase; audit keeps a pseudonymous subject |
 
 The owner confirms these durations; the job reads them from one config so the policy and the code agree.

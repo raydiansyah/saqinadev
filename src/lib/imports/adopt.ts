@@ -3,6 +3,7 @@ import { and, eq, like } from "drizzle-orm";
 import type { Tx } from "@/lib/db/client";
 import { documents, milestones, tasks } from "@/lib/db/schema";
 import { parseProvenance, stripProvenance } from "@/lib/docsync/paths";
+import { removeWikiSources } from "@/lib/memory/wiki/index";
 import { type DocRole, mapDocs } from "./map-docs";
 import type { RepoDoc } from "./repo-reader";
 import { parseTasks } from "./tasks";
@@ -51,11 +52,14 @@ async function promote(
     // A document someone edited, or one imported earlier, is never replaced.
     if (existing.version > 1 || parseProvenance(existing.content)) return "kept";
     await tx.delete(documents).where(eq(documents.id, existing.id));
+    await removeWikiSources(tx, projectId, "document", [existing.slug]);
   }
   await tx
     .update(documents)
     .set({ slug: target.slug, type: target.type, title: target.title })
     .where(eq(documents.id, row.id));
+  // The document has a new name: what the wiki read under the old one is gone with it.
+  await removeWikiSources(tx, projectId, "document", [row.slug]);
   return "adopted";
 }
 

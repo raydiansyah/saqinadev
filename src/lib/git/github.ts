@@ -168,13 +168,14 @@ export const githubAdapter: GitAdapter & DocSyncOps = {
   async getTree(ref, token, input) {
     const tree = await gitFetch<{
       truncated?: boolean;
-      tree: { path: string; type: string; size?: number }[];
+      tree: { path: string; type: string; size?: number; sha?: string }[];
     }>(`${repo(ref)}/git/trees/${path(input.ref)}?recursive=1`, { headers: headers(token) });
     if (tree.truncated) throw new GitError("too_large");
-    const prefix = `${input.path.replace(/\/+$/, "")}/`;
+    const clean = input.path.replace(/^\/+|\/+$/g, "");
+    const prefix = clean ? `${clean}/` : "";
     return tree.tree
       .filter((e) => e.type === "blob" && e.path.startsWith(prefix))
-      .map((e) => ({ path: e.path, size: e.size ?? 0 }));
+      .map((e) => ({ path: e.path, size: e.size ?? 0, sha: e.sha }));
   },
 
   async findOpenPullRequest(ref, token, input) {

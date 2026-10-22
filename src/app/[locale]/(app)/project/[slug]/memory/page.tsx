@@ -6,9 +6,12 @@ import { groupMemoriesByDay } from "@/components/memory/group-by-day";
 import { AddMemoryButton } from "@/components/memory/memory-buttons";
 import { MemoryFeed } from "@/components/memory/memory-feed";
 import { MemoryGraph } from "@/components/memory/memory-graph";
+import { MemoryOverview } from "@/components/memory/memory-overview";
+import { MemoryTabs } from "@/components/memory/memory-tabs";
 import { ViewToggle } from "@/components/memory/view-toggle";
 import { can } from "@/lib/auth/permissions";
 import { MEMORY_CATEGORIES, type MemoryCategory } from "@/lib/domain/enums";
+import { getOverview } from "@/lib/memory/queries";
 import { listMemories } from "@/lib/memory/service";
 import { projectPageAccess } from "@/lib/projects/page";
 
@@ -35,11 +38,13 @@ export default async function MemoryPage({
   const category = parseCategory(query.category);
   const view = query.view === "graph" ? "graph" : "list";
   const access = await projectPageAccess(slug);
-  const [memories, t, locale] = await Promise.all([
+  const [memories, overview, t, locale] = await Promise.all([
     listMemories(access, category),
+    getOverview(access),
     getTranslations("memory"),
     getLocale(),
   ]);
+  const admin = access.role === "owner" || access.role === "admin";
   const canEdit = can(access.role, "content:write");
   const groups = groupMemoriesByDay(memories, locale, {
     today: t("today"),
@@ -50,6 +55,8 @@ export default async function MemoryPage({
   return (
     <>
       <PageHeading title={t("title")} description={t("description")} actions={addButton} />
+      <MemoryTabs slug={slug} active="overview" pending={overview.pendingReview} admin={admin} />
+      <MemoryOverview slug={slug} overview={overview} admin={admin} />
       <ViewToggle slug={slug} view={view} category={category} />
       <CategoryFilter slug={slug} active={category} view={view} />
       {view === "graph" && memories.length > 0 ? (

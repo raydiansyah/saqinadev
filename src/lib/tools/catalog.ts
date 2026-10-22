@@ -78,11 +78,120 @@ export const STATIC_TOOLS: StaticTool[] = [
   {
     source: "internal",
     name: "search_memory",
-    description: "Project memory entries matching a query.",
+    description:
+      "Approved project memory matching a query: ranked, with confidence and sources. Full text search only; no semantic matching.",
     inputSchema: {
       type: "object",
       properties: { query: str(120) },
       required: ["query"],
+      additionalProperties: false,
+    },
+    riskLevel: "low",
+    agentPermission: "read_memory",
+  },
+  {
+    source: "internal",
+    name: "search_wiki",
+    description:
+      "Passages of the project documents (PRD, plan, custom documents, repository docs) matching a query, each with its source, heading and line range, and whether the source changed since it was read. Full text search only. Cite the passage; if nothing matches, say so.",
+    inputSchema: {
+      type: "object",
+      properties: { query: str(200) },
+      required: ["query"],
+      additionalProperties: false,
+    },
+    riskLevel: "low",
+    agentPermission: "read_prd",
+  },
+  {
+    source: "internal",
+    name: "find_symbol",
+    description:
+      "Where a function, class, method, interface or type is defined in the repository (name, kind, file and lines), from the code graph at a stated commit. Static analysis: read the file before relying on it.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        query: str(100),
+        kind: {
+          type: "string",
+          enum: ["function", "class", "method", "interface", "type", "enum", "variable"],
+        },
+      },
+      required: ["query"],
+      additionalProperties: false,
+    },
+    riskLevel: "low",
+    agentPermission: "read_repository",
+  },
+  {
+    source: "internal",
+    name: "find_callers",
+    description:
+      "What calls a symbol (id from find_symbol). Each caller is marked resolved (syntax and imports tie it to this symbol) or name_only (only the name matches, so it may be another symbol). Dynamic calls are not seen.",
+    inputSchema: {
+      type: "object",
+      properties: { symbolId: str(64) },
+      required: ["symbolId"],
+      additionalProperties: false,
+    },
+    riskLevel: "low",
+    agentPermission: "read_repository",
+  },
+  {
+    source: "internal",
+    name: "file_impact",
+    description:
+      "Which files import a file, directly or through others, and which test files may be affected by changing it. Static analysis at a stated commit; check the revision and whether it is stale.",
+    inputSchema: {
+      type: "object",
+      properties: { path: str(300) },
+      required: ["path"],
+      additionalProperties: false,
+    },
+    riskLevel: "low",
+    agentPermission: "read_repository",
+  },
+  {
+    source: "internal",
+    name: "search_skills",
+    description:
+      "Approved skills (reusable workflows) that fit a task, each with when to use it, when not to, the steps and how to check it worked. Full text search only. Use a skill only if its triggers fit and no exclusion applies.",
+    inputSchema: {
+      type: "object",
+      properties: { query: str(200) },
+      required: ["query"],
+      additionalProperties: false,
+    },
+    riskLevel: "low",
+    agentPermission: "read_memory",
+  },
+  {
+    source: "internal",
+    name: "record_skill_outcome",
+    description:
+      "Say whether a skill worked when you used it (success, partial or failure), with a short note. This is how skills earn trust or get retired.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        skillId: str(64),
+        outcome: { type: "string", enum: ["success", "partial", "failure"] },
+        note: str(300),
+      },
+      required: ["skillId", "outcome"],
+      additionalProperties: false,
+    },
+    riskLevel: "low",
+    agentPermission: "write_memory",
+  },
+  {
+    source: "internal",
+    name: "read_memory",
+    description:
+      "One memory entry by id (from search_memory), with its full text and where it came from.",
+    inputSchema: {
+      type: "object",
+      properties: { id: str(64) },
+      required: ["id"],
       additionalProperties: false,
     },
     riskLevel: "low",
@@ -123,7 +232,7 @@ export const STATIC_TOOLS: StaticTool[] = [
     source: "internal",
     name: "write_memory",
     description:
-      "Append one concise memory (a decision, constraint or lesson worth keeping). It never edits existing memory; an identical entry is not added twice.",
+      "Propose one concise memory (a decision, constraint or lesson worth keeping). It waits for a person to approve it before anyone else can read it, never edits existing memory, and an identical entry is not added twice.",
     inputSchema: {
       type: "object",
       properties: {

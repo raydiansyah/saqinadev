@@ -2,8 +2,9 @@ import "server-only";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { recordActivity } from "@/lib/activity/service";
 import type { Tx } from "@/lib/db/client";
-import { decisions, documents, memories } from "@/lib/db/schema";
+import { decisions, documents } from "@/lib/db/schema";
 import type { MemoryCategory } from "@/lib/domain/enums";
+import { type SourceRef, upsertKeyedMemory } from "@/lib/memory/store";
 import type { JournalIntent } from "./journal-plan";
 
 export interface Entry {
@@ -89,6 +90,15 @@ export interface MemoryKey {
   source: "system" | "imported";
 }
 
+/** Where a keyed fact came from, so a reader can follow it back to the record. */
+function sourceOf(key: MemoryKey): SourceRef {
+  const id = key.entityId ?? key.dedupeKey;
+  if (key.entityType === "decision") return { sourceType: "decision", sourceId: id };
+  if (key.entityType === "document") return { sourceType: "document", sourceId: id };
+  if (key.entityType === "file") return { sourceType: "repo_file", sourceId: id };
+  return { sourceType: "manual", sourceId: id, locator: { entity: key.entityType } };
+}
+
 /**
  * Writes one keyed memory directly (no approval step): the same fact is updated in place, a
  * person's edit is never overwritten, and unchanged text writes nothing, so a burst of identical
@@ -100,38 +110,25 @@ export async function upsertMemoryEntry(
   entry: Entry,
   key: MemoryKey,
 ): Promise<Exclude<JournalResult, "skipped">> {
-  const [row] = await tx
-    .insert(memories)
-    .values({
-      projectId,
-      ...entry,
-      source: key.source,
-      createdBy: null,
-      entityType: key.entityType,
-      entityId: key.entityId,
-      dedupeKey: key.dedupeKey,
-    })
-    .onConflictDoUpdate({
-      target: [memories.projectId, memories.dedupeKey],
-      targetWhere: sql`${memories.dedupeKey} is not null`,
-      set: { ...entry, entityId: key.entityId, updatedAt: new Date() },
-      // A person's edit wins, and identical text is not a change.
-      setWhere: and(
-        isNull(memories.humanEditedAt),
-        sql`(${memories.title}, ${memories.content}, ${memories.importance}, ${memories.category}) is distinct from (excluded.title, excluded.content, excluded.importance, excluded.category)`,
-      ),
-    })
-    .returning({ id: memories.id, inserted: sql<boolean>`(xmax = 0)` });
-  if (!row) return "kept";
+  const { result, memoryId } = await upsertKeyedMemory(tx, {
+    projectId,
+    ...entry,
+    source: key.source,
+    entityType: key.entityType,
+    entityId: key.entityId,
+    dedupeKey: key.dedupeKey,
+    sources: [sourceOf(key)],
+  });
+  if (result === "kept" || !memoryId) return "kept";
   await recordActivity(tx, {
     projectId,
     actorId: null,
-    type: row.inserted ? "memory.created" : "memory.updated",
+    type: result === "created" ? "memory.created" : "memory.updated",
     entityType: "memory",
-    entityId: row.id,
+    entityId: memoryId,
     metadata: { title: entry.title, category: entry.category, origin: key.source },
   });
-  return row.inserted ? "created" : "updated";
+  return result;
 }
 
 /** Writes the memory for one planned journal fact, read from the entity as it is now. */

@@ -239,3 +239,21 @@ describe("outbound endpoints and webhooks", () => {
     ).toMatchObject({ status: "failed", issues: ["x"] });
   });
 });
+
+describe("secret patterns beyond the common key prefixes", () => {
+  it("finds Stripe keys, JWTs, passwords in URLs and key=value pairs, and leaves ordinary text", () => {
+    for (const text of [
+      "key sk_live_abcdefghijklmnop1234",
+      "jwt eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.abcdefghijklmnop",
+      "postgres://app:s3cretpass@db.example.com/main",
+      "https://x.dev/cb?password=hunter2hunter2&a=1",
+    ]) {
+      expect(containsSecret(text)).toBe(true);
+      expect(scrubSecrets(text)).toContain("[redacted]");
+    }
+    expect(containsSecret("The token budget and the password policy are in the guide.")).toBe(
+      false,
+    );
+    expect(containsSecret("see https://example.com/docs and user@example.com")).toBe(false);
+  });
+});

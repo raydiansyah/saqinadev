@@ -83,6 +83,8 @@ export const MAX_FILE_BYTES = 200_000;
 export interface TreeEntry {
   path: string;
   size: number;
+  /** The host's id of the file's content, when it gives one. Same id, same content. */
+  sha?: string;
 }
 
 /**
@@ -90,7 +92,7 @@ export interface TreeEntry {
  * sync; the rest keep the plain GitAdapter and are reported as unsupported.
  */
 export interface DocSyncOps {
-  /** Every file under `path` at `ref`, recursively. `too_large` when the host truncates the tree. */
+  /** Every file under `path` (all of them when it is empty) at `ref`, recursively. `too_large` when the host truncates the tree. */
   getTree(
     ref: RepoRef,
     token: string | null,

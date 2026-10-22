@@ -1,16 +1,18 @@
 import "server-only";
-import { asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import type { ProjectAccess } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
 import {
   decisions,
   documents,
   memories,
+  memoryAssets,
   milestones,
   recommendations,
   requirements,
   tasks,
 } from "@/lib/db/schema";
+import { notExpired } from "@/lib/memory/scope";
 import type { ProjectContext } from "./types";
 
 /**
@@ -40,7 +42,21 @@ export async function getProjectContext(access: ProjectAccess): Promise<ProjectC
       .where(eq(milestones.projectId, id))
       .orderBy(asc(milestones.position)),
     db.select().from(tasks).where(eq(tasks.projectId, id)).orderBy(asc(tasks.position)),
-    db.select().from(memories).where(eq(memories.projectId, id)).orderBy(desc(memories.createdAt)),
+    // The context goes to agents and exports: only what the whole project may read.
+    db
+      .select({ memory: memories })
+      .from(memories)
+      .innerJoin(memoryAssets, eq(memoryAssets.id, memories.assetId))
+      .where(
+        and(
+          eq(memories.projectId, id),
+          eq(memoryAssets.status, "approved"),
+          eq(memoryAssets.visibility, "project"),
+          notExpired(),
+        ),
+      )
+      .orderBy(desc(memories.createdAt))
+      .then((rows) => rows.map((r) => r.memory)),
     db.select().from(decisions).where(eq(decisions.projectId, id)).orderBy(asc(decisions.number)),
   ]);
 

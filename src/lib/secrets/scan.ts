@@ -14,6 +14,10 @@ const PATTERNS = [
   /\bAKIA[0-9A-Z]{16}\b/g, // AWS access key id
   /-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/g,
   /\b(bearer)\s+[A-Za-z0-9._~+/-]{20,}=*/gi,
+  /\b(sk|pk|rk)_(live|test)_[A-Za-z0-9]{16,}/g, // Stripe
+  /\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g, // JWT
+  /\b[a-z][a-z0-9+.-]*:\/\/[^\s/:@]+:[^\s/@]{3,}@/gi, // password inside a URL
+  /\b(password|passwd|secret|api[_-]?key|access[_-]?token)=[^\s&"']{6,}/gi,
 ];
 
 export function containsSecret(text: string): boolean {

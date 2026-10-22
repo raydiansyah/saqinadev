@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Saqina Dev
 
-## Getting Started
+One workspace for client projects: scope, agreements, invoices, payments, development and
+maintenance, with an AI assistant that answers from the whole project record and a portal where the
+client follows progress. Live at [saqina.dev](https://saqina.dev). Built by Abati Technology.
 
-First, run the development server:
+## How it uses Claude
+
+- **Assistant and intent detection**: read-only answers and intent detection run on Claude through the
+  Anthropic adapter (`src/lib/ai/adapters/anthropic.ts`). Actions that change data stay
+  rule-validated; a model never writes, merges or deploys on its own.
+- **Project brain**: every change is written to an outbox and distilled into memory and PRD findings,
+  so Claude reads a project delta instead of rescanning it ([ADR 0003](docs/adr/0003-project-brain.md)).
+- **MCP tools and agents**: Claude clients can read a project and append memory inside the permission
+  they were granted; every call is audited.
+- **Safe by default**: without `ANTHROPIC_API_KEY` Saqina answers from deterministic rules and no data
+  leaves the server. Customer documents go to a model only with recorded consent.
+- **Built with Claude Code**: AI-written code is attributed per pull request and Red-lane paths get a
+  human and an adversarial review ([governance](docs/standards/governance.md)).
+
+## Stack
+
+Next.js 16 (App Router), React 19, TypeScript, PostgreSQL with Drizzle ORM, Better Auth, next-intl
+(English and Indonesian), Tailwind CSS 4, Vitest, Biome. Deployed on Vercel with Neon.
+
+## Prerequisites
+
+- Node.js 24 LTS and pnpm 10
+- PostgreSQL 14+ (local or Neon), plus a second database whose name contains `_test` for tests
+
+## Local setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+```bash
+cp .env.example .env.local
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Fill in `.env.local`. Every variable is documented in [`.env.example`](.env.example); the required
+ones are `DATABASE_URL`, `BETTER_AUTH_SECRET` and `SAQINA_ENCRYPTION_KEY`. `ANTHROPIC_API_KEY` is
+optional.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm db:migrate
+```
 
-## Learn More
+```bash
+pnpm db:create-owner
+```
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Script | Purpose |
+|---|---|
+| `pnpm dev` / `pnpm build` / `pnpm start` | Run, build, serve |
+| `pnpm lint` | Biome check |
+| `pnpm typecheck` | Next typegen and `tsc --noEmit` |
+| `pnpm test` / `pnpm test:coverage` | Vitest (integration tests need `DATABASE_URL_TEST`) |
+| `pnpm check:licenses` / `pnpm check:coverage` | Licence and coverage gates used in CI |
+| `pnpm db:generate` / `db:migrate` / `db:seed` | Schema migrations and seed data |
+| `pnpm smoke <url>` | Post-deploy smoke test |
 
-## Deploy on Vercel
+## Documentation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Engineering standards](docs/standards/README.md): architecture, security, testing, delivery,
+  observability, compliance, governance
+- [Runbook](docs/runbook.md): deploy, migrate, roll back, incidents
+- [Architecture decisions](docs/adr/)
+- Project memory ([ADR 0004](docs/adr/0004-project-memory.md)): chat and agent suggestions wait for review, access is
+  checked before search, retrieval is full-text and exact match (semantic search is off, and the UI says so)

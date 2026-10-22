@@ -2,6 +2,7 @@ import "server-only";
 import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { projectChanges } from "@/lib/db/schema";
+import { enqueueWikiSync } from "@/lib/memory/wiki/schedule";
 import { writeJournalEntry } from "./journal";
 import { type ChangeRow, planJournal } from "./journal-plan";
 import { reconcilePrdFindings } from "./prd-findings";
@@ -51,6 +52,11 @@ export async function processProjectChanges(projectId: string): Promise<ProcessR
     // compares has changed.
     if (pending.some((c) => PRD_INPUTS.has(c.type.split(".")[0])))
       await reconcilePrdFindings(tx, projectId);
+    // A changed document means the wiki has to read it again (a job: reading is not this request's work).
+    if (pending.some((c) => c.type.startsWith("document."))) {
+      const last = Math.max(...pending.map((c) => c.revision));
+      await enqueueWikiSync(tx, projectId, `rev:${last}`);
+    }
     await tx
       .update(projectChanges)
       .set({ processedAt: new Date() })

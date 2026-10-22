@@ -1,0 +1,1 @@
+ALTER TABLE "conversations" ADD COLUMN "memory_cursor" uuid;

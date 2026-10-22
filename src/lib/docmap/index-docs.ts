@@ -2,8 +2,10 @@ import "server-only";
 import { and, eq, inArray } from "drizzle-orm";
 import { upsertMemoryEntry } from "@/lib/brain/journal";
 import type { Tx } from "@/lib/db/client";
-import { docIndex } from "@/lib/db/schema";
+import { docIndex, wikiSources } from "@/lib/db/schema";
 import { hashContent } from "@/lib/docsync/hash";
+import { log } from "@/lib/log";
+import { indexWikiSource, removeWikiSources } from "@/lib/memory/wiki/index";
 import { type ClassifiedBy, classifyDoc, type MapRole } from "./classify";
 
 export interface IndexableDoc {
@@ -63,12 +65,23 @@ export async function indexDocs(
     ]),
   );
   const aiByPath = new Map(Object.entries(aiRoles).map(([role, path]) => [path, role as MapRole]));
+  // Files the wiki has already read: a file that was known before the wiki existed is read once.
+  const wikiKnown = new Set(
+    (
+      await tx
+        .select({ ref: wikiSources.sourceRef })
+        .from(wikiSources)
+        .where(and(eq(wikiSources.projectId, projectId), eq(wikiSources.sourceType, "repo_file")))
+    ).map((r) => r.ref),
+  );
 
   for (const doc of docs) {
     const hash = hashContent(doc.content);
     const row = known.get(doc.path);
     if (row && row.hash === hash) {
       result.unchanged++;
+      if (!wikiKnown.has(doc.path) && row.role !== "memory")
+        await readIntoWiki(tx, projectId, doc, row.role);
       continue;
     }
     let { role, by, confidence } = classifyDoc(doc);
@@ -108,6 +121,8 @@ export async function indexDocs(
       result.added++;
     }
     if (finalRole === "memory" && (await importMemoryFile(tx, projectId, doc))) result.memories++;
+    // Memory files are memories; every other document is also read into the wiki, by passage.
+    await readIntoWiki(tx, projectId, doc, finalRole);
   }
 
   const present = new Set(docs.map((d) => d.path));
@@ -117,8 +132,35 @@ export async function indexDocs(
       .delete(docIndex)
       .where(and(eq(docIndex.projectId, projectId), inArray(docIndex.path, gone)));
     result.removed = gone.length;
+    await removeWikiSources(tx, projectId, "repo_file", gone);
   }
   return result;
+}
+
+/**
+ * Reads one repository document into the wiki (or drops it when it became a memory file). Its own
+ * savepoint and its own catch: a document the wiki cannot read must never fail the import.
+ */
+async function readIntoWiki(tx: Tx, projectId: string, doc: IndexableDoc, role: string) {
+  try {
+    await tx.transaction(async (sp) => {
+      if (role === "memory") await removeWikiSources(sp, projectId, "repo_file", [doc.path]);
+      else {
+        await indexWikiSource(sp, {
+          projectId,
+          sourceType: "repo_file",
+          sourceRef: doc.path,
+          title: title(doc),
+          content: doc.content,
+        });
+      }
+    });
+  } catch (error) {
+    log.warn("wiki.import_failed", {
+      projectId,
+      error: error instanceof Error ? error.name : "error",
+    });
+  }
 }
 
 /** Everything in the map, grouped by role order, for readers (UI, agents, MCP). */

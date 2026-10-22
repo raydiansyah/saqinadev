@@ -22,6 +22,8 @@ import { errorRef, isAppError } from "@/lib/errors";
 import { EventBatch } from "@/lib/events/emitter";
 import { syncRepository } from "@/lib/git/service";
 import { log } from "@/lib/log";
+import { maybeEnqueueExtraction } from "@/lib/memory/enqueue";
+import { scheduleMemoryJobs } from "@/lib/memory/schedule";
 import { getNextProjectAction } from "@/lib/projects/progress";
 import { createProposalTx } from "@/lib/proposals/repository";
 import { parse } from "@/lib/validation";
@@ -196,7 +198,7 @@ export async function handleMessage(
       const synced = await syncRepository(actor, slug).catch(() => null);
       repositoryRead = synced ? (synced.ok ? true : synced.code) : null;
     }
-    const ctx = await buildContext(access, classified.intent, entity, summary);
+    const ctx = await buildContext(access, classified.intent, entity, summary, input.content);
     const pm = PROJECT_MESSAGES[input.locale];
     const outcome = plan(classified, ctx, copy, {
       status:
@@ -264,6 +266,14 @@ export async function handleMessage(
       .update(messages)
       .set({ content: text, status: "completed", metadata: { ...meta, replyTo: user.id } })
       .where(eq(messages.id, reply.id));
+    // Durable knowledge in this conversation is extracted later, as reviewable candidates. It
+    // must never delay or fail the reply.
+    await maybeEnqueueExtraction(db, {
+      projectId: access.project.id,
+      conversationId: conversation.id,
+    })
+      .then((queued) => queued && scheduleMemoryJobs(access.project.id))
+      .catch((error) => log.warn("memory.enqueue_failed", { error: String(error) }));
     emit({ type: "done", messageId: reply.id, mutated });
     return { messageId: reply.id, mutated };
   } catch (error) {

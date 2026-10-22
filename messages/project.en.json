@@ -298,6 +298,7 @@
           "read_prd": "Read PRD and documents",
           "read_tasks": "Read tasks",
           "read_memory": "Read memory",
+          "read_repository": "Read code structure (symbols, calls, impact)",
           "write_documents": "Propose document changes",
           "write_memory": "Add project memory"
         },

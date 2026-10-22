@@ -1,5 +1,5 @@
 import "server-only";
-import { and, eq, ilike, isNull, or, type SQL } from "drizzle-orm";
+import { and, eq, exists, ilike, isNull, or, type SQL, sql } from "drizzle-orm";
 import type { PgColumn, PgTable } from "drizzle-orm/pg-core";
 import type { Actor } from "@/lib/auth/actor";
 import { db } from "@/lib/db/client";
@@ -7,11 +7,13 @@ import {
   decisions,
   documents,
   memories,
+  memoryAssets,
   projectMembers,
   projects,
   requirements,
   tasks,
 } from "@/lib/db/schema";
+import { approvedForUser } from "@/lib/memory/scope";
 
 export type SearchKind = "project" | "requirement" | "document" | "task" | "memory" | "decision";
 
@@ -104,7 +106,16 @@ export async function search(actor: Actor, rawQuery: string): Promise<SearchHit[
     scoped(
       memories,
       memories.title,
-      or(ilike(memories.title, like), ilike(memories.content, like)),
+      and(
+        or(ilike(memories.title, like), ilike(memories.content, like)),
+        // Private and unreviewed memory is not part of anyone else's search results.
+        exists(
+          db
+            .select({ one: sql`1` })
+            .from(memoryAssets)
+            .where(and(eq(memoryAssets.id, memories.assetId), approvedForUser(actor.id))),
+        ),
+      ),
       "memory",
       () => "/memory",
     ),

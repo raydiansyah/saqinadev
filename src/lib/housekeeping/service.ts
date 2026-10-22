@@ -1,13 +1,16 @@
 import "server-only";
-import { and, isNotNull, lt, ne, sql } from "drizzle-orm";
+import { and, inArray, isNotNull, lt, ne, sql } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import {
   aiUsageRecords,
   auditEvents,
+  memoryJobs,
+  memoryRetrievals,
   notifications,
   rateLimits,
   serviceInquiries,
   sessions,
+  skillUsages,
   verifications,
   webhookDeliveries,
 } from "@/lib/db/schema";
@@ -65,6 +68,25 @@ export async function runMaintenance(
     .where(lt(auditEvents.createdAt, cutoff(now, RETENTION_DAYS.auditEvents)))
     .returning({ id: auditEvents.id });
 
+  const oldRetrievals = await db
+    .delete(memoryRetrievals)
+    .where(lt(memoryRetrievals.createdAt, cutoff(now, RETENTION_DAYS.memoryRetrievals)))
+    .returning({ id: memoryRetrievals.id });
+  const oldJobs = await db
+    .delete(memoryJobs)
+    .where(
+      and(
+        inArray(memoryJobs.status, ["ready", "cancelled", "failed_permanent"]),
+        lt(memoryJobs.updatedAt, cutoff(now, RETENTION_DAYS.memoryJobs)),
+      ),
+    )
+    .returning({ id: memoryJobs.id });
+
+  const oldSkillUsages = await db
+    .delete(skillUsages)
+    .where(lt(skillUsages.createdAt, cutoff(now, RETENTION_DAYS.skillUsages)))
+    .returning({ id: skillUsages.id });
+
   const days = retentionDays(env.INQUIRY_RETENTION_DAYS);
   let inquiries = 0;
   if (days) {
@@ -88,6 +110,9 @@ export async function runMaintenance(
     notifications: readNotifications.length,
     aiUsage: oldUsage.length,
     auditEvents: oldAudit.length,
+    memoryRetrievals: oldRetrievals.length,
+    memoryJobs: oldJobs.length,
+    skillUsages: oldSkillUsages.length,
     inquiries,
     inquiryRetentionDays: days,
   };

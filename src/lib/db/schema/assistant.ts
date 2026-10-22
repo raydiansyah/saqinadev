@@ -48,6 +48,8 @@ export const conversations = pgTable(
     /** Compressed history for long threads (deterministic in Phase 3). */
     summary: text("summary"),
     summaryUpdatedAt: timestamp("summary_updated_at", { withTimezone: true }),
+    /** Last message memory extraction has read; kept here so it outlives the finished jobs. */
+    memoryCursor: uuid("memory_cursor"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },

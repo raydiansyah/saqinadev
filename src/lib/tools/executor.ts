@@ -17,6 +17,20 @@ import { type Schema, validateJson } from "./json-schema";
 import { decideTool } from "./policy";
 import { findTool } from "./registry";
 
+/** Tools whose input and output are memory content; the audit row keeps no copy of it. */
+const MEMORY_TOOLS = new Set([
+  "search_memory",
+  "read_memory",
+  "write_memory",
+  "search_wiki",
+  "search_skills",
+  "record_skill_outcome",
+  // Paths and symbol names of a repository: they go when the repository or the permission does.
+  "find_symbol",
+  "find_callers",
+  "file_impact",
+]);
+
 export type ToolActor =
   | { kind: "member" }
   | { kind: "agent"; agentId: string; name: string; permissions: AgentPermission[] };
@@ -95,7 +109,11 @@ export async function executeTool(request: ToolRequest): Promise<ToolResult> {
     agentId: actor.kind === "agent" ? actor.agentId : null,
     actorId: access.actor.id,
     riskLevel: tool.riskLevel,
-    input: scrubValue(request.input) as Record<string, unknown>,
+    // Memory text (a query, a proposal) must not outlive the memory it came from: keep who and when.
+    input: (MEMORY_TOOLS.has(tool.name) ? {} : scrubValue(request.input)) as Record<
+      string,
+      unknown
+    >,
     idempotencyKey: request.idempotencyKey,
   };
   const write = async (
@@ -177,7 +195,7 @@ export async function executeTool(request: ToolRequest): Promise<ToolResult> {
     const output = sanitizeOutput(raw);
     const executionId = await write({
       status: "succeeded",
-      output,
+      output: MEMORY_TOOLS.has(tool.name) ? { redacted: true } : output,
       proposalId: request.approvedProposalId ?? null,
       durationMs: Math.round(performance.now() - started),
       errorCode: null,

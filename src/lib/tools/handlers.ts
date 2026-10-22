@@ -1,19 +1,30 @@
 import "server-only";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, count, eq, or, sql } from "drizzle-orm";
 import type { ProjectAccess } from "@/lib/auth/permissions";
 import { getChangesSince } from "@/lib/brain/brain";
 import { listPrdFindings } from "@/lib/brain/prd-findings";
 import { db } from "@/lib/db/client";
-import { documents, mcpConnections } from "@/lib/db/schema";
+import type { SymbolKind } from "@/lib/db/schema";
+import { documents, mcpConnections, memories, memoryAssets } from "@/lib/db/schema";
 import { listDocMap } from "@/lib/docmap/index-docs";
 import { isSyncType } from "@/lib/docsync/paths";
 import type { MemoryCategory } from "@/lib/domain/enums";
+import type { SkillOutcome } from "@/lib/domain/memory";
 import { AppError } from "@/lib/errors";
 import type { EventBatch } from "@/lib/events/emitter";
 import { assertWritableBranch, getRepository, withRepo } from "@/lib/git/service";
 import { McpError } from "@/lib/mcp/client";
 import { withMcpClient } from "@/lib/mcp/service";
-import { createMemoryTx, listMemories } from "@/lib/memory/service";
+import { callersOf, findSymbols, impactOf, type Revision } from "@/lib/memory/code/queries";
+import { textTombKeys } from "@/lib/memory/hash";
+import type { Principal } from "@/lib/memory/policy";
+import { type RetrievedItem, readAsset, retrieveMemory } from "@/lib/memory/retrieval/engine";
+import { visibleWhere } from "@/lib/memory/scope";
+import { createMemoryTx } from "@/lib/memory/service";
+import { retrieveSkills } from "@/lib/memory/skills/retrieve";
+import { recordAgentSkillFeedback, recordSkillsOffered } from "@/lib/memory/skills/usage";
+import { isTombstoned } from "@/lib/memory/store";
+import { citation, retrieveWiki } from "@/lib/memory/wiki/retrieve";
 import { getTechStack } from "@/lib/projects/stack";
 import { createProposalTx } from "@/lib/proposals/repository";
 import type { ToolActor } from "./executor";
@@ -28,6 +39,110 @@ export interface HandlerContext {
 
 const str = (v: unknown) => (typeof v === "string" ? v : undefined);
 const READ_LIMIT = 60_000;
+const MAX_AGENT_PROPOSALS = 20;
+const ALL_STATUSES = [
+  "candidate",
+  "pending_review",
+  "approved",
+  "rejected",
+  "superseded",
+  "archived",
+] as const;
+
+/**
+ * Who is reading memory. An agent is its own principal: it never inherits the private memory of
+ * the member who created its token, only what is shared with the project or granted to it.
+ */
+function memoryPrincipal(access: ProjectAccess, actor: ToolActor): Principal {
+  return actor.kind === "agent"
+    ? {
+        kind: "agent",
+        agentId: actor.agentId,
+        creatorId: access.actor.id,
+        canReadMemory: actor.permissions.includes("read_memory"),
+      }
+    : { kind: "user", userId: access.actor.id, role: access.role };
+}
+
+const memoryItem = (i: RetrievedItem) => ({
+  id: i.assetId,
+  level: i.level,
+  kind: i.kind,
+  title: i.title,
+  content: i.content,
+  truncated: i.truncated,
+  confidence: i.confidence,
+  origin: i.origin,
+  sources: i.sources.map((s) => ({ type: s.sourceType, id: s.sourceId })),
+});
+
+const CODE_NOTE =
+  "Static analysis of the code at the stated commit: dynamic calls and inheritance are not seen. Read the files before relying on it.";
+
+const revisionOf = (r: Revision | null) =>
+  r
+    ? {
+        repository: r.repository,
+        branch: r.branch,
+        commit: r.commitSha,
+        parser: r.parser,
+        status: r.status,
+        indexedAt: r.indexedAt,
+        stale: r.stale,
+        partial: r.errorCode === "file_limit",
+      }
+    : null;
+
+async function codeAnswer(tool: string, principal: Principal, projectId: string, input: Input) {
+  if (tool === "find_symbol") {
+    const r = await findSymbols(principal, projectId, {
+      query: str(input.query) ?? "",
+      kind: str(input.kind) as SymbolKind | undefined,
+    });
+    if (!r.revision) return { indexed: false, note: "Nothing is indexed for this project yet." };
+    return {
+      revision: revisionOf(r.revision),
+      note: CODE_NOTE,
+      symbols: r.items.map((s) => ({
+        id: s.id,
+        name: s.name,
+        kind: s.kind,
+        exported: s.exported,
+        container: s.container,
+        file: s.path,
+        lines: [s.startLine, s.endLine],
+        resolvedCallers: s.resolvedCallers,
+      })),
+    };
+  }
+  if (tool === "find_callers") {
+    const r = await callersOf(principal, projectId, { symbolId: String(input.symbolId) });
+    if (!r.revision) return { indexed: false, note: "Nothing is indexed for this project yet." };
+    if (!r.symbol) throw new AppError("NOT_FOUND", "Unknown symbol");
+    return {
+      revision: revisionOf(r.revision),
+      note: CODE_NOTE,
+      symbol: r.symbol,
+      callers: r.items.map((c) => ({
+        resolution: c.resolution,
+        file: c.path,
+        line: c.line,
+        caller: c.caller,
+        test: c.isTest,
+      })),
+    };
+  }
+  const r = await impactOf(principal, projectId, { path: String(input.path) });
+  if (!r.revision) return { indexed: false, note: "Nothing is indexed for this project yet." };
+  if (!r.file) throw new AppError("NOT_FOUND", "Unknown file");
+  return {
+    revision: revisionOf(r.revision),
+    note: CODE_NOTE,
+    file: r.file,
+    dependents: r.dependents,
+    tests: r.tests,
+  };
+}
 
 /** A document an agent may see: PRD, PLAN and custom documents, never business documents. */
 async function agentDocument(projectId: string, slug: string | undefined) {
@@ -157,30 +272,163 @@ async function internal(tool: ToolRow, input: Input, { access, actor, batch }: H
         })),
       };
     case "write_memory": {
-      // Append-only: an entry with the same title and text is already known, anything else is new.
+      // A proposal, not a fact: it waits for review, and an identical text is not queued twice.
       const data = {
         title: String(input.title).trim(),
         content: String(input.content).trim(),
         category: (str(input.category) ?? "technical") as MemoryCategory,
         importance: (str(input.importance) ?? "normal") as "high" | "normal",
       };
-      const existing = (await listMemories(access)).find(
-        (m) => m.title.toLowerCase() === data.title.toLowerCase() && m.content === data.content,
+      const principal = memoryPrincipal(access, actor);
+      // Only what this caller may read can count as "already there"; anything else behaves as new,
+      // so the answer cannot reveal someone's private or rejected memory.
+      const [existing] = await db
+        .select({ id: memoryAssets.id, status: memoryAssets.status })
+        .from(memoryAssets)
+        .innerJoin(memories, eq(memories.assetId, memoryAssets.id))
+        .where(
+          and(
+            or(
+              visibleWhere(principal, access.project.id, ALL_STATUSES),
+              // Its own earlier proposals (waiting for review) count too.
+              and(eq(memoryAssets.ownerId, access.actor.id), eq(memories.source, "agent")),
+            ),
+            sql`lower(${memoryAssets.title}) = ${data.title.toLowerCase()}`,
+            eq(memories.content, data.content),
+          ),
+        )
+        .limit(1);
+      if (existing) return { id: existing.id, created: false, status: existing.status };
+      const blocked = await isTombstoned(
+        db,
+        access.project.id,
+        ...textTombKeys(data.title, data.content, access.actor.id),
       );
-      if (existing) return { id: existing.id, created: false };
+      if (blocked) return { id: null, created: false, status: "not_added" };
+      // One agent cannot fill the review queue of the person who created its token.
+      const [{ waiting }] = await db
+        .select({ waiting: count() })
+        .from(memories)
+        .innerJoin(memoryAssets, eq(memoryAssets.id, memories.assetId))
+        .where(
+          and(
+            eq(memories.projectId, access.project.id),
+            eq(memories.source, "agent"),
+            eq(memoryAssets.status, "pending_review"),
+            eq(memoryAssets.ownerId, access.actor.id),
+          ),
+        );
+      if (waiting >= MAX_AGENT_PROPOSALS) throw new AppError("RATE_LIMIT");
       const row = await db.transaction((tx) =>
-        createMemoryTx(tx, access, data, {
-          via: "agent",
-        }),
+        createMemoryTx(
+          tx,
+          access,
+          data,
+          { via: "agent" },
+          { status: "pending_review", visibility: "project" },
+        ),
       );
-      return { id: row.id, created: true };
+      return { id: row.assetId, created: true, status: "pending_review" };
     }
     case "search_memory": {
-      const q = (str(input.query) ?? "").toLowerCase();
-      const items = (await listMemories(access)).filter((m) =>
-        `${m.title} ${m.content}`.toLowerCase().includes(q),
+      const result = await retrieveMemory(memoryPrincipal(access, actor), access.project.id, {
+        query: str(input.query) ?? "",
+        budget: { maxAssets: 20 },
+      });
+      return {
+        semantic: result.semantic,
+        ...(result.degraded ? { degraded: result.degraded } : {}),
+        items: result.items.map(memoryItem),
+      };
+    }
+    case "find_symbol":
+    case "find_callers":
+    case "file_impact": {
+      // Opened by read_repository, the permission that gates these tools.
+      const base = memoryPrincipal(access, actor);
+      const principal: Principal =
+        base.kind === "agent"
+          ? {
+              ...base,
+              canReadMemory:
+                actor.kind === "agent" && actor.permissions.includes("read_repository"),
+            }
+          : base;
+      return codeAnswer(tool.name, principal, access.project.id, input);
+    }
+    case "search_skills": {
+      const hits = await retrieveSkills(memoryPrincipal(access, actor), access.project.id, {
+        query: str(input.query) ?? "",
+        limit: 5,
+      });
+      if (actor.kind === "agent") await recordSkillsOffered(access.project.id, actor.agentId, hits);
+      return {
+        skills: hits.map((h) => ({
+          id: h.assetId,
+          version: h.version,
+          name: h.content.name,
+          description: h.content.description,
+          useWhen: h.content.triggers,
+          doNotUseWhen: h.content.exclusions,
+          prerequisites: h.content.prerequisites,
+          steps: h.content.steps,
+          produces: h.content.outputs,
+          checkItWorked: h.content.validation,
+        })),
+      };
+    }
+    case "record_skill_outcome": {
+      if (actor.kind !== "agent") throw new AppError("VALIDATION_ERROR", "Agents only");
+      await recordAgentSkillFeedback(
+        access,
+        { id: actor.agentId, canReadMemory: actor.permissions.includes("read_memory") },
+        {
+          skillId: String(input.skillId),
+          outcome: String(input.outcome) as SkillOutcome,
+          note: str(input.note),
+        },
       );
-      return { items: items.slice(0, 20).map((m) => ({ title: m.title, content: m.content })) };
+      return { recorded: true };
+    }
+    case "search_wiki": {
+      // The tool is gated by read_prd, so that is the permission that opens the documents.
+      const principal = memoryPrincipal(access, actor);
+      const docs: Principal =
+        principal.kind === "agent"
+          ? {
+              ...principal,
+              canReadMemory: actor.kind === "agent" && actor.permissions.includes("read_prd"),
+            }
+          : principal;
+      const result = await retrieveWiki(docs, access.project.id, {
+        query: str(input.query) ?? "",
+        budget: { maxAssets: 10 },
+      });
+      return {
+        semantic: result.semantic,
+        ...(result.degraded ? { degraded: result.degraded } : {}),
+        passages: result.passages.map((p) => ({
+          source: p.sourceRef,
+          sourceType: p.sourceType,
+          title: p.title,
+          heading: p.heading,
+          lines: [p.startLine, p.endLine],
+          citation: citation(p),
+          stale: p.stale,
+          draft: p.draft,
+          truncated: p.truncated,
+          content: p.content,
+        })),
+      };
+    }
+    case "read_memory": {
+      const item = await readAsset(
+        memoryPrincipal(access, actor),
+        access.project.id,
+        String(input.id),
+      );
+      if (!item) throw new AppError("NOT_FOUND", "Unknown memory");
+      return memoryItem(item);
     }
   }
   throw new AppError("NOT_FOUND", "Unknown tool");

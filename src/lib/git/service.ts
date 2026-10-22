@@ -9,6 +9,7 @@ import { repositoryConnections } from "@/lib/db/schema";
 import { GIT_PROVIDERS } from "@/lib/domain/enums";
 import { AppError } from "@/lib/errors";
 import { EventBatch } from "@/lib/events/emitter";
+import { enqueueCodeIndex, purgeCodeIndexes } from "@/lib/memory/code/schedule";
 import { assertSafeEndpoint } from "@/lib/net/endpoint-guard";
 import { revokeCredential, storeCredential, withSecret } from "@/lib/secrets/service";
 import { parse } from "@/lib/validation";
@@ -148,6 +149,16 @@ export async function connectRepository(actor: Actor, slug: string, input: unkno
       .from(repositoryConnections)
       .where(eq(repositoryConnections.projectId, writer.project.id));
     if (existing?.credentialId) await revokeCredential(tx, existing.credentialId);
+    // A different repository is a different graph: the old one must not be served under the new.
+    if (
+      existing &&
+      (existing.fullName !== info.fullName ||
+        existing.externalId !== info.externalId ||
+        existing.baseUrl !== (data.baseUrl ?? null) ||
+        existing.provider !== data.provider)
+    ) {
+      await purgeCodeIndexes(tx, writer.project.id);
+    }
     const credentialId = data.token
       ? await storeCredential(tx, {
           scope: "project",
@@ -178,6 +189,8 @@ export async function connectRepository(actor: Actor, slug: string, input: unkno
       .insert(repositoryConnections)
       .values(values)
       .onConflictDoUpdate({ target: repositoryConnections.projectId, set: values });
+    // The first read of the code: a job, started with the connection.
+    await enqueueCodeIndex(tx, { projectId: writer.project.id, key: `connect:${Date.now()}` });
     await batch.emit(tx, {
       type: "REPOSITORY_CONNECTED",
       projectId: writer.project.id,
@@ -223,6 +236,12 @@ export async function syncRepository(actor: Actor, slug: string) {
         lastSyncedAt: new Date(),
       })
       .where(eq(repositoryConnections.id, row.id));
+    // The branch moved: the code graph reads the new revision (a job, never inline).
+    if (row.headSha !== info.headSha) {
+      await enqueueCodeIndex(db, { projectId: row.projectId, key: `sync:${info.headSha}` }).catch(
+        () => false,
+      );
+    }
     return { ok: true as const, detected };
   } catch (error) {
     const code = error instanceof GitError ? error.code : "provider_error";
@@ -245,6 +264,8 @@ export async function disconnectRepository(actor: Actor, slug: string) {
     if (!row) throw new AppError("NOT_FOUND");
     if (row.credentialId) await revokeCredential(tx, row.credentialId);
     if (row.webhookCredentialId) await revokeCredential(tx, row.webhookCredentialId);
+    // What was read from this repository goes with the connection.
+    await purgeCodeIndexes(tx, access.project.id);
     await tx
       .update(repositoryConnections)
       .set({

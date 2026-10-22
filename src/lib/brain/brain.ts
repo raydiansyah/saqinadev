@@ -2,8 +2,9 @@ import "server-only";
 import { and, asc, desc, eq, gt, sql } from "drizzle-orm";
 import type { ProjectAccess } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
-import { memories, prdFindings, projectChanges } from "@/lib/db/schema";
+import { memories, memoryAssets, prdFindings, projectChanges } from "@/lib/db/schema";
 import { listDocMap } from "@/lib/docmap/index-docs";
+import { notExpired } from "@/lib/memory/scope";
 
 /**
  * What a reader (assistant, agent, MCP client, context package) needs to pick up a project
@@ -47,11 +48,22 @@ async function load(access: ProjectAccess): Promise<Omit<ProjectBrain, "since">>
   const [docMap, mem, findings] = await Promise.all([
     listDocMap(db, id),
     db
-      .select()
+      .select({ memory: memories })
       .from(memories)
-      .where(eq(memories.projectId, id))
-      // What matters most first, then the most recent.
+      .innerJoin(memoryAssets, eq(memoryAssets.id, memories.assetId))
+      // The brain is the same for every reader and is cached, so it holds only what the whole
+      // project may read: approved and shared. Private or unreviewed memory never enters it.
+      .where(
+        and(
+          eq(memories.projectId, id),
+          eq(memoryAssets.status, "approved"),
+          eq(memoryAssets.visibility, "project"),
+          notExpired(),
+        ),
+      )
+      // Stable core first, then what matters most, then the most recent.
       .orderBy(
+        sql`case when ${memories.level} = 'L3' then 0 else 1 end`,
         sql`case when ${memories.importance} = 'high' then 0 else 1 end`,
         desc(memories.updatedAt),
       )
@@ -66,7 +78,7 @@ async function load(access: ProjectAccess): Promise<Omit<ProjectBrain, "since">>
   const value = {
     revision: contextRevision,
     docMap: docMap.map((d) => ({ path: d.path, role: d.role, classifiedBy: d.classifiedBy })),
-    memory: mem.map((m) => ({
+    memory: mem.map(({ memory: m }) => ({
       title: m.title,
       content: clip(m.content, 300),
       importance: m.importance,

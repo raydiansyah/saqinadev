@@ -17,6 +17,7 @@ import {
 import type { BuildStrategy } from "@/lib/domain/enums";
 import type { Complexity } from "@/lib/interview/types";
 import type { InterviewData } from "@/lib/interviews/model";
+import { insertChatMemory } from "@/lib/memory/store";
 import type { ProjectRecommendation } from "@/lib/recommendations/engine";
 import type { GeneratorCopy } from "./copy/types";
 import { type GeneratedProject, preferredAgent } from "./generate";
@@ -160,9 +161,9 @@ export async function persistGeneratedProject(tx: Tx, input: PersistInput): Prom
   }
 
   if (generated.memories.length > 0) {
-    await tx
-      .insert(memories)
-      .values(generated.memories.map((m) => ({ projectId, ...m, createdBy: actorId })));
+    for (const m of generated.memories) {
+      await insertChatMemory(tx, { projectId, ...m, createdBy: actorId });
+    }
   }
   if (generated.decisions.length > 0) {
     await tx.insert(decisions).values(

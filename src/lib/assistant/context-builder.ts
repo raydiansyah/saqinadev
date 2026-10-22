@@ -8,7 +8,7 @@ import { type ProjectBilling, projectBilling } from "@/lib/billing/summary";
 import { getProjectBrain, type ProjectBrain } from "@/lib/brain/brain";
 import { type ChangeRequest, listChangeRequests } from "@/lib/change-requests/service";
 import { db } from "@/lib/db/client";
-import { decisions, documents, memories, requirements, tasks } from "@/lib/db/schema";
+import { decisions, documents, memories, memoryAssets, requirements, tasks } from "@/lib/db/schema";
 import type { TechStack } from "@/lib/db/schema/projects";
 import { type DecisionView, listDecisions } from "@/lib/decisions/service";
 import type { ConversationContext } from "@/lib/domain/enums";
@@ -17,7 +17,11 @@ import { AppError } from "@/lib/errors";
 import { getRepository, type RepositoryView, toRepositoryView } from "@/lib/git/service";
 import type { StackMismatch } from "@/lib/git/stack";
 import { listPlans, type MaintenancePlan } from "@/lib/maintenance/service";
+import { principalOf } from "@/lib/memory/access";
+import { type RetrievalResult, retrieveMemory } from "@/lib/memory/retrieval/engine";
+import { visibleWhere } from "@/lib/memory/scope";
 import { listMemories, type MemoryView } from "@/lib/memory/service";
+import { citation, retrieveWiki, type WikiResult } from "@/lib/memory/wiki/retrieve";
 import { clientRecipients } from "@/lib/notifications/service";
 import type { ProjectSnapshot } from "@/lib/projects/progress";
 import { getSettings, loadSnapshot } from "@/lib/projects/repository";
@@ -111,6 +115,10 @@ export interface AssistantContext {
   prd?: { content: string; version: number; status: string } | null;
   decisions?: DecisionView[];
   memories?: MemoryView[];
+  /** Ranked memory for this message, with an honest flag when it could not be read. */
+  memoryRetrieval?: RetrievalResult;
+  /** Cited passages of the project documents for this message. */
+  wiki?: WikiResult;
   /** Document map and open PRD findings, so the assistant need not scan the project. */
   brain?: ProjectBrain;
   recommendations?: StoredRecommendation[];
@@ -181,11 +189,20 @@ export async function resolveEntity(
       return { type: "decision", id: row.id, title: row.question, decision: row };
     }
     case "memory": {
+      // A memory the requester may not read is as unknown as a missing one.
       const [row] = uuid
         ? await db
-            .select()
+            .select({ memory: memories })
             .from(memories)
-            .where(and(eq(memories.id, ref.id), eq(memories.projectId, projectId)))
+            .innerJoin(memoryAssets, eq(memoryAssets.id, memories.assetId))
+            .where(
+              and(
+                eq(memories.id, ref.id),
+                eq(memories.projectId, projectId),
+                visibleWhere(principalOf(access), projectId, ["approved"]),
+              ),
+            )
+            .then((rows) => rows.map((r) => r.memory))
         : [];
       if (!row) throw new AppError("NOT_FOUND");
       return { type: "memory", id: row.id, title: row.title, memory: row };
@@ -211,6 +228,8 @@ export async function buildContext(
   intent: Intent,
   entity: ResolvedEntity,
   summary: string | null,
+  /** The user's message, used to rank which memory to bring along. */
+  query = "",
 ): Promise<AssistantContext> {
   const needs = new Set(NEEDS[intent]);
   // A specific entity pulls in its own neighbourhood.
@@ -236,6 +255,16 @@ export async function buildContext(
     (needs.has("memory") || needs.has("prd")) &&
       getProjectBrain(access).then((r) => (ctx.brain = r)),
     needs.has("memory") && listMemories(access).then((r) => (ctx.memories = r.slice(0, 30))),
+    (needs.has("memory") || needs.has("prd")) &&
+      query.trim().length >= 3 &&
+      retrieveWiki(principalOf(access), access.project.id, {
+        query,
+        budget: { maxAssets: 6, maxChars: 4000 },
+      }).then((r) => (ctx.wiki = r)),
+    needs.has("memory") &&
+      retrieveMemory(principalOf(access), access.project.id, { query }).then(
+        (r) => (ctx.memoryRetrieval = r),
+      ),
     needs.has("recommendations") &&
       listRecommendations(access).then((r) => (ctx.recommendations = r)),
     needs.has("activity") &&
@@ -348,12 +377,40 @@ export function contextSegments(ctx: AssistantContext): PromptSegment[] {
         .map((r) => `${r.key}: ${r.value.label} (${r.source}). ${r.reason}`)
         .join("\n"),
     });
-  if (ctx.memories)
+  if (ctx.memoryRetrieval) {
+    // Memory that could not be read is said out loud, so the model does not invent the history.
+    segments.push({
+      kind: "project_data",
+      label: "memory",
+      content: ctx.memoryRetrieval.degraded
+        ? "Project memory could not be retrieved right now. Do not assume earlier context."
+        : ctx.memoryRetrieval.items
+            .map((m) => `- [${m.confidence}] ${m.title}: ${m.content}`)
+            .join("\n"),
+    });
+  } else if (ctx.memories)
     segments.push({
       kind: "project_data",
       label: "memory",
       content: ctx.memories.map((m) => `- ${m.title}: ${m.content}`).join("\n"),
     });
+  if (ctx.wiki) {
+    // Evidence from the documents is quoted with where it came from; no evidence is said out loud.
+    segments.push({
+      kind: "project_data",
+      label: "document passages",
+      content: ctx.wiki.degraded
+        ? "Project documents could not be searched right now. Do not assume what they say."
+        : ctx.wiki.passages.length === 0
+          ? "No passage of the project documents matched this question. Say so instead of guessing."
+          : ctx.wiki.passages
+              .map(
+                (p) =>
+                  `[${citation(p)}${(p.stale ? "; source changed since it was read" : "") + (p.draft ? "; draft document" : "")}]\n${p.content}`,
+              )
+              .join("\n\n"),
+    });
+  }
   if (ctx.brain && (ctx.brain.docMap.length > 0 || ctx.brain.prdFindings.length > 0))
     segments.push({
       kind: "project_data",

@@ -38,7 +38,9 @@ import type {
   TaskStatus,
   VersionSource,
 } from "@/lib/domain/enums";
+import type { MemoryConfidence, MemoryKind, MemoryLevel } from "@/lib/domain/memory";
 import { users } from "./auth";
+import { memoryAssets } from "./memory";
 import { projects } from "./projects";
 
 const createdAt = () => timestamp("created_at", { withTimezone: true }).defaultNow().notNull();
@@ -186,6 +188,14 @@ export const memories = pgTable(
     dedupeKey: text("dedupe_key"),
     /** Set when a person edits the text; the journal never overwrites it after that. */
     humanEditedAt: timestamp("human_edited_at", { withTimezone: true }),
+    /** The registry row that owns visibility, status, version and sources of this memory. */
+    assetId: uuid("asset_id")
+      .notNull()
+      .unique()
+      .references(() => memoryAssets.id, { onDelete: "cascade" }),
+    level: text("level").$type<MemoryLevel>().notNull().default("L1"),
+    kind: text("kind").$type<MemoryKind>().notNull().default("fact"),
+    confidence: text("confidence").$type<MemoryConfidence>().notNull().default("confirmed"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },

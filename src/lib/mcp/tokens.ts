@@ -26,6 +26,7 @@ export const TOKEN_SCOPES = [
   "read_prd",
   "read_tasks",
   "read_memory",
+  "read_repository",
   "write_documents",
   "write_memory",
 ] as const;

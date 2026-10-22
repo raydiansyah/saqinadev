@@ -8,6 +8,9 @@ import type { ProjectAccess } from "@/lib/auth/permissions";
 import { getRepository } from "@/lib/git/service";
 import { slugify } from "@/lib/interview/rules/profile";
 import { log } from "@/lib/log";
+import { resolveLoadout } from "@/lib/memory/bindings";
+import type { RetrievedItem } from "@/lib/memory/retrieval/engine";
+import { skillsForRun } from "@/lib/memory/skills/loadout";
 import { toolKey } from "@/lib/tools/catalog";
 import { executeTool } from "@/lib/tools/executor";
 import { agentCan } from "./capabilities";
@@ -15,9 +18,45 @@ import { type AgentExecutionInput, type AgentExecutionResult, MockAgentExecutor 
 import { createHandoff } from "./handoff";
 import type { AgentRow } from "./registry";
 
+/** Memory equipped on the agent itself and on its role, merged, best first, each asset once. */
+async function agentLoadout(
+  projectId: string,
+  agent: Pick<AgentRow, "id" | "role" | "permissions">,
+): Promise<RetrievedItem[]> {
+  const principal = {
+    kind: "agent" as const,
+    agentId: agent.id,
+    creatorId: "",
+    canReadMemory: agent.permissions.includes("read_memory"),
+  };
+  const [own, byRole] = await Promise.all([
+    resolveLoadout(principal, projectId, { type: "agent", id: agent.id }),
+    resolveLoadout(principal, projectId, { type: "agent_role", id: agent.role }),
+  ]);
+  const seen = new Set<string>();
+  return [...own.items, ...byRole.items].filter((i) => !seen.has(i.assetId) && seen.add(i.assetId));
+}
+
 type RunLike = { id: string; attempt: number; taskId: string | null };
 
-const READ_TOOLS = ["read_prd", "search_memory", "list_files", "read_file", "search_code"] as const;
+const READ_TOOLS = [
+  "read_prd",
+  "search_memory",
+  "list_files",
+  "read_file",
+  "search_code",
+  "find_symbol",
+  "find_callers",
+  "file_impact",
+] as const;
+const REPO_TOOLS: readonly string[] = [
+  "list_files",
+  "read_file",
+  "search_code",
+  "find_symbol",
+  "find_callers",
+  "file_impact",
+];
 
 /** What a model may return for an agent run. Validated; anything else is rejected. */
 const agentPlan = z.object({
@@ -125,6 +164,16 @@ async function planWithModel(
     name: agent.name,
     permissions: agent.permissions,
   };
+  // Only memory bound to this agent (or its role) and still readable by it. Never the creator's.
+  const loadout = agent.permissions.includes("read_memory")
+    ? await agentLoadout(access.project.id, agent)
+    : [];
+  const skillHits = await skillsForRun(
+    access.project.id,
+    agent,
+    run,
+    `${input.task.title}\n${input.task.description}`,
+  );
   const segments = [
     {
       kind: "project_data" as const,
@@ -141,10 +190,28 @@ async function planWithModel(
       label: "related requirements",
       content: input.context.requirements.join("\n") || "(none)",
     },
+    ...(loadout.length > 0
+      ? [
+          {
+            kind: "project_data" as const,
+            label: "memory loadout",
+            content: loadout.map((m) => `- [${m.confidence}] ${m.title}: ${m.content}`).join("\n"),
+          },
+        ]
+      : []),
+    ...(skillHits.length > 0
+      ? [
+          {
+            kind: "project_data" as const,
+            label: "skills",
+            content: `Use a skill only if its "Use when" fits this task and no "Do not use when" applies.\n\n${skillHits.map((h) => h.text).join("\n\n")}`,
+          },
+        ]
+      : []),
     {
       kind: "instruction" as const,
       label: "tools",
-      content: `Read tools you may request: ${READ_TOOLS.filter((t) => repoReady || !["list_files", "read_file", "search_code"].includes(t)).join(", ")}.`,
+      content: `Read tools you may request: ${READ_TOOLS.filter((t) => repoReady || !REPO_TOOLS.includes(t)).join(", ")}. ${repoReady ? "Before you plan a code change, ask find_symbol, find_callers and file_impact what it may reach, then read the actual files: the code graph is a guide for finding your way, not proof, and an answer marked stale or name_only needs checking." : ""}`,
     },
   ];
   const steps = ["context_loaded", "model_planned"];

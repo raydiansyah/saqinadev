@@ -177,7 +177,7 @@ export async function contextCounts(executor: Executor, projectId: string) {
     select
       (select count(*)::int from requirements where project_id = ${projectId}) as requirements,
       (select count(*)::int from tasks where project_id = ${projectId}) as tasks,
-      (select count(*)::int from memories where project_id = ${projectId}) as memories,
+      (select count(*)::int from memories m join memory_assets a on a.id = m.asset_id where m.project_id = ${projectId} and a.status = 'approved' and a.visibility = 'project') as memories,
       (select count(*)::int from decisions where project_id = ${projectId}) as decisions,
       (select count(*)::int from documents where project_id = ${projectId}) as documents,
       (select count(*)::int from milestones where project_id = ${projectId}) as milestones

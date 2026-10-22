@@ -120,6 +120,69 @@
       "when": 1792145058467,
       "tag": "0016_brainy_steel_serpent",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1792145059467,
+      "tag": "0017_memory_foundation",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1792145060467,
+      "tag": "0018_memory_cursor",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1792145061467,
+      "tag": "0019_memory_constraints",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1792145062467,
+      "tag": "0020_wiki",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1792646879835,
+      "tag": "0021_skills",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1792649021699,
+      "tag": "0022_skill_usage_unique",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1792649772250,
+      "tag": "0023_skill_settled_by",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1792650355263,
+      "tag": "0024_codegraph",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1792652246235,
+      "tag": "0025_code_calls_index",
+      "breakpoints": true
     }
   ]
 }

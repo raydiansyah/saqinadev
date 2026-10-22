@@ -21,6 +21,8 @@ import { AppError } from "@/lib/errors";
 import { EventBatch } from "@/lib/events/emitter";
 import type { ProjectEventType, Trace } from "@/lib/events/types";
 import { log } from "@/lib/log";
+import { enqueueSkillExtraction } from "@/lib/memory/skills/extract";
+import { settleRunUsages } from "@/lib/memory/skills/usage";
 import { createProposalTx } from "@/lib/proposals/repository";
 import { parse } from "@/lib/validation";
 import { executeAgent } from "./execute-agent";
@@ -85,6 +87,13 @@ export async function transition(
     })
     .where(eq(agentRuns.id, run.id))
     .returning();
+  // A finished run settles the skills it carried and may yield a proposal for a new one.
+  if (to === "completed") {
+    await settleRunUsages(tx, run.id, "success");
+    await enqueueSkillExtraction(tx, { projectId: run.projectId, runId: run.id });
+  } else if (to === "failed") {
+    await settleRunUsages(tx, run.id, "failure");
+  }
   if (run.assignmentId)
     await tx
       .update(agentAssignments)
