@@ -18,6 +18,7 @@ import { AppError, isAppError } from "@/lib/errors";
 import { githubAdapter } from "@/lib/git/github";
 import { assertWritableBranch } from "@/lib/git/service";
 import { GitError, type SyncAdapter } from "@/lib/git/types";
+import { adoptRepoDocsTx } from "@/lib/imports/adopt";
 import { log } from "@/lib/log";
 import { notifyTx, teamRecipients } from "@/lib/notifications/service";
 import { containsSecret } from "@/lib/secrets/scan";
@@ -421,7 +422,8 @@ async function runLocked(connection: Connection, adapter: SyncAdapter, summary: 
         return insertSyncedDocumentTx(tx, access, {
           slug: docSlug(file.path, slugs),
           title: `${file.path.split("/").pop()} (GitHub)`,
-          content: text,
+          // Same header the import writes, so the document is recognised as the repository's own.
+          content: `> Imported from https://github.com/${connection.fullName}/blob/${base}/${file.path}\n\n${text}`,
           // A GitHub-sourced project shows its docs folder to the client (unless it holds a secret).
           shared: connection.docSyncMode === "pull_only" && !containsSecret(text),
         });
@@ -436,6 +438,11 @@ async function runLocked(connection: Connection, adapter: SyncAdapter, summary: 
         state: "synced",
       });
     }
+
+    // GitHub is the source: when the folder changed, whatever now looks like the PRD, plan or task
+    // list is picked (a PRD someone already chose is never replaced).
+    if (connection.docSyncMode === "pull_only" && (summary.created > 0 || summary.pulled > 0))
+      await db.transaction((tx) => adoptRepoDocsTx(tx, projectId));
 
     if (pushes.length > 0) {
       const open = await adapter.findOpenPullRequest(ref, token, { head: syncBranch, base: base });

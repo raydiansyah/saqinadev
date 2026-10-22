@@ -35,7 +35,7 @@ const TARGET = {
 };
 
 /** Moves an imported file into the PRD or PLAN slot when that slot is free or untouched. */
-async function promote(
+export async function promote(
   tx: Tx,
   projectId: string,
   kind: "prd" | "plan",

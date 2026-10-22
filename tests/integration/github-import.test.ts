@@ -2,10 +2,12 @@ import { eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { AiProvider } from "@/lib/ai/provider";
 import type { Actor } from "@/lib/auth/actor";
+import { loadProjectAccess } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
 import { auditEvents, documents, projects } from "@/lib/db/schema";
 import { AppError } from "@/lib/errors";
 import { type FileEntry, type GitAdapter, GitError } from "@/lib/git/types";
+import { choosePrd, createPrdFromText, listPrdCandidates } from "@/lib/imports/choose-prd";
 import { importFromGithub } from "@/lib/imports/service";
 import { completeInterview, getInterviewState } from "@/lib/interviews/service";
 import { createUser, resetDatabase } from "../helpers/db";
@@ -302,5 +304,143 @@ describe("import from GitHub: the documentation folder", () => {
         connect,
       }),
     ).rejects.toMatchObject({ code: "VALIDATION_ERROR" });
+  });
+});
+
+/** A repository with real folders: listing a path returns its files and its subfolders. */
+function treeAdapter(files: Record<string, string>): GitAdapter {
+  const base = fakeAdapter(files);
+  return {
+    ...base,
+    listFiles: async (_ref, _token, input) => {
+      const dir = input.path ? `${input.path}/` : "";
+      const seen = new Map<string, FileEntry>();
+      for (const p of Object.keys(files)) {
+        if (!p.startsWith(dir)) continue;
+        const rest = p.slice(dir.length);
+        const [head, ...tail] = rest.split("/");
+        if (tail.length === 0) seen.set(p, { path: p, type: "file", size: files[p].length });
+        else seen.set(`${dir}${head}`, { path: `${dir}${head}`, type: "dir" });
+      }
+      return [...seen.values()];
+    },
+  };
+}
+
+describe("import from GitHub: finding the PRD in a nested docs folder", () => {
+  let owner: Actor;
+  const connect = vi.fn(async () => undefined);
+  beforeEach(async () => {
+    await resetDatabase();
+    owner = await createUser("Owner", "owner@example.test");
+  });
+
+  it("adopts docs/specifications/prd.md as the project's PRD", async () => {
+    const result = await importFromGithub(owner, { repo: "acme/learning" }, "en", {
+      adapter: treeAdapter({
+        "README.md": "# Learning\n\nAn LMS for a training company with courses and quizzes.\n",
+        "docs/README.md": "# Docs\n\nIndex.\n",
+        "docs/demo-client.md": "# Demo client\n\nHow to demo.\n",
+        "docs/specifications/prd.md": "# PRD\n\n## Goals\n\nTeach people online.\n",
+        "docs/sdlc/phases.md": "# SDLC\n\nPhases.\n",
+        "package.json": FILES["package.json"],
+      }),
+      connect,
+    });
+    expect(result.adopted.prd).toBe(true);
+    const [project] = await db.select().from(projects).where(eq(projects.slug, result.slug));
+    const prd = (await db.select().from(documents).where(eq(documents.projectId, project.id))).find(
+      (d) => d.slug === "prd",
+    );
+    expect(prd?.content).toContain("docs/specifications/prd.md");
+  });
+});
+
+describe("import from GitHub: asking where the PRD is", () => {
+  let owner: Actor;
+  let stranger: Actor;
+  const connect = vi.fn(async () => undefined);
+  beforeEach(async () => {
+    await resetDatabase();
+    owner = await createUser("Owner", "owner@example.test");
+    stranger = await createUser("Stranger", "stranger@example.test");
+  });
+
+  const importWithoutPrd = () =>
+    importFromGithub(owner, { repo: "acme/learning" }, "en", {
+      adapter: treeAdapter({
+        "README.md": "# Learning\n\nAn LMS for a training company with courses and quizzes.\n",
+        "docs/handbook/vision.md": "# Vision\n\nWhere the product goes.\n",
+        "docs/handbook/notes.md": "# Notes\n\nMeeting notes.\n",
+        "package.json": FILES["package.json"],
+      }),
+      connect,
+    });
+
+  it("reports no PRD, lists the documents, and lets the person choose one", async () => {
+    const result = await importWithoutPrd();
+    expect(result.adopted.prd).toBe(false);
+    const access = await loadProjectAccess(owner, { slug: result.slug }, "content:write");
+    const candidates = await listPrdCandidates(access);
+    expect(candidates.map((c) => c.path)).toContain("docs/handbook/vision.md");
+
+    await choosePrd(owner, result.slug, { docSlug: "repo-docs-handbook-vision" });
+    const prd = (
+      await db.select().from(documents).where(eq(documents.projectId, access.project.id))
+    ).find((d) => d.slug === "prd");
+    expect(prd?.type).toBe("prd");
+    expect(prd?.content).toContain("docs/handbook/vision.md");
+    // Once chosen, a second choice does not replace it.
+    await expect(
+      choosePrd(owner, result.slug, { docSlug: "repo-docs-handbook-notes" }),
+    ).rejects.toMatchObject({ code: "CONFLICT" });
+  });
+
+  it("is refused for a stranger and for a document that did not come from the repository", async () => {
+    const result = await importWithoutPrd();
+    await expect(
+      choosePrd(stranger, result.slug, { docSlug: "repo-docs-handbook-vision" }),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+    await expect(choosePrd(owner, result.slug, { docSlug: "nothing-here" })).rejects.toMatchObject({
+      code: "NOT_FOUND",
+    });
+  });
+});
+
+describe("a PRD pasted or uploaded by hand", () => {
+  it("creates the PRD when there is none, and never replaces one", async () => {
+    await resetDatabase();
+    const owner = await createUser("Owner", "owner@example.test");
+    const stranger = await createUser("Stranger", "stranger@example.test");
+    const result = await importFromGithub(owner, { repo: "acme/learning" }, "en", {
+      adapter: treeAdapter({
+        "README.md": "# Learning\n\nAn LMS for a training company with courses and quizzes.\n",
+        "package.json": FILES["package.json"],
+      }),
+      connect: vi.fn(async () => undefined),
+    });
+    expect(result.adopted.prd).toBe(false);
+
+    await expect(createPrdFromText(owner, result.slug, { content: "short" })).rejects.toMatchObject(
+      {
+        code: "VALIDATION_ERROR",
+      },
+    );
+    await expect(
+      createPrdFromText(stranger, result.slug, { content: "# PRD\n\nNot allowed." }),
+    ).rejects.toMatchObject({ code: "NOT_FOUND" });
+
+    await createPrdFromText(owner, result.slug, {
+      content: "# PRD\n\n## Goals\n\nTeach people.\n",
+    });
+    const [project] = await db.select().from(projects).where(eq(projects.slug, result.slug));
+    const prd = (await db.select().from(documents).where(eq(documents.projectId, project.id))).find(
+      (d) => d.slug === "prd",
+    );
+    expect(prd).toMatchObject({ type: "prd", version: 1 });
+    expect(prd?.content).toContain("Teach people.");
+    await expect(
+      createPrdFromText(owner, result.slug, { content: "# PRD\n\nA second one." }),
+    ).rejects.toMatchObject({ code: "CONFLICT" });
   });
 });

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { AI_SCHEMA, analyzeRules, mergeAnalysis } from "@/lib/imports/analyze";
+import { mapDocs } from "@/lib/imports/map-docs";
 import {
   MAX_DOCS,
   parseRepoInput,
@@ -183,5 +184,46 @@ describe("docSlug", () => {
     const taken = new Set<string>();
     expect(docSlug("PRD.md", taken)).toBe("repo-prd");
     expect(docSlug("PLAN.md", taken)).toBe("repo-plan");
+  });
+});
+
+describe("mapDocs: a role as a word in a longer name", () => {
+  const doc = (path: string, content = "# Notes\n\nText.\n") => ({
+    path,
+    content,
+    truncated: false,
+  });
+
+  it("finds the PRD in a specifications folder from names like intech-lms-prd.md", () => {
+    const mapped = mapDocs([
+      doc("docs/README.md"),
+      doc("docs/specifications/intech-lms-prd.md"),
+      doc("docs/specifications/database.md"),
+    ]);
+    expect(mapped.prd?.path).toBe("docs/specifications/intech-lms-prd.md");
+  });
+
+  it("prefers an exact name, and the file nearest the root among equals", () => {
+    const mapped = mapDocs([
+      doc("docs/specifications/lms-prd.md"),
+      doc("docs/prd.md"),
+      doc("docs/old/archive/product-requirements.md"),
+    ]);
+    expect(mapped.prd?.path).toBe("docs/prd.md");
+  });
+
+  it("uses requirements, spec or brief only when nothing better says PRD", () => {
+    expect(mapDocs([doc("docs/lms-requirements.md")]).prd?.path).toBe("docs/lms-requirements.md");
+    const both = mapDocs([doc("docs/lms-requirements.md"), doc("docs/01-prd.md")]);
+    expect(both.prd?.path).toBe("docs/01-prd.md");
+    // Not a PRD: a word that only looks similar, and non-text files.
+    expect(mapDocs([doc("docs/prdx.md"), doc("docs/api-spec.png")]).prd).toBeNull();
+  });
+
+  it("does not take a plan or a task list for the PRD", () => {
+    const mapped = mapDocs([doc("docs/lms-plan.md"), doc("docs/lms-tasks.md")]);
+    expect(mapped.prd).toBeNull();
+    expect(mapped.plan?.path).toBe("docs/lms-plan.md");
+    expect(mapped.tasks?.path).toBe("docs/lms-tasks.md");
   });
 });

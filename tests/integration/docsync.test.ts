@@ -467,7 +467,7 @@ describe("document sync: pull-only (GitHub is the source)", () => {
     const summary = await syncProject(projectId, { adapter: host.adapter });
     expect(summary.pulled).toBe(1);
     const after = await doc("repo-docs-guide");
-    expect(after.content).toBe("# Guide\n\nSecond.\n");
+    expect(after.content).toMatch(/^> Imported from .*\n\n# Guide\n\nSecond\.\n$/);
     expect(after).toMatchObject({ clientVisible: true, status: "approved" });
   });
 
@@ -486,5 +486,33 @@ describe("document sync: pull-only (GitHub is the source)", () => {
     const summary = await syncProject(projectId, { adapter: host.adapter });
     expect(summary.pulled).toBe(1);
     expect((await doc("repo-readme")).content).toBe(`${header}# Shop\n\nNew on GitHub.\n`);
+  });
+});
+
+describe("document sync: the PRD is found again when the docs folder changes", () => {
+  beforeEach(async () => {
+    await setup();
+    await db.update(repositoryConnections).set({ docSyncMode: "pull_only" });
+    // The project starts without a PRD of its own: the repository has to bring it.
+    await db
+      .delete(documents)
+      .where(and(eq(documents.projectId, projectId), eq(documents.slug, "prd")));
+  });
+
+  it("promotes a PRD that appears in a nested docs folder", async () => {
+    const host = fakeHost({ "docs/specifications/prd.md": "# PRD\n\n## Goals\n\nTeach.\n" });
+    const summary = await syncProject(projectId, { adapter: host.adapter });
+    expect(summary.created).toBe(1);
+    const prd = await doc("prd");
+    expect(prd.type).toBe("prd");
+    expect(prd.content).toContain("Teach.");
+    // It keeps following GitHub under its new name.
+    host.editMain(
+      "docs/specifications/prd.md",
+      "# PRD\n\n## Goals\n\nTeach more.\n",
+      new Date(Date.now() + 60_000),
+    );
+    await syncProject(projectId, { adapter: host.adapter });
+    expect((await doc("prd")).content).toContain("Teach more.");
   });
 });

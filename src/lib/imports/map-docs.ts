@@ -20,6 +20,24 @@ const PLAN =
 const TASKS = /^(tasks?|todo|to-do|backlog|checklist|task[-_ ]?list)\.(md|mdx|markdown|txt)$/i;
 export const NAME: Record<DocRole, RegExp> = { prd: PRD, plan: PLAN, tasks: TASKS };
 
+/**
+ * A name that carries the role as a word among others: "intech-lms-prd.md", "01-PRD.md",
+ * "lms_product_requirements.md". Weaker than an exact name, so it only fills what is still empty.
+ */
+const WORD = "(^|[-_ .0-9])";
+const WORD_END = "([-_ .0-9]|$)";
+const LOOSE_PRD = new RegExp(
+  `${WORD}(prd|product[-_ ]?requirements?([-_ ]?document)?)${WORD_END}`,
+  "i",
+);
+const LOOSE_PLAN = new RegExp(`${WORD}(plan|roadmap)${WORD_END}`, "i");
+const LOOSE_TASKS = new RegExp(`${WORD}(tasks?|todo|to-do|backlog|task[-_ ]?list)${WORD_END}`, "i");
+const LOOSE: Record<DocRole, RegExp> = { prd: LOOSE_PRD, plan: LOOSE_PLAN, tasks: LOOSE_TASKS };
+// Words that say "requirements" without saying PRD: the last resort, after the text was read.
+const WEAK_PRD = new RegExp(`${WORD}(requirements?|spec(ification)?s?|brief)${WORD_END}`, "i");
+const stem = (path: string) => (path.split("/").pop() ?? path).replace(/\.[^.]+$/, "");
+const DOC_EXT = /\.(md|mdx|markdown|txt)$/i;
+
 const base = (path: string) => path.split("/").pop() ?? path;
 const depth = (path: string) => path.split("/").length;
 const isReadme = (path: string) => /^readme(\.\w+)?$/i.test(base(path));
@@ -56,6 +74,15 @@ export function contentScore(doc: RepoDoc, role: DocRole): number {
   return titled > 0 && count(doc.content, /^#{2,3}\s+\S/gm) >= 2 ? titled : 0;
 }
 
+/** How much a file name says "this is the PRD": 3 exact, 2 as a word, 1 requirements/spec/brief, 0 none. */
+export function prdLikeness(path: string): number {
+  const name = base(path);
+  if (!DOC_EXT.test(name) || isReadme(path)) return 0;
+  if (PRD.test(name)) return 3;
+  if (LOOSE_PRD.test(stem(path))) return 2;
+  return WEAK_PRD.test(stem(path)) ? 1 : 0;
+}
+
 export interface MappedDocs {
   prd: RepoDoc | null;
   plan: RepoDoc | null;
@@ -83,6 +110,14 @@ export function mapDocs(
       role,
       candidates.filter((d) => !taken.has(d) && NAME[role].test(base(d.path))).sort(nearest)[0],
     );
+  // 1b. the role as a word in a longer name, nearest the root first.
+  for (const role of DOC_ROLES)
+    assign(
+      role,
+      candidates
+        .filter((d) => !taken.has(d) && DOC_EXT.test(d.path) && LOOSE[role].test(stem(d.path)))
+        .sort(nearest)[0],
+    );
   // 2. a model's hints.
   for (const role of DOC_ROLES)
     if (!out[role])
@@ -100,5 +135,12 @@ export function mapDocs(
       .sort((a, b) => b.score - a.score || nearest(a.d, b.d))[0];
     assign(role, best?.d);
   }
+  // 4. last resort for the PRD: a file whose name says requirements, spec or brief.
+  assign(
+    "prd",
+    candidates
+      .filter((d) => !taken.has(d) && DOC_EXT.test(d.path) && WEAK_PRD.test(stem(d.path)))
+      .sort(nearest)[0],
+  );
   return out;
 }

@@ -3,9 +3,11 @@ import { getTranslations } from "next-intl/server";
 import { EmptyState } from "@/components/app/states";
 import { DocumentPage } from "@/components/documents/document-page";
 import { PrdFindingsPanel } from "@/components/documents/prd-findings-panel";
+import { PrdPicker } from "@/components/documents/prd-picker";
 import { can } from "@/lib/auth/permissions";
 import { listPrdFindings } from "@/lib/brain/prd-findings";
 import { getDocument } from "@/lib/documents/service";
+import { isGithubSourced, listPrdCandidates } from "@/lib/imports/choose-prd";
 import { projectPageAccess } from "@/lib/projects/page";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,6 +21,8 @@ export default async function PrdPage({ params }: PageProps<"/[locale]/project/[
   const t = await getTranslations("documents");
   const exists = await getDocument(access, "prd");
   const findings = await listPrdFindings(access);
+  const candidates = exists ? [] : await listPrdCandidates(access);
+  const asksForPrd = !exists && (candidates.length > 0 || (await isGithubSourced(access)));
   return (
     <>
       <p className="mb-6 max-w-2xl text-muted-foreground">{t("prdDescription")}</p>
@@ -35,6 +39,8 @@ export default async function PrdPage({ params }: PageProps<"/[locale]/project/[
       />
       {exists ? (
         <DocumentPage access={access} docSlug="prd" />
+      ) : asksForPrd && can(access.role, "content:write") ? (
+        <PrdPicker slug={slug} options={candidates} />
       ) : (
         <EmptyState
           title="PRD.md"
