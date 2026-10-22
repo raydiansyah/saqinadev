@@ -278,6 +278,11 @@
         "client": "Client and meetings",
         "other": "Other"
       }
+    },
+    "diagram": {
+      "label": "Diagram",
+      "loading": "Drawing the diagram…",
+      "invalid": "This diagram could not be drawn. Its source is shown instead."
     }
   },
   "plan": {

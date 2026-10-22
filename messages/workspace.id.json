@@ -278,6 +278,11 @@
         "client": "Klien dan rapat",
         "other": "Lainnya"
       }
+    },
+    "diagram": {
+      "label": "Diagram",
+      "loading": "Menggambar diagram…",
+      "invalid": "Diagram ini tidak bisa digambar. Sumbernya ditampilkan sebagai gantinya."
     }
   },
   "plan": {
