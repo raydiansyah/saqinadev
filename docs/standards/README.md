@@ -14,6 +14,7 @@ tick the checklist below before you open a pull request.
 | CI/CD, rollback, environments, dependency provenance | [delivery.md](delivery.md) |
 | Observability and monitoring | [observability.md](observability.md) |
 | Privacy, retention, AI disclosure, licences | [compliance.md](compliance.md) |
+| White label: branding the client portal | [white-label.md](white-label.md) |
 | Ownership, risk lanes, review, AI attribution | [governance.md](governance.md) |
 | README, ADRs, runbook, API docs | [documentation.md](documentation.md) |
 
@@ -37,6 +38,7 @@ Every rule is marked so nobody mistakes an aspiration for a guarantee:
 - [ ] Logs and audit events carry no secrets and no personal data.
 - [ ] Tests cover the happy path and the failure paths (empty, null, timeout, concurrent).
 - [ ] `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` pass.
+- [ ] Portal-facing change: white-label rules respected ([white-label.md](white-label.md)).
 - [ ] Docs updated (README, ADR for a decision, runbook for an operational change).
 - [ ] AI-written code: attribution filled in, adversarial review done for Red lane.
 
