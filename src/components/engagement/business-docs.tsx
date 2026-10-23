@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useId } from "react";
 import { generateBusinessDocumentAction } from "@/app/[locale]/(app)/project/[slug]/documents/actions";
 import { useRun } from "@/components/platform/use-run";
@@ -13,6 +13,7 @@ const KINDS = ["proposal", "agreement", "handover", "maintenance_agreement"] as 
 /** Drafts a business document from the project records, then opens it. */
 export function BusinessDocs({ slug }: { slug: string }) {
   const t = useTranslations("engagement.businessDocs");
+  const locale = useLocale();
   const id = useId();
   const router = useRouter();
   const { pending, error, run } = useRun();
@@ -35,7 +36,7 @@ export function BusinessDocs({ slug }: { slug: string }) {
             disabled={pending}
             onClick={() =>
               run<{ slug: string }>(
-                () => generateBusinessDocumentAction(slug, kind),
+                () => generateBusinessDocumentAction(slug, kind, locale),
                 (doc) => router.push(`/project/${slug}/documents/${doc.slug}`),
               )
             }

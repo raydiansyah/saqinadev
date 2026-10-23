@@ -2,6 +2,7 @@
 
 | Document | Where | Must contain | Status |
 |---|---|---|---|
+| PRD | `docs/PRD.md` | Users, goals, non-goals, requirements with a status each (Built, Partial, Planned), open questions; the page every change is checked against | Present |
 | README | `README.md` | What Saqina is, prerequisites, local setup, **every environment variable** (also `.env.example`), scripts, test and deploy steps, links to standards | Planned (expand) |
 | Standards | `docs/standards/` | These pages | Present |
 | ADRs | `docs/adr/NNNN-title.md` | Context, decision, consequences, status (MADR format); one per significant decision | Planned |

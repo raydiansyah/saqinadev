@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getLocale } from "next-intl/server";
+import { DEFAULT_LOCALE, isLocale } from "@/i18n/locales";
 import { runAction } from "@/lib/actions";
 import { loadProjectAccess } from "@/lib/auth/permissions";
 import { requireActor } from "@/lib/auth/server";
@@ -69,13 +69,14 @@ export async function getDocConflictAction(slug: string, documentId: string) {
 }
 
 /** Proposal, agreement, handover or maintenance agreement drafted from the project records. */
-export async function generateBusinessDocumentAction(slug: string, kind: string) {
+export async function generateBusinessDocumentAction(slug: string, kind: string, locale: string) {
   return runAction("document.generate", { slug, kind }, async () => {
     const result = await generateBusinessDocument(
       await requireActor(),
       slug,
       { kind },
-      await getLocale(),
+      // The locale comes from the page: root params cannot be read inside a Server Action.
+      isLocale(locale) ? locale : DEFAULT_LOCALE,
     );
     refresh();
     return result;

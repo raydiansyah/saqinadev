@@ -71,6 +71,7 @@ pnpm dev
 
 ## Documentation
 
+- [Product requirements (PRD)](docs/PRD.md): users, goals, requirements with status
 - [Engineering standards](docs/standards/README.md): architecture, security, testing, delivery,
   observability, compliance, governance
 - [Runbook](docs/runbook.md): deploy, migrate, roll back, incidents
