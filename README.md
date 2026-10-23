@@ -26,7 +26,9 @@ Next.js 16 (App Router), React 19, TypeScript, PostgreSQL with Drizzle ORM, Bett
 ## Prerequisites
 
 - Node.js 24 LTS and pnpm 10
-- PostgreSQL 14+ (local or Neon), plus a second database whose name contains `_test` for tests
+- PostgreSQL 14+, plus a second database whose name contains `_test` for tests. Use a **local**
+  database in `.env.local`: `DATABASE_URL` must not point at production (Neon), because `pnpm dev`,
+  `pnpm db:*` and the seed all write to it
 
 ## Local setup
 
@@ -63,7 +65,8 @@ pnpm dev
 | `pnpm typecheck` | Next typegen and `tsc --noEmit` |
 | `pnpm test` / `pnpm test:coverage` | Vitest (integration tests need `DATABASE_URL_TEST`) |
 | `pnpm check:licenses` / `pnpm check:coverage` | Licence and coverage gates used in CI |
-| `pnpm db:generate` / `db:migrate` / `db:seed` | Schema migrations and seed data |
+| `pnpm db:generate` / `db:migrate` / `db:seed` | Schema migrations and seed data (local database only) |
+| `pnpm db:migrate:neon` | Apply migrations to Neon with `neonctl`; asks to confirm, `--backup` snapshots first, `--dry-run` shows the plan |
 | `pnpm smoke <url>` | Post-deploy smoke test |
 
 ## Documentation
@@ -71,6 +74,12 @@ pnpm dev
 - [Engineering standards](docs/standards/README.md): architecture, security, testing, delivery,
   observability, compliance, governance
 - [Runbook](docs/runbook.md): deploy, migrate, roll back, incidents
-- [Architecture decisions](docs/adr/)
+- [Architecture decisions](docs/adr/), including [imported projects follow GitHub](docs/adr/0005-imported-projects-follow-github.md)
+- User guides, signed-in only and written per reader: the team at `/dashboard/docs`, clients at `/portal/docs`.
+  Pages are Markdown in `src/content/docs/<owner|client>/<en|id>/` and their screenshots in
+  `src/content/docs/assets/<owner|client>/`, served only to people allowed to read that guide
+- White label ([standard](docs/standards/white-label.md)): what a client portal may brand and what it never hides
+- Importing from GitHub: documents are read from the repository (one way, the most recent edit wins),
+  everything in the docs folder is shown to the client, and the PRD is found by name or asked for
 - Project memory ([ADR 0004](docs/adr/0004-project-memory.md)): chat and agent suggestions wait for review, access is
   checked before search, retrieval is full-text and exact match (semantic search is off, and the UI says so)
