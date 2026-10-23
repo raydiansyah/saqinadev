@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, eq, max } from "drizzle-orm";
+import { and, asc, eq, inArray, max } from "drizzle-orm";
 import * as z from "zod";
 import { recordActivity } from "@/lib/activity/service";
 import type { Actor } from "@/lib/auth/actor";
@@ -161,5 +161,77 @@ export async function deleteRequirement(actor: Actor, slug: string, input: unkno
   await db.transaction(async (tx) => {
     const access = await loadProjectAccess(actor, { slug }, "content:write", tx);
     await deleteRequirementTx(tx, access, id);
+  });
+}
+
+// ---- bulk ----------------------------------------------------------------------------------------
+
+/** One request changes at most this many: a person selects them on one page. */
+export const MAX_BULK = 200;
+
+const bulkIds = z.array(z.uuid()).min(1).max(MAX_BULK);
+const bulkPatch = z
+  .object({
+    status: z.enum(REQUIREMENT_STATUSES),
+    priority: z.enum(PRIORITIES),
+    group: z.enum(REQUIREMENT_GROUPS),
+  })
+  .partial()
+  .refine((p) => Object.keys(p).length > 0, "empty");
+
+/**
+ * Sets a status, a priority or a group on many requirements at once. All or nothing: one id that
+ * is not in this project (or a duplicate) refuses the whole request, so nobody learns which ids
+ * belong to another project. One query, one activity entry for the whole change.
+ */
+export async function bulkUpdateRequirements(
+  actor: Actor,
+  slug: string,
+  raw: unknown,
+): Promise<{ updated: number }> {
+  const { ids, patch } = parse(z.object({ ids: bulkIds, patch: bulkPatch }), raw);
+  const unique = [...new Set(ids)];
+  return db.transaction(async (tx) => {
+    const { project, actor: who } = await loadProjectAccess(actor, { slug }, "content:write", tx);
+    const rows = await tx
+      .update(requirements)
+      .set({ ...patch, source: USER_TRACE.via, confidence: "high", updatedBy: who.id })
+      .where(and(eq(requirements.projectId, project.id), inArray(requirements.id, unique)))
+      .returning({ id: requirements.id });
+    if (rows.length !== unique.length) throw new AppError("NOT_FOUND");
+    await recordActivity(tx, {
+      projectId: project.id,
+      actorId: who.id,
+      type: "requirement.updated",
+      entityType: "requirement",
+      metadata: { count: rows.length, bulk: true, ...patch, ...traceMetadata(USER_TRACE) },
+    });
+    return { updated: rows.length };
+  });
+}
+
+/** Deletes many requirements at once, under the same all-or-nothing rule. */
+export async function bulkDeleteRequirements(
+  actor: Actor,
+  slug: string,
+  raw: unknown,
+): Promise<{ deleted: number }> {
+  const { ids } = parse(z.object({ ids: bulkIds }), raw);
+  const unique = [...new Set(ids)];
+  return db.transaction(async (tx) => {
+    const { project, actor: who } = await loadProjectAccess(actor, { slug }, "content:write", tx);
+    const rows = await tx
+      .delete(requirements)
+      .where(and(eq(requirements.projectId, project.id), inArray(requirements.id, unique)))
+      .returning({ id: requirements.id });
+    if (rows.length !== unique.length) throw new AppError("NOT_FOUND");
+    await recordActivity(tx, {
+      projectId: project.id,
+      actorId: who.id,
+      type: "requirement.deleted",
+      entityType: "requirement",
+      metadata: { count: rows.length, bulk: true, ...traceMetadata(USER_TRACE) },
+    });
+    return { deleted: rows.length };
   });
 }

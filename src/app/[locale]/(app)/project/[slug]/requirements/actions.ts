@@ -6,6 +6,8 @@ import { runAction } from "@/lib/actions";
 import { requireActor } from "@/lib/auth/server";
 import { syncRequirementsFromDocs } from "@/lib/imports/sync";
 import {
+  bulkDeleteRequirements,
+  bulkUpdateRequirements,
   createRequirement,
   deleteRequirement,
   updateRequirement,
@@ -44,6 +46,23 @@ export async function syncRequirementsAction(slug: string, useAi: boolean, local
       isLocale(locale) ? locale : DEFAULT_LOCALE,
     );
     if (result.added > 0) refresh();
+    return result;
+  });
+}
+
+/** One status, priority or group for every selected requirement. */
+export async function bulkUpdateRequirementsAction(slug: string, input: unknown) {
+  return runAction("requirement.bulk_update", { slug }, async () => {
+    const result = await bulkUpdateRequirements(await requireActor(), slug, input);
+    refresh();
+    return result;
+  });
+}
+
+export async function bulkDeleteRequirementsAction(slug: string, input: unknown) {
+  return runAction("requirement.bulk_delete", { slug }, async () => {
+    const result = await bulkDeleteRequirements(await requireActor(), slug, input);
+    refresh();
     return result;
   });
 }

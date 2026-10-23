@@ -16,6 +16,7 @@ import {
 } from "@/lib/domain/enums";
 import type { RequirementView } from "@/lib/requirements/service";
 import { cn } from "@/lib/utils";
+import { BulkBar } from "./bulk-bar";
 import { RequirementDialog, type RequirementDraftForm } from "./requirement-dialog";
 
 const STATUS_TONE: Record<RequirementStatus, string> = {
@@ -50,6 +51,17 @@ export function RequirementList({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [deleting, setDeleting] = useState<RequirementView | null>(null);
+  // Selected requirement ids, for the bulk actions. Ids that no longer exist are dropped below.
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const bulk = useTranslations("requirements.bulk");
+  const known = new Set(items.map((r) => r.id));
+  const chosen = [...selected].filter((id) => known.has(id));
+  const toggle = (ids: string[], on: boolean) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      for (const id of ids) on ? next.add(id) : next.delete(id);
+      return next;
+    });
 
   const groups = REQUIREMENT_GROUPS.map((group) => ({
     group,
@@ -79,7 +91,25 @@ export function RequirementList({
   return (
     <div className="space-y-8">
       {canEdit ? (
-        <div className="flex justify-end">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          {items.length > 0 ? (
+            <label className="flex min-h-11 items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                className="size-5 accent-primary"
+                checked={chosen.length === items.length}
+                onChange={(e) =>
+                  toggle(
+                    items.map((r) => r.id),
+                    e.target.checked,
+                  )
+                }
+              />
+              {bulk("selectAll", { count: items.length })}
+            </label>
+          ) : (
+            <span />
+          )}
           <Button size="sm" onClick={add}>
             {t("add")}
           </Button>
@@ -114,14 +144,39 @@ export function RequirementList({
               aria-labelledby={`${group}-heading`}
               className="scroll-mt-20"
             >
-              <h2 id={`${group}-heading`} className="mb-3 font-semibold">
-                {groupLabels[group]}
-              </h2>
+              <div className="mb-3 flex items-center gap-3">
+                {canEdit ? (
+                  <input
+                    type="checkbox"
+                    className="size-5 accent-primary"
+                    aria-label={bulk("selectGroup", { group: groupLabels[group] })}
+                    checked={list.every((r) => selected.has(r.id))}
+                    onChange={(e) =>
+                      toggle(
+                        list.map((r) => r.id),
+                        e.target.checked,
+                      )
+                    }
+                  />
+                ) : null}
+                <h2 id={`${group}-heading`} className="font-semibold">
+                  {groupLabels[group]}
+                </h2>
+              </div>
               <ul className="space-y-2" aria-busy={pending}>
                 {list.map((r) => (
                   <li key={r.id} className="rounded-lg border border-border bg-surface p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="min-w-0">
+                      {canEdit ? (
+                        <input
+                          type="checkbox"
+                          className="mt-1 size-5 shrink-0 accent-primary"
+                          aria-label={bulk("select", { title: r.title })}
+                          checked={selected.has(r.id)}
+                          onChange={(e) => toggle([r.id], e.target.checked)}
+                        />
+                      ) : null}
+                      <div className="min-w-0 flex-1">
                         <h3 className="font-medium">{r.title}</h3>
                         {r.description ? (
                           <p className="mt-1 text-sm text-pretty text-muted-foreground">
@@ -200,6 +255,14 @@ export function RequirementList({
         </>
       )}
 
+      {canEdit && chosen.length > 0 ? (
+        <BulkBar
+          slug={slug}
+          ids={chosen}
+          groupLabels={groupLabels}
+          onDone={() => setSelected(new Set())}
+        />
+      ) : null}
       <ConfirmDialog
         open={deleting !== null}
         title={states("delete")}
