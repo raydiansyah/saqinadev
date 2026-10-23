@@ -12,6 +12,7 @@ import { ConfirmDialog } from "@/components/app/confirm-dialog";
 import { SaveIndicator, type SaveState } from "@/components/app/save-indicator";
 import { Button } from "@/components/ui/button";
 import { Field, Select, TextArea } from "@/components/ui/form";
+import { onSubmitData } from "@/components/ui/form-submit";
 import { BUILD_STRATEGIES, DEPLOY_PROVIDERS, REPO_PROVIDERS } from "@/lib/domain/enums";
 import type { ActionResult, FieldErrors } from "@/lib/errors";
 
@@ -87,14 +88,14 @@ export function GeneralForm({
     <Section id={`${id}-general`} title={t("general")}>
       <form
         className="space-y-4"
-        action={(form) =>
+        onSubmit={onSubmitData((form) =>
           save.run(() =>
             updateGeneralAction(slug, {
               name: form.get("name"),
               description: form.get("description"),
             }),
-          )
-        }
+          ),
+        )}
       >
         <Field
           id={`${id}-name`}
@@ -160,7 +161,7 @@ export function TechnicalForm({
   return (
     <form
       className="space-y-6"
-      action={(form) =>
+      onSubmit={onSubmitData((form) =>
         save.run(() =>
           updateSettingsAction(slug, {
             buildStrategy: form.get("buildStrategy"),
@@ -173,11 +174,12 @@ export function TechnicalForm({
               : form.get("deployProvider") || null,
             environment: managedDeploy ? values.environment : (form.get("environment") ?? ""),
             domain: managedDeploy ? values.domain : (form.get("domain") ?? ""),
-            aiProvider: form.get("aiProvider") ?? "",
-            aiModel: form.get("aiModel") ?? "",
+            // Not editable here: keep what is stored instead of clearing it.
+            aiProvider: values.aiProvider,
+            aiModel: values.aiModel,
           }),
-        )
-      }
+        ),
+      )}
     >
       <Section id={`${id}-build`} title={t("buildStrategy")}>
         <Select

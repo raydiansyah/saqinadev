@@ -11,6 +11,7 @@ import { FormError } from "@/components/platform/form-error";
 import { useRun } from "@/components/platform/use-run";
 import { Button } from "@/components/ui/button";
 import { Field, Notice, Select } from "@/components/ui/form";
+import { onSubmitData } from "@/components/ui/form-submit";
 import type { TechStack } from "@/lib/db/schema/projects";
 import { STACK_KEYS } from "@/lib/domain/enums";
 
@@ -129,9 +130,9 @@ export function TechStackForm({
             <form
               key={`${key}-${stack[key]?.value ?? ""}`}
               className="flex flex-wrap items-end gap-2"
-              action={(form) =>
-                run(() => updateStackAction(slug, { key, value: String(form.get("value") ?? "") }))
-              }
+              onSubmit={onSubmitData((form) =>
+                run(() => updateStackAction(slug, { key, value: String(form.get("value") ?? "") })),
+              )}
             >
               <div className="min-w-48 flex-1">
                 <Field

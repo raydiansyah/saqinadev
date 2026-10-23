@@ -216,7 +216,10 @@ const optionalText = (max: number) =>
 const settingsInput = z.object({
   buildStrategy: z.enum(BUILD_STRATEGIES),
   repoProvider: z.enum(REPO_PROVIDERS).nullable(),
-  repoUrl: optionalText(300).refine((v) => v === null || /^https?:\/\/\S+$/.test(v), "url"),
+  repoUrl: optionalText(300)
+    // "github.com/acme/site" is what people type: take it as https.
+    .transform((v) => (v && !/^[a-z][a-z0-9+.-]*:\/\//i.test(v) ? `https://${v}` : v))
+    .refine((v) => v === null || /^https?:\/\/\S+$/.test(v), "url"),
   defaultBranch: optionalText(100),
   deployProvider: z.enum(DEPLOY_PROVIDERS).nullable(),
   environment: optionalText(60),
