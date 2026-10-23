@@ -21,7 +21,8 @@
       "deploy": "Deploy",
       "done": "done",
       "current": "current",
-      "upcoming": "not started"
+      "upcoming": "not started",
+      "confirm": "Answer first: how far is the system?"
     },
     "nextActions": {
       "continueInterview": "Continue Interview",
@@ -35,7 +36,10 @@
       "continueBuilding": "Continue Building",
       "restoreProject": "Restore Project",
       "reviewProposal": "Review pending approvals",
-      "inspectAgentFailure": "Inspect agent failure"
+      "inspectAgentFailure": "Inspect agent failure",
+      "confirmDelivery": "Say how far the system is",
+      "systemLive": "The system is live",
+      "deploySystem": "Deploy the system"
     },
     "nextActionHints": {
       "continueInterview": "A few answers are still missing before the project can be structured.",
@@ -49,7 +53,10 @@
       "continueBuilding": "Pick up the next task.",
       "restoreProject": "This project is archived. Restore it to keep working.",
       "reviewProposal": "Saqina or an agent prepared changes that wait for your approval. Nothing is applied until you approve.",
-      "inspectAgentFailure": "An agent run failed. See why, then retry, reassign or cancel it."
+      "inspectAgentFailure": "An agent run failed. See why, then retry, reassign or cancel it.",
+      "confirmDelivery": "This project came from GitHub and may already be built, in review or live. Answer three questions so the stages match.",
+      "systemLive": "Build, review and deploy are done. Keep it up to date through maintenance and changes.",
+      "deploySystem": "It is built and reviewed. Deploy it, then say so on Progress."
     },
     "sidebar": {
       "label": "Project",

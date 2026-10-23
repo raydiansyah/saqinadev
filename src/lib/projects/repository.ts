@@ -12,6 +12,7 @@ import {
   requirements,
   tasks,
 } from "@/lib/db/schema";
+import { loadDeliverySummaries } from "@/lib/delivery/summary";
 import type { TaskStatus } from "@/lib/domain/enums";
 import { EMPTY_TASK_COUNTS, NO_ATTENTION, type ProjectSnapshot } from "./progress";
 
@@ -131,6 +132,10 @@ export async function loadSnapshots(
   for (const r of taskRows) {
     const s = result.get(r.projectId);
     if (s) s.tasks[r.status as TaskStatus] = r.n;
+  }
+  for (const [id, delivery] of await loadDeliverySummaries(executor, ids)) {
+    const s = result.get(id);
+    if (s) s.delivery = delivery;
   }
   return result;
 }

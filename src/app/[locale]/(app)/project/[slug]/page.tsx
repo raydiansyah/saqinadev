@@ -70,7 +70,10 @@ export default async function ProjectOverviewPage({
           <h2 id="progress-heading" className="mb-3 font-medium">
             {t("overview.progress")}
           </h2>
-          <Pipeline stages={pipelineStages(snapshot)} />
+          <Pipeline
+            stages={pipelineStages(snapshot)}
+            confirmHref={snapshot.delivery?.awaiting ? `${base}/progress` : undefined}
+          />
         </section>
 
         {interviewDone ? (

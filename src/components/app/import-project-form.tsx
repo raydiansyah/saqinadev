@@ -82,15 +82,10 @@ export function ImportProjectForm({ github }: { github: GithubState }) {
       // The token has done its job: it is now stored encrypted by the repository connection.
       setToken("");
       // A ready workspace needs no interview; only unresolved conflicts send the user there.
-      // No PRD found among the documents: land where the person is asked which one it is.
-      const { slug, completed, adopted, documents } = result.data;
-      router.push(
-        !completed
-          ? `/project/${slug}/interview`
-          : !adopted.prd && documents > 0
-            ? `/project/${slug}/prd`
-            : `/project/${slug}`,
-      );
+      // The system may already be built, in review or live: first ask how far it is. If the
+      // documents held no PRD, that page also says where to give one.
+      const { slug, completed } = result.data;
+      router.push(completed ? `/project/${slug}/progress` : `/project/${slug}/interview`);
     });
   }
 

@@ -1,12 +1,20 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useId } from "react";
+import { useId, useState } from "react";
 import { answerDeliveryAction } from "@/app/[locale]/(app)/project/[slug]/progress/release-actions";
+import { Dialog } from "@/components/app/dialog";
 import { useRun } from "@/components/platform/use-run";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/form";
-import type { DeliveryNote, TaskCounts } from "@/lib/delivery/consistency";
+import {
+  type Answers,
+  type DeliveryNote,
+  planTaskAdjustment,
+  settleAnswers,
+  type TaskAdjustment,
+  type TaskCounts,
+} from "@/lib/delivery/consistency";
 import { DELIVERY_STEPS, type DeliveryStep } from "@/lib/domain/delivery";
 import { formatRelative } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -30,12 +38,15 @@ export function ReleaseChecklist({
   checks,
   tasks,
   notes,
+  awaiting,
   canAnswer,
 }: {
   slug: string;
   checks: ReleaseCheck[];
   tasks: TaskCounts;
   notes: DeliveryNote[];
+  /** Imported from GitHub and nobody has answered yet: this is the first thing to do. */
+  awaiting: boolean;
   canAnswer: boolean;
 }) {
   const t = useTranslations("progress.release");
@@ -43,6 +54,27 @@ export function ReleaseChecklist({
   const locale = useLocale();
   const id = useId();
   const { pending, error, run } = useRun();
+  // An answer that would move tasks waits here until the person chooses what to do.
+  const [ask, setAsk] = useState<{
+    step: DeliveryStep;
+    value: boolean;
+    moves: TaskAdjustment;
+  } | null>(null);
+  const answers: Answers = { build: null, review: null, deploy: null };
+  for (const c of checks) answers[c.step] = c.unanswered ? null : c.done;
+
+  function answer(step: DeliveryStep, value: boolean) {
+    const moves = planTaskAdjustment(settleAnswers(answers, step, value), tasks);
+    if (moves.toReview + moves.toDone > 0) return setAsk({ step, value, moves });
+    run(() => answerDeliveryAction(slug, step, value, false));
+  }
+
+  function confirm(adjustTasks: boolean) {
+    if (!ask) return;
+    const { step, value } = ask;
+    setAsk(null);
+    run(() => answerDeliveryAction(slug, step, value, adjustTasks));
+  }
   const byStep = new Map(checks.map((c) => [c.step, c]));
   const current = DELIVERY_STEPS.map((s) => byStep.get(s)).filter(
     (c): c is ReleaseCheck => c !== undefined,
@@ -51,11 +83,19 @@ export function ReleaseChecklist({
   const anyStale = current.some((c) => c.stale);
 
   return (
-    <section aria-labelledby={`${id}-h`} className="rounded-lg border border-border p-5">
+    <section
+      aria-labelledby={`${id}-h`}
+      className={cn("rounded-lg border p-5", awaiting ? "border-primary" : "border-border")}
+    >
       <h2 id={`${id}-h`} className="font-semibold">
         {t("title")}
       </h2>
       <p className="mt-1 text-sm text-muted-foreground">{t("hint")}</p>
+      {awaiting ? (
+        <p role="status" className="mt-3 text-sm font-medium text-primary">
+          {t("awaiting")}
+        </p>
+      ) : null}
 
       {tasks.total > 0 ? (
         <p className="mt-3 font-mono text-xs text-muted-foreground">
@@ -104,7 +144,7 @@ export function ReleaseChecklist({
                       variant={c && !c.unanswered && c.done === value ? "primary" : "outline"}
                       aria-pressed={c && !c.unanswered ? c.done === value : false}
                       disabled={pending}
-                      onClick={() => run(() => answerDeliveryAction(slug, step, value))}
+                      onClick={() => answer(step, value)}
                     >
                       {value ? t("answerYes") : t("answerNo")}
                     </Button>
@@ -126,6 +166,29 @@ export function ReleaseChecklist({
         )}
       </div>
       {error ? <Notice tone="error">{errors(error.code as "INTERNAL_ERROR")}</Notice> : null}
+
+      <Dialog open={ask !== null} onClose={() => setAsk(null)} title={t("adjust.title")}>
+        <div className="space-y-4">
+          <div className="space-y-2 text-sm text-muted-foreground">
+            {ask && ask.moves.toDone > 0 ? (
+              <p>{t("adjust.toDone", { count: ask.moves.toDone })}</p>
+            ) : null}
+            {ask && ask.moves.toReview > 0 ? (
+              <p>{t("adjust.toReview", { count: ask.moves.toReview })}</p>
+            ) : null}
+            <p>{t("adjust.note")}</p>
+          </div>
+          <div className="flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-end">
+            <Button variant="ghost" onClick={() => setAsk(null)}>
+              {t("adjust.cancel")}
+            </Button>
+            <Button variant="outline" onClick={() => confirm(false)}>
+              {t("adjust.answerOnly")}
+            </Button>
+            <Button onClick={() => confirm(true)}>{t("adjust.answerAndAdjust")}</Button>
+          </div>
+        </div>
+      </Dialog>
     </section>
   );
 }

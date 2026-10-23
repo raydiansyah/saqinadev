@@ -21,7 +21,8 @@
       "deploy": "Deploy",
       "done": "selesai",
       "current": "sedang berjalan",
-      "upcoming": "belum dimulai"
+      "upcoming": "belum dimulai",
+      "confirm": "Jawab dulu: sistem sudah sampai mana?"
     },
     "nextActions": {
       "continueInterview": "Lanjutkan Interview",
@@ -35,7 +36,10 @@
       "continueBuilding": "Lanjut Membangun",
       "restoreProject": "Pulihkan Proyek",
       "reviewProposal": "Review usulan yang menunggu",
-      "inspectAgentFailure": "Periksa kegagalan agent"
+      "inspectAgentFailure": "Periksa kegagalan agent",
+      "confirmDelivery": "Jawab sudah sampai mana sistemnya",
+      "systemLive": "Sistem sudah berjalan",
+      "deploySystem": "Deploy sistem"
     },
     "nextActionHints": {
       "continueInterview": "Masih ada jawaban yang kurang sebelum proyek bisa disusun.",
@@ -49,7 +53,10 @@
       "continueBuilding": "Lanjutkan task berikutnya.",
       "restoreProject": "Proyek ini diarsipkan. Pulihkan untuk melanjutkan.",
       "reviewProposal": "Saqina atau agent menyiapkan perubahan yang menunggu persetujuan Anda. Tidak ada yang diterapkan sebelum Anda setujui.",
-      "inspectAgentFailure": "Sebuah run agent gagal. Lihat penyebabnya, lalu ulangi, alihkan, atau batalkan."
+      "inspectAgentFailure": "Sebuah run agent gagal. Lihat penyebabnya, lalu ulangi, alihkan, atau batalkan.",
+      "confirmDelivery": "Project ini berasal dari GitHub dan mungkin sudah di-build, sedang di-review, atau sudah berjalan. Jawab tiga pertanyaan agar tahapannya sesuai.",
+      "systemLive": "Build, review, dan deploy sudah selesai. Jaga tetap terbaru lewat maintenance dan perubahan.",
+      "deploySystem": "Sudah di-build dan di-review. Deploy, lalu catat di Progres."
     },
     "sidebar": {
       "label": "Proyek",

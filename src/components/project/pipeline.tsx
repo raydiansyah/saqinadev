@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { PIPELINE, type PipelineStage, type StageState } from "@/lib/projects/progress";
 import { cn } from "@/lib/utils";
 
@@ -9,12 +10,15 @@ import { cn } from "@/lib/utils";
 export async function Pipeline({
   stages,
   compact = false,
+  confirmHref,
 }: {
   stages: Record<PipelineStage, StageState>;
   compact?: boolean;
+  /** Where to answer how far the system is, when an imported project has not said yet. */
+  confirmHref?: string;
 }) {
   const t = await getTranslations("project.pipeline");
-  return (
+  const list = (
     <ol
       aria-label={t("label")}
       className={cn("flex", compact ? "gap-1.5" : "flex-wrap gap-x-1 gap-y-2")}
@@ -49,5 +53,15 @@ export async function Pipeline({
         );
       })}
     </ol>
+  );
+  return confirmHref ? (
+    <div className="space-y-3">
+      {list}
+      <Link href={confirmHref} className="inline-block text-sm text-primary underline">
+        {t("confirm")}
+      </Link>
+    </div>
+  ) : (
+    list
   );
 }

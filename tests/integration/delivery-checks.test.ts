@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
-import { auditEvents, projectMembers, tasks } from "@/lib/db/schema";
+import { auditEvents, projectMembers, repositoryConnections, tasks } from "@/lib/db/schema";
 import {
   answerDeliveryCheck,
   getDeliveryChecks,
@@ -124,13 +124,102 @@ describe("delivery checks against the plan", () => {
     expect(o.notes.map((n) => n.code).sort()).toEqual(["open_tasks", "tasks_in_review"]);
   });
 
-  it("asks for the answer when every task is done, and flags a deploy that skips ahead", async () => {
+  it("asks for the answer when every task is done, and a deploy answer settles build and review", async () => {
     await addTask("done");
+    await answerDeliveryCheck(owner, slug, { step: "build", done: false });
+    expect((await overview()).notes.map((n) => n.code)).toEqual(["all_tasks_done"]);
+    // Deployed means built and reviewed too, so nothing is left to flag.
     await answerDeliveryCheck(owner, slug, { step: "deploy", done: true });
-    const codes = (await overview()).notes.map((n) => n.code).sort();
-    expect(codes).toEqual(["all_tasks_done", "needs_build_and_review"]);
-    await answerDeliveryCheck(owner, slug, { step: "build", done: true });
-    await answerDeliveryCheck(owner, slug, { step: "review", done: true });
     expect((await overview()).notes).toEqual([]);
+  });
+});
+
+describe("answers that settle each other and the plan", () => {
+  const seed = async () => {
+    await db.delete(tasks).where(eq(tasks.projectId, projectId));
+    for (const status of ["done", "todo", "in_progress", "review", "blocked"] as const)
+      await db.insert(tasks).values({
+        projectId,
+        title: `Task ${status}`,
+        description: "",
+        priority: "medium",
+        status,
+        source: "user",
+        position: 0,
+      });
+  };
+  const statuses = async () =>
+    (await db.select({ s: tasks.status }).from(tasks).where(eq(tasks.projectId, projectId)))
+      .map((r) => r.s)
+      .sort();
+  const answers = async () =>
+    Object.fromEntries((await checks()).map((c) => [c.step, c.unanswered ? null : c.done]));
+
+  it("deployed answers build and review as yes too, and with adjustment every task is done", async () => {
+    await seed();
+    const moved = await answerDeliveryCheck(owner, slug, {
+      step: "deploy",
+      done: true,
+      adjustTasks: true,
+    });
+    expect(moved).toEqual({ toReview: 0, toDone: 4 });
+    expect(await answers()).toEqual({ build: true, review: true, deploy: true });
+    expect(await statuses()).toEqual(["done", "done", "done", "done", "done"]);
+    // The adjustment is part of the answer: it does not make the answer look out of date.
+    expect((await checks()).some((c) => c.stale)).toBe(false);
+  });
+
+  it("an earlier answer is not out of date because a later one moved the tasks", async () => {
+    await seed();
+    await answerDeliveryCheck(owner, slug, { step: "build", done: true });
+    await answerDeliveryCheck(owner, slug, { step: "deploy", done: true, adjustTasks: true });
+    expect((await checks()).map((c) => c.stale)).toEqual([false, false, false]);
+  });
+
+  it("built only moves the open tasks to review and leaves done ones alone", async () => {
+    await seed();
+    const moved = await answerDeliveryCheck(owner, slug, {
+      step: "build",
+      done: true,
+      adjustTasks: true,
+    });
+    expect(moved).toEqual({ toReview: 3, toDone: 0 });
+    expect(await statuses()).toEqual(["done", "review", "review", "review", "review"]);
+  });
+
+  it("without adjustment only the answers change", async () => {
+    await seed();
+    const moved = await answerDeliveryCheck(owner, slug, { step: "review", done: true });
+    expect(moved).toEqual({ toReview: 0, toDone: 0 });
+    expect(await answers()).toEqual({ build: true, review: true, deploy: null });
+    expect(await statuses()).toEqual(["blocked", "done", "in_progress", "review", "todo"]);
+  });
+
+  it("not built clears the later answers and never reopens a task", async () => {
+    await seed();
+    await answerDeliveryCheck(owner, slug, { step: "deploy", done: true, adjustTasks: true });
+    await answerDeliveryCheck(owner, slug, { step: "build", done: false, adjustTasks: true });
+    expect(await answers()).toEqual({ build: false, review: false, deploy: false });
+    expect(await statuses()).toEqual(["done", "done", "done", "done", "done"]);
+  });
+
+  it("an imported project waits for the first answer, then stops waiting", async () => {
+    await db.insert(repositoryConnections).values({
+      projectId,
+      provider: "github",
+      fullName: "acme/learning",
+      status: "connected",
+      docSyncEnabled: true,
+      docSyncMode: "pull_only",
+    });
+    const access = await loadProjectAccess(owner, { slug }, "project:read");
+    expect((await getDeliveryOverview(access)).awaiting).toBe(true);
+    await answerDeliveryCheck(owner, slug, { step: "build", done: false });
+    expect((await getDeliveryOverview(access)).awaiting).toBe(false);
+  });
+
+  it("a project that did not come from GitHub never waits", async () => {
+    const access = await loadProjectAccess(owner, { slug }, "project:read");
+    expect((await getDeliveryOverview(access)).awaiting).toBe(false);
   });
 });

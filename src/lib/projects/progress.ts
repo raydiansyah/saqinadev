@@ -1,3 +1,4 @@
+import type { DeliverySummary } from "@/lib/delivery/summary";
 import type {
   DocumentStatus,
   InterviewStatus,
@@ -14,6 +15,8 @@ export interface ProjectSnapshot {
   conflictingRequirements: number;
   prdStatus: DocumentStatus | null;
   tasks: Record<TaskStatus, number>;
+  /** The team's answers to built / reviewed / deployed. Absent means nobody has answered. */
+  delivery?: DeliverySummary;
   /** Human decisions the orchestration layer is waiting on. Absent means none. */
   attention?: ProjectAttention;
 }
@@ -72,6 +75,23 @@ export function pipelineStages(s: ProjectSnapshot): Record<PipelineStage, StageS
   const total = totalTasks(s.tasks);
   const allDone = total > 0 && s.tasks.done === total;
 
+  const d = s.delivery;
+  const answered = d !== undefined && (d.build !== null || d.review !== null || d.deploy !== null);
+  // The team has said how far the system is: that decides the last three stages, and everything
+  // before them is behind it.
+  if (answered) {
+    const early = { understand: "done", requirements: "done", planning: "done" } as const;
+    const built = d.build === true;
+    const reviewed = d.review === true;
+    const deployed = d.deploy === true;
+    return {
+      ...early,
+      build: built ? "done" : "current",
+      review: reviewed ? "done" : built ? "current" : "upcoming",
+      deploy: deployed ? "done" : reviewed ? "current" : "upcoming",
+    };
+  }
+
   const state: Record<PipelineStage, StageState> = {
     understand: understood ? "done" : "current",
     requirements: requirementsDone ? "done" : understood ? "current" : "upcoming",
@@ -80,6 +100,11 @@ export function pipelineStages(s: ProjectSnapshot): Record<PipelineStage, StageS
     review: allDone ? "done" : s.tasks.review > 0 ? "current" : "upcoming",
     deploy: "upcoming",
   };
+  // An imported project has not said how far it is: build, review and deploy wait for the answer.
+  if (d?.awaiting) {
+    state.build = "upcoming";
+    state.review = "upcoming";
+  }
   // Only one stage reads as current: the earliest unfinished one.
   const first = PIPELINE.find((p) => state[p] === "current");
   for (const p of PIPELINE) if (state[p] === "current" && p !== first) state[p] = "upcoming";
@@ -93,6 +118,9 @@ export type NextActionKind =
   | "resolveOpenQuestions"
   | "reviewPrd"
   | "reviewPlan"
+  | "confirmDelivery"
+  | "deploySystem"
+  | "systemLive"
   | "startFirstTask"
   | "reviewWork"
   | "continueBuilding"
@@ -110,11 +138,19 @@ export interface NextAction {
 export function getNextProjectAction(s: ProjectSnapshot): NextAction {
   if (s.status === "archived") return { kind: "restoreProject", path: "/settings" };
   if (s.interviewStatus !== "completed") return { kind: "continueInterview", path: "/interview" };
+  // An imported system may already be built, in review or live: ask before suggesting any work.
+  if (s.delivery?.awaiting) return { kind: "confirmDelivery", path: "/progress" };
   // Work that is already waiting on a person comes before anything new.
   const attention = s.attention ?? NO_ATTENTION;
   if (attention.pendingProposals > 0) return { kind: "reviewProposal", path: "/approvals" };
   if (attention.failedRuns > 0) return { kind: "inspectAgentFailure", path: "/agents#runs" };
   if (s.tasks.blocked > 0) return { kind: "resolveBlocker", path: "/tasks?status=blocked" };
+  // The team says the system is built: what is left is what the answers say, not the old plan.
+  if (s.delivery?.build === true) {
+    if (s.delivery.deploy === true) return { kind: "systemLive", path: "/maintenance" };
+    if (s.delivery.review === true) return { kind: "deploySystem", path: "/progress" };
+    return { kind: "reviewWork", path: "/tasks?status=review" };
+  }
   if (s.conflictingRequirements > 0)
     return { kind: "resolveConflicts", path: "/requirements#open_questions" };
   if (s.unknownRequirements > 0)

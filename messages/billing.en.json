@@ -283,7 +283,19 @@
         "tasks_in_review": "{count, plural, one {# task is} other {# tasks are}} still in review.",
         "needs_build_and_review": "Deploy is answered yes, but build and review are not both yes.",
         "all_tasks_done": "Every task in the plan is done. Has the system finished building?"
+      },
+      "awaiting": "Answer first: how far is the system? This project came from GitHub and may already be built, in review or live.",
+      "adjust": {
+        "title": "Adjust the plan to match?",
+        "cancel": "Cancel",
+        "answerOnly": "Answer only",
+        "answerAndAdjust": "Answer and adjust tasks",
+        "toDone": "{count, plural, one {# task} other {# tasks}} will be marked done: the work was reviewed.",
+        "toReview": "{count, plural, one {# open task} other {# open tasks}} will move to review: the work is built and waits for a check.",
+        "note": "Tasks only move forward. You can change any task by hand afterwards."
       }
-    }
+    },
+    "noPrd": "No PRD was found in the repository.",
+    "noPrdLink": "Choose, upload or paste one"
   }
 }

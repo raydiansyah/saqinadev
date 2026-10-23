@@ -45,3 +45,41 @@ export function deliveryNotes(answers: Answer[], counts: TaskCounts): DeliveryNo
     notes.push({ step: "deploy", code: "needs_build_and_review" });
   return notes;
 }
+
+/** The latest answer per step; null where nobody has answered. */
+export type Answers = Record<DeliveryStep, boolean | null>;
+
+export const NO_ANSWERS: Answers = { build: null, review: null, deploy: null };
+
+/**
+ * The answers after one more answer, with what it implies: a project that is deployed was
+ * reviewed and built, and one that is not built yet is neither reviewed nor deployed.
+ */
+export function settleAnswers(current: Answers, step: DeliveryStep, done: boolean): Answers {
+  const next = { ...current, [step]: done };
+  if (done) {
+    if (step === "deploy") next.review = true;
+    if (step === "deploy" || step === "review") next.build = true;
+  } else {
+    if (step === "build") next.review = next.review === null ? null : false;
+    if (step === "build" || step === "review") next.deploy = next.deploy === null ? null : false;
+  }
+  return next;
+}
+
+export interface TaskAdjustment {
+  /** Open tasks that move to review: the work is built, a person still has to check it. */
+  toReview: number;
+  /** Tasks that move to done: the work was reviewed. */
+  toDone: number;
+}
+
+/**
+ * What the answers say about the plan: reviewed means every task is done; built means the open
+ * ones now wait for review. Only forward, never back: a task is not reopened by an answer.
+ */
+export function planTaskAdjustment(answers: Answers, counts: TaskCounts): TaskAdjustment {
+  if (answers.review === true) return { toReview: 0, toDone: counts.total - counts.done };
+  if (answers.build === true) return { toReview: counts.open, toDone: 0 };
+  return { toReview: 0, toDone: 0 };
+}

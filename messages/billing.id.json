@@ -283,7 +283,19 @@
         "tasks_in_review": "Masih ada {count} task yang berstatus review.",
         "needs_build_and_review": "Deploy dijawab Ya, tetapi build dan review belum sama-sama Ya.",
         "all_tasks_done": "Semua task di plan sudah selesai. Apakah sistem sudah selesai di-build?"
+      },
+      "awaiting": "Jawab dulu: sistem sudah sampai mana? Project ini berasal dari GitHub dan mungkin sudah di-build, sedang di-review, atau sudah berjalan.",
+      "adjust": {
+        "title": "Sesuaikan plan dengan jawaban ini?",
+        "cancel": "Batal",
+        "answerOnly": "Jawab saja",
+        "answerAndAdjust": "Jawab dan sesuaikan task",
+        "toDone": "{count} task akan ditandai selesai: pekerjaannya sudah di-review.",
+        "toReview": "{count} task yang masih terbuka akan dipindah ke review: pekerjaannya sudah di-build dan menunggu pengecekan.",
+        "note": "Task hanya bergerak maju. Setelah itu setiap task tetap bisa Anda ubah sendiri."
       }
-    }
+    },
+    "noPrd": "PRD belum ditemukan di repository.",
+    "noPrdLink": "Pilih, unggah, atau tempel"
   }
 }

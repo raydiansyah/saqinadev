@@ -5,10 +5,14 @@ import { PageHeading } from "@/components/app/states";
 import { MilestoneEditor } from "@/components/progress/milestone-editor";
 import { ProgressView } from "@/components/progress/progress-view";
 import { ReleaseChecklist } from "@/components/progress/release-checklist";
+import { Notice } from "@/components/ui/form";
+import { Link } from "@/i18n/navigation";
 import { can } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
 import { milestones, tasks } from "@/lib/db/schema";
 import { getDeliveryOverview } from "@/lib/delivery/service";
+import { getDocument } from "@/lib/documents/service";
+import { isGithubSourced } from "@/lib/imports/choose-prd";
 import { clientProgress } from "@/lib/portal/progress";
 import { projectPageAccess } from "@/lib/projects/page";
 
@@ -43,21 +47,41 @@ export default async function ProgressPage({
   const progress = clientProgress(stages, taskRows);
   const delivery = await getDeliveryOverview(access);
 
+  const checklist = (
+    <ReleaseChecklist
+      slug={slug}
+      awaiting={delivery.awaiting}
+      canAnswer={can(access.role, "project:update")}
+      tasks={delivery.tasks}
+      notes={delivery.notes}
+      checks={delivery.checks.map((c) => ({
+        ...c,
+        answeredAt: c.answeredAt ? c.answeredAt.toISOString() : null,
+      }))}
+    />
+  );
+  // A GitHub project whose docs held no PRD: say where to give one.
+  const noPrd =
+    delivery.awaiting === false &&
+    (await isGithubSourced(access)) &&
+    !(await getDocument(access, "prd"));
+
   return (
     <>
       <PageHeading title={t("title")} description={t("description")} />
       <div className="max-w-3xl space-y-6">
+        {/* An imported project answers first: how far the system is decides what the rest shows. */}
+        {delivery.awaiting ? checklist : null}
         <ProgressView progress={progress} />
-        <ReleaseChecklist
-          slug={slug}
-          canAnswer={can(access.role, "project:update")}
-          tasks={delivery.tasks}
-          notes={delivery.notes}
-          checks={delivery.checks.map((c) => ({
-            ...c,
-            answeredAt: c.answeredAt ? c.answeredAt.toISOString() : null,
-          }))}
-        />
+        {delivery.awaiting ? null : checklist}
+        {noPrd ? (
+          <Notice tone="info">
+            {t("noPrd")}{" "}
+            <Link href={`/project/${slug}/prd`} className="underline">
+              {t("noPrdLink")}
+            </Link>
+          </Notice>
+        ) : null}
         {can(access.role, "project:update") && stages.length > 0 ? (
           <MilestoneEditor slug={slug} milestones={stages} />
         ) : null}
