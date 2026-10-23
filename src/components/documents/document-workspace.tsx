@@ -13,8 +13,11 @@ import { LocalTime } from "@/components/primitives/local-time";
 import { Button } from "@/components/ui/button";
 import { FIELD_CLASS, Notice } from "@/components/ui/form";
 import { useRouter } from "@/i18n/navigation";
+import type { SigningView } from "@/lib/documents/signing";
 import type { DocumentStatus } from "@/lib/domain/enums";
 import { cn } from "@/lib/utils";
+import { Letterhead } from "./letterhead";
+import { SigningPanel } from "./signing-panel";
 import { type DocSyncInfo, SyncBadge } from "./sync-badge";
 
 // The Markdown renderer only loads when a document is actually shown.
@@ -47,12 +50,20 @@ export function DocumentWorkspace({
   doc,
   canEdit,
   sync,
+  signing,
+  canSign = false,
+  issuer = "",
 }: {
   projectSlug: string;
   doc: DocumentData;
   canEdit: boolean;
   /** Repository sync state; absent for documents that do not sync. */
   sync?: DocSyncInfo | null;
+  /** Two-party signing state; only meaningful for proposals, agreements and the like. */
+  signing?: SigningView;
+  canSign?: boolean;
+  /** Name of the organization that owns the document, for the letterhead. */
+  issuer?: string;
 }) {
   const t = useTranslations("documents");
   const errors = useTranslations("app.errors");
@@ -138,173 +149,190 @@ export function DocumentWorkspace({
   ];
 
   return (
-    <article className="rounded-lg border border-border">
-      <header className="flex flex-col gap-3 border-b border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <h1 className="font-mono text-sm font-medium">{file}</h1>
-          <span className="text-xs text-muted-foreground">
-            {t("updatedAt")} <LocalTime iso={base.updatedAt} />
-          </span>
-          <span className="font-mono text-xs text-subtle-foreground">
-            {t("version", { version: base.version })}
-          </span>
-          <span
-            className={cn(
-              "rounded-sm border px-1.5 py-0.5 font-mono text-xs",
-              doc.status === "approved"
-                ? "border-success/40 text-success"
-                : "border-border text-muted-foreground",
-            )}
-          >
-            {t(`statuses.${doc.status}`)}
-          </span>
-          {sync ? (
-            <SyncBadge
-              projectSlug={projectSlug}
-              docSlug={doc.slug}
-              sync={sync}
-              saqinaText={base.content}
-              canResolve={canEdit}
-            />
-          ) : null}
-        </div>
-        <div className="flex flex-wrap items-center gap-1">
-          <AskSaqinaButton
-            context={{
-              type: doc.slug === "prd" ? "prd" : "document",
-              id: doc.slug,
-              label: file,
-            }}
-          />
-          <div
-            role="group"
-            aria-label={file}
-            className="flex rounded-md border border-border p-0.5"
-          >
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                aria-pressed={mode === tab.id}
-                onClick={() => setMode(tab.id)}
-                className="min-h-9 rounded-sm px-3 text-sm text-muted-foreground aria-pressed:bg-surface-raised aria-pressed:text-foreground"
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-          <Button size="sm" variant="ghost" onClick={onCopy}>
-            {copied ? t("copied") : t("copy")}
-          </Button>
-          <span aria-live="polite" className="sr-only">
-            {copied ? t("copied") : ""}
-          </span>
-        </div>
-      </header>
-
-      {stale ? (
-        <Notice tone="warning" className="m-4">
-          {t("stale")}{" "}
-          <button
-            type="button"
-            className="underline underline-offset-4"
-            onClick={() => router.refresh()}
-          >
-            {t("reload")}
-          </button>
-        </Notice>
-      ) : null}
-      {error ? (
-        <Notice tone="error" className="m-4">
-          {error}
-        </Notice>
-      ) : null}
-
-      <div className="p-4 sm:p-6">
-        {mode === "preview" ? (
-          <MarkdownPreview content={base.content} />
-        ) : mode === "source" ? (
-          <pre className="overflow-x-auto font-mono text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
-            {base.content}
-          </pre>
-        ) : (
-          <div className="space-y-3">
-            <label htmlFor={editorId} className="sr-only">
-              {t("editorLabel", { file })}
-            </label>
-            <textarea
-              id={editorId}
-              ref={editor}
-              value={draft}
-              placeholder={t("editorPlaceholder")}
-              onChange={(e) => {
-                setDraft(e.target.value);
-                setSave("dirty");
-              }}
-              spellCheck
-              rows={24}
+    <>
+      <article className="rounded-lg border border-border">
+        <header className="flex flex-col gap-3 border-b border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <h1 className="font-mono text-sm font-medium">{file}</h1>
+            <span className="text-xs text-muted-foreground">
+              {t("updatedAt")} <LocalTime iso={base.updatedAt} />
+            </span>
+            <span className="font-mono text-xs text-subtle-foreground">
+              {t("version", { version: base.version })}
+            </span>
+            <span
               className={cn(
-                FIELD_CLASS,
-                "min-h-[50vh] resize-y py-3 font-mono text-sm leading-relaxed",
+                "rounded-sm border px-1.5 py-0.5 font-mono text-xs",
+                doc.status === "approved"
+                  ? "border-success/40 text-success"
+                  : "border-border text-muted-foreground",
               )}
-            />
+            >
+              {t(`statuses.${doc.status}`)}
+            </span>
+            {sync ? (
+              <SyncBadge
+                projectSlug={projectSlug}
+                docSlug={doc.slug}
+                sync={sync}
+                saqinaText={base.content}
+                canResolve={canEdit}
+              />
+            ) : null}
           </div>
-        )}
-      </div>
+          <div className="flex flex-wrap items-center gap-1">
+            <AskSaqinaButton
+              context={{
+                type: doc.slug === "prd" ? "prd" : "document",
+                id: doc.slug,
+                label: file,
+              }}
+            />
+            <div
+              role="group"
+              aria-label={file}
+              className="flex rounded-md border border-border p-0.5"
+            >
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  aria-pressed={mode === tab.id}
+                  onClick={() => setMode(tab.id)}
+                  className="min-h-9 rounded-sm px-3 text-sm text-muted-foreground aria-pressed:bg-surface-raised aria-pressed:text-foreground"
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+            <Button size="sm" variant="ghost" onClick={onCopy}>
+              {copied ? t("copied") : t("copy")}
+            </Button>
+            <span aria-live="polite" className="sr-only">
+              {copied ? t("copied") : ""}
+            </span>
+          </div>
+        </header>
 
-      <footer className="flex flex-col gap-3 border-t border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-        <SaveIndicator state={dirty ? "dirty" : save === "dirty" ? "idle" : save} />
-        <div className="flex flex-wrap gap-2">
-          {mode === "edit" ? (
+        {stale ? (
+          <Notice tone="warning" className="m-4">
+            {t("stale")}{" "}
+            <button
+              type="button"
+              className="underline underline-offset-4"
+              onClick={() => router.refresh()}
+            >
+              {t("reload")}
+            </button>
+          </Notice>
+        ) : null}
+        {error ? (
+          <Notice tone="error" className="m-4">
+            {error}
+          </Notice>
+        ) : null}
+
+        <div className="p-4 sm:p-6">
+          {mode === "preview" ? (
             <>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => {
-                  setDraft(base.content);
-                  setSave("idle");
-                  setMode("preview");
-                }}
-              >
-                {t("cancel")}
-              </Button>
-              <Button size="sm" onClick={onSave} disabled={pending || !dirty}>
-                {t("save")}
-              </Button>
+              <Letterhead issuer={issuer} reference={signing?.reference} />
+              <MarkdownPreview content={base.content} />
             </>
-          ) : canEdit ? (
-            doc.status === "approved" ? (
+          ) : mode === "source" ? (
+            <pre className="overflow-x-auto font-mono text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
+              {base.content}
+            </pre>
+          ) : (
+            <div className="space-y-3">
+              <label htmlFor={editorId} className="sr-only">
+                {t("editorLabel", { file })}
+              </label>
+              <textarea
+                id={editorId}
+                ref={editor}
+                value={draft}
+                placeholder={t("editorPlaceholder")}
+                onChange={(e) => {
+                  setDraft(e.target.value);
+                  setSave("dirty");
+                }}
+                spellCheck
+                rows={24}
+                className={cn(
+                  FIELD_CLASS,
+                  "min-h-[50vh] resize-y py-3 font-mono text-sm leading-relaxed",
+                )}
+              />
+            </div>
+          )}
+        </div>
+
+        <footer className="flex flex-col gap-3 border-t border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <SaveIndicator state={dirty ? "dirty" : save === "dirty" ? "idle" : save} />
+          <div className="flex flex-wrap gap-2">
+            {mode === "edit" ? (
               <>
                 <Button
                   size="sm"
-                  variant="outline"
-                  onClick={() => onStatus("draft")}
-                  disabled={pending}
+                  variant="ghost"
+                  onClick={() => {
+                    setDraft(base.content);
+                    setSave("idle");
+                    setMode("preview");
+                  }}
                 >
-                  {t("markDraft")}
+                  {t("cancel")}
                 </Button>
-                {/* Signed = the agreed record; it can no longer be edited or regenerated. */}
-                <Button size="sm" onClick={() => onStatus("signed")} disabled={pending}>
-                  {t("markSigned")}
+                <Button size="sm" onClick={onSave} disabled={pending || !dirty}>
+                  {t("save")}
                 </Button>
               </>
-            ) : doc.status === "signed" ? (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => onStatus("archived")}
-                disabled={pending}
-              >
-                {t("archive")}
-              </Button>
-            ) : doc.status === "archived" ? null : (
-              <Button size="sm" onClick={() => onStatus("approved")} disabled={pending}>
-                {t("approve")}
-              </Button>
-            )
-          ) : null}
-        </div>
-      </footer>
-    </article>
+            ) : canEdit ? (
+              doc.status === "approved" ? (
+                <>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onStatus("draft")}
+                    disabled={pending}
+                  >
+                    {t("markDraft")}
+                  </Button>
+                  {/* Signed = the agreed record; it can no longer be edited or regenerated. Documents
+                    two parties sign are signed in the panel below, never by one click. */}
+                  {signing?.signable ? null : (
+                    <Button size="sm" onClick={() => onStatus("signed")} disabled={pending}>
+                      {t("markSigned")}
+                    </Button>
+                  )}
+                </>
+              ) : doc.status === "signed" ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onStatus("archived")}
+                  disabled={pending}
+                >
+                  {t("archive")}
+                </Button>
+              ) : doc.status === "archived" ? null : (
+                <Button size="sm" onClick={() => onStatus("approved")} disabled={pending}>
+                  {t("approve")}
+                </Button>
+              )
+            ) : null}
+          </div>
+        </footer>
+      </article>
+      {signing?.signable ? (
+        <SigningPanel
+          side="team"
+          projectSlug={projectSlug}
+          docSlug={doc.slug}
+          view={signing}
+          canAct={canSign}
+        />
+      ) : null}
+    </>
   );
 }

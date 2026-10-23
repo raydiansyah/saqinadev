@@ -11,7 +11,7 @@ type Result<T> =
 export function useRun() {
   const router = useRouter();
   const [pending, start] = useTransition();
-  const [error, setError] = useState<{ code: string; field?: string } | null>(null);
+  const [error, setError] = useState<{ code: string; field?: string; ref?: string } | null>(null);
   const run = <T = any>(fn: () => Promise<Result<unknown>>, after?: (data: T) => void) =>
     start(async () => {
       setError(null);
@@ -20,6 +20,7 @@ export function useRun() {
         setError({
           code: result.code,
           field: result.fields ? Object.values(result.fields)[0] : undefined,
+          ref: result.ref,
         });
         return;
       }

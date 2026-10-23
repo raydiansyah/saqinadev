@@ -13,5 +13,6 @@ export * from "./projects";
 export * from "./rate-limits";
 export * from "./services";
 export * from "./skills";
+export * from "./white-label";
 export * from "./wiki";
 export * from "./workspace";

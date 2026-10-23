@@ -1,4 +1,5 @@
 import type { Currency, ScopeCategory } from "@/lib/domain/business";
+import { formatLongDate } from "@/lib/format";
 import { formatMoney } from "@/lib/money";
 import { type BusinessDocCopy, businessDocEn, businessDocId } from "./business-copy";
 
@@ -52,7 +53,7 @@ function header(c: BusinessDocCopy, kind: BusinessDocKind, d: BusinessDocInput):
     "",
     c.preparedFor(client),
     c.preparedBy(d.org),
-    c.date(d.today),
+    c.date(formatLongDate(d.today, d.locale)),
   ];
 }
 
@@ -80,7 +81,9 @@ function money(c: BusinessDocCopy, d: BusinessDocInput): string[] {
     d.value !== null ? fmt(d.value) : c.placeholder(c.unset.toUpperCase()),
     `## ${c.h.schedule}`,
     list(
-      d.terms.map((t) => c.term(t.label, fmt(t.amount), t.dueDate)),
+      d.terms.map((t) =>
+        c.term(t.label, fmt(t.amount), t.dueDate ? formatLongDate(t.dueDate, d.locale) : null),
+      ),
       c.unset,
     ),
   ];
@@ -132,7 +135,7 @@ function agreement(c: BusinessDocCopy, d: BusinessDocInput): string[] {
     `## ${c.h.providerDuties}`,
     list(c.providerDuties, c.none),
     `## ${c.h.warranty}`,
-    c.warranty(d.warrantyUntil),
+    c.warranty(d.warrantyUntil ? formatLongDate(d.warrantyUntil, d.locale) : null),
     `## ${c.h.maintenance}`,
     c.maintenanceIntro,
     `## ${c.h.ip}`,
@@ -157,7 +160,7 @@ function handover(c: BusinessDocCopy, d: BusinessDocInput): string[] {
     `## ${c.h.checklist}`,
     c.handoverChecklist.map((i) => `- [ ] ${i}`).join("\n"),
     `## ${c.h.warranty}`,
-    c.warranty(d.warrantyUntil),
+    c.warranty(d.warrantyUntil ? formatLongDate(d.warrantyUntil, d.locale) : null),
     `## ${c.h.signatures}`,
     c.signatures,
   ];
@@ -170,7 +173,9 @@ function maintenance(c: BusinessDocCopy, d: BusinessDocInput): string[] {
     ...header(c, "maintenance_agreement", d),
     c.maintenanceIntro,
     `## ${c.h.period}`,
-    p ? `${p.startDate} - ${p.endDate}` : c.placeholder("PERIOD"),
+    p
+      ? `${formatLongDate(p.startDate, d.locale)} - ${formatLongDate(p.endDate, d.locale)}`
+      : c.placeholder("PERIOD"),
     `## ${c.h.fee}`,
     p ? c.fee(fmt(p.fee), c.cycles[p.cycle] ?? p.cycle) : c.placeholder("FEE"),
     `## ${c.h.included}`,
@@ -180,7 +185,7 @@ function maintenance(c: BusinessDocCopy, d: BusinessDocInput): string[] {
     `## ${c.h.response}`,
     c.response(p?.responseHours ?? null),
     `## ${c.h.warranty}`,
-    c.warranty(d.warrantyUntil),
+    c.warranty(d.warrantyUntil ? formatLongDate(d.warrantyUntil, d.locale) : null),
     `## ${c.h.cancellation}`,
     c.cancellation,
     `## ${c.h.signatures}`,

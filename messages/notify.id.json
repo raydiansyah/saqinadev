@@ -131,6 +131,20 @@
           "title": "Catatan meeting dikonfirmasi",
           "body": "Klien mengonfirmasi {title} di {project}"
         }
+      },
+      "document": {
+        "signed": {
+          "title": "Menunggu tanda tangan Anda",
+          "body": "{title} di {project} sudah ditandatangani pihak lain"
+        },
+        "issued": {
+          "title": "Dokumen terbit",
+          "body": "{title} di {project} terbit sebagai {reference}"
+        },
+        "changes_requested": {
+          "title": "Perubahan diminta",
+          "body": "{title} di {project} perlu diubah"
+        }
       }
     }
   },

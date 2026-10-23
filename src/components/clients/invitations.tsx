@@ -48,7 +48,9 @@ export function Invitations({
   const [confirm, setConfirm] = useState<InvitationView | null>(null);
   const { pending, error, run } = useRun();
   const day = (iso: string) =>
-    new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(iso));
+    new Intl.DateTimeFormat(locale === "id" ? "id-ID" : "en-GB", { dateStyle: "long" }).format(
+      new Date(iso),
+    );
 
   return (
     <section aria-labelledby="invitations-heading" className="rounded-lg border border-border p-5">

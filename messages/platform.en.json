@@ -208,7 +208,11 @@
       "accountEmailMismatch": "The email does not match your account.",
       "accountBlockedLastPlatformOwner": "You are the only platform owner. Hand the role over first.",
       "accountBlockedOwnsSharedProjects": "You still own projects other people use.",
-      "accountBlockedOwnsSharedOrganizations": "You still own an organization with other members."
+      "accountBlockedOwnsSharedOrganizations": "You still own an organization with other members.",
+      "whiteLabel": {
+        "locked": "White label is locked for this organization.",
+        "pastEnd": "The end date is already in the past."
+      }
     }
   },
   "integrations": {

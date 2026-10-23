@@ -74,11 +74,14 @@ pnpm dev
 - [Engineering standards](docs/standards/README.md): architecture, security, testing, delivery,
   observability, compliance, governance
 - [Runbook](docs/runbook.md): deploy, migrate, roll back, incidents
-- [Architecture decisions](docs/adr/), including [imported projects follow GitHub](docs/adr/0005-imported-projects-follow-github.md)
+- [Architecture decisions](docs/adr/), including [imported projects follow GitHub](docs/adr/0005-imported-projects-follow-github.md) and
+  [two-party document signing](docs/adr/0006-two-party-document-signing.md)
 - User guides, signed-in only and written per reader: the team at `/dashboard/docs`, clients at `/portal/docs`.
   Pages are Markdown in `src/content/docs/<owner|client>/<en|id>/` and their screenshots in
   `src/content/docs/assets/<owner|client>/`, served only to people allowed to read that guide
 - White label ([standard](docs/standards/white-label.md)): what a client portal may brand and what it never hides
+- Proposals, agreements, handovers and maintenance agreements are drafted from project data, edited,
+  approved, signed by the team and the client, and only then issued with a reference number
 - Importing from GitHub: documents are read from the repository (one way, the most recent edit wins),
   everything in the docs folder is shown to the client, and the PRD is found by name or asked for
 - Project memory ([ADR 0004](docs/adr/0004-project-memory.md)): chat and agent suggestions wait for review, access is

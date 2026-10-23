@@ -165,6 +165,8 @@ export interface ClientDocument {
   title: string;
   version: number;
   updatedAt: Date;
+  /** Set once both parties signed. */
+  reference: string | null;
 }
 
 export async function clientDocuments(access: ClientProjectAccess): Promise<ClientDocument[]> {
@@ -174,6 +176,7 @@ export async function clientDocuments(access: ClientProjectAccess): Promise<Clie
       title: documents.title,
       version: documents.version,
       updatedAt: documents.updatedAt,
+      reference: documents.reference,
     })
     .from(documents)
     .where(sharedDocs(access.project.id))
@@ -188,6 +191,12 @@ export async function clientDocument(access: ClientProjectAccess, slug: string) 
       version: documents.version,
       updatedAt: documents.updatedAt,
       content: documents.content,
+      id: documents.id,
+      type: documents.type,
+      status: documents.status,
+      reference: documents.reference,
+      issuedAt: documents.issuedAt,
+      clientVisible: documents.clientVisible,
     })
     .from(documents)
     .where(and(sharedDocs(access.project.id), eq(documents.slug, slug)))

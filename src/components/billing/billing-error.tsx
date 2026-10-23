@@ -5,7 +5,11 @@ import { FormError } from "@/components/platform/form-error";
 import { Notice } from "@/components/ui/form";
 
 /** Billing rule failures ("billing.overpay") get their own copy; anything else falls back. */
-export function BillingError({ error }: { error: { code: string; field?: string } | null }) {
+export function BillingError({
+  error,
+}: {
+  error: { code: string; field?: string; ref?: string } | null;
+}) {
   const t = useTranslations("billing.errors");
   const key = error?.field?.startsWith("billing.") ? error.field.slice(8) : null;
   if (error && key && t.has(key as never))

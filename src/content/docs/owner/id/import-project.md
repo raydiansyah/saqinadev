@@ -83,7 +83,7 @@ Stepper di beranda dan langkah berikutnya ikut berubah: setelah build dijawab **
 
 ## Langkah 5. Pasang PRD
 
-Saqina mencari PRD di seluruh folder dokumentasi, termasuk subfolder. Nama seperti `prd.md`, `intech-lms-prd.md`, atau `01-prd.md` dikenali. Kalau ketemu, PRD langsung terpasang dan terus mengikuti GitHub.
+Saqina mencari PRD di seluruh folder dokumentasi, termasuk subfolder. Nama seperti `prd.md`, `project-prd.md`, atau `01-prd.md` dikenali. Kalau ketemu, PRD langsung terpasang dan terus mengikuti GitHub.
 
 Kalau tidak ketemu, halaman **PRD** bertanya dokumen mana yang PRD. Ada dua cara.
 

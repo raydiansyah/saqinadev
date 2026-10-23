@@ -6,11 +6,9 @@ export function formatDay(iso: string | null, locale: string): string | null {
   if (!iso) return null;
   const date = new Date(`${iso}T00:00:00Z`);
   if (Number.isNaN(date.getTime())) return iso;
-  return new Intl.DateTimeFormat(tag(locale), { dateStyle: "medium", timeZone: "UTC" }).format(
-    date,
-  );
+  return new Intl.DateTimeFormat(tag(locale), { dateStyle: "long", timeZone: "UTC" }).format(date);
 }
 
 export function formatDate(date: Date, locale: string): string {
-  return new Intl.DateTimeFormat(tag(locale), { dateStyle: "medium" }).format(date);
+  return new Intl.DateTimeFormat(tag(locale), { dateStyle: "long" }).format(date);
 }

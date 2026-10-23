@@ -23,7 +23,7 @@ export async function NotificationList({
     id: n.id,
     href: n.href,
     unread: n.readAt === null,
-    time: format.dateTime(n.createdAt, { dateStyle: "medium", timeStyle: "short" }),
+    time: format.dateTime(n.createdAt, { dateStyle: "long", timeStyle: "short" }),
     iso: n.createdAt.toISOString(),
     ...renderNotification(t as unknown as LooseT, n, locale),
   }));

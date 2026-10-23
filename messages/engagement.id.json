@@ -253,7 +253,12 @@
       },
       "documents": {
         "shareNeedsApproval": "Setujui dokumen terlebih dahulu sebelum meminta klien meninjaunya.",
-        "signedLocked": "Dokumen ini sudah ditandatangani dan tidak bisa dibuat ulang."
+        "signedLocked": "Dokumen ini sudah ditandatangani dan tidak bisa dibuat ulang.",
+        "notApproved": "Setujui dokumen sebelum ditandatangani.",
+        "alreadySigned": "Tanda tangan Anda sudah ada pada versi ini.",
+        "alreadyIssued": "Dokumen ini sudah terbit.",
+        "notSignable": "Dokumen ini tidak ditandatangani oleh dua pihak.",
+        "useSigning": "Proposal atau perjanjian ditandatangani kedua pihak; gunakan panel tanda tangan."
       },
       "maintenance": {
         "cancelled": "Paket yang dibatalkan tidak bisa diperpanjang."

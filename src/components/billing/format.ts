@@ -4,9 +4,10 @@ import { toMinor } from "@/lib/money";
 /** Calendar dates (YYYY-MM-DD) are shown as-is, never shifted by the viewer's timezone. */
 export function formatDay(iso: string | null, locale: string): string {
   if (!iso) return "-";
-  return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" }).format(
-    new Date(`${iso}T00:00:00Z`),
-  );
+  return new Intl.DateTimeFormat(locale === "id" ? "id-ID" : "en-GB", {
+    dateStyle: "long",
+    timeZone: "UTC",
+  }).format(new Date(`${iso}T00:00:00Z`));
 }
 
 /** Today in the viewer's own calendar, for date input defaults. */

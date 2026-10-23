@@ -7,6 +7,27 @@ name, logo and colours. It never changes who is responsible for the data, and it
 client needs to trust the portal. Status: **Planned** (no brand settings exist yet; the rules below
 bind the work that adds them and every change to portal-facing screens).
 
+## The lock
+
+White label is **locked by default** (Enforced: `src/lib/white-label`, table `white_label_grants`). It opens
+for an organization only with (1) a **paid plan** whose terms include it, or (2) a **written agreement
+signed by both parties**; the record names the plan or the agreement's reference number. Only the platform
+owner writes it, every change is an audit event, and `assertWhiteLabelUnlocked(orgId)` is the one gate every
+brand setting must pass. It locks again when the plan or agreement ends or is breached, when it is revoked, or
+the day after its end date. Locking deletes nothing: the portal shows the default Saqina brand.
+
+The organization sees the state and its reason under Settings > White label; the same rules are in the
+in-app owner guide ("White label policy"). Every document carries the default Saqina logo as its letterhead
+whatever the state.
+
+Basis in common practice (search summaries, not legal advice): a narrow, revocable trademark licence given
+by agreement or plan, "powered by" only by mutual agreement, provider marks removed on termination
+([WriteSea](https://writesea.com/reseller-agreement/),
+[Aber Law Firm](https://www.aberlawfirm.com/saas-reseller-agreement-and-saas-oem-agreement-models/),
+[ActiveCampaign](https://www.activecampaign.com/legal/reseller-partner-agreement),
+[Solv Legal](https://solvlegal.com/blogs/white-label-saas-agreement-explained-2026/),
+[LicenseSaaS](https://licensesaas.com/resources/white-label-saas-things-to-check-before-buying)).
+
 ## What may be branded
 
 | Surface | May use the agency's brand | Rule |

@@ -100,6 +100,9 @@ export default async function DocumentsPage({
                 <span className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                   <span className="font-mono">{t("version", { version: d.version })}</span>
                   <span>{t(`statuses.${d.status}`)}</span>
+                  {d.reference ? (
+                    <span className="font-mono text-success">{d.reference}</span>
+                  ) : null}
                   {d.clientVisible ? <span className="text-success">{share("shared")}</span> : null}
                   <span>{t("updated", { time: formatRelative(d.updatedAt, locale) })}</span>
                 </span>

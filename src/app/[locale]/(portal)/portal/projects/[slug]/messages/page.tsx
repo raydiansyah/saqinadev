@@ -21,7 +21,7 @@ export default async function PortalMessagesPage({
     getTranslations("portalEngagement.messages"),
     getLocale(),
   ]);
-  const stamp = new Intl.DateTimeFormat(tag(locale), { dateStyle: "medium", timeStyle: "short" });
+  const stamp = new Intl.DateTimeFormat(tag(locale), { dateStyle: "long", timeStyle: "short" });
 
   return (
     <div className="space-y-6">

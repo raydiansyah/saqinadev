@@ -222,7 +222,8 @@
       "NOT_FOUND": "Item ini sudah tidak ada.",
       "CONFLICT": "Data ini berubah sementara itu. Muat ulang untuk melihat versi terbaru.",
       "RATE_LIMIT": "Terlalu banyak permintaan. Tunggu sebentar lalu coba lagi.",
-      "INTERNAL_ERROR": "Terjadi kesalahan di sisi kami."
+      "INTERNAL_ERROR": "Terjadi kesalahan di sisi kami.",
+      "reference": "Kode referensi: {ref}"
     },
     "time": {
       "justNow": "baru saja"
@@ -230,6 +231,74 @@
     "ai": {
       "label": "AI",
       "title": "Dibuat oleh AI. Bisa keliru: periksa sebelum dijadikan acuan."
+    },
+    "whiteLabel": {
+      "title": "White label",
+      "linkBody": "Apakah portal client Anda boleh memakai merek sendiri, dan mengapa terbuka atau terkunci.",
+      "openPage": "Lihat status white label",
+      "intro": "White label terkunci secara default. Hanya terbuka dengan paket berbayar yang mencakupnya, atau kesepakatan tertulis yang ditandatangani kedua pihak.",
+      "how": {
+        "title": "Cara membukanya",
+        "body": "Memberi merek sendiri pada portal adalah lisensi memakai layanan Saqina dengan nama lain, jadi butuh dasar yang bisa ditunjuk kedua pihak.",
+        "paidPlan": "Paket berbayar yang syaratnya mencakup white label. Catatannya menyebut paketnya.",
+        "agreement": "Perjanjian tertulis yang ditandatangani Saqina dan organisasi Anda (perjanjian reseller atau white label). Catatannya menyebut nomor referensi perjanjian.",
+        "closes": "Terkunci lagi ketika paket atau perjanjian berakhir atau dilanggar, dicabut, atau tanggal akhirnya lewat. Menguncinya tidak menghapus apa pun: portal kembali memakai merek Saqina bawaan."
+      },
+      "status": {
+        "title": "Status organisasi Anda",
+        "open": "Terbuka",
+        "locked": "Terkunci",
+        "openBy": "Dibuka oleh {basis}: {reference}. Sampai {until}.",
+        "noEnd": "tanpa tanggal akhir",
+        "none": "Anda belum menjadi anggota organisasi mana pun.",
+        "why": {
+          "never_granted": "Terkunci: belum ada paket berbayar atau perjanjian yang membukanya.",
+          "revoked": "Terkunci: sudah ditutup. Paket atau perjanjian baru membukanya lagi.",
+          "expired": "Terkunci: tanggal akhirnya sudah lewat. Perpanjang paket atau perjanjian untuk membukanya lagi."
+        }
+      },
+      "bases": {
+        "paid_plan": "paket berbayar",
+        "agreement": "perjanjian"
+      },
+      "rules": {
+        "title": "Isi kebijakan setelah terbuka",
+        "mayTitle": "Boleh memakai merek Anda",
+        "neverTitle": "Tidak pernah disembunyikan atau diubah",
+        "may": {
+          "name": "Nama portal",
+          "logo": "Logo",
+          "accent_colour": "Warna aksen",
+          "domain": "Domain sendiri, setelah kepemilikan dibuktikan",
+          "email_sender": "Nama dan logo pengirim pada email ke klien",
+          "issuer_details": "Kop, nama hukum, dan nomor pajak pada invoice dan dokumen"
+        },
+        "never": {
+          "sign_in_and_security": "Halaman masuk dan keamanan",
+          "privacy_and_terms_links": "Tautan privasi dan syarat",
+          "no_impersonation": "Menyamar sebagai perusahaan lain",
+          "ai_marker": "Penanda pada teks buatan AI",
+          "abuse_contact": "Cara melapor penyalahgunaan atau masalah keamanan",
+          "team_area": "Area tim: selalu Saqina"
+        },
+        "readPolicy": "Baca kebijakan white label lengkap"
+      },
+      "admin": {
+        "title": "Buka atau tutup white label (pemilik platform)",
+        "body": "Buka hanya setelah ada paket berbayar yang mencakupnya, atau perjanjian yang ditandatangani kedua pihak. Catat yang mana: referensinya ditampilkan kepada organisasi.",
+        "organization": "Organisasi",
+        "open": "terbuka",
+        "basis": "Dasar",
+        "reference": "Kode paket atau nomor referensi perjanjian",
+        "referenceHint": "Misalnya kode paket, atau nomor referensi perjanjian seperti AGR-2027-004.",
+        "validUntil": "Berlaku sampai (opsional)",
+        "validUntilHint": "Kosongkan bila tanpa tanggal akhir. Tanggal akhirnya sendiri masih terbuka.",
+        "note": "Catatan (opsional)",
+        "grant": "Buka white label",
+        "granted": "White label terbuka untuk organisasi ini.",
+        "closeTitle": "Tutup white label",
+        "revoke": "Tutup"
+      }
     }
   }
 }

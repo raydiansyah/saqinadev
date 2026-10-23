@@ -33,7 +33,12 @@ export default async function PortalDocumentsPage({
                 href={`/portal/projects/${slug}/documents/${doc.slug}`}
                 className="flex min-h-11 flex-col gap-1 px-4 py-3 hover:bg-surface sm:flex-row sm:items-baseline sm:justify-between"
               >
-                <span className="min-w-0 font-medium break-words">{doc.title}</span>
+                <span className="min-w-0 font-medium break-words">
+                  {doc.title}
+                  {doc.reference ? (
+                    <span className="ml-2 font-mono text-xs text-success">{doc.reference}</span>
+                  ) : null}
+                </span>
                 <span className="shrink-0 text-sm text-muted-foreground">
                   {t("version", { version: doc.version })} ·{" "}
                   {t("updated", { date: formatDate(doc.updatedAt, locale) })}

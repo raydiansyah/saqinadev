@@ -29,7 +29,9 @@ export function PortalUsers({
   const [confirm, setConfirm] = useState<PortalUserView | null>(null);
   const { pending, error, run } = useRun();
   const day = (iso: string) =>
-    new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(new Date(iso));
+    new Intl.DateTimeFormat(locale === "id" ? "id-ID" : "en-GB", { dateStyle: "long" }).format(
+      new Date(iso),
+    );
 
   return (
     <section aria-labelledby="portal-users-heading" className="rounded-lg border border-border p-5">

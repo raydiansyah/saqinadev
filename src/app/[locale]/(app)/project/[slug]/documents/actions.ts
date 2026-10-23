@@ -15,6 +15,7 @@ import {
   setDocumentClientVisible,
   setDocumentStatus,
 } from "@/lib/documents/service";
+import { signAsTeam } from "@/lib/documents/signing";
 
 const refresh = () => revalidatePath("/[locale]/project/[slug]", "layout");
 
@@ -76,6 +77,15 @@ export async function generateBusinessDocumentAction(slug: string, kind: string)
       { kind },
       await getLocale(),
     );
+    refresh();
+    return result;
+  });
+}
+
+/** The team signs the approved version of a proposal, agreement, handover or maintenance agreement. */
+export async function signDocumentAction(slug: string, docSlug: string) {
+  return runAction("document.sign", { slug, doc: docSlug }, async () => {
+    const result = await signAsTeam(await requireActor(), slug, docSlug);
     refresh();
     return result;
   });

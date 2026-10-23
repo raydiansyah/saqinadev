@@ -301,6 +301,41 @@
       "label": "Diagram",
       "loading": "Menggambar diagram…",
       "invalid": "Diagram ini tidak bisa digambar. Sumbernya ditampilkan sebagai gantinya."
+    },
+    "signing": {
+      "title": "Persetujuan dan tanda tangan",
+      "hint": {
+        "team": "Setujui teksnya, lalu kedua pihak menandatangani versi yang sama. Dokumen terbit dengan nomor referensi setelah keduanya menandatangani.",
+        "client": "Baca dokumennya. Kalau setuju, tanda tangani. Kalau ada yang perlu diubah, minta perubahan ke tim."
+      },
+      "steps": {
+        "approved": "Teks disetujui tim",
+        "team": "Tanda tangan tim",
+        "client": "Tanda tangan klien",
+        "issued": "Terbit dengan nomor referensi"
+      },
+      "done": "Selesai",
+      "waiting": "Menunggu",
+      "signedBy": "Ditandatangani {name}",
+      "afterBoth": "Setelah kedua tanda tangan",
+      "issued": "Terbit sebagai {reference}",
+      "sign": {
+        "team": "Tanda tangani sebagai tim",
+        "client": "Tanda tangani dokumen ini"
+      },
+      "requestChanges": "Minta perubahan",
+      "approveFirst": "Setujui dokumen dulu (tombol di bawah teks), lalu tanda tangani.",
+      "editNote": "Mengubah teks, atau menarik persetujuan, menghapus tanda tangan agar tidak ada yang menandatangani kata-kata yang belum dilihatnya.",
+      "changesTitle": "Minta perubahan ke tim",
+      "changesLabel": "Apa yang perlu diubah?",
+      "cancel": "Batal",
+      "sendChanges": "Kirim ke tim",
+      "share": "Bagikan ke klien",
+      "shareFirst": "Klien menandatangani apa yang bisa dibacanya. Bagikan dokumen yang sudah disetujui agar klien bisa menandatangani."
+    },
+    "letterhead": {
+      "issuedBy": "Diterbitkan oleh {name}",
+      "reference": "No. ref {reference}"
     }
   },
   "plan": {

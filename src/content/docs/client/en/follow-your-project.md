@@ -47,6 +47,18 @@ Good to know:
 - Only documents the team approved appear here. A draft is not visible.
 - If a document changes after it was shared and needs approving again, it can leave the list until the team approves it again.
 
+## Sign a document
+
+The proposal, agreement, handover and maintenance agreement are signed by both parties. Under the document there is an **Approval and signatures** panel. You can **sign this document** when you agree, or **ask for changes** with a note about what should change.
+
+![The signing panel on the portal: the team has signed; the client gets Sign this document and Ask for changes](/api/docs/assets/client/portal-06-sign.png)
+
+- You can only sign a document the team approved and shared with you.
+- Once the team and you have both signed, the document is **issued**, gets a reference number, and can no longer be changed.
+- If you ask for changes, the document goes back to the team and existing signatures are removed. You will get the updated document to read again.
+
+![An issued document with reference number AGR-2026-001, signed by the team and the client](/api/docs/assets/client/portal-07-issued.png)
+
 ## Answer what waits for you
 
 - **Approvals** shows what needs your decision: approve, or ask for a change.

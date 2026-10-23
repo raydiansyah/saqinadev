@@ -106,12 +106,43 @@ export const documents = pgTable(
     status: text("status").$type<DocumentStatus>().notNull().default("draft"),
     /** Shared on the client portal. Only approved documents may be shared. */
     clientVisible: boolean("client_visible").notNull().default(false),
+    /** Issued only when both parties have signed: "PRP-2026-001". Null until then. */
+    reference: text("reference"),
+    issuedAt: timestamp("issued_at", { withTimezone: true }),
     createdBy: userRef("created_by"),
     updatedBy: userRef("updated_by"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
-  (t) => [uniqueIndex("documents_project_slug_idx").on(t.projectId, t.slug)],
+  (t) => [
+    uniqueIndex("documents_project_slug_idx").on(t.projectId, t.slug),
+    uniqueIndex("documents_project_reference_idx")
+      .on(t.projectId, t.reference)
+      .where(sql`${t.reference} is not null`),
+  ],
+);
+
+/**
+ * A party's signature on one exact version of a document. The hash is of the text that was
+ * signed, so a signature can always be checked against the version it belongs to. Editing the
+ * document, or taking it back from approval, removes the signatures it had.
+ */
+export const documentSignatures = pgTable(
+  "document_signatures",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    documentId: uuid("document_id")
+      .notNull()
+      .references(() => documents.id, { onDelete: "cascade" }),
+    version: integer("version").notNull(),
+    party: text("party").$type<"team" | "client">().notNull(),
+    signerId: userRef("signer_id"),
+    /** Kept as written: the person may later be renamed or removed. */
+    signerName: text("signer_name").notNull(),
+    contentHash: text("content_hash").notNull(),
+    signedAt: timestamp("signed_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("document_signatures_party_idx").on(t.documentId, t.version, t.party)],
 );
 
 /** Every saved revision. Enough for history and diffs later without redesigning documents. */

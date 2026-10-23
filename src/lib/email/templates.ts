@@ -116,6 +116,15 @@ export const EVENT_TITLES: Record<string, Copy> = {
     id: "Maintenance segera berakhir",
   },
   "approval.requested": { en: "Approval requested", id: "Permintaan persetujuan" },
+  "document.signed": {
+    en: "Document waiting for your signature",
+    id: "Dokumen menunggu tanda tangan Anda",
+  },
+  "document.issued": { en: "Document issued", id: "Dokumen terbit" },
+  "document.changes_requested": {
+    en: "Changes requested on a document",
+    id: "Perubahan diminta pada dokumen",
+  },
   "change_request.sent": { en: "Change request to review", id: "Change request untuk ditinjau" },
   "invoice.issued": { en: "New invoice", id: "Invoice baru" },
   "message.posted": { en: "New message", id: "Pesan baru" },

@@ -21,7 +21,7 @@ const TASKS = /^(tasks?|todo|to-do|backlog|checklist|task[-_ ]?list)\.(md|mdx|ma
 export const NAME: Record<DocRole, RegExp> = { prd: PRD, plan: PLAN, tasks: TASKS };
 
 /**
- * A name that carries the role as a word among others: "intech-lms-prd.md", "01-PRD.md",
+ * A name that carries the role as a word among others: "project-prd.md", "01-PRD.md",
  * "lms_product_requirements.md". Weaker than an exact name, so it only fills what is still empty.
  */
 const WORD = "(^|[-_ .0-9])";

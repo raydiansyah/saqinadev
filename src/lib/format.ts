@@ -11,8 +11,25 @@ export function formatRelative(date: Date, locale: string, now: Date = new Date(
   return rtf.format(Math.round(seconds / (365 * 86400)), "year");
 }
 
+/** The language tag dates are written in: "27 Februari 2027" in Indonesian, "27 February 2027" in English. */
+export const dateTag = (locale: string) => (locale === "id" ? "id-ID" : "en-GB");
+
+/**
+ * A calendar date, month in full: "27 Februari 2027". Takes a Date or an ISO calendar date
+ * ("2027-02-27"); either is read in UTC so the day never shifts with the viewer's timezone.
+ */
+export function formatLongDate(value: Date | string, locale: string): string {
+  const date = typeof value === "string" ? new Date(`${value.slice(0, 10)}T00:00:00Z`) : value;
+  if (Number.isNaN(date.getTime())) return String(value);
+  return new Intl.DateTimeFormat(dateTag(locale), { dateStyle: "long", timeZone: "UTC" }).format(
+    date,
+  );
+}
+
 export function formatDateTime(date: Date, locale: string): string {
-  return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(date);
+  return new Intl.DateTimeFormat(dateTag(locale), { dateStyle: "long", timeStyle: "short" }).format(
+    date,
+  );
 }
 
 export function formatTime(date: Date, locale: string): string {
@@ -22,14 +39,14 @@ export function formatTime(date: Date, locale: string): string {
 /** Calendar-day key in the viewer's timezone-independent form (UTC), for grouping feeds. */
 export const dayKey = (date: Date) => date.toISOString().slice(0, 10);
 
-/** A medium date, and the time unless `dateOnly`. Pass a `timeZone` to pin it (UTC on the server). */
+/** A long date, and the time unless `dateOnly`. Pass a `timeZone` to pin it (UTC on the server). */
 export function formatStamp(
   date: Date,
   locale: string,
   options: { dateOnly?: boolean; timeZone?: string } = {},
 ): string {
-  return new Intl.DateTimeFormat(locale, {
-    dateStyle: "medium",
+  return new Intl.DateTimeFormat(dateTag(locale), {
+    dateStyle: "long",
     ...(options.dateOnly ? {} : { timeStyle: "short" as const }),
     ...(options.timeZone ? { timeZone: options.timeZone } : {}),
   }).format(date);

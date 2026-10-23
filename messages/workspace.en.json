@@ -301,6 +301,41 @@
       "label": "Diagram",
       "loading": "Drawing the diagram…",
       "invalid": "This diagram could not be drawn. Its source is shown instead."
+    },
+    "signing": {
+      "title": "Approval and signatures",
+      "hint": {
+        "team": "Approve the text, then both parties sign the same version. The document is issued with its reference number once both have signed.",
+        "client": "Read the document. If you agree, sign it. If something needs to change, ask the team for a change."
+      },
+      "steps": {
+        "approved": "Text approved by the team",
+        "team": "Team signature",
+        "client": "Client signature",
+        "issued": "Issued with reference number"
+      },
+      "done": "Done",
+      "waiting": "Waiting",
+      "signedBy": "Signed by {name}",
+      "afterBoth": "After both signatures",
+      "issued": "Issued as {reference}",
+      "sign": {
+        "team": "Sign as the team",
+        "client": "Sign this document"
+      },
+      "requestChanges": "Ask for changes",
+      "approveFirst": "Approve the document first (the button under the text), then sign.",
+      "editNote": "Changing the text, or taking the approval back, removes the signatures so nobody signs words they did not see.",
+      "changesTitle": "Ask the team for changes",
+      "changesLabel": "What should change?",
+      "cancel": "Cancel",
+      "sendChanges": "Send to the team",
+      "share": "Share with the client",
+      "shareFirst": "The client signs what they can read. Share the approved document with them so they can sign."
+    },
+    "letterhead": {
+      "issuedBy": "Issued by {name}",
+      "reference": "Ref. {reference}"
     }
   },
   "plan": {

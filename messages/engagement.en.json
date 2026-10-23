@@ -253,7 +253,12 @@
       },
       "documents": {
         "shareNeedsApproval": "Approve the document before asking the client to review it.",
-        "signedLocked": "This document is signed and cannot be regenerated."
+        "signedLocked": "This document is signed and cannot be regenerated.",
+        "notApproved": "Approve the document before it is signed.",
+        "alreadySigned": "Your signature is already on this version.",
+        "alreadyIssued": "This document is already issued.",
+        "notSignable": "This document is not signed by two parties.",
+        "useSigning": "A proposal or agreement is signed by both parties; use the signing panel."
       },
       "maintenance": {
         "cancelled": "Cancelled plans cannot be renewed."

@@ -47,6 +47,18 @@ Beberapa hal yang perlu diketahui:
 - Hanya dokumen yang sudah disetujui tim yang muncul di sini. Dokumen yang masih draf tidak terlihat.
 - Kalau dokumen berubah isinya setelah dibagikan dan perlu disetujui ulang, dokumen itu bisa hilang dari daftar sampai tim menyetujuinya lagi.
 
+## Menandatangani dokumen
+
+Proposal, perjanjian, serah terima, dan perjanjian pemeliharaan ditandatangani oleh kedua pihak. Di bawah isi dokumen ada panel **Persetujuan dan tanda tangan**. Anda bisa **menandatangani dokumen ini** kalau sudah setuju, atau **meminta perubahan** dengan catatan tentang apa yang perlu diubah.
+
+![Panel tanda tangan di portal: tim sudah menandatangani, tombol Tanda tangani dokumen ini dan Minta perubahan untuk klien](/api/docs/assets/client/portal-06-sign.png)
+
+- Anda hanya bisa menandatangani dokumen yang sudah disetujui tim dan dibagikan kepada Anda.
+- Setelah tim dan Anda sama-sama menandatangani, dokumen **terbit**, mendapat nomor referensi, dan tidak bisa diubah lagi.
+- Kalau Anda meminta perubahan, dokumen kembali ke tim dan tanda tangan yang sudah ada dihapus. Anda akan mendapat dokumen yang sudah diperbarui untuk dibaca lagi.
+
+![Dokumen yang sudah terbit dengan nomor referensi AGR-2026-001, ditandatangani tim dan klien](/api/docs/assets/client/portal-07-issued.png)
+
 ## Menjawab yang menunggu Anda
 
 - **Persetujuan** menampilkan hal yang butuh keputusan Anda: setujui atau minta perubahan.

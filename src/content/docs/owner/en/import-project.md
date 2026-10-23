@@ -83,7 +83,7 @@ The stepper on the overview and the next step change too: once build is **Yes**,
 
 ## Step 5. Set up the PRD
 
-Saqina looks for the PRD across the whole documentation folder, subfolders included. Names such as `prd.md`, `intech-lms-prd.md` or `01-prd.md` are recognised. If one is found, the PRD is set up right away and keeps following GitHub.
+Saqina looks for the PRD across the whole documentation folder, subfolders included. Names such as `prd.md`, `project-prd.md` or `01-prd.md` are recognised. If one is found, the PRD is set up right away and keeps following GitHub.
 
 If none is found, the **PRD** page asks which document is the PRD. There are two ways.
 

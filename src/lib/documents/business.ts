@@ -27,6 +27,7 @@ import {
   type BusinessDocKind,
   renderBusinessDoc,
 } from "./business-templates";
+import { clearSignatures } from "./signing";
 
 export const BUSINESS_DOC_KINDS = Object.keys(BUSINESS_DOC_SLUGS) as BusinessDocKind[];
 
@@ -131,6 +132,8 @@ export async function generateBusinessDocumentTx(
       .update(documents)
       .set({ content, title, version, status: "draft", clientVisible: false, updatedBy: actor.id })
       .where(eq(documents.id, existing.id));
+    // A regenerated text is a new text: earlier signatures do not carry over.
+    await clearSignatures(tx, existing.id);
   } else {
     const [row] = await tx
       .insert(documents)

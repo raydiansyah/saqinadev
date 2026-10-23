@@ -29,6 +29,8 @@ export interface DocMeta {
   order: number;
   /** ISO date of the last review of the page against the product. */
   updated: string;
+  /** A guide shows the product with screenshots; a policy states rules and needs none. */
+  kind: "guide" | "policy";
 }
 
 export interface DocPage extends DocMeta {
@@ -50,7 +52,8 @@ export function parseDoc(slug: string, source: string): DocPage | null {
   }
   const { title, description, order, updated } = header;
   if (!title || !description || !updated || !Number.isFinite(Number(order))) return null;
-  return { slug, title, description, order: Number(order), updated, body: match[2].trim() };
+  const kind = header.kind === "policy" ? "policy" : "guide";
+  return { slug, title, description, order: Number(order), updated, kind, body: match[2].trim() };
 }
 
 export function listDocs(audience: DocAudience, locale: Locale): DocMeta[] {

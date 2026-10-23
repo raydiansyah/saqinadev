@@ -208,7 +208,11 @@
       "accountEmailMismatch": "Email tidak cocok dengan akun Anda.",
       "accountBlockedLastPlatformOwner": "Anda satu-satunya owner platform. Serahkan peran dulu.",
       "accountBlockedOwnsSharedProjects": "Anda masih memiliki proyek yang dipakai orang lain.",
-      "accountBlockedOwnsSharedOrganizations": "Anda masih memiliki organisasi dengan anggota lain."
+      "accountBlockedOwnsSharedOrganizations": "Anda masih memiliki organisasi dengan anggota lain.",
+      "whiteLabel": {
+        "locked": "White label terkunci untuk organisasi ini.",
+        "pastEnd": "Tanggal akhirnya sudah lewat."
+      }
     }
   },
   "integrations": {

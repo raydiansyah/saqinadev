@@ -24,7 +24,8 @@ import {
   tasks,
 } from "@/lib/db/schema";
 import { generateBusinessDocument } from "@/lib/documents/business";
-import { setDocumentStatus } from "@/lib/documents/service";
+import { setDocumentClientVisible, setDocumentStatus } from "@/lib/documents/service";
+import { signAsClient, signAsTeam } from "@/lib/documents/signing";
 import { clientRespondApproval, requestApproval } from "@/lib/engagement/approvals";
 import { clientPostMessage, teamPostMessage } from "@/lib/engagement/messages";
 import { clientCreateRequest, listRequests, updateRequest } from "@/lib/engagement/requests";
@@ -242,7 +243,11 @@ describe("business documents", () => {
     expect((await generateBusinessDocument(owner, slug, { kind: "proposal" }, "id")).version).toBe(
       2,
     );
-    await setDocumentStatus(owner, slug, { docSlug: "proposal", status: "signed" });
+    // Signed the real way: approved, shared, then signed by both parties.
+    await setDocumentStatus(owner, slug, { docSlug: "proposal", status: "approved" });
+    await setDocumentClientVisible(owner, slug, { docSlug: "proposal", visible: true });
+    await signAsTeam(owner, slug, "proposal");
+    await signAsClient(client, slug, "proposal");
     expect(await code(generateBusinessDocument(owner, slug, { kind: "proposal" }, "id"))).toBe(
       "CONFLICT",
     );

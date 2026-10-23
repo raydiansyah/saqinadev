@@ -3,7 +3,8 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { signOutAction } from "@/app/[locale]/(app)/actions";
 import { PageHeading } from "@/components/app/states";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Link } from "@/i18n/navigation";
 import { planDeletion } from "@/lib/account/delete";
 import { requireActorPage } from "@/lib/auth/server";
 import { isPlatformOwner } from "@/lib/platform/roles";
@@ -55,6 +56,18 @@ export default async function AccountSettingsPage() {
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">{tm("description")}</p>
           <WorkspaceModeForm mode={mode} />
+        </section>
+        <section aria-labelledby="wl-heading" className="rounded-lg border border-border p-5">
+          <h2 id="wl-heading" className="font-medium">
+            {t("whiteLabel.title")}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">{t("whiteLabel.linkBody")}</p>
+          <Link
+            href="/dashboard/settings/white-label"
+            className={buttonVariants({ variant: "outline", className: "mt-3" })}
+          >
+            {t("whiteLabel.openPage")}
+          </Link>
         </section>
         {owner ? (
           <section

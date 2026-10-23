@@ -134,7 +134,7 @@ export default async function RemindersPage() {
                 <td className={TD}>{t(`kinds.${row.kind}`)}</td>
                 <td className={`${TD} whitespace-nowrap`}>
                   <time dateTime={row.createdAt.toISOString()}>
-                    {format.dateTime(row.createdAt, { dateStyle: "medium", timeStyle: "short" })}
+                    {format.dateTime(row.createdAt, { dateStyle: "long", timeStyle: "short" })}
                   </time>
                 </td>
                 <td className={`${TD} text-right tabular-nums`}>{row.recipients}</td>

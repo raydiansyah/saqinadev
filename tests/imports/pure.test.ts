@@ -194,13 +194,13 @@ describe("mapDocs: a role as a word in a longer name", () => {
     truncated: false,
   });
 
-  it("finds the PRD in a specifications folder from names like intech-lms-prd.md", () => {
+  it("finds the PRD in a specifications folder from names like project-prd.md", () => {
     const mapped = mapDocs([
       doc("docs/README.md"),
-      doc("docs/specifications/intech-lms-prd.md"),
+      doc("docs/specifications/project-prd.md"),
       doc("docs/specifications/database.md"),
     ]);
-    expect(mapped.prd?.path).toBe("docs/specifications/intech-lms-prd.md");
+    expect(mapped.prd?.path).toBe("docs/specifications/project-prd.md");
   });
 
   it("prefers an exact name, and the file nearest the root among equals", () => {

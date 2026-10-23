@@ -24,6 +24,7 @@ describe("the user guide header", () => {
       description: "What it covers",
       order: 2,
       updated: "2026-10-23",
+      kind: "guide",
       body: "# Body",
     });
   });
@@ -81,7 +82,9 @@ describe("the guides that ship with the product", () => {
         for (const meta of listDocs(audience, locale)) {
           const body = getDoc(audience, locale, meta.slug)?.body ?? "";
           const used = [...body.matchAll(IMAGE)].map((m) => ASSET.exec(m[1])?.[2] ?? "");
-          expect(used.length, `${audience}/${locale}/${meta.slug}`).toBeGreaterThan(0);
+          // A policy states rules and needs no screenshot; a guide shows the product.
+          if (meta.kind === "guide")
+            expect(used.length, `${audience}/${locale}/${meta.slug}`).toBeGreaterThan(0);
           for (const name of used) {
             const file = docAssetFile(audience, name);
             expect(file && existsSync(file), `${audience}/${locale}: ${name}`).toBe(true);

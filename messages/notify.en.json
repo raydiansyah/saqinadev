@@ -131,6 +131,20 @@
           "title": "Meeting note confirmed",
           "body": "The client confirmed {title} in {project}"
         }
+      },
+      "document": {
+        "signed": {
+          "title": "Waiting for your signature",
+          "body": "{title} in {project} was signed by the other party"
+        },
+        "issued": {
+          "title": "Document issued",
+          "body": "{title} in {project} is issued as {reference}"
+        },
+        "changes_requested": {
+          "title": "Changes requested",
+          "body": "{title} in {project} needs changes"
+        }
       }
     }
   },

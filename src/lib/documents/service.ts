@@ -11,6 +11,8 @@ import { AppError } from "@/lib/errors";
 import { type Trace, traceMetadata } from "@/lib/events/types";
 import { slugify } from "@/lib/interview/rules/profile";
 import { parse } from "@/lib/validation";
+import { isSignable } from "./reference";
+import { clearSignatures } from "./signing";
 
 export type DocumentView = typeof documents.$inferSelect;
 export type DocumentListItem = Omit<DocumentView, "content">;
@@ -30,6 +32,8 @@ export async function listDocuments(access: ProjectAccess): Promise<DocumentList
       version: documents.version,
       status: documents.status,
       clientVisible: documents.clientVisible,
+      reference: documents.reference,
+      issuedAt: documents.issuedAt,
       createdBy: documents.createdBy,
       updatedBy: documents.updatedBy,
       createdAt: documents.createdAt,
@@ -98,6 +102,8 @@ async function writeVersion(
 ) {
   const version = doc.version + 1;
   const demote = doc.clientVisible && !keepSharing;
+  // New words: nobody has signed them.
+  await clearSignatures(tx, doc.id);
   const [row] = await tx
     .update(documents)
     .set({
@@ -261,6 +267,19 @@ export async function setDocumentStatus(actor: Actor, slug: string, input: unkno
   );
   await db.transaction(async (tx) => {
     const { project } = await loadProjectAccess(actor, { slug }, "content:write", tx);
+    const [current] = await tx
+      .select({ id: documents.id, type: documents.type, status: documents.status })
+      .from(documents)
+      .where(and(eq(documents.projectId, project.id), eq(documents.slug, docSlug)))
+      .for("update");
+    if (!current) throw new AppError("NOT_FOUND");
+    // A proposal or agreement is signed by two parties, never by one click.
+    if (status === "signed" && isSignable(current.type) && current.status !== "signed")
+      throw new AppError("VALIDATION_ERROR", "Signed by both parties only", {
+        status: "documents.useSigning",
+      });
+    if (status !== "approved" && isSignable(current.type) && current.status !== "signed")
+      await clearSignatures(tx, current.id);
     const [doc] = await tx
       .update(documents)
       // Leaving "approved" also withdraws the document from the client portal.

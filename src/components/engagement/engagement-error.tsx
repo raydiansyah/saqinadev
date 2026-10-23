@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { FormError } from "@/components/platform/form-error";
 import { Notice } from "@/components/ui/form";
 
-type ErrorLike = { code: string; field?: string } | null;
+type ErrorLike = { code: string; field?: string; ref?: string } | null;
 
 /**
  * Service rule codes ("cr.notDraft", "engagement.portalOff") and validation codes ("tooShort")
