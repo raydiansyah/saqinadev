@@ -185,5 +185,20 @@
     "updated": "Last updated",
     "contents": "Contents",
     "otherDocument": "See also"
+  },
+  "docs": {
+    "owner": {
+      "metaTitle": "Guides",
+      "title": "Guides",
+      "intro": "Step-by-step guides for running projects in Saqina, with screenshots from the product."
+    },
+    "client": {
+      "metaTitle": "Guides",
+      "title": "Guides",
+      "intro": "How to follow your project on the portal: progress, documents and what needs your answer."
+    },
+    "empty": "There are no guides yet.",
+    "all": "All guides",
+    "updated": "Last checked"
   }
 }

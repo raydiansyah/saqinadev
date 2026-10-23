@@ -40,9 +40,10 @@ export function Footer() {
                 </a>
               </li>
             ))}
-            <li className="inline-flex min-h-11 items-center gap-2 text-sm text-subtle-foreground">
-              {t("footer.documentation")}{" "}
-              <span className="font-mono text-xs">{t("footer.comingSoon")}</span>
+            <li>
+              <Link href="/dashboard/docs" className={LINK}>
+                {t("footer.documentation")}
+              </Link>
             </li>
           </ul>
         </nav>

@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
   experimental: { globalNotFound: true },
   // The app is served by Vercel: do not advertise the framework.
   poweredByHeader: false,
+  // The guide screenshots are read from disk at request time, so they must ship with the route.
+  outputFileTracingIncludes: {
+    "/api/docs/assets/[audience]/[name]": ["./src/content/docs/assets/**/*"],
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders(process.env.NODE_ENV !== "production") }];
   },

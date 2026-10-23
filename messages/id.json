@@ -185,5 +185,20 @@
     "updated": "Terakhir diperbarui",
     "contents": "Daftar isi",
     "otherDocument": "Lihat juga"
+  },
+  "docs": {
+    "owner": {
+      "metaTitle": "Panduan",
+      "title": "Panduan",
+      "intro": "Panduan langkah demi langkah untuk menjalankan project di Saqina, dengan screenshot dari produknya."
+    },
+    "client": {
+      "metaTitle": "Panduan",
+      "title": "Panduan",
+      "intro": "Cara mengikuti project Anda di portal: progres, dokumen, dan hal yang butuh jawaban Anda."
+    },
+    "empty": "Belum ada panduan.",
+    "all": "Semua panduan",
+    "updated": "Terakhir diperiksa"
   }
 }

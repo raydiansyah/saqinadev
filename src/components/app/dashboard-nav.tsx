@@ -14,7 +14,8 @@ type NavKey =
   | "activity"
   | "settings"
   | "ai"
-  | "services";
+  | "services"
+  | "docs";
 
 const SIMPLE: { key: NavKey; href: string }[] = [
   { key: "overview", href: "/dashboard" },
@@ -38,6 +39,7 @@ export function DashboardNav({
     ...SIMPLE,
     ...(mode === "advanced" ? [{ key: "activity" as const, href: "/dashboard/activity" }] : []),
     { key: "settings", href: "/dashboard/settings" },
+    { key: "docs", href: "/dashboard/docs" },
     // The AI control plane (providers, models, policies) is owner-only in both modes: owners must
     // be able to set up a provider even before they switch to advanced mode (pages check again).
     ...(isOwner ? [{ key: "ai" as const, href: "/dashboard/ai" }] : []),

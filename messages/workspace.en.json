@@ -155,6 +155,24 @@
         "prd": "Kept your PRD: it was edited, so the repository's version was not used.",
         "plan": "Kept your plan: it was edited, so the repository's version was not used."
       }
+    },
+    "bulk": {
+      "title": "Actions on the selected requirements",
+      "selected": "{count, plural, one {# requirement selected} other {# requirements selected}}",
+      "selectAll": "Select all ({count})",
+      "selectGroup": "Select every requirement in {group}",
+      "select": "Select: {title}",
+      "clear": "Clear selection",
+      "status": "Set status",
+      "priority": "Set priority",
+      "group": "Move to group",
+      "unchanged": "Leave as it is",
+      "apply": "Apply to selected",
+      "applied": "{count, plural, one {# requirement updated} other {# requirements updated}}.",
+      "delete": "Delete selected",
+      "deleteTitle": "Delete the selected requirements?",
+      "deleteBody": "{count, plural, one {# requirement} other {# requirements}} will be deleted. This cannot be undone.",
+      "deleted": "{count, plural, one {# requirement deleted} other {# requirements deleted}}."
     }
   },
   "documents": {

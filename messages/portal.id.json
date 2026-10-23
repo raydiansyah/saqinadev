@@ -7,7 +7,8 @@
       "dashboard": "Dasbor",
       "projects": "Project",
       "profile": "Profil",
-      "signOut": "Keluar"
+      "signOut": "Keluar",
+      "docs": "Panduan"
     },
     "dashboard": {
       "metaTitle": "Portal client",

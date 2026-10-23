@@ -155,6 +155,24 @@
         "prd": "PRD Anda dipertahankan: sudah diubah, jadi versi repositori tidak dipakai.",
         "plan": "Plan Anda dipertahankan: sudah diubah, jadi versi repositori tidak dipakai."
       }
+    },
+    "bulk": {
+      "title": "Tindakan untuk requirement yang dipilih",
+      "selected": "{count} requirement dipilih",
+      "selectAll": "Pilih semua ({count})",
+      "selectGroup": "Pilih semua requirement di {group}",
+      "select": "Pilih: {title}",
+      "clear": "Batalkan pilihan",
+      "status": "Ubah status",
+      "priority": "Ubah prioritas",
+      "group": "Pindahkan ke grup",
+      "unchanged": "Biarkan seperti sekarang",
+      "apply": "Terapkan ke yang dipilih",
+      "applied": "{count} requirement diperbarui.",
+      "delete": "Hapus yang dipilih",
+      "deleteTitle": "Hapus requirement yang dipilih?",
+      "deleteBody": "{count} requirement akan dihapus. Tindakan ini tidak bisa dibatalkan.",
+      "deleted": "{count} requirement dihapus."
     }
   },
   "documents": {

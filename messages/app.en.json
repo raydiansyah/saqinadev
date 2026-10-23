@@ -37,7 +37,8 @@
       "clients": "Clients",
       "invoices": "Invoices",
       "payments": "Payments",
-      "reminders": "Reminders"
+      "reminders": "Reminders",
+      "docs": "Guides"
     },
     "greeting": {
       "morning": "Good morning, {name}.",

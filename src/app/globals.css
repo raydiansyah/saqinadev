@@ -441,6 +441,31 @@
     font-weight: 600;
     color: var(--foreground);
   }
+  .markdown img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+  }
+  .markdown table {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: 0.9em;
+  }
+  .markdown th,
+  .markdown td {
+    padding: 0.4rem 0.75rem;
+    border: 1px solid var(--border);
+    text-align: left;
+    vertical-align: top;
+  }
+  .markdown th {
+    background: var(--surface);
+    font-weight: 600;
+  }
   .markdown hr {
     border-color: var(--border);
   }

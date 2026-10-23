@@ -1,4 +1,5 @@
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { isMermaidClass, mermaidSource } from "@/lib/markdown/mermaid";
 import MermaidDiagram from "./mermaid-diagram";
 
@@ -10,6 +11,8 @@ export default function MarkdownPreview({ content }: { content: string }) {
   return (
     <div className="markdown">
       <ReactMarkdown
+        // Tables, task lists and strikethrough, as GitHub writes them.
+        remarkPlugins={[remarkGfm]}
         components={{
           // The diagram replaces the whole <pre>, not just the <code> inside it.
           pre({ node, children, ...props }) {

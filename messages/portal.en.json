@@ -7,7 +7,8 @@
       "dashboard": "Dashboard",
       "projects": "Projects",
       "profile": "Profile",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "docs": "Guides"
     },
     "dashboard": {
       "metaTitle": "Client portal",

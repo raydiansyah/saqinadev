@@ -3,6 +3,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import MarkdownPreview from "@/components/documents/markdown-preview";
 import { formatDate } from "@/components/portal/format";
 import { Link } from "@/i18n/navigation";
+import { stripProvenance } from "@/lib/docsync/paths";
 import { clientDocument } from "@/lib/portal/views";
 import { orNotFound, portalPageAccess } from "../../../../access";
 
@@ -39,7 +40,8 @@ export default async function PortalDocumentPage({
         </p>
       </header>
       <div className="min-w-0 overflow-x-auto break-words">
-        <MarkdownPreview content={doc.content} />
+        {/* The "Imported from" line is for the team; the client reads the document itself. */}
+        <MarkdownPreview content={stripProvenance(doc.content)} />
       </div>
     </article>
   );

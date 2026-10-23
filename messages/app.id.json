@@ -37,7 +37,8 @@
       "clients": "Client",
       "invoices": "Invoice",
       "payments": "Pembayaran",
-      "reminders": "Pengingat"
+      "reminders": "Pengingat",
+      "docs": "Panduan"
     },
     "greeting": {
       "morning": "Selamat pagi, {name}.",
