@@ -1,68 +1,59 @@
 import { describe, expect, it } from "vitest";
-import { NO_ANSWERS, planTaskAdjustment, settleAnswers } from "@/lib/delivery/consistency";
+import {
+  answersContradict,
+  deliveryNotes,
+  NO_ANSWERS,
+  planTaskAdjustment,
+} from "@/lib/delivery/consistency";
 
-describe("settling an answer", () => {
-  it("deployed means reviewed and built", () => {
-    expect(settleAnswers(NO_ANSWERS, "deploy", true)).toEqual({
-      build: true,
-      review: true,
-      deploy: true,
+const answer = (step: "build" | "review" | "deploy", done: boolean) => ({
+  step,
+  done,
+  unanswered: false,
+});
+const noTasks = { total: 0, done: 0, review: 0, open: 0 };
+
+describe("answers that disagree", () => {
+  it("reviewed but not built is a contradiction, flagged on review", () => {
+    expect(answersContradict({ build: false, review: true, deploy: null })).toBe(true);
+    expect(answersContradict({ build: null, review: true, deploy: null })).toBe(true);
+    expect(deliveryNotes([answer("review", true)], noTasks)).toContainEqual({
+      step: "review",
+      code: "needs_build",
     });
   });
 
-  it("reviewed means built, and leaves deploy alone", () => {
-    expect(settleAnswers(NO_ANSWERS, "review", true)).toEqual({
-      build: true,
-      review: true,
-      deploy: null,
+  it("deployed before build and review are both yes is a contradiction", () => {
+    expect(answersContradict({ build: true, review: false, deploy: true })).toBe(true);
+    expect(deliveryNotes([answer("build", true), answer("deploy", true)], noTasks)).toContainEqual({
+      step: "deploy",
+      code: "needs_build_and_review",
     });
   });
 
-  it("not built clears what was answered after it, and leaves the unanswered alone", () => {
-    const live = { build: true, review: true, deploy: true };
-    expect(settleAnswers(live, "build", false)).toEqual({
-      build: false,
-      review: false,
-      deploy: false,
-    });
-    expect(settleAnswers({ build: true, review: null, deploy: null }, "build", false)).toEqual({
-      build: false,
-      review: null,
-      deploy: null,
-    });
-  });
-
-  it("not reviewed clears deploy only", () => {
-    expect(settleAnswers({ build: true, review: true, deploy: true }, "review", false)).toEqual({
-      build: true,
-      review: false,
-      deploy: false,
-    });
+  it("consistent answers, or none, are not a contradiction", () => {
+    expect(answersContradict(NO_ANSWERS)).toBe(false);
+    expect(answersContradict({ build: true, review: null, deploy: null })).toBe(false);
+    expect(answersContradict({ build: true, review: true, deploy: true })).toBe(false);
+    expect(answersContradict({ build: false, review: false, deploy: false })).toBe(false);
+    expect(deliveryNotes([answer("build", true), answer("review", true)], noTasks)).toEqual([]);
   });
 });
 
-describe("what the answers do to the plan", () => {
+describe("what one answer does to the plan", () => {
   const counts = { total: 10, done: 3, review: 2, open: 5 };
 
   it("reviewed: every task that is not done becomes done", () => {
-    expect(planTaskAdjustment({ build: true, review: true, deploy: null }, counts)).toEqual({
-      toReview: 0,
-      toDone: 7,
-    });
+    expect(planTaskAdjustment("review", true, counts)).toEqual({ toReview: 0, toDone: 7 });
   });
 
-  it("built only: the open tasks wait for review", () => {
-    expect(planTaskAdjustment({ build: true, review: false, deploy: null }, counts)).toEqual({
-      toReview: 5,
-      toDone: 0,
-    });
+  it("built: the open tasks wait for review", () => {
+    expect(planTaskAdjustment("build", true, counts)).toEqual({ toReview: 5, toDone: 0 });
   });
 
-  it("not built: nothing moves, and no answer never moves a task back", () => {
-    expect(planTaskAdjustment({ build: false, review: null, deploy: null }, counts)).toEqual({
-      toReview: 0,
-      toDone: 0,
-    });
-    expect(planTaskAdjustment(NO_ANSWERS, counts)).toEqual({ toReview: 0, toDone: 0 });
+  it("not yet, or a deploy answer, moves nothing, and never moves a task back", () => {
+    expect(planTaskAdjustment("build", false, counts)).toEqual({ toReview: 0, toDone: 0 });
+    expect(planTaskAdjustment("review", false, counts)).toEqual({ toReview: 0, toDone: 0 });
+    expect(planTaskAdjustment("deploy", true, counts)).toEqual({ toReview: 0, toDone: 0 });
   });
 });

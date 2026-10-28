@@ -541,7 +541,11 @@ async function mcp(tool: ToolRow, input: Input, { access }: HandlerContext) {
         .where(
           and(
             eq(mcpConnections.id, tool.connectionId),
-            eq(mcpConnections.projectId, access.project.id),
+            // The project's own connection, or a platform connector the owner left switched on.
+            or(
+              eq(mcpConnections.projectId, access.project.id),
+              and(eq(mcpConnections.scope, "platform"), eq(mcpConnections.enabled, true)),
+            ),
           ),
         )
     : [];

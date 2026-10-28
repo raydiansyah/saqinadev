@@ -257,7 +257,7 @@
     },
     "release": {
       "title": "Apakah sistem sudah siap?",
-      "hint": "Dijawab oleh tim. Setiap jawaban menampilkan siapa dan kapan menjawab, dan minta dikonfirmasi ulang bila task atau milestone berubah setelahnya.",
+      "hint": "Dijawab oleh tim. Setiap pertanyaan dijawab sendiri-sendiri: mengubah satu jawaban tidak mengubah jawaban lain. Setiap jawaban menampilkan siapa dan kapan menjawab, dan minta dikonfirmasi ulang bila task atau milestone berubah setelahnya.",
       "build": {
         "question": "Apakah sistem sudah selesai di-build?"
       },
@@ -277,11 +277,13 @@
       "allCurrent": "Sudah di-build, di-review, dan di-deploy, serta sudah terbaru.",
       "confirmAgain": "Ada perubahan setelah jawaban ini. Konfirmasi tiap jawaban lagi agar sudah terbaru.",
       "notYet": "Belum selesai.",
+      "contradiction": "Ada jawaban yang saling bertentangan. Periksa catatan di bawah dan perbaiki jawaban yang keliru.",
       "tasks": "Plan: {done} dari {total} task selesai",
       "notes": {
         "open_tasks": "Masih ada {count} task yang belum selesai di plan.",
         "tasks_in_review": "Masih ada {count} task yang berstatus review.",
         "needs_build_and_review": "Deploy dijawab Ya, tetapi build dan review belum sama-sama Ya.",
+        "needs_build": "Review dijawab Ya, tetapi build belum.",
         "all_tasks_done": "Semua task di plan sudah selesai. Apakah sistem sudah selesai di-build?"
       },
       "awaiting": "Jawab dulu: sistem sudah sampai mana? Project ini berasal dari GitHub dan mungkin sudah di-build, sedang di-review, atau sudah berjalan.",

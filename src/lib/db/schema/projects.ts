@@ -21,6 +21,7 @@ import type {
   DeployProvider,
   InterviewStatus,
   MemberRole,
+  ProjectNameSource,
   ProjectStatus,
   RepoProvider,
   StackKey,
@@ -62,6 +63,8 @@ export const projects = pgTable(
     /** Defects reported until this date are fixed under warranty, not billed as maintenance. */
     warrantyUntil: date("warranty_until", { mode: "string" }),
     name: text("name").notNull(),
+    /** `auto` names follow the plan; a person's rename (`user`) or a repository name is kept. */
+    nameSource: text("name_source").$type<ProjectNameSource>().notNull().default("auto"),
     description: text("description").notNull().default(""),
     /** Project type id from the interview options (pos, marketplace, ...). */
     type: text("type"),

@@ -90,7 +90,15 @@ export async function createHandoff(
     return { id: existing.id, dispatched: existing.status === "sent", code: "existing" };
   }
   const { agent, task, pkg } = await loadTarget(access, data);
-  const rendered = renderPackage(pkg, data.format, data.instructions);
+  // The model picked in agent settings travels with the work as a preference for that tool.
+  const preferredModel = agent.configuration.model;
+  const rendered = renderPackage(
+    pkg,
+    data.format,
+    [data.instructions, preferredModel ? `Preferred model: ${preferredModel}` : ""]
+      .filter(Boolean)
+      .join("\n"),
+  );
 
   const batch = new EventBatch();
   const id = await db.transaction(async (tx) => {

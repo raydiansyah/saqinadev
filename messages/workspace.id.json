@@ -528,11 +528,10 @@
     "setPreferred": "Jadikan utama",
     "configure": "Atur",
     "configureTitle": "Atur {name}",
-    "configureHint": "Hanya preferensi. Jangan tempel API key atau token di sini; kredensial akan punya penyimpanan aman nanti.",
-    "model": "Model pilihan",
+    "configureHint": "Pilih model dan tambahkan catatan. Jangan tempel API key atau token di sini.",
+    "model": "Model",
     "notes": "Catatan untuk agent ini",
     "placeholders": {
-      "model": "claude-sonnet-5-5",
       "notes": "Utamakan jawaban singkat dan hindari dependensi baru"
     },
     "secretRejected": "Itu terlihat seperti kredensial. Hapus key dan token dari konfigurasi.",
@@ -552,7 +551,13 @@
       "copied": "Konteks tersalin",
       "files": "File",
       "lines": "{count, plural, other {# baris}}"
-    }
+    },
+    "modelAutomatic": "Otomatis ({model})",
+    "modelAutomaticNone": "Otomatis",
+    "modelHint": "Hanya model yang sudah disiapkan di AI & Models yang muncul. Otomatis mengikuti default project dan platform.",
+    "modelHintExternal": "Agen ini berjalan di tool-nya sendiri; pilihan ini dikirim di setiap handoff sebagai model pilihannya.",
+    "modelLocked": "Kebijakan platform tidak mengizinkan project memilih model untuk agennya, jadi Otomatis yang dipakai.",
+    "modelNone": "Belum ada model yang disiapkan. Minta owner platform menambahkannya di AI & Models."
   },
   "context": {
     "project": "Proyek",

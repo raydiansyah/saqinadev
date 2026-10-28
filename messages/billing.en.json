@@ -257,7 +257,7 @@
     },
     "release": {
       "title": "Is the system ready?",
-      "hint": "Answer for the team. Each answer shows who gave it and when, and asks to be confirmed again when tasks or milestones change afterwards.",
+      "hint": "Answer for the team. Each question is answered on its own: changing one never changes another. Each answer shows who gave it and when, and asks to be confirmed again when tasks or milestones change afterwards.",
       "build": {
         "question": "Has the system finished building?"
       },
@@ -277,11 +277,13 @@
       "allCurrent": "Built, reviewed and deployed, and up to date.",
       "confirmAgain": "Something changed after these answers. Confirm each one again so it is up to date.",
       "notYet": "Not finished yet.",
+      "contradiction": "Some answers disagree with each other. Check the notes below and correct the answer that is wrong.",
       "tasks": "Plan: {done} of {total} tasks done",
       "notes": {
         "open_tasks": "{count, plural, one {# task is still open} other {# tasks are still open}} in the plan.",
         "tasks_in_review": "{count, plural, one {# task is} other {# tasks are}} still in review.",
         "needs_build_and_review": "Deploy is answered yes, but build and review are not both yes.",
+        "needs_build": "Review is answered yes, but build is not.",
         "all_tasks_done": "Every task in the plan is done. Has the system finished building?"
       },
       "awaiting": "Answer first: how far is the system? This project came from GitHub and may already be built, in review or live.",

@@ -15,6 +15,8 @@ export type DeliveryNote =
   | { step: "build"; code: "open_tasks"; count: number }
   /** Answered yes while tasks still wait for review. */
   | { step: "review"; code: "tasks_in_review"; count: number }
+  /** Reviewed, but build is not answered yes. */
+  | { step: "review"; code: "needs_build" }
   /** Answered yes before build and review are. */
   | { step: "deploy"; code: "needs_build_and_review" }
   /** Every task is done but the question is not answered yes: ask for the answer. */
@@ -41,6 +43,8 @@ export function deliveryNotes(answers: Answer[], counts: TaskCounts): DeliveryNo
     notes.push({ step: "build", code: "all_tasks_done" });
   if (yes(answers, "review") && counts.review > 0)
     notes.push({ step: "review", code: "tasks_in_review", count: counts.review });
+  if (yes(answers, "review") && !yes(answers, "build"))
+    notes.push({ step: "review", code: "needs_build" });
   if (yes(answers, "deploy") && !(yes(answers, "build") && yes(answers, "review")))
     notes.push({ step: "deploy", code: "needs_build_and_review" });
   return notes;
@@ -51,20 +55,16 @@ export type Answers = Record<DeliveryStep, boolean | null>;
 
 export const NO_ANSWERS: Answers = { build: null, review: null, deploy: null };
 
+/** Notes that say two answers disagree with each other, not with the plan. */
+export const CONTRADICTION_CODES = ["needs_build", "needs_build_and_review"] as const;
+
 /**
- * The answers after one more answer, with what it implies: a project that is deployed was
- * reviewed and built, and one that is not built yet is neither reviewed nor deployed.
+ * Whether the answers disagree with each other: reviewed but not built, or deployed before both.
+ * Each answer is recorded on its own, so this is advice for the team, never a rule.
  */
-export function settleAnswers(current: Answers, step: DeliveryStep, done: boolean): Answers {
-  const next = { ...current, [step]: done };
-  if (done) {
-    if (step === "deploy") next.review = true;
-    if (step === "deploy" || step === "review") next.build = true;
-  } else {
-    if (step === "build") next.review = next.review === null ? null : false;
-    if (step === "build" || step === "review") next.deploy = next.deploy === null ? null : false;
-  }
-  return next;
+export function answersContradict(a: Answers): boolean {
+  if (a.review === true && a.build !== true) return true;
+  return a.deploy === true && !(a.build === true && a.review === true);
 }
 
 export interface TaskAdjustment {
@@ -75,11 +75,17 @@ export interface TaskAdjustment {
 }
 
 /**
- * What the answers say about the plan: reviewed means every task is done; built means the open
- * ones now wait for review. Only forward, never back: a task is not reopened by an answer.
+ * What one answer says about the plan: reviewed means every task is done; built means the open
+ * ones now wait for review. Only forward, never back: a task is not reopened by an answer, and
+ * "not yet" or a deploy answer moves nothing.
  */
-export function planTaskAdjustment(answers: Answers, counts: TaskCounts): TaskAdjustment {
-  if (answers.review === true) return { toReview: 0, toDone: counts.total - counts.done };
-  if (answers.build === true) return { toReview: counts.open, toDone: 0 };
+export function planTaskAdjustment(
+  step: DeliveryStep,
+  done: boolean,
+  counts: TaskCounts,
+): TaskAdjustment {
+  if (!done) return { toReview: 0, toDone: 0 };
+  if (step === "review") return { toReview: 0, toDone: counts.total - counts.done };
+  if (step === "build") return { toReview: counts.open, toDone: 0 };
   return { toReview: 0, toDone: 0 };
 }

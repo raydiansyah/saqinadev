@@ -1,18 +1,24 @@
 import "server-only";
+import { and, eq } from "drizzle-orm";
 import * as z from "zod";
 import { runAi } from "@/lib/ai/gateway";
 import type { AiProvider } from "@/lib/ai/provider";
 import type { PlannedAction } from "@/lib/assistant/actions/types";
 import { getAssistantCopy } from "@/lib/assistant/copy";
 import type { ProjectAccess } from "@/lib/auth/permissions";
+import { db } from "@/lib/db/client";
+import { mcpConnections, tools } from "@/lib/db/schema";
 import { getRepository } from "@/lib/git/service";
 import { slugify } from "@/lib/interview/rules/profile";
 import { log } from "@/lib/log";
 import { resolveLoadout } from "@/lib/memory/bindings";
 import type { RetrievedItem } from "@/lib/memory/retrieval/engine";
 import { skillsForRun } from "@/lib/memory/skills/loadout";
+import { skillSegments } from "@/lib/skills/prompt";
+import { platformSkillsFor } from "@/lib/skills/service";
 import { toolKey } from "@/lib/tools/catalog";
 import { executeTool } from "@/lib/tools/executor";
+import { ensureProjectTools } from "@/lib/tools/registry";
 import { agentCan } from "./capabilities";
 import { type AgentExecutionInput, type AgentExecutionResult, MockAgentExecutor } from "./executor";
 import { createHandoff } from "./handoff";
@@ -64,9 +70,13 @@ const agentPlan = z.object({
   subtasks: z.array(z.string().trim().min(2).max(200)).max(8).default([]),
   issues: z.array(z.string().trim().max(300)).max(10).default([]),
   recommendations: z.array(z.string().trim().max(300)).max(10).default([]),
+  // A read tool by name, or the key of an enabled low-risk connector tool (checked per run).
   readRequests: z
     .array(
-      z.object({ tool: z.enum(READ_TOOLS), input: z.record(z.string(), z.string()).default({}) }),
+      z.object({
+        tool: z.string().trim().min(1).max(200),
+        input: z.record(z.string(), z.string()).default({}),
+      }),
     )
     .max(5)
     .default([]),
@@ -174,6 +184,18 @@ async function planWithModel(
     run,
     `${input.task.title}\n${input.task.description}`,
   );
+  // Skills the platform owner installed for every project (Superpowers ships built in).
+  const platformSkills = await platformSkillsFor(
+    "agent_run",
+    `${input.task.title}\n${input.task.description}`,
+    2,
+  );
+  // Connector tools (Firecrawl, Exa, Context7, custom MCP) the agent may read through: only
+  // enabled, low-risk ones, so a read never needs an approval. Descriptions are outside text.
+  const connectorTools = agentCan(agent, "use_mcp_tools")
+    ? await readableConnectorTools(access.project.id)
+    : [];
+  const readable = new Set<string>([...READ_TOOLS, ...connectorTools.map((t) => t.key)]);
   const segments = [
     {
       kind: "project_data" as const,
@@ -208,6 +230,16 @@ async function planWithModel(
           },
         ]
       : []),
+    ...skillSegments(platformSkills),
+    ...(connectorTools.length > 0
+      ? [
+          {
+            kind: "external" as const,
+            label: "connector tools",
+            content: `Connector tools you may request as reads, by key (inputs are strings):\n${connectorTools.map((t) => `- ${t.key}: ${t.description.slice(0, 200)}`).join("\n")}`,
+          },
+        ]
+      : []),
     {
       kind: "instruction" as const,
       label: "tools",
@@ -232,6 +264,10 @@ async function planWithModel(
   if (plan.readRequests.length) {
     const reads: { kind: "tool_output"; label: string; content: string }[] = [];
     for (const [i, request] of plan.readRequests.entries()) {
+      if (!readable.has(request.tool)) {
+        reads.push({ kind: "tool_output", label: request.tool, content: "not available" });
+        continue;
+      }
       try {
         const result = await executeTool({
           access,
@@ -313,4 +349,25 @@ async function planWithModel(
     simulated: false,
     steps,
   };
+}
+
+/** Enabled, low-risk connector tools of the project whose connection still answers. */
+async function readableConnectorTools(projectId: string) {
+  await ensureProjectTools(db, projectId);
+  return db
+    .select({ key: tools.key, description: tools.description })
+    .from(tools)
+    .innerJoin(mcpConnections, eq(mcpConnections.id, tools.connectionId))
+    .where(
+      and(
+        eq(tools.projectId, projectId),
+        eq(tools.source, "mcp"),
+        eq(tools.trust, "enabled"),
+        eq(tools.riskLevel, "low"),
+        eq(mcpConnections.status, "connected"),
+        eq(mcpConnections.enabled, true),
+      ),
+    )
+    .orderBy(tools.key)
+    .limit(30);
 }

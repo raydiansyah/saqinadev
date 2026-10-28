@@ -9,7 +9,9 @@
       "providers": "Providers",
       "models": "Models",
       "mapping": "Agent mapping",
-      "policies": "Policies"
+      "policies": "Policies",
+      "skills": "Skills",
+      "connectors": "Connectors"
     },
     "overview": {
       "activeProviders": "Active providers",
@@ -212,7 +214,107 @@
       "whiteLabel": {
         "locked": "White label is locked for this organization.",
         "pastEnd": "The end date is already in the past."
-      }
+      },
+      "tooLarge": "The skill is too large (50 KB at most).",
+      "frontmatter": "The SKILL.md needs a front matter block with a name (lowercase, dashes) and a description.",
+      "empty": "The skill has no instructions after the front matter.",
+      "notSkill": "Link to a SKILL.md file or the folder that holds one.",
+      "githubOnly": "Only GitHub links are accepted.",
+      "unreachable": "The file could not be downloaded. Check the link and that the repository is public.",
+      "builtin": "Built-in skills can be switched off but not removed.",
+      "urlKey": "Put '{apiKey}' in the URL where the key goes.",
+      "notLocal": "Use a localhost address for a local server."
+    },
+    "skills": {
+      "title": "Skills",
+      "hint": "Skills are working methods (SKILL.md) every project uses. Saqina reads only the text; nothing in a skill is run. Superpowers ships built in.",
+      "install": "Install skill",
+      "installing": "Installing...",
+      "empty": "No skills yet. Install one from GitHub or paste a SKILL.md.",
+      "enabled": "Use {name}",
+      "usesLabel": "Used for",
+      "uses": {
+        "agent_run": "Agent runs",
+        "assistant": "Assistant answers",
+        "prd_generation": "PRD generation",
+        "plan_generation": "Plan generation"
+      },
+      "sources": {
+        "builtin": "Built in",
+        "paste": "Pasted",
+        "github": "GitHub"
+      },
+      "view": "View text",
+      "remove": "Remove",
+      "removeTitle": "Remove {name}?",
+      "removeBody": "Projects stop using this skill from the next run. Install it again to bring it back.",
+      "modes": {
+        "github": "From GitHub",
+        "paste": "Paste SKILL.md"
+      },
+      "url": "GitHub link",
+      "urlHint": "A SKILL.md file, or the folder that holds it. Public repositories only.",
+      "content": "SKILL.md",
+      "contentHint": "Starts with a --- block holding name and description, then the instructions."
+    },
+    "connectors": {
+      "title": "Connectors",
+      "hint": "MCP servers connected once for every project. Agents may read through tools marked low risk; anything else waits for approval in the project.",
+      "add": "Add",
+      "added": "Added",
+      "custom": "Custom MCP",
+      "customHint": "Any MCP server over streamable HTTP.",
+      "presets": {
+        "firecrawl": "Scrape and crawl web pages into clean text for references.",
+        "exa": "Web search tuned for code and documentation.",
+        "context7": "Up-to-date library and framework documentation."
+      },
+      "listTitle": "Connected servers",
+      "empty": "Nothing connected yet. Add a preset or a custom server above.",
+      "keyStored": "key stored",
+      "noKey": "no key",
+      "enabled": "Offer {name} to every project",
+      "toolEnabled": "Allow tool {name}",
+      "connect": "Connect",
+      "reconnect": "Reconnect",
+      "remove": "Remove",
+      "removeTitle": "Remove {name}?",
+      "removeBody": "The key is deleted and every project loses this server's tools.",
+      "tools": "Tools",
+      "result": {
+        "ok": "Connected. {count, plural, one {# tool} other {# tools}} found.",
+        "failed": "Could not connect ({reason})."
+      },
+      "statuses": {
+        "untested": "Not connected yet",
+        "connected": "Connected",
+        "unauthorized": "Key refused",
+        "error": "Error",
+        "disabled": "Off",
+        "disconnected": "Disconnected"
+      },
+      "risks": {
+        "low": "Low risk",
+        "medium": "Medium risk",
+        "high": "High risk",
+        "critical": "Critical"
+      },
+      "name": "Name",
+      "endpoint": "Endpoint URL",
+      "endpointHint": "https only. For a key in the URL, write '{apiKey}' where it goes.",
+      "authType": "Authentication",
+      "authHeader": "Header name",
+      "auth": {
+        "none": "None",
+        "bearer": "Bearer token",
+        "header": "Custom header",
+        "url_key": "Key in the URL"
+      },
+      "secret": "API key",
+      "secretHint": "Stored encrypted and never shown again.",
+      "secretOptional": "Optional. Without a key the server answers with lower limits.",
+      "docs": "Setup guide",
+      "save": "Save"
     }
   },
   "integrations": {
@@ -361,7 +463,8 @@
       "auth": {
         "none": "None",
         "bearer": "Bearer token",
-        "header": "Custom header"
+        "header": "Custom header",
+        "url_key": "Key in the URL"
       },
       "trust": {
         "discovered": "Discovered",
@@ -382,7 +485,9 @@
         "internal": "Saqina",
         "git": "Repository",
         "mcp": "MCP"
-      }
+      },
+      "platform": "Platform",
+      "platformHint": "Added by the platform owner for every project. You can still switch its tools on or off here."
     },
     "agents": {
       "title": "External agents",

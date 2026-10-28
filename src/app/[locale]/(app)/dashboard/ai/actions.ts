@@ -18,7 +18,21 @@ import {
   updateProvider,
 } from "@/lib/ai/control-plane";
 import { requireActor } from "@/lib/auth/server";
+import {
+  addCustomConnector,
+  addPresetConnector,
+  connectConnector,
+  removeConnector,
+  setConnectorEnabled,
+  setConnectorTool,
+} from "@/lib/connectors/service";
 import { setPlatformRole } from "@/lib/platform/roles";
+import {
+  installSkillFromGithub,
+  installSkillFromText,
+  removePlatformSkill,
+  updatePlatformSkill,
+} from "@/lib/skills/service";
 import { parse } from "@/lib/validation";
 
 const refresh = () => revalidatePath("/[locale]/dashboard/ai", "layout");
@@ -48,6 +62,18 @@ export const updateModelAction = wrap("model.update", updateModel);
 export const setDefaultsAction = wrap("model.defaults", setDefaults);
 export const setRoleMappingAction = wrap("mapping.set", setRoleMapping);
 export const setPolicyAction = wrap("policy.set", setPolicy);
+export const installSkillTextAction = wrap("skill.install", installSkillFromText);
+export const installSkillGithubAction = wrap("skill.installGithub", (actor, input) =>
+  installSkillFromGithub(actor, input),
+);
+export const updateSkillAction = wrap("skill.update", updatePlatformSkill);
+export const removeSkillAction = wrap("skill.remove", removePlatformSkill);
+export const addPresetConnectorAction = wrap("connector.preset", addPresetConnector);
+export const addCustomConnectorAction = wrap("connector.custom", addCustomConnector);
+export const connectConnectorAction = wrap("connector.connect", connectConnector);
+export const setConnectorEnabledAction = wrap("connector.enable", setConnectorEnabled);
+export const setConnectorToolAction = wrap("connector.tool", setConnectorTool);
+export const removeConnectorAction = wrap("connector.remove", removeConnector);
 export const setPlatformRoleAction = wrap("owner.set", (actor, input) => {
   const { email, role } = parse(
     z.object({ email: z.email(), role: z.enum(["user", "owner"]) }),

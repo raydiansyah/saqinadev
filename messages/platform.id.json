@@ -9,7 +9,9 @@
       "providers": "Penyedia",
       "models": "Model",
       "mapping": "Pemetaan agent",
-      "policies": "Kebijakan"
+      "policies": "Kebijakan",
+      "skills": "Skill",
+      "connectors": "Konektor"
     },
     "overview": {
       "activeProviders": "Penyedia aktif",
@@ -212,7 +214,107 @@
       "whiteLabel": {
         "locked": "White label terkunci untuk organisasi ini.",
         "pastEnd": "Tanggal akhirnya sudah lewat."
-      }
+      },
+      "tooLarge": "Skill terlalu besar (maksimal 50 KB).",
+      "frontmatter": "SKILL.md perlu blok front matter berisi name (huruf kecil, tanda hubung) dan description.",
+      "empty": "Skill tidak berisi instruksi setelah front matter.",
+      "notSkill": "Tautkan ke file SKILL.md atau folder yang memuatnya.",
+      "githubOnly": "Hanya tautan GitHub yang diterima.",
+      "unreachable": "File tidak dapat diunduh. Periksa tautan dan pastikan repositorinya publik.",
+      "builtin": "Skill bawaan bisa dimatikan tetapi tidak bisa dihapus.",
+      "urlKey": "Tulis '{apiKey}' di URL pada posisi key.",
+      "notLocal": "Gunakan alamat localhost untuk server lokal."
+    },
+    "skills": {
+      "title": "Skill",
+      "hint": "Skill adalah metode kerja (SKILL.md) yang dipakai semua project. Saqina hanya membaca teksnya; tidak ada isi skill yang dijalankan. Superpowers sudah terpasang bawaan.",
+      "install": "Pasang skill",
+      "installing": "Memasang...",
+      "empty": "Belum ada skill. Pasang dari GitHub atau tempel SKILL.md.",
+      "enabled": "Gunakan {name}",
+      "usesLabel": "Dipakai untuk",
+      "uses": {
+        "agent_run": "Run agen",
+        "assistant": "Jawaban asisten",
+        "prd_generation": "Pembuatan PRD",
+        "plan_generation": "Pembuatan plan"
+      },
+      "sources": {
+        "builtin": "Bawaan",
+        "paste": "Ditempel",
+        "github": "GitHub"
+      },
+      "view": "Lihat teks",
+      "remove": "Hapus",
+      "removeTitle": "Hapus {name}?",
+      "removeBody": "Project berhenti memakai skill ini mulai run berikutnya. Pasang lagi untuk mengembalikannya.",
+      "modes": {
+        "github": "Dari GitHub",
+        "paste": "Tempel SKILL.md"
+      },
+      "url": "Tautan GitHub",
+      "urlHint": "File SKILL.md, atau folder yang memuatnya. Hanya repositori publik.",
+      "content": "SKILL.md",
+      "contentHint": "Diawali blok --- berisi name dan description, lalu instruksinya."
+    },
+    "connectors": {
+      "title": "Konektor",
+      "hint": "Server MCP yang dihubungkan sekali untuk semua project. Agen boleh membaca lewat tool berisiko rendah; selain itu menunggu persetujuan di project.",
+      "add": "Tambah",
+      "added": "Sudah ditambah",
+      "custom": "MCP kustom",
+      "customHint": "Server MCP apa pun lewat streamable HTTP.",
+      "presets": {
+        "firecrawl": "Ambil dan telusuri halaman web menjadi teks bersih untuk referensi.",
+        "exa": "Pencarian web yang disetel untuk kode dan dokumentasi.",
+        "context7": "Dokumentasi library dan framework yang selalu terbaru."
+      },
+      "listTitle": "Server terhubung",
+      "empty": "Belum ada yang terhubung. Tambahkan preset atau server kustom di atas.",
+      "keyStored": "key tersimpan",
+      "noKey": "tanpa key",
+      "enabled": "Sediakan {name} untuk semua project",
+      "toolEnabled": "Izinkan tool {name}",
+      "connect": "Hubungkan",
+      "reconnect": "Hubungkan ulang",
+      "remove": "Hapus",
+      "removeTitle": "Hapus {name}?",
+      "removeBody": "Key dihapus dan semua project kehilangan tool dari server ini.",
+      "tools": "Tool",
+      "result": {
+        "ok": "Terhubung. {count, plural, other {# tool}} ditemukan.",
+        "failed": "Tidak dapat terhubung ({reason})."
+      },
+      "statuses": {
+        "untested": "Belum terhubung",
+        "connected": "Terhubung",
+        "unauthorized": "Key ditolak",
+        "error": "Error",
+        "disabled": "Mati",
+        "disconnected": "Terputus"
+      },
+      "risks": {
+        "low": "Risiko rendah",
+        "medium": "Risiko sedang",
+        "high": "Risiko tinggi",
+        "critical": "Kritis"
+      },
+      "name": "Nama",
+      "endpoint": "URL endpoint",
+      "endpointHint": "Hanya https. Untuk key di URL, tulis '{apiKey}' pada posisinya.",
+      "authType": "Autentikasi",
+      "authHeader": "Nama header",
+      "auth": {
+        "none": "Tidak ada",
+        "bearer": "Bearer token",
+        "header": "Header custom",
+        "url_key": "Key di dalam URL"
+      },
+      "secret": "API key",
+      "secretHint": "Disimpan terenkripsi dan tidak ditampilkan lagi.",
+      "secretOptional": "Opsional. Tanpa key, server menjawab dengan batas lebih rendah.",
+      "docs": "Panduan setup",
+      "save": "Simpan"
     }
   },
   "integrations": {
@@ -361,7 +463,8 @@
       "auth": {
         "none": "Tidak ada",
         "bearer": "Bearer token",
-        "header": "Header custom"
+        "header": "Header custom",
+        "url_key": "Key di dalam URL"
       },
       "trust": {
         "discovered": "Ditemukan",
@@ -382,7 +485,9 @@
         "internal": "Saqina",
         "git": "Repository",
         "mcp": "MCP"
-      }
+      },
+      "platform": "Platform",
+      "platformHint": "Ditambahkan owner platform untuk semua project. Tool-nya tetap bisa dinyalakan atau dimatikan di sini."
     },
     "agents": {
       "title": "Agent eksternal",

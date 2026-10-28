@@ -467,10 +467,26 @@ export const TOOL_EXECUTION_STATUSES = [
 ] as const;
 export type ToolExecutionStatus = (typeof TOOL_EXECUTION_STATUSES)[number];
 
+/** Where a project's name came from; only an `auto` name is renamed from the plan. */
+export const PROJECT_NAME_SOURCES = ["auto", "user", "repository"] as const;
+export type ProjectNameSource = (typeof PROJECT_NAME_SOURCES)[number];
+
+/** A connection belongs to one project, or to the platform and serves every project. */
+export const MCP_SCOPES = ["project", "platform"] as const;
+export type McpScope = (typeof MCP_SCOPES)[number];
+
+export const PLATFORM_SKILL_SOURCES = ["builtin", "paste", "github"] as const;
+export type PlatformSkillSource = (typeof PLATFORM_SKILL_SOURCES)[number];
+
+/** Where an installed skill is offered to a model. */
+export const SKILL_USES = ["agent_run", "assistant", "prd_generation", "plan_generation"] as const;
+export type SkillUse = (typeof SKILL_USES)[number];
+
 export const MCP_SERVER_TYPES = ["remote", "local_dev", "custom", "managed"] as const;
 export type McpServerType = (typeof MCP_SERVER_TYPES)[number];
 
-export const MCP_AUTH_TYPES = ["none", "bearer", "header"] as const;
+/** `url_key`: the secret is part of the endpoint URL (`{apiKey}`), filled in only at call time. */
+export const MCP_AUTH_TYPES = ["none", "bearer", "header", "url_key"] as const;
 export type McpAuthType = (typeof MCP_AUTH_TYPES)[number];
 
 export const AGENT_STRATEGIES = ["handoff", "manual", "webhook", "api", "cli", "mcp"] as const;

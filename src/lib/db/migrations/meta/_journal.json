@@ -218,6 +218,13 @@
       "when": 1792999994038,
       "tag": "0030_chat_tools",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1793230870564,
+      "tag": "0031_platform_skills_connectors",
+      "breakpoints": true
     }
   ]
 }

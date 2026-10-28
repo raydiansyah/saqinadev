@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import type { AgentView } from "@/lib/agents/service";
+import type { AgentModelChoice } from "@/lib/ai/project-settings";
 import { cn } from "@/lib/utils";
 import { AgentActions } from "./agent-buttons";
 
@@ -16,14 +17,21 @@ export async function AgentCard({
   agent,
   preferred,
   canManage,
+  models,
 }: {
   slug: string;
   agent: AgentView;
   preferred: boolean;
   canManage: boolean;
+  models: AgentModelChoice;
 }) {
   const t = await getTranslations("agents");
-  const model = agent.configuration.model;
+  const pinned = models.current[agent.type];
+  const model = pinned
+    ? models.options.find((m) => m.id === pinned)?.label
+    : agent.type === "saqina" && models.automatic
+      ? t("modelAutomatic", { model: models.automatic })
+      : null;
 
   return (
     <article
@@ -60,6 +68,7 @@ export async function AgentCard({
             name={agent.name}
             preferred={preferred}
             configuration={agent.configuration}
+            models={models}
           />
         </div>
       ) : null}

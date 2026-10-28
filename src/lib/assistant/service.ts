@@ -27,6 +27,8 @@ import { maybeEnqueueExtraction } from "@/lib/memory/enqueue";
 import { scheduleMemoryJobs } from "@/lib/memory/schedule";
 import { getNextProjectAction } from "@/lib/projects/progress";
 import { createProposalTx } from "@/lib/proposals/repository";
+import { skillSegments } from "@/lib/skills/prompt";
+import { platformSkillsFor } from "@/lib/skills/service";
 import { parse } from "@/lib/validation";
 import projectEn from "../../../messages/project.en.json";
 import projectId from "../../../messages/project.id.json";
@@ -226,6 +228,7 @@ export async function handleMessage(
     // as the application wrote them, so they are labelled as rules.
     if (outcome.kind === "answer" && !outcome.exact) {
       const history = await recentHistory(conversation.id);
+      const skills = skillSegments(await platformSkillsFor("assistant", input.content, 2));
       const answer = await runAi({
         access,
         operation: "conversation",
@@ -238,7 +241,7 @@ export async function handleMessage(
                 client,
                 {
                   system: SYSTEM(input.locale),
-                  segments: contextSegments(ctx),
+                  segments: [...contextSegments(ctx), ...skills],
                   history,
                   userMessage: input.content,
                   draft,

@@ -528,11 +528,10 @@
     "setPreferred": "Set as preferred",
     "configure": "Configure",
     "configureTitle": "Configure {name}",
-    "configureHint": "Preferences only. Never paste API keys or tokens here; credentials get a secure store later.",
-    "model": "Preferred model",
+    "configureHint": "Pick the model and add notes. Never paste API keys or tokens here.",
+    "model": "Model",
     "notes": "Notes for this agent",
     "placeholders": {
-      "model": "claude-sonnet-5-5",
       "notes": "Prefer concise answers and avoid new dependencies"
     },
     "secretRejected": "That looks like a credential. Remove keys and tokens from the configuration.",
@@ -552,7 +551,13 @@
       "copied": "Context copied",
       "files": "Files",
       "lines": "{count, plural, one {# line} other {# lines}}"
-    }
+    },
+    "modelAutomatic": "Automatic ({model})",
+    "modelAutomaticNone": "Automatic",
+    "modelHint": "Only models set up under AI & Models are listed. Automatic follows the project and platform defaults.",
+    "modelHintExternal": "This agent runs in its own tool; the choice is sent with each handoff as its preferred model.",
+    "modelLocked": "The platform policy does not let a project pin a model for its agents, so Automatic is used.",
+    "modelNone": "No model is set up yet. Ask the platform owner to add one under AI & Models."
   },
   "context": {
     "project": "Project",

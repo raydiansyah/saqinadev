@@ -9,6 +9,7 @@ import { Notice } from "@/components/ui/form";
 import { listAgentRegistry } from "@/lib/agents/registry";
 import { listRuns } from "@/lib/agents/runs";
 import { listAgents } from "@/lib/agents/service";
+import { agentModelChoice } from "@/lib/ai/project-settings";
 import { can } from "@/lib/auth/permissions";
 import { bundleContext, serializeContext } from "@/lib/context/serialize";
 import { getProjectContext } from "@/lib/context/service";
@@ -24,13 +25,14 @@ export default async function AgentsPage({ params }: PageProps<"/[locale]/projec
   const { slug } = await params;
   const access = await projectPageAccess(slug);
   const { project } = access;
-  const [all, context, t, ta, registry, runs] = await Promise.all([
+  const [all, context, t, ta, registry, runs, models] = await Promise.all([
     listAgents(access),
     getProjectContext(access),
     getTranslations("agents"),
     getTranslations("assistant.agents"),
     listAgentRegistry(access),
     listRuns(access, { limit: 20 }),
+    agentModelChoice(access),
   ]);
   // Tool agents (Claude, Codex, ...) keep the Phase 2 cards; the Saqina team is listed above.
   const agents = all.filter((a) => a.role === "general");
@@ -86,6 +88,7 @@ export default async function AgentsPage({ params }: PageProps<"/[locale]/projec
                 agent={agent}
                 preferred={isPreferred(agent)}
                 canManage={canManage}
+                models={models}
               />
             </li>
           ))}

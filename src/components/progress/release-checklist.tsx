@@ -8,10 +8,9 @@ import { useRun } from "@/components/platform/use-run";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/form";
 import {
-  type Answers,
+  CONTRADICTION_CODES,
   type DeliveryNote,
   planTaskAdjustment,
-  settleAnswers,
   type TaskAdjustment,
   type TaskCounts,
 } from "@/lib/delivery/consistency";
@@ -60,11 +59,12 @@ export function ReleaseChecklist({
     value: boolean;
     moves: TaskAdjustment;
   } | null>(null);
-  const answers: Answers = { build: null, review: null, deploy: null };
-  for (const c of checks) answers[c.step] = c.unanswered ? null : c.done;
+  const contradicts = notes.some((n) =>
+    (CONTRADICTION_CODES as readonly string[]).includes(n.code),
+  );
 
   function answer(step: DeliveryStep, value: boolean) {
-    const moves = planTaskAdjustment(settleAnswers(answers, step, value), tasks);
+    const moves = planTaskAdjustment(step, value, tasks);
     if (moves.toReview + moves.toDone > 0) return setAsk({ step, value, moves });
     run(() => answerDeliveryAction(slug, step, value, false));
   }
@@ -101,6 +101,12 @@ export function ReleaseChecklist({
         <p className="mt-3 font-mono text-xs text-muted-foreground">
           {t("tasks", { done: tasks.done, total: tasks.total })}
         </p>
+      ) : null}
+
+      {contradicts ? (
+        <div className="mt-3">
+          <Notice tone="warning">{t("contradiction")}</Notice>
+        </div>
       ) : null}
 
       <ul className="mt-4 divide-y divide-border">

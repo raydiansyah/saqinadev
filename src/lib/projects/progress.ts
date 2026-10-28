@@ -1,3 +1,4 @@
+import { answersContradict } from "@/lib/delivery/consistency";
 import type { DeliverySummary } from "@/lib/delivery/summary";
 import type {
   DocumentStatus,
@@ -140,6 +141,9 @@ export function getNextProjectAction(s: ProjectSnapshot): NextAction {
   if (s.interviewStatus !== "completed") return { kind: "continueInterview", path: "/interview" };
   // An imported system may already be built, in review or live: ask before suggesting any work.
   if (s.delivery?.awaiting) return { kind: "confirmDelivery", path: "/progress" };
+  // Answers that disagree (reviewed but not built) need a person to settle them first.
+  if (s.delivery && answersContradict(s.delivery))
+    return { kind: "confirmDelivery", path: "/progress" };
   // Work that is already waiting on a person comes before anything new.
   const attention = s.attention ?? NO_ATTENTION;
   if (attention.pendingProposals > 0) return { kind: "reviewProposal", path: "/approvals" };
