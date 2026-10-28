@@ -211,6 +211,11 @@ export const id: EngineCopy = {
       hint: "Berdasarkan jawaban Anda. Pakai rekomendasi atau pilih kombinasi sendiri.",
       required: "",
     },
+    theme: {
+      title: "Tema desain UI",
+      hint: "Berdasarkan jawaban Anda. Pakai rekomendasi atau lihat semua 21 tema.",
+      required: "",
+    },
     review: { title: "Proyek Anda mulai terbentuk.", required: "" },
   },
 
@@ -221,7 +226,7 @@ export const id: EngineCopy = {
     Technology: "Teknologi",
     Development: "Pengembangan",
     Deployment: "Deployment",
-    "Landing Page": "Landing Page",
+    "Landing Page": "Desain",
     Review: "Tinjau",
   },
 
@@ -355,6 +360,159 @@ export const id: EngineCopy = {
     system: "Produk / Sistem",
     conversion: "Konversi",
     foundation: "Motion / Fondasi",
+  },
+
+  themes: {
+    software: {
+      name: "Software",
+      summary: "Korporat teknologi: latar hampir putih, aksen biru elektrik, pembatas gelap.",
+      bestFor: "SaaS, dashboard dan alat bisnis",
+    },
+    "modern-dark": {
+      name: "Modern Dark",
+      summary: "Dark mode bersih, tajam dan elegan untuk SaaS masa kini.",
+      bestFor: "SaaS, produk AI dan alat developer",
+    },
+    financial: {
+      name: "Financial",
+      summary: "Skema gelap premium untuk fintech, analitik data dan grafik.",
+      bestFor: "Fintech, laporan dan produk padat data",
+    },
+    professional: {
+      name: "Professional",
+      summary: "Konvensional, formal dan bersih; kepercayaan dan kredibilitas dulu.",
+      bestFor: "Company profile, jasa dan B2B",
+    },
+    "swiss-minimalist": {
+      name: "Swiss Minimalist",
+      summary: "International Typographic Style: grid presisi, minimalisme murni.",
+      bestFor: "Portofolio, studio dan situs editorial",
+    },
+    monochrome: {
+      name: "Monochrome",
+      summary: "Hitam-putih ultra minimal tanpa warna dekoratif.",
+      bestFor: "Produk yang mengutamakan bacaan dan fungsi",
+    },
+    bauhaus: {
+      name: "Bauhaus",
+      summary: "Fungsionalisme geometri abad ke-20: bentuk dasar dan tipografi tebal.",
+      bestFor: "Desain, pendidikan dan budaya",
+    },
+    "art-deco": {
+      name: "Art Deco",
+      summary: "Retro mewah bernuansa gelap dengan ornamen geometris dan garis.",
+      bestFor: "Perhotelan, acara dan merek premium",
+    },
+    industrial: {
+      name: "Industrial",
+      summary: "Gaya pabrik mentah: warna logam, abu semen, grid tegas, elemen utilitarian.",
+      bestFor: "Logistik, manufaktur dan alat operasional",
+    },
+    luxury: {
+      name: "Luxury",
+      summary: "Kontras tinggi, serif elegan dan white space luas.",
+      bestFor: "Produk kelas atas dan merek butik",
+    },
+    newsprint: {
+      name: "Newsprint",
+      summary: "Meniru media cetak: krem kertas, serif padat, layout kolom.",
+      bestFor: "Blog, majalah dan basis pengetahuan",
+    },
+    claymorphism: {
+      name: "Claymorphism",
+      summary: "3D seperti tanah liat empuk, warna pastel dan bayangan dalam tebal.",
+      bestFor: "Aplikasi konsumen dan onboarding ramah",
+    },
+    kinetic: {
+      name: "Kinetic",
+      summary: "Tema gelap dinamis: ilusi gerak, tipografi besar yang ekspresif.",
+      bestFor: "Halaman peluncuran, acara dan studio kreatif",
+    },
+    botanical: {
+      name: "Botanical",
+      summary: "Palet tumbuhan (sage, dedaunan), nuansa organik yang menenangkan.",
+      bestFor: "Kesehatan, keberlanjutan dan pendidikan",
+    },
+    organic: {
+      name: "Organic",
+      summary: "Terasa digambar tangan: lengkung alami dan warna bumi.",
+      bestFor: "Makanan, kerajinan dan merek komunitas",
+    },
+    cyberpunk: {
+      name: "Cyberpunk",
+      summary: "Masa depan distopia: latar gelap pekat, neon sian, pink dan ungu.",
+      bestFor: "Game, Web3 dan hiburan",
+    },
+    terminal: {
+      name: "Terminal",
+      summary: "Hijau atau putih di atas hitam, seperti konsol command line jadul.",
+      bestFor: "Alat developer dan dokumentasi teknis",
+    },
+    "neo-brutalism": {
+      name: "Neo Brutalism",
+      summary: "Warna jenuh ekstrem, layout bertabrakan, teks mentah, garis hitam tebal.",
+      bestFor: "Start-up berani dan alat kreatif",
+    },
+    "playful-geometric": {
+      name: "Playful Geometric",
+      summary: "Lingkaran, segitiga dan kotak ceria berwarna kontras tinggi.",
+      bestFor: "Anak, belajar dan aplikasi santai",
+    },
+    sketch: {
+      name: "Sketch",
+      summary: "Wireframe atau cetak biru, seperti digambar pensil di kertas putih.",
+      bestFor: "Prototipe, workshop dan papan ide",
+    },
+    retro: {
+      name: "Retro",
+      summary: "Nostalgia 70-an sampai 80-an: mustard, cokelat dan oranye tua yang teredam.",
+      bestFor: "Makanan, musik dan merek gaya hidup",
+    },
+  },
+
+  themeCategories: {
+    saas: "Modern, finansial dan SaaS",
+    minimal: "Minimalis dan arsitektural",
+    media: "Kedalaman, media dan cetak",
+    organic: "Organik dan alam",
+    creative: "Kreatif, nostalgia dan gimmick",
+  },
+
+  themeTiers: {
+    recommended: {
+      label: "Direkomendasikan",
+      hint: "Aman untuk layar kerja harian. Interview memilih dari sini.",
+    },
+    available: {
+      label: "Tersedia",
+      hint: "Terbaca dan tenang. Ditawarkan, tidak dipaksakan.",
+    },
+    concept: {
+      label: "Konsep",
+      hint: "Ekspresif. Dipilih dengan sengaja dan butuh pemeriksaan aksesibilitas ekstra.",
+    },
+  },
+
+  theme: {
+    why: {
+      "school-website": "Tampilan tenang dan tepercaya mudah dibaca orang tua, siswa dan staf.",
+      "company-profile": "Tampilan formal membangun kredibilitas bagi pengunjung baru.",
+      pos: "Kasir memakai layar ini seharian: kontras tinggi dan minim noise lebih unggul.",
+      marketplace: "Bingkai netral membiarkan produk para penjual yang membawa warna.",
+      saas: "Antarmuka gelap modern sesuai kebiasaan pengguna SaaS.",
+      "internal-dashboard":
+        "Staf tinggal di layar ini: antarmuka jelas dan tenang mengurangi lelah.",
+      "mobile-backend":
+        "Tidak ada antarmuka untuk ditata; konsol admin memakai tampilan bisnis netral.",
+      "ai-application": "Antarmuka gelap yang fokus menjaga perhatian pada hasil.",
+      portfolio: "Grid dan tipografi kuat membuat karya menjadi hiasannya.",
+      booking: "Tampilan tepercaya dan ramah membantu orang menyelesaikan pemesanan.",
+      ecommerce: "Bingkai bersih menjaga foto dan harga produk tetap di depan.",
+      "learning-platform": "Tampilan tenang menjaga pelajar fokus pada materi.",
+      custom: "Tampilan profesional adalah awal yang aman; ubah setelah merek lebih jelas.",
+    },
+    override: (suggested: string, firstReason: string) =>
+      `Anda memilih tema ini. Rekomendasinya ${suggested}: ${firstReason}`,
   },
 
   profiles: {
@@ -631,6 +789,7 @@ export const id: EngineCopy = {
     yes: "ya",
     no: "tidak",
     landing: "Landing page",
+    theme: "Tema UI",
     primary: "Utama",
     supporting: "Pendukung",
     integrations: "Integrasi berikutnya",

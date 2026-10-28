@@ -21,11 +21,13 @@ import {
   toOptions,
   VERSIONING_CHOICES,
 } from "@/lib/interview/options";
+import { hasDataScreens } from "@/lib/interview/rules/theme";
 import type { Answers, StepId } from "@/lib/interview/types";
 import { ChoiceGroup } from "./choice-group";
 import { ConceptPicker } from "./concept-picker";
 import { TextAreaField, TextField } from "./fields";
 import { Suggestion } from "./suggestion";
+import { ThemePicker } from "./theme-picker";
 
 export interface StepProps {
   answers: Answers;
@@ -424,6 +426,21 @@ function LandingStep({ answers, engine, update }: StepProps) {
   );
 }
 
+function ThemeStep({ answers, engine, update }: StepProps) {
+  const t = useTranslations("interview.steps");
+  const rec = engine.recommend(answers).theme;
+  if (!rec) return <Note>{t("noTheme")}</Note>;
+  return (
+    <ThemePicker
+      recommendation={rec}
+      selection={answers.theme}
+      copy={engine.copy}
+      dataScreens={hasDataScreens(answers)}
+      onChange={(theme) => update({ theme })}
+    />
+  );
+}
+
 export const STEP_COMPONENTS: Record<Exclude<StepId, "review">, (props: StepProps) => ReactNode> = {
   project: ProjectStep,
   audience: AudienceStep,
@@ -437,4 +454,5 @@ export const STEP_COMPONENTS: Record<Exclude<StepId, "review">, (props: StepProp
   deployment: DeploymentStep,
   versioning: VersioningStep,
   landing: LandingStep,
+  theme: ThemeStep,
 };

@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
 import type { Executor } from "@/lib/db/client";
 import { conversations, memoryJobs, messages } from "@/lib/db/schema";
 import type { MemoryKind } from "@/lib/domain/memory";
@@ -38,7 +38,13 @@ export async function maybeEnqueueExtraction(
   const rows = await executor
     .select({ id: messages.id, role: messages.role })
     .from(messages)
-    .where(and(eq(messages.conversationId, input.conversationId), eq(messages.status, "completed")))
+    .where(
+      and(
+        eq(messages.conversationId, input.conversationId),
+        eq(messages.status, "completed"),
+        isNull(messages.rewoundAt),
+      ),
+    )
     .orderBy(asc(messages.createdAt));
   const fresh = selectWindow(
     rows.map((r) => ({ id: r.id, role: r.role === "user" ? "user" : "assistant", content: "" })),

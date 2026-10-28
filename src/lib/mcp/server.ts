@@ -25,6 +25,8 @@ export const MCP_TOOL_NAMES = [
   "read_project",
   "read_prd",
   "list_documents",
+  "list_conversations",
+  "read_conversation",
   "read_document",
   "search_memory",
   "read_memory",

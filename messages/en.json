@@ -13,7 +13,8 @@
       "services": "Services",
       "product": "Product",
       "howItWorks": "How It Works",
-      "try": "Try it"
+      "try": "Try it",
+      "themes": "Themes"
     },
     "footer": {
       "documentation": "Documentation",
@@ -107,7 +108,8 @@
       "buildSaqina": "Build in Saqina Dev",
       "buildAgent": "Use your own agent",
       "yes": "Yes",
-      "no": "No"
+      "no": "No",
+      "noTheme": "This project has no interface to style, so no theme is needed."
     },
     "stage": {
       "label": "Your project so far",
@@ -123,7 +125,8 @@
       "afterFeatures": "After the features",
       "notDecided": "Not decided",
       "suggested": "suggested",
-      "localEngine": "Local preview engine. No AI call in this phase."
+      "localEngine": "Local preview engine. No AI call in this phase.",
+      "theme": "UI theme"
     },
     "concept": {
       "primary": "Primary",
@@ -176,7 +179,23 @@
       "copy": "Copy brief as Markdown",
       "download": "Download {file}",
       "copied": "Copied to clipboard.",
-      "copyFailed": "Copy was blocked by the browser. Use the download instead."
+      "copyFailed": "Copy was blocked by the browser. Use the download instead.",
+      "theme": "UI theme",
+      "noTheme": "Not needed: no interface to style."
+    },
+    "theme": {
+      "primary": "Selected",
+      "why": "Why this recommendation?",
+      "section": "UI theme",
+      "yourSelection": "Your selection",
+      "recommended": "Recommended UI theme",
+      "useRecommendation": "Use Recommendation",
+      "change": "Browse themes",
+      "byCategory": "Choose by category",
+      "categories": "Theme categories",
+      "bestFor": "Best for: {value}",
+      "conceptWarning": "This is a concept theme. It is expressive and needs extra checks for contrast, motion and readability before launch.",
+      "dashboardWarning": "This is a concept theme and your project has data screens (dashboard, reports or analytics). Charts, tables and status colours need extra checks for contrast and readability before launch."
     }
   },
   "legal": {

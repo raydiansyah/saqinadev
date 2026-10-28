@@ -197,6 +197,11 @@ export const en: EngineCopy = {
       hint: "Based on your answers. Keep the recommendation or choose your own combination.",
       required: "",
     },
+    theme: {
+      title: "UI design theme",
+      hint: "Based on your answers. Keep the recommendation or browse all 21 themes.",
+      required: "",
+    },
     review: { title: "Your project is taking shape.", required: "" },
   },
 
@@ -207,7 +212,7 @@ export const en: EngineCopy = {
     Technology: "Technology",
     Development: "Development",
     Deployment: "Deployment",
-    "Landing Page": "Landing Page",
+    "Landing Page": "Design",
     Review: "Review",
   },
 
@@ -339,6 +344,157 @@ export const en: EngineCopy = {
     system: "Product / System",
     conversion: "Conversion",
     foundation: "Motion / Foundation",
+  },
+
+  themes: {
+    software: {
+      name: "Software",
+      summary: "Corporate tech: near-white canvas, electric blue accent, dark dividers.",
+      bestFor: "SaaS, dashboards and business tools",
+    },
+    "modern-dark": {
+      name: "Modern Dark",
+      summary: "Clean, sharp dark mode for contemporary SaaS.",
+      bestFor: "SaaS, AI products and developer tools",
+    },
+    financial: {
+      name: "Financial",
+      summary: "Premium dark scheme built for fintech, analytics and charts.",
+      bestFor: "Fintech, reports and data-heavy products",
+    },
+    professional: {
+      name: "Professional",
+      summary: "Conventional, formal and clean; trust and credibility first.",
+      bestFor: "Company profiles, services and B2B",
+    },
+    "swiss-minimalist": {
+      name: "Swiss Minimalist",
+      summary: "International Typographic Style: precise grid, pure minimalism.",
+      bestFor: "Portfolios, studios and editorial sites",
+    },
+    monochrome: {
+      name: "Monochrome",
+      summary: "Ultra-minimal black and white with no decorative colour.",
+      bestFor: "Reading-first and utility products",
+    },
+    bauhaus: {
+      name: "Bauhaus",
+      summary: "20th-century geometric functionalism: primary shapes and bold type.",
+      bestFor: "Design, education and culture",
+    },
+    "art-deco": {
+      name: "Art Deco",
+      summary: "Dark retro luxury with geometric ornament and line work.",
+      bestFor: "Hospitality, events and premium brands",
+    },
+    industrial: {
+      name: "Industrial",
+      summary: "Raw factory look: metal, concrete grey, strict grid, utilitarian parts.",
+      bestFor: "Logistics, manufacturing and operations tools",
+    },
+    luxury: {
+      name: "Luxury",
+      summary: "High contrast, elegant serif type and generous white space.",
+      bestFor: "High-end products and boutique brands",
+    },
+    newsprint: {
+      name: "Newsprint",
+      summary: "Imitates print media: paper cream, dense serif text, column layout.",
+      bestFor: "Blogs, magazines and knowledge bases",
+    },
+    claymorphism: {
+      name: "Claymorphism",
+      summary: "Soft 3D clay look with pastel colour and thick inner shadows.",
+      bestFor: "Consumer apps and friendly onboarding",
+    },
+    kinetic: {
+      name: "Kinetic",
+      summary: "Dynamic dark theme: illusion of motion, large expressive type.",
+      bestFor: "Launch pages, events and creative studios",
+    },
+    botanical: {
+      name: "Botanical",
+      summary: "Plant palette (sage, foliage), calm organic and eco-friendly feel.",
+      bestFor: "Wellness, sustainability and education",
+    },
+    organic: {
+      name: "Organic",
+      summary: "Hand-drawn feel: natural curves and earthy tones.",
+      bestFor: "Food, craft and community brands",
+    },
+    cyberpunk: {
+      name: "Cyberpunk",
+      summary: "Dystopian future: deep dark ground with neon cyan, pink and purple.",
+      bestFor: "Gaming, Web3 and entertainment",
+    },
+    terminal: {
+      name: "Terminal",
+      summary: "Green or white on black, like an old command-line console.",
+      bestFor: "Developer tools and technical docs",
+    },
+    "neo-brutalism": {
+      name: "Neo Brutalism",
+      summary: "Extreme saturation, clashing layout, raw text and thick black borders.",
+      bestFor: "Bold start-ups and creative tools",
+    },
+    "playful-geometric": {
+      name: "Playful Geometric",
+      summary: "Cheerful circles, triangles and squares in high-contrast colour.",
+      bestFor: "Kids, learning and casual apps",
+    },
+    sketch: {
+      name: "Sketch",
+      summary: "Wireframe or blueprint look, as if drawn in pencil on white paper.",
+      bestFor: "Prototypes, workshops and idea boards",
+    },
+    retro: {
+      name: "Retro",
+      summary: "70s to 80s nostalgia: muted mustard, brown and burnt orange.",
+      bestFor: "Food, music and lifestyle brands",
+    },
+  },
+
+  themeCategories: {
+    saas: "Modern, finance and SaaS",
+    minimal: "Minimal and architectural",
+    media: "Depth, media and print",
+    organic: "Organic and nature",
+    creative: "Creative, nostalgia and gimmick",
+  },
+
+  themeTiers: {
+    recommended: {
+      label: "Recommended",
+      hint: "Safe for daily work screens. The interview picks from these.",
+    },
+    available: {
+      label: "Available",
+      hint: "Readable and calm. Offered, never forced.",
+    },
+    concept: {
+      label: "Concept",
+      hint: "Expressive. Chosen on purpose and needs extra accessibility checks.",
+    },
+  },
+
+  theme: {
+    why: {
+      "school-website": "A calm, trustworthy look reads well for parents, students and staff.",
+      "company-profile": "A formal look builds credibility with new visitors.",
+      pos: "Cashiers work all day on this screen: high contrast and low noise win.",
+      marketplace: "A neutral frame lets many sellers' products carry the colour.",
+      saas: "A modern dark interface matches how SaaS users already work.",
+      "internal-dashboard": "Staff live in this screen: a clear, quiet interface lowers fatigue.",
+      "mobile-backend": "No interface to style; the admin console uses a neutral business look.",
+      "ai-application": "A dark, focused interface keeps attention on results.",
+      portfolio: "Strong grid and type let the work be the decoration.",
+      booking: "A trustworthy, friendly look helps people finish a booking.",
+      ecommerce: "A clean frame keeps product photos and prices front and centre.",
+      "learning-platform": "A calm look keeps learners focused on the lesson.",
+      custom: "A professional look is a safe start; change it once the brand is clearer.",
+    },
+    override: (suggested: string, firstReason: string) =>
+      `You chose this theme. Recommended was ${suggested}: ${firstReason}`,
   },
 
   profiles: {
@@ -612,6 +768,7 @@ export const en: EngineCopy = {
     yes: "yes",
     no: "no",
     landing: "Landing page",
+    theme: "UI theme",
     primary: "Primary",
     supporting: "Supporting",
     integrations: "Future integrations",

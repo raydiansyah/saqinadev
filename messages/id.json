@@ -13,7 +13,8 @@
       "services": "Layanan",
       "product": "Produk",
       "howItWorks": "Cara Kerja",
-      "try": "Coba"
+      "try": "Coba",
+      "themes": "Tema"
     },
     "footer": {
       "documentation": "Dokumentasi",
@@ -107,7 +108,8 @@
       "buildSaqina": "Bangun di Saqina Dev",
       "buildAgent": "Pakai agent sendiri",
       "yes": "Ya",
-      "no": "Tidak"
+      "no": "Tidak",
+      "noTheme": "Proyek ini tidak punya antarmuka untuk ditata, jadi tidak perlu tema."
     },
     "stage": {
       "label": "Gambaran proyek Anda sejauh ini",
@@ -123,7 +125,8 @@
       "afterFeatures": "Setelah fitur dipilih",
       "notDecided": "Belum diputuskan",
       "suggested": "saran",
-      "localEngine": "Engine pratinjau lokal. Tidak ada panggilan AI di fase ini."
+      "localEngine": "Engine pratinjau lokal. Tidak ada panggilan AI di fase ini.",
+      "theme": "tema UI"
     },
     "concept": {
       "primary": "Utama",
@@ -176,7 +179,23 @@
       "copy": "Salin brief sebagai Markdown",
       "download": "Unduh {file}",
       "copied": "Tersalin ke clipboard.",
-      "copyFailed": "Browser memblokir penyalinan. Gunakan unduhan."
+      "copyFailed": "Browser memblokir penyalinan. Gunakan unduhan.",
+      "theme": "Tema UI",
+      "noTheme": "Tidak perlu: tidak ada antarmuka untuk ditata."
+    },
+    "theme": {
+      "primary": "Dipilih",
+      "why": "Mengapa rekomendasi ini?",
+      "section": "Tema UI",
+      "yourSelection": "Pilihan Anda",
+      "recommended": "Rekomendasi tema UI",
+      "useRecommendation": "Pakai Rekomendasi",
+      "change": "Lihat tema",
+      "byCategory": "Pilih per kategori",
+      "categories": "Kategori tema",
+      "bestFor": "Cocok untuk: {value}",
+      "conceptWarning": "Ini tema konsep. Tampilannya ekspresif dan butuh pemeriksaan ekstra untuk kontras, gerak dan keterbacaan sebelum rilis.",
+      "dashboardWarning": "Ini tema konsep dan proyek Anda punya layar data (dashboard, laporan atau analitik). Grafik, tabel dan warna status butuh pemeriksaan ekstra untuk kontras dan keterbacaan sebelum rilis."
     }
   },
   "legal": {

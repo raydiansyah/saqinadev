@@ -1,5 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
+  type AnyPgColumn,
+  boolean,
   index,
   integer,
   jsonb,
@@ -50,6 +52,14 @@ export const conversations = pgTable(
     summaryUpdatedAt: timestamp("summary_updated_at", { withTimezone: true }),
     /** Last message memory extraction has read; kept here so it outlives the finished jobs. */
     memoryCursor: uuid("memory_cursor"),
+    /** Set on a fork: the thread it was copied from and the message it was copied up to. */
+    parentConversationId: uuid("parent_conversation_id").references(
+      (): AnyPgColumn => conversations.id,
+      { onDelete: "set null" },
+    ),
+    forkedFromMessageId: uuid("forked_from_message_id"),
+    /** The owner lets connected agents read this thread (MCP `read_conversation`). Off by default. */
+    agentAccess: boolean("agent_access").notNull().default(false),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -70,12 +80,62 @@ export const messages = pgTable(
     status: text("status").$type<MessageStatus>().notNull().default("completed"),
     /** Structured blocks, intent and trace. Validated by `assistant/blocks.ts` on write. */
     metadata: jsonb("metadata").$type<Record<string, unknown>>().notNull().default({}),
+    /** Pinned as a chapter: a named place to jump back to. */
+    pinnedAt: timestamp("pinned_at", { withTimezone: true }),
+    chapterTitle: text("chapter_title"),
+    /** Hidden by a rewind. The row stays for the audit trail but is never shown or used as context. */
+    rewoundAt: timestamp("rewound_at", { withTimezone: true }),
     createdAt: createdAt(),
   },
   (t) => [
     index("messages_conversation_idx").on(t.conversationId, t.createdAt),
     uniqueIndex("messages_client_idx").on(t.conversationId, t.clientId),
+    index("messages_pinned_idx")
+      .on(t.conversationId, t.createdAt)
+      .where(sql`${t.pinnedAt} is not null`),
   ],
+);
+
+/** The latest message of a conversation each connected agent has read. */
+export const conversationAgentReads = pgTable(
+  "conversation_agent_reads",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    conversationId: uuid("conversation_id")
+      .notNull()
+      .references(() => conversations.id, { onDelete: "cascade" }),
+    agentId: uuid("agent_id")
+      .notNull()
+      .references(() => agents.id, { onDelete: "cascade" }),
+    /** `createdAt` of the newest message the agent received. */
+    lastMessageAt: timestamp("last_message_at", { withTimezone: true }).notNull(),
+    readAt: timestamp("read_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [uniqueIndex("conversation_agent_reads_idx").on(t.conversationId, t.agentId)],
+);
+
+/**
+ * What the assistant changed in the project while answering one message, with enough of the
+ * "before" and "after" to undo it. A rewind walks these newest first and reverses each one.
+ */
+export const conversationChanges = pgTable(
+  "conversation_changes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: projectRef(),
+    conversationId: uuid("conversation_id")
+      .notNull()
+      .references(() => conversations.id, { onDelete: "cascade" }),
+    /** The assistant reply the changes belong to; a proposal approved later keeps its message. */
+    messageId: uuid("message_id"),
+    proposalId: uuid("proposal_id"),
+    /** Validated by `assistant/actions/undo.ts` on write and on read. */
+    steps: jsonb("steps").$type<unknown[]>().notNull().default([]),
+    undoneAt: timestamp("undone_at", { withTimezone: true }),
+    undoneBy: userRef("undone_by"),
+    createdAt: createdAt(),
+  },
+  (t) => [index("conversation_changes_conversation_idx").on(t.conversationId, t.createdAt)],
 );
 
 export const agentAssignments = pgTable(

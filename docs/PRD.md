@@ -56,6 +56,7 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 | P3 | Imported projects follow GitHub: documents are pulled one way, the newest edit wins, the PRD is found by name or asked for ([ADR 0005](adr/0005-imported-projects-follow-github.md)) | Built |
 | P4 | Project settings: name, build strategy, repository, deployment, domain; a failed save keeps what was typed | Built |
 | P5 | Archive, restore and delete a project (delete needs the typed name) | Built |
+| P6 | The interview recommends a UI theme from 21 (3 tiers: recommended, available, concept), the user can change it, and the choice feeds the PRD, plan and memory. A public `/themes` page shows all 21 with live previews, including a dashboard preview; every theme defines status and chart colours that pass contrast checks, and a concept theme on a project with data screens gets an extra warning | Built |
 
 ### 5.2 Requirements, plan and delivery
 
@@ -110,6 +111,11 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 | A6 | Retrieval is full-text plus exact match, with a budget; the UI states that semantic search is off | Built |
 | A7 | MCP tools for agents (`search_memory`, `read_memory`, `write_memory`); agent writes are candidates, never straight into memory; every call audited | Built |
 | A8 | Semantic (vector) search, wiki, skills and code-graph assets | Planned |
+| A9 | Every chat message shows its time in the reader's timezone, can be copied, and shows who has read it: Saqina, and any connected agent that read up to it | Built |
+| A10 | Pin a message as a named chapter; a chapter list jumps to it, loading older pages when needed | Built |
+| A11 | Fork from a message: a copy of the thread up to it, in a new thread; proposals and agent runs are not copied and the original is not touched | Built |
+| A12 | Rewind to a message: later messages are hidden and the project changes the assistant made after it (tasks, requirements, the PRD and other documents) are put back. All or nothing: it refuses when a later change cannot be reversed or a record was edited since ([ADR 0007](adr/0007-chat-rewind-is-all-or-nothing.md)) | Built |
+| A13 | Chat threads stay private; the owner can open one to connected agents (MCP `list_conversations`, `read_conversation`), and every read is recorded and shown as "read by" | Built |
 
 ### 5.7 White label
 

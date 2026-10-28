@@ -4,6 +4,7 @@ export const NAV_LINKS = [
   { key: "howItWorks", hash: "how-it-works" },
   { key: "try", hash: "try" },
   { key: "services", path: "/services" },
+  { key: "themes", path: "/themes" },
 ] as const;
 
 export type NavKey = (typeof NAV_LINKS)[number]["key"];

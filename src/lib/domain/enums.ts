@@ -69,6 +69,7 @@ export const RECOMMENDATION_KEYS = [
   "architecture",
   "build_strategy",
   "landing",
+  "theme",
 ] as const;
 export type RecommendationKey = (typeof RECOMMENDATION_KEYS)[number];
 

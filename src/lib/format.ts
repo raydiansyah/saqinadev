@@ -67,3 +67,25 @@ export function formatTooltip(date: Date, locale: string, now: Date = new Date()
   }).format(date);
   return `${full} · ${formatRelative(date, locale, now)}`;
 }
+
+/**
+ * A message timestamp: the time alone for today, the short date and time for any other day.
+ * Pass a `timeZone` to pin it (UTC on the server); the browser replaces it after mounting.
+ */
+export function formatChatTime(
+  date: Date,
+  locale: string,
+  options: { timeZone?: string; now?: Date } = {},
+): string {
+  const zone = options.timeZone ? { timeZone: options.timeZone } : {};
+  const now = options.now ?? new Date();
+  const sameDay =
+    new Intl.DateTimeFormat("en-CA", zone).format(date) ===
+    new Intl.DateTimeFormat("en-CA", zone).format(now);
+  return new Intl.DateTimeFormat(
+    dateTag(locale),
+    sameDay
+      ? { timeStyle: "short", ...zone }
+      : { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", ...zone },
+  ).format(date);
+}

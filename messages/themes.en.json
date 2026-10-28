@@ -1,0 +1,30 @@
+{
+  "themes": {
+    "metaTitle": "UI design themes",
+    "metaDescription": "Browse the 21 UI design themes Saqina offers for your project, from modern SaaS and financial to minimal, organic and creative.",
+    "hero": {
+      "title": "Pick the look before you build",
+      "description": "Every project interview recommends a UI theme for your product. Browse all 21 here, see each one drawn with its own colours, type and shapes, and choose the one that fits your users.",
+      "explore": "Browse themes",
+      "start": "Start a project"
+    },
+    "tiers": {
+      "title": "How we label themes"
+    },
+    "categoriesNav": "Theme categories",
+    "card": {
+      "bestFor": "Best for: {value}",
+      "preview": "Preview of the {name} theme",
+      "dashboard": "Dashboard preview"
+    },
+    "note": {
+      "title": "Themes are design directions",
+      "body": "A theme sets colour, type, shape and depth. It does not change what your product does. Concept themes are expressive, so we check contrast, motion and readability with you before launch."
+    },
+    "cta": {
+      "title": "Let the interview recommend one",
+      "description": "Answer a few questions about your product and Saqina suggests a theme, with the reason. You can change it at any time.",
+      "start": "Start a project"
+    }
+  }
+}

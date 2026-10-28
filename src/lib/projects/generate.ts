@@ -1,3 +1,4 @@
+import { isTheme, THEME_TOKENS } from "@/content/ui-themes";
 import {
   AGENT_TYPES,
   type AgentStatus,
@@ -67,6 +68,14 @@ const bullets = (items: string[], empty: string) =>
 const item = (rec: ProjectRecommendation, key: RecommendationItem["key"]) =>
   rec.items.find((i) => i.key === key);
 
+/** Language-neutral token summary of the chosen theme, e.g. "dark, #7c8cff, sans". */
+function themeTokens(themeItem: RecommendationItem | undefined): string {
+  const id = themeItem?.ids?.[0];
+  if (!id || !isTheme(id)) return "";
+  const tokens = THEME_TOKENS[id];
+  return `${tokens.scheme}, ${tokens.primary}, ${tokens.font}`;
+}
+
 /** Feature labels ordered by priority so plans and PRDs lead with what matters most. */
 function orderedFeatures(analysis: Analysis): RequirementDraft[] {
   const rank: Record<Priority, number> = { critical: 0, high: 1, medium: 2, low: 3 };
@@ -97,6 +106,7 @@ function buildPrd({ data, analysis, recommendation, engine, copy, gen }: Inputs)
     ? []
     : suggestFeatures(answers).map((f) => engine.options.feature[f].label);
   const landing = item(recommendation, "landing");
+  const theme = item(recommendation, "theme");
 
   const section = (n: number, title: string, body: string) => `## ${n}. ${title}\n\n${body}`;
   const sections = [
@@ -231,6 +241,7 @@ function buildPrd({ data, analysis, recommendation, engine, copy, gen }: Inputs)
           ...(landing
             ? [t.landing(`${landing.value}${landing.detail ? ` ${landing.detail}` : ""}`)]
             : []),
+          ...(theme ? [t.theme(theme.value, themeTokens(theme))] : []),
         ],
         gen.toBeDefined,
       ),
@@ -240,7 +251,7 @@ function buildPrd({ data, analysis, recommendation, engine, copy, gen }: Inputs)
       h[14],
       bullets(
         recommendation.items
-          .filter((i) => i.key !== "landing")
+          .filter((i) => i.key !== "landing" && i.key !== "theme")
           .map((i) => `**${i.label}:** ${i.value}. ${i.reason}`),
         gen.toBeDefined,
       ),
@@ -289,6 +300,7 @@ function buildMilestones({
   const hasRoles = analysis.requirements.some((r) => r.key === "feature:rbac");
   const deploy = item(recommendation, "deployment")?.value ?? "";
   const landing = item(recommendation, "landing");
+  const theme = item(recommendation, "theme");
   const task = (
     title: string,
     priority: Priority,
@@ -308,6 +320,7 @@ function buildMilestones({
     ...(needsDb ? [task(t.tasks.database, "high", "todo", "foundation")] : []),
     ...(hasAuth ? [task(t.tasks.auth, "critical", "todo", "foundation")] : []),
     task(t.tasks.shell, "medium", "todo", "foundation"),
+    ...(theme ? [task(t.tasks.theme(theme.value), "medium", "todo", "foundation")] : []),
   ];
   const core = [
     ...(hasRoles ? [task(t.tasks.roles, "high", "backlog", "core")] : []),
@@ -382,6 +395,7 @@ function buildMemories({ data, recommendation, gen }: Inputs): GeneratedProject[
   fromRec("deployment", t.deployment, "integration");
   fromRec("build_strategy", t.build, "user_preference");
   fromRec("landing", t.landing, "design");
+  fromRec("theme", t.theme, "design");
   if (data.details.constraints.trim()) {
     memories.push({
       title: t.constraints,

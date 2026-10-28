@@ -1,4 +1,5 @@
 import type { ConceptCategoryId, LandingConceptId } from "@/content/landing-concepts";
+import type { ThemeCategoryId, ThemeTier, UiThemeId } from "@/content/ui-themes";
 import type {
   AgentId,
   AudienceId,
@@ -61,6 +62,9 @@ export interface EngineCopy {
   objectiveSuggestions: Record<ProjectTypeId, string[]>;
   concepts: Record<LandingConceptId, { name: string; summary: string }>;
   categories: Record<ConceptCategoryId, string>;
+  themes: Record<UiThemeId, { name: string; summary: string; bestFor: string }>;
+  themeCategories: Record<ThemeCategoryId, string>;
+  themeTiers: Record<ThemeTier, { label: string; hint: string }>;
   profiles: Record<ProfileId, { label: string; users: string[]; core: string[] }>;
   complexity: {
     names: Record<Complexity, string>;
@@ -95,6 +99,10 @@ export interface EngineCopy {
     };
     paymentNoAuth: { title: string; message: string; add: string; keep: string };
     existingInSaqina: { title: string; message: string; switch: string; keep: string };
+  };
+  theme: {
+    why: Record<ProjectTypeId, string>;
+    override: (suggested: string, firstReason: string) => string;
   };
   landing: {
     why: Record<ProjectTypeId, string>;
@@ -183,6 +191,7 @@ export interface EngineCopy {
     yes: string;
     no: string;
     landing: string;
+    theme: string;
     primary: string;
     supporting: string;
     integrations: string;

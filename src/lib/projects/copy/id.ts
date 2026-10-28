@@ -59,6 +59,7 @@ export const id: GeneratorCopy = {
       "Input divalidasi di setiap batas sistem dan secret tidak pernah sampai ke browser.",
     securityNoAuth: "Tanpa akun pengguna; halaman publik tidak menampilkan data pribadi.",
     landing: (concept) => `Konsep landing page publik: ${concept}.`,
+    theme: (theme, tokens) => `Tema UI: ${theme} (${tokens}).`,
     acceptance: (feature) =>
       `${feature} berjalan dari awal sampai akhir untuk penggunanya, termasuk kondisi kosong dan error.`,
   },
@@ -88,6 +89,7 @@ export const id: GeneratorCopy = {
       tests: "Tulis test untuk alur pengguna yang kritis",
       deploy: (target) => `Siapkan deployment ke ${target}`,
       landing: (concept) => `Bangun landing page (${concept})`,
+      theme: (theme) => `Terapkan tema ${theme} sebagai design token`,
     },
   },
   memory: {
@@ -98,6 +100,7 @@ export const id: GeneratorCopy = {
     auth: (value) => `Autentikasi: ${value}`,
     build: (value) => `Strategi build: ${value}`,
     landing: (value) => `Konsep landing: ${value}`,
+    theme: (value) => `Tema UI: ${value}`,
     constraints: "Batasan",
     reason: (reason) => `Alasan: ${reason}`,
   },

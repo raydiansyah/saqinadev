@@ -280,7 +280,8 @@
         "authentication": "Autentikasi",
         "architecture": "Arsitektur",
         "build_strategy": "Strategi build",
-        "landing": "Konsep landing"
+        "landing": "Konsep landing",
+        "theme": "Tema UI"
       }
     },
     "settings": {

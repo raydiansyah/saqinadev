@@ -124,6 +124,7 @@ export const ANSWER_KEYS = [
   "deployment",
   "versioning",
   "landing",
+  "theme",
   "structure",
   "dismissedInsights",
 ] as const satisfies readonly (keyof Answers)[];
@@ -149,6 +150,7 @@ export const STEPS = [
   "deployment",
   "versioning",
   "landing",
+  "theme",
   "constraints",
   "review",
 ] as const;
@@ -174,6 +176,7 @@ export const STAGE_OF: Record<InterviewStep, InterviewStage> = {
   followups: "features",
   platform: "experience",
   landing: "experience",
+  theme: "experience",
   existing: "technical",
   technology: "technical",
   database: "technical",

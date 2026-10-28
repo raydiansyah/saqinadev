@@ -43,6 +43,9 @@ export default async function ProjectAssistantPage({
               runs: Object.fromEntries(page.runs.map((r) => [r.run.id, r])),
               agents,
               hasMore: page.hasMore,
+              chapters: page.chapters,
+              agentReads: page.agentReads,
+              info: page.conversation,
             }
           : undefined
       }

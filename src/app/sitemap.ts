@@ -7,6 +7,7 @@ import { siteConfig } from "@/lib/site";
 const ROUTES = [
   { path: "", priority: 1 },
   { path: "/services", priority: 0.8 },
+  { path: "/themes", priority: 0.7 },
   { path: "/privacy", priority: 0.3 },
   { path: "/terms", priority: 0.3 },
 ];

@@ -33,6 +33,8 @@ import servicesEn from "../messages/services.en.json";
 import servicesId from "../messages/services.id.json";
 import servicesAdminEn from "../messages/services-admin.en.json";
 import servicesAdminId from "../messages/services-admin.id.json";
+import themesEn from "../messages/themes.en.json";
+import themesId from "../messages/themes.id.json";
 import workspaceEn from "../messages/workspace.en.json";
 import workspaceId from "../messages/workspace.id.json";
 
@@ -70,6 +72,7 @@ describe.each([
   ["services messages", servicesEn, servicesId],
   ["services admin messages", servicesAdminEn, servicesAdminId],
   ["meetings messages", meetingsEn, meetingsId],
+  ["themes messages", themesEn, themesId],
   ["site content", siteEn, siteId],
   ["legal documents", legalEn, legalId],
 ])("%s", (_, en, id) => {
@@ -111,6 +114,7 @@ describe("message files", () => {
       notifyEn,
       servicesEn,
       servicesAdminEn,
+      themesEn,
     ].flatMap((m) => Object.keys(m));
     expect(new Set(names).size).toBe(names.length);
   });

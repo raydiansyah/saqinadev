@@ -48,6 +48,7 @@ export interface GeneratorCopy {
     securityData: string;
     securityNoAuth: string;
     landing: (concept: string) => string;
+    theme: (theme: string, tokens: string) => string;
     acceptance: (feature: string) => string;
   };
   plan: {
@@ -69,6 +70,7 @@ export interface GeneratorCopy {
       tests: string;
       deploy: (target: string) => string;
       landing: (concept: string) => string;
+      theme: (theme: string) => string;
     };
   };
   memory: {
@@ -79,6 +81,7 @@ export interface GeneratorCopy {
     auth: (value: string) => string;
     build: (value: string) => string;
     landing: (value: string) => string;
+    theme: (value: string) => string;
     constraints: string;
     reason: (reason: string) => string;
   };

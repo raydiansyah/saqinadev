@@ -51,6 +51,16 @@ export function toMarkdownBrief(rec: Recommendation, copy: EngineCopy = defaultC
     );
   }
 
+  if (rec.theme) {
+    sections.push(
+      `## ${b.theme}`,
+      `- ${b.primary}: ${copy.themes[rec.theme.primary].name}`,
+      ...rec.theme.alternatives.map((id) => `- ${b.supporting}: ${copy.themes[id].name}`),
+      "",
+      rec.theme.reason,
+    );
+  }
+
   sections.push(`## ${b.integrations}`, list(rec.futureIntegrations));
   return `${sections.join("\n\n")}\n`;
 }

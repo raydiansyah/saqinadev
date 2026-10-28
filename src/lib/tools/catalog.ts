@@ -35,6 +35,29 @@ export const STATIC_TOOLS: StaticTool[] = [
   },
   {
     source: "internal",
+    name: "list_conversations",
+    description:
+      "Chat threads a project member has opened to agents. Private threads are never listed.",
+    inputSchema: { type: "object", properties: {}, additionalProperties: false },
+    riskLevel: "low",
+    agentPermission: "read_project",
+  },
+  {
+    source: "internal",
+    name: "read_conversation",
+    description:
+      "The latest messages of a shared chat thread (see list_conversations). Reading is shown to the team as 'read by' this agent.",
+    inputSchema: {
+      type: "object",
+      properties: { conversationId: str(64), limit: { type: "integer", minimum: 1, maximum: 50 } },
+      required: ["conversationId"],
+      additionalProperties: false,
+    },
+    riskLevel: "low",
+    agentPermission: "read_project",
+  },
+  {
+    source: "internal",
     name: "list_documents",
     description:
       "Project documents agents may read (PRD, PLAN and custom documents): slug, title, status, version.",

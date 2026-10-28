@@ -13,7 +13,37 @@ export interface UIMessage {
   status: MessageStatus;
   blocks: Block[];
   model?: { label: string; source: string; fallbackUsed: boolean; requested: string | null } | null;
+  /** Set when the message is pinned as a chapter. */
+  chapterTitle?: string | null;
   createdAt: Date | string;
+}
+
+export interface ChapterItem {
+  messageId: string;
+  title: string;
+  createdAt: Date | string;
+}
+
+/** The newest message a connected agent has read. */
+export interface AgentReadItem {
+  agentId: string;
+  name: string;
+  lastMessageAt: Date | string;
+}
+
+export interface ConversationMeta {
+  id: string;
+  title: string;
+  agentAccess: boolean;
+  parent: { id: string; title: string } | null;
+}
+
+/** What a rewind would do; mirrors `RewindPlan` on the server. */
+export interface RewindPreview {
+  removedMessages: number;
+  cancelledProposals: number;
+  undo: { op: string; kind: string; label: string }[];
+  blockers: { kind: string; label: string; reason: "irreversible" | "changed" | "missing" }[];
 }
 
 /** What the user is looking at when they ask. Ids are verified on the server. */

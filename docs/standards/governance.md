@@ -27,7 +27,7 @@ When unsure, take the higher lane.
 ## AI attribution
 
 Each pull request (and commit) records: the tool and model, how much it wrote (assist, co-write,
-generated), and the lane. The `Co-Authored-By` trailer on commits is kept. This feeds the AI-versus-human
+generated), and the lane. No `Co-Authored-By` trailer is added to commits or pull requests (project rule); record the tool and model in the pull request text instead. This feeds the AI-versus-human
 metrics in [observability.md](observability.md).
 
 ## AI usage policy

@@ -5,6 +5,7 @@ import type { Answers, Reasoned, Recommendation } from "../types";
 import { structureLabel } from "./insights";
 import { recommendLanding } from "./landing";
 import { complexityOf, isSimpleSite, needsData, slugify } from "./profile";
+import { recommendTheme } from "./theme";
 
 /** Typical feature sets, offered when the user answers "I don't know yet". */
 export const FEATURES_BY_TYPE: Record<ProjectTypeId, FeatureId[]> = {
@@ -219,6 +220,7 @@ export function recommend(answers: Answers, copy: EngineCopy = defaultCopy): Rec
     deployment,
     versioning: recommendVersioning(answers, complexity.level, copy),
     landing: recommendLanding(answers, copy),
+    theme: recommendTheme(answers, copy),
     futureIntegrations: integrations,
   };
 }

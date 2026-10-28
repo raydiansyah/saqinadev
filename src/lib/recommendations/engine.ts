@@ -43,6 +43,7 @@ const ALTERNATIVES: Record<RecommendationKey, string[]> = {
   architecture: [],
   build_strategy: ["Saqina Dev", "Claude", "Codex", "Cursor", "Kiro"],
   landing: [],
+  theme: [],
 };
 
 function confidenceFrom(chosen: boolean, uncertain: boolean): Confidence {
@@ -183,6 +184,17 @@ export function createRuleBasedRecommendationEngine(
           reason: base.landing.reason,
           confidence: base.landing.overridden ? "high" : "medium",
           source: base.landing.overridden ? "user" : "recommended",
+        });
+      }
+
+      if (base.theme) {
+        add({
+          key: "theme",
+          value: engine.themes[base.theme.primary].name,
+          ids: [base.theme.primary],
+          reason: base.theme.reason,
+          confidence: base.theme.overridden ? "high" : "medium",
+          source: base.theme.overridden ? "user" : "recommended",
         });
       }
 

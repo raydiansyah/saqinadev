@@ -2,10 +2,29 @@
 
 import { useLocale } from "next-intl";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { loadConversationAction } from "@/app/[locale]/(app)/project/[slug]/assistant/actions";
+import {
+  forkConversationAction,
+  loadConversationAction,
+  pinChapterAction,
+  previewRewindAction,
+  rewindAction,
+  setAgentAccessAction,
+  unpinChapterAction,
+} from "@/app/[locale]/(app)/project/[slug]/assistant/actions";
 import { useRouter } from "@/i18n/navigation";
 import type { StreamEvent } from "@/lib/assistant/blocks";
-import type { AgentOption, ChatContext, ProposalView, RunView, Stage, UIMessage } from "./types";
+import type {
+  AgentOption,
+  AgentReadItem,
+  ChapterItem,
+  ChatContext,
+  ConversationMeta,
+  ProposalView,
+  RewindPreview,
+  RunView,
+  Stage,
+  UIMessage,
+} from "./types";
 
 export interface ChatError {
   code: string;
@@ -19,6 +38,9 @@ interface State {
   runs: Record<string, RunView>;
   agents: AgentOption[];
   hasMore: boolean;
+  chapters: ChapterItem[];
+  agentReads: AgentReadItem[];
+  info: ConversationMeta | null;
 }
 
 const EMPTY: State = {
@@ -28,6 +50,9 @@ const EMPTY: State = {
   runs: {},
   agents: [],
   hasMore: false,
+  chapters: [],
+  agentReads: [],
+  info: null,
 };
 const PENDING_ID = "pending-reply";
 
@@ -42,6 +67,9 @@ export function useAssistant(slug: string, initial?: Partial<State>) {
   const locale = useLocale();
   const router = useRouter();
   const [state, setState] = useState<State>({ ...EMPTY, ...initial });
+  // The latest state for callbacks that loop (loading older pages until a message appears).
+  const stateRef = useRef(state);
+  stateRef.current = state;
   const [stage, setStage] = useState<Stage | null>(null);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -64,7 +92,8 @@ export function useAssistant(slug: string, initial?: Partial<State>) {
       setLoading(false);
       if (!result.ok)
         return setError({ code: result.code, ref: result.ok ? undefined : result.ref });
-      const { messages, proposals, runs, agents, hasMore } = result.data;
+      const { messages, proposals, runs, agents, hasMore, chapters, agentReads, conversation } =
+        result.data;
       setState({
         conversationId,
         messages,
@@ -72,19 +101,23 @@ export function useAssistant(slug: string, initial?: Partial<State>) {
         runs: Object.fromEntries(runs.map((r) => [r.run.id, r])),
         agents,
         hasMore,
+        chapters,
+        agentReads,
+        info: conversation,
       });
     },
     [slug],
   );
 
   const loadOlder = useCallback(async () => {
-    const first = state.messages[0];
-    if (!state.conversationId || !first) return;
+    const { conversationId, messages } = stateRef.current;
+    const first = messages[0];
+    if (!conversationId || !first) return false;
     const result = await loadConversationAction(slug, {
-      conversationId: state.conversationId,
+      conversationId,
       before: { createdAt: first.createdAt, id: first.id },
     });
-    if (!result.ok) return;
+    if (!result.ok) return false;
     setState((s) => ({
       ...s,
       messages: [...result.data.messages, ...s.messages],
@@ -93,7 +126,21 @@ export function useAssistant(slug: string, initial?: Partial<State>) {
       agents: s.agents.length ? s.agents : result.data.agents,
       hasMore: result.data.hasMore,
     }));
-  }, [slug, state.conversationId, state.messages]);
+    return true;
+  }, [slug]);
+
+  /** Loads older pages until the message is on screen. False when it cannot be found. */
+  const ensureLoaded = useCallback(
+    async (messageId: string) => {
+      for (let page = 0; page < 40; page++) {
+        const { messages, hasMore } = stateRef.current;
+        if (messages.some((m) => m.id === messageId)) return true;
+        if (!hasMore || !(await loadOlder())) return false;
+      }
+      return false;
+    },
+    [loadOlder],
+  );
 
   const updatePending = useCallback(
     (fn: (m: UIMessage) => UIMessage) =>
@@ -211,6 +258,106 @@ export function useAssistant(slug: string, initial?: Partial<State>) {
     router.refresh();
   }, [state.conversationId, load, router]);
 
+  const fail = useCallback(
+    (result: { ok: false; code: string; ref?: string }) =>
+      setError({ code: result.code, ref: result.ref }),
+    [],
+  );
+
+  /** Pins a message as a chapter (or renames it), or removes the pin. */
+  const pin = useCallback(
+    async (messageId: string, title?: string) => {
+      if (!state.conversationId) return;
+      const result = await pinChapterAction(slug, {
+        conversationId: state.conversationId,
+        messageId,
+        title,
+      });
+      if (!result.ok) return fail(result);
+      await load(state.conversationId);
+    },
+    [slug, state.conversationId, load, fail],
+  );
+
+  const unpin = useCallback(
+    async (messageId: string) => {
+      if (!state.conversationId) return;
+      const result = await unpinChapterAction(slug, {
+        conversationId: state.conversationId,
+        messageId,
+      });
+      if (!result.ok) return fail(result);
+      await load(state.conversationId);
+    },
+    [slug, state.conversationId, load, fail],
+  );
+
+  /** Copies the thread up to a message into a new one and opens it. */
+  const fork = useCallback(
+    async (messageId: string, title?: string) => {
+      if (!state.conversationId) return null;
+      const result = await forkConversationAction(slug, {
+        conversationId: state.conversationId,
+        messageId,
+        title,
+      });
+      if (!result.ok) {
+        fail(result);
+        return null;
+      }
+      await load(result.data.conversationId);
+      return result.data.conversationId;
+    },
+    [slug, state.conversationId, load, fail],
+  );
+
+  const previewRewind = useCallback(
+    async (messageId: string): Promise<RewindPreview | null> => {
+      if (!state.conversationId) return null;
+      const result = await previewRewindAction(slug, {
+        conversationId: state.conversationId,
+        messageId,
+      });
+      if (!result.ok) {
+        fail(result);
+        return null;
+      }
+      return result.data;
+    },
+    [slug, state.conversationId, fail],
+  );
+
+  /** Goes back to a message. Returns what happened; a blocked rewind changes nothing. */
+  const rewind = useCallback(
+    async (messageId: string) => {
+      if (!state.conversationId) return null;
+      const result = await rewindAction(slug, { conversationId: state.conversationId, messageId });
+      if (!result.ok) {
+        fail(result);
+        return null;
+      }
+      if (result.data.applied) {
+        await load(state.conversationId);
+        router.refresh();
+      }
+      return result.data;
+    },
+    [slug, state.conversationId, load, router, fail],
+  );
+
+  const setAgentAccess = useCallback(
+    async (enabled: boolean) => {
+      if (!state.conversationId) return;
+      const result = await setAgentAccessAction(slug, {
+        conversationId: state.conversationId,
+        enabled,
+      });
+      if (!result.ok) return fail(result);
+      setState((s) => (s.info ? { ...s, info: { ...s.info, agentAccess: enabled } } : s));
+    },
+    [slug, state.conversationId, fail],
+  );
+
   return {
     ...state,
     stage,
@@ -221,6 +368,13 @@ export function useAssistant(slug: string, initial?: Partial<State>) {
     stop: () => abort.current?.abort(),
     load,
     loadOlder,
+    ensureLoaded,
+    pin,
+    unpin,
+    fork,
+    previewRewind,
+    rewind,
+    setAgentAccess,
     refresh,
     clearError: () => setError(null),
     startNew: () => {

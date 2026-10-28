@@ -11,6 +11,7 @@ import type { ExecutedItem } from "@/lib/assistant/blocks";
 import { getAssistantCopy } from "@/lib/assistant/copy";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess, type ProjectAccess } from "@/lib/auth/permissions";
+import { recordChangesTx } from "@/lib/conversations/changes";
 import { db } from "@/lib/db/client";
 import { agentRuns, agents, conversations, messages, proposals } from "@/lib/db/schema";
 import type { AgentPermission } from "@/lib/domain/enums";
@@ -94,6 +95,13 @@ export async function approveProposal(
     const result = await executeActionsTx(tx, access, actions, trace, batch, {
       assign: assignAgentTx,
       agentPermissions: await runAgentPermissions(tx, row),
+    });
+    await recordChangesTx(tx, {
+      projectId: access.project.id,
+      conversationId: row.conversationId,
+      messageId: row.messageId,
+      proposalId: row.id,
+      steps: result.steps,
     });
     await tx
       .update(proposals)

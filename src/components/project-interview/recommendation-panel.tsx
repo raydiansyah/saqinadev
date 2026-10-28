@@ -62,7 +62,7 @@ export function RecommendationPanel({
                 </span>
               </p>
             </div>
-            {item.key !== "architecture" && item.key !== "landing" ? (
+            {item.key !== "architecture" && item.key !== "landing" && item.key !== "theme" ? (
               <Button
                 size="sm"
                 variant="outline"

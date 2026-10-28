@@ -7,6 +7,7 @@ import type { InterviewEngine } from "@/lib/interview/engine";
 import type { Recommendation, StepId } from "@/lib/interview/types";
 import { cn } from "@/lib/utils";
 import { ConceptSummary } from "./concept-picker";
+import { ThemeSummary } from "./theme-picker";
 
 interface RowProps {
   label: string;
@@ -201,6 +202,13 @@ export function RecommendationSummary({
           ) : (
             t("noLanding")
           )}
+        </Row>
+        <Row
+          label={t("theme")}
+          editStep={edit("theme")}
+          {...rowProps(rec.theme ? rec.theme.overridden : undefined)}
+        >
+          {rec.theme ? <ThemeSummary theme={rec.theme} copy={engine.copy} /> : t("noTheme")}
         </Row>
         <Row label={t("integrations")} {...rowProps()}>
           {rec.futureIntegrations.join(", ")}

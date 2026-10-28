@@ -14,6 +14,7 @@ import type portalEngagement from "../messages/portal-engagement.en.json";
 import type project from "../messages/project.en.json";
 import type services from "../messages/services.en.json";
 import type servicesAdmin from "../messages/services-admin.en.json";
+import type themes from "../messages/themes.en.json";
 import type workspace from "../messages/workspace.en.json";
 import type { routing } from "./i18n/routing";
 
@@ -37,6 +38,7 @@ declare module "next-intl" {
       typeof services &
       typeof servicesAdmin &
       typeof meetings &
-      typeof memoryHub;
+      typeof memoryHub &
+      typeof themes;
   }
 }

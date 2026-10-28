@@ -1,5 +1,6 @@
 import { type Answers, STEPS, type StepId } from "../types";
 import { hasPublicLanding, isSimpleSite } from "./profile";
+import { hasInterface } from "./theme";
 
 /**
  * Which steps are relevant for the current answers. Irrelevant questions are skipped,
@@ -14,6 +15,8 @@ export function isStepVisible(step: StepId, answers: Answers): boolean {
       return answers.developmentMode === "external";
     case "landing":
       return hasPublicLanding(answers);
+    case "theme":
+      return hasInterface(answers);
     default:
       return true;
   }
@@ -52,6 +55,7 @@ export function isStepComplete(step: StepId, answers: Answers): boolean {
     case "versioning":
       return !!answers.versioning;
     case "landing":
+    case "theme":
     case "review":
       return true;
   }

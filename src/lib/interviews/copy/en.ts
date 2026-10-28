@@ -277,6 +277,7 @@ export const en: ProjectCopy = {
       architecture: "Architecture",
       build_strategy: "Build strategy",
       landing: "Landing concept",
+      theme: "UI theme",
     },
     application: {
       simple: "A content site needs fast static pages and good SEO, not an application server.",

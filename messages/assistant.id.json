@@ -425,6 +425,80 @@
     "sourceLabel": "Sumber: {source}",
     "modelLine": "Dijawab oleh {model}",
     "modelRules": "Ditulis dari data proyek (tanpa model AI)",
-    "fallbackLine": "{requested} tidak tersedia; fallback dipakai."
+    "fallbackLine": "{requested} tidak tersedia; fallback dipakai.",
+    "tools": {
+      "label": "Aksi pesan",
+      "copy": "Salin",
+      "copied": "Tersalin",
+      "pin": "Sematkan sebagai bab",
+      "unpin": "Lepas bab",
+      "fork": "Fork dari sini",
+      "rewind": "Kembali ke sini",
+      "chapter": "Bab",
+      "chapterName": "Nama bab",
+      "save": "Simpan",
+      "cancel": "Batal",
+      "forkTitle": "Fork: {title}",
+      "forkedFrom": "Fork dari",
+      "chapters": "Bab",
+      "chaptersCount": "Bab ({count})",
+      "jumpTo": "Buka bab {title}",
+      "jumpFailed": "Pesan itu tidak ditemukan."
+    },
+    "read": {
+      "saqina": {
+        "reading": "Saqina sedang membaca",
+        "read": "Dibaca Saqina"
+      },
+      "agents": "Dibaca {names}"
+    },
+    "agentAccess": {
+      "label": "Izinkan agen terhubung membaca chat ini",
+      "hint": "Agen hanya bisa membaca thread ini, lewat tool MCP read_conversation, dan Anda melihat siapa yang membacanya. Mati secara default."
+    },
+    "rewind": {
+      "title": "Kembali ke pesan ini?",
+      "description": "Semua pesan setelah ini disembunyikan, dan perubahan yang dibuat Saqina setelahnya dikembalikan.",
+      "checking": "Memeriksa apa yang akan berubah...",
+      "messages": "{count} pesan akan disembunyikan.",
+      "proposals": "{count} usulan yang menunggu tinjauan akan dibatalkan.",
+      "undoTitle": "Perubahan yang akan dikembalikan",
+      "undo": {
+        "taskCreated": "{label}: dihapus",
+        "taskUpdated": "{label}: dikembalikan",
+        "requirementCreated": "{label}: dihapus",
+        "requirementUpdated": "{label}: dikembalikan",
+        "documentEdited": "{label}: versi sebelumnya dikembalikan"
+      },
+      "nothingToUndo": "Asisten tidak mengubah apa pun di proyek setelah pesan ini.",
+      "blockedTitle": "Tidak bisa kembali ke pesan ini",
+      "blockedBody": "Perubahan ini tidak bisa dikembalikan, jadi tidak ada yang diubah. Gunakan Fork dari sini untuk mencoba arah lain.",
+      "reason": {
+        "irreversible": "tidak bisa dibatalkan",
+        "changed": "diubah setelah Saqina mengubahnya",
+        "missing": "sudah tidak ada"
+      },
+      "kinds": {
+        "task": "Task",
+        "requirement": "Kebutuhan",
+        "document": "Dokumen",
+        "DELETE_TASK": "Task yang dihapus",
+        "CREATE_MEMORY": "Memori",
+        "CREATE_DECISION": "Keputusan",
+        "CREATE_HANDOFF": "Serah terima agen",
+        "RUN_TOOL": "Eksekusi tool",
+        "SET_PAYMENT_SCHEDULE": "Jadwal pembayaran",
+        "CREATE_INVOICE": "Invoice",
+        "CREATE_SCOPE_ITEM": "Item cakupan",
+        "CREATE_CHANGE_REQUEST": "Permintaan perubahan",
+        "GENERATE_DOCUMENT": "Dokumen yang dibuat",
+        "SEND_CLIENT_REMINDER": "Pengingat klien",
+        "ASSIGN_AGENT": "Penugasan agen",
+        "unknown": "Perubahan tidak dikenal"
+      },
+      "confirm": "Kembali",
+      "fork": "Fork dari sini saja",
+      "done": "Sudah kembali ke pesan yang dipilih."
+    }
   }
 }

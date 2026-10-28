@@ -1,0 +1,30 @@
+{
+  "themes": {
+    "metaTitle": "Tema desain UI",
+    "metaDescription": "Lihat 21 tema desain UI yang ditawarkan Saqina untuk proyek Anda, dari SaaS modern dan finansial sampai minimalis, organik dan kreatif.",
+    "hero": {
+      "title": "Pilih tampilannya sebelum membangun",
+      "description": "Setiap interview proyek merekomendasikan tema UI untuk produk Anda. Lihat semua 21 tema di sini, tiap tema digambar dengan warna, tipografi dan bentuknya sendiri, lalu pilih yang cocok untuk pengguna Anda.",
+      "explore": "Lihat tema",
+      "start": "Mulai proyek"
+    },
+    "tiers": {
+      "title": "Cara kami melabeli tema"
+    },
+    "categoriesNav": "Kategori tema",
+    "card": {
+      "bestFor": "Cocok untuk: {value}",
+      "preview": "Pratinjau tema {name}",
+      "dashboard": "Pratinjau dashboard"
+    },
+    "note": {
+      "title": "Tema adalah arah desain",
+      "body": "Tema mengatur warna, tipografi, bentuk dan kedalaman. Tema tidak mengubah fungsi produk Anda. Tema konsep bersifat ekspresif, jadi kontras, gerak dan keterbacaan kami periksa bersama Anda sebelum rilis."
+    },
+    "cta": {
+      "title": "Biarkan interview merekomendasikan satu",
+      "description": "Jawab beberapa pertanyaan tentang produk Anda dan Saqina menyarankan tema beserta alasannya. Anda bisa menggantinya kapan saja.",
+      "start": "Mulai proyek"
+    }
+  }
+}

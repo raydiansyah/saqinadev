@@ -1,5 +1,6 @@
 import * as z from "zod";
 import { LANDING_CONCEPTS } from "@/content/landing-concepts";
+import { UI_THEMES } from "@/content/ui-themes";
 import { RECOMMENDATION_KEYS } from "@/lib/domain/enums";
 import {
   AGENTS,
@@ -60,6 +61,7 @@ export const QUESTION_SCHEMAS = {
       supporting: uniqueList(z.enum(LANDING_CONCEPTS), 2),
     })
     .nullable(),
+  theme: z.enum(UI_THEMES).nullable(),
   structure: z.enum(STRUCTURES).nullable(),
   dismissedInsights: uniqueList(text(64), 32),
   details: z.object({

@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, count, eq, inArray, lt, or, sql } from "drizzle-orm";
+import { and, asc, count, eq, inArray, isNull, lt, or, sql } from "drizzle-orm";
 import { runAi } from "@/lib/ai/gateway";
 import type { AiProvider } from "@/lib/ai/provider";
 import type { Actor } from "@/lib/auth/actor";
@@ -134,7 +134,13 @@ async function runExtraction(job: Job, provider?: AiProvider): Promise<"done" | 
   const rows = await db
     .select({ id: messages.id, role: messages.role, content: messages.content })
     .from(messages)
-    .where(and(eq(messages.conversationId, conversationId), eq(messages.status, "completed")))
+    .where(
+      and(
+        eq(messages.conversationId, conversationId),
+        eq(messages.status, "completed"),
+        isNull(messages.rewoundAt),
+      ),
+    )
     .orderBy(asc(messages.createdAt));
   const upTo = rows.findIndex((r) => r.id === toMessageId);
   const cursor = await lastExtractedMessageId(db, conversationId);

@@ -5,9 +5,13 @@ import { type KeyboardEvent, type ReactNode, useEffect, useRef, useState } from 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ErrorBlock } from "./blocks/simple";
-import { MessageItem } from "./message-item";
+import { AgentAccessToggle, ChaptersMenu, ForkBanner } from "./chat-header-tools";
+import { MessageItem, type MessageTools } from "./message-item";
+import { RewindDialog } from "./rewind-dialog";
 import type { ChatContext } from "./types";
 import type { AssistantController } from "./use-assistant";
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
  * The conversation surface shared by the side sheet and the full page. The workspace stays
@@ -32,6 +36,8 @@ export function Chat({
 }) {
   const t = useTranslations("assistant");
   const [draft, setDraft] = useState("");
+  const [rewindTo, setRewindTo] = useState<string | null>(null);
+  const [notice, setNotice] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const lastUser = [...chat.messages].reverse().find((m) => m.role === "user");
@@ -43,6 +49,36 @@ export function Chat({
     const el = listRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [chat.messages.length, tail?.content, tail?.blocks.length]);
+
+  const jump = async (messageId: string) => {
+    const found = await chat.ensureLoaded(messageId);
+    if (!found) return setNotice(t("tools.jumpFailed"));
+    requestAnimationFrame(() => {
+      const el = document.getElementById(`message-${messageId}`);
+      el?.scrollIntoView({ block: "start", behavior: "smooth" });
+      el?.focus({ preventScroll: true });
+    });
+  };
+
+  const toolsFor = (index: number): MessageTools | undefined => {
+    const message = chat.messages[index];
+    // Only stored messages can be acted on; the optimistic ones have no server id yet.
+    if (!chat.conversationId || chat.busy || !UUID.test(message.id)) return undefined;
+    if (message.status === "processing" || message.status === "queued") return undefined;
+    return {
+      pin: (title) => chat.pin(message.id, title),
+      unpin: () => chat.unpin(message.id),
+      fork: async () => {
+        await chat.fork(message.id, t("tools.forkTitle", { title: chat.info?.title ?? "" }));
+      },
+      rewind: index < chat.messages.length - 1 ? () => setRewindTo(message.id) : undefined,
+    };
+  };
+
+  const readersOf = (message: (typeof chat.messages)[number]) =>
+    chat.agentReads
+      .filter((r) => new Date(r.lastMessageAt).getTime() >= new Date(message.createdAt).getTime())
+      .map((r) => r.name);
 
   const submit = (text = draft) => {
     if (!text.trim() || chat.busy) return;
@@ -59,7 +95,7 @@ export function Chat({
 
   return (
     <div className={cn("flex min-h-0 flex-1 flex-col", className)}>
-      <div className="flex flex-wrap items-center gap-2 border-b border-border px-4 py-2">
+      <div className="relative flex flex-wrap items-center gap-2 border-b border-border px-4 py-2">
         <span className="font-mono text-[0.6875rem] uppercase tracking-wider text-subtle-foreground">
           {t("contextLabel")}
         </span>
@@ -86,8 +122,20 @@ export function Chat({
             </button>
           ) : null}
         </span>
-        <div className="ml-auto flex items-center gap-1">{toolbar}</div>
+        <div className="ml-auto flex items-center gap-1">
+          <ChaptersMenu chapters={chat.chapters} onJump={(id) => void jump(id)} />
+          {toolbar}
+        </div>
       </div>
+      {chat.info ? (
+        <div className="border-b border-border px-4">
+          <AgentAccessToggle
+            enabled={chat.info.agentAccess}
+            onChange={(enabled) => void chat.setAgentAccess(enabled)}
+          />
+        </div>
+      ) : null}
+      {chat.info?.parent ? <ForkBanner slug={slug} parent={chat.info.parent} /> : null}
 
       <div ref={listRef} className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
         {chat.hasMore ? (
@@ -136,6 +184,15 @@ export function Chat({
                 busy={chat.busy}
                 onAnswer={(answer) => submit(answer)}
                 onChanged={() => void chat.refresh()}
+                tools={toolsFor(i)}
+                saqinaRead={
+                  message.role === "user" && chat.messages[i + 1]
+                    ? chat.messages[i + 1].status === "processing"
+                      ? "reading"
+                      : "read"
+                    : undefined
+                }
+                readers={readersOf(message)}
               />
             ))}
           </ol>
@@ -154,8 +211,20 @@ export function Chat({
 
       {/* Announces progress once per stage instead of reading every streamed token. */}
       <p className="sr-only" role="status" aria-live="polite">
-        {chat.stage ? t(`stages.${chat.stage}`) : ""}
+        {chat.stage ? t(`stages.${chat.stage}`) : notice}
       </p>
+
+      <RewindDialog
+        messageId={rewindTo}
+        onClose={() => setRewindTo(null)}
+        preview={chat.previewRewind}
+        rewind={async (id) => {
+          const result = await chat.rewind(id);
+          if (result?.applied) setNotice(t("rewind.done"));
+          return result;
+        }}
+        fork={(id) => chat.fork(id, t("tools.forkTitle", { title: chat.info?.title ?? "" }))}
+      />
 
       <form
         onSubmit={(e) => {

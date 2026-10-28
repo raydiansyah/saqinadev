@@ -425,6 +425,80 @@
     "sourceLabel": "Source: {source}",
     "modelLine": "Answered by {model}",
     "modelRules": "Written from project data (no AI model involved)",
-    "fallbackLine": "{requested} was unavailable; fallback used."
+    "fallbackLine": "{requested} was unavailable; fallback used.",
+    "tools": {
+      "label": "Message actions",
+      "copy": "Copy",
+      "copied": "Copied",
+      "pin": "Pin as chapter",
+      "unpin": "Unpin chapter",
+      "fork": "Fork from here",
+      "rewind": "Rewind to here",
+      "chapter": "Chapter",
+      "chapterName": "Chapter name",
+      "save": "Save",
+      "cancel": "Cancel",
+      "forkTitle": "Fork: {title}",
+      "forkedFrom": "Forked from",
+      "chapters": "Chapters",
+      "chaptersCount": "Chapters ({count})",
+      "jumpTo": "Go to chapter {title}",
+      "jumpFailed": "That message could not be found."
+    },
+    "read": {
+      "saqina": {
+        "reading": "Saqina is reading",
+        "read": "Read by Saqina"
+      },
+      "agents": "Read by {names}"
+    },
+    "agentAccess": {
+      "label": "Let connected agents read this chat",
+      "hint": "Agents can read only this thread, with the MCP tool read_conversation, and you see who read it. Off by default."
+    },
+    "rewind": {
+      "title": "Rewind to this message?",
+      "description": "Everything after this message is hidden, and the changes Saqina made after it are put back.",
+      "checking": "Checking what would change...",
+      "messages": "{count, plural, one {# message} other {# messages}} will be hidden.",
+      "proposals": "{count, plural, one {# proposal waiting for review} other {# proposals waiting for review}} will be cancelled.",
+      "undoTitle": "Changes that will be put back",
+      "undo": {
+        "taskCreated": "{label}: removed",
+        "taskUpdated": "{label}: restored",
+        "requirementCreated": "{label}: removed",
+        "requirementUpdated": "{label}: restored",
+        "documentEdited": "{label}: previous version restored"
+      },
+      "nothingToUndo": "The assistant changed nothing in the project after this message.",
+      "blockedTitle": "Can't rewind to this message",
+      "blockedBody": "These changes cannot be put back, so nothing was changed. Fork from here to try another direction instead.",
+      "reason": {
+        "irreversible": "can't be undone",
+        "changed": "was edited after Saqina changed it",
+        "missing": "no longer exists"
+      },
+      "kinds": {
+        "task": "Task",
+        "requirement": "Requirement",
+        "document": "Document",
+        "DELETE_TASK": "Deleted task",
+        "CREATE_MEMORY": "Memory",
+        "CREATE_DECISION": "Decision",
+        "CREATE_HANDOFF": "Agent handoff",
+        "RUN_TOOL": "Tool run",
+        "SET_PAYMENT_SCHEDULE": "Payment schedule",
+        "CREATE_INVOICE": "Invoice",
+        "CREATE_SCOPE_ITEM": "Scope item",
+        "CREATE_CHANGE_REQUEST": "Change request",
+        "GENERATE_DOCUMENT": "Generated document",
+        "SEND_CLIENT_REMINDER": "Client reminder",
+        "ASSIGN_AGENT": "Agent assignment",
+        "unknown": "Unknown change"
+      },
+      "confirm": "Rewind",
+      "fork": "Fork from here instead",
+      "done": "Rewound to the chosen message."
+    }
   }
 }

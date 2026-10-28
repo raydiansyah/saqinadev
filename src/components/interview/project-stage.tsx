@@ -79,6 +79,9 @@ export function ProjectStage({ preview, copy }: { preview: ProjectPreview; copy:
             ) : null}
           </Row>
         ) : null}
+        {preview.theme ? (
+          <Row label={t("stage.theme")}>{copy.themes[preview.theme.primary].name}</Row>
+        ) : null}
       </dl>
       <p className="mt-4 border-t border-border pt-3 text-xs text-subtle-foreground">
         {t("stage.localEngine")}

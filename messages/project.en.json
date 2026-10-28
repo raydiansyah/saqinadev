@@ -280,7 +280,8 @@
         "authentication": "Authentication",
         "architecture": "Architecture",
         "build_strategy": "Build strategy",
-        "landing": "Landing concept"
+        "landing": "Landing concept",
+        "theme": "UI theme"
       }
     },
     "settings": {

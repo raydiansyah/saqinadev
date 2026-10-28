@@ -278,6 +278,7 @@ export const id: ProjectCopy = {
       architecture: "Arsitektur",
       build_strategy: "Strategi build",
       landing: "Konsep landing",
+      theme: "Tema UI",
     },
     application: {
       simple:

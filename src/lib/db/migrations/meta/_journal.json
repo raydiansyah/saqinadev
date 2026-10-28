@@ -211,6 +211,13 @@
       "when": 1792743279646,
       "tag": "0029_white_label_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1792999994038,
+      "tag": "0030_chat_tools",
+      "breakpoints": true
     }
   ]
 }

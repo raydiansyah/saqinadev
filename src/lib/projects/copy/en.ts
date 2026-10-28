@@ -59,6 +59,7 @@ export const en: GeneratorCopy = {
       "Input is validated at every system boundary and secrets never reach the browser.",
     securityNoAuth: "No user accounts; public pages expose no private data.",
     landing: (concept) => `Public landing page concept: ${concept}.`,
+    theme: (theme, tokens) => `UI theme: ${theme} (${tokens}).`,
     acceptance: (feature) =>
       `${feature} works end to end for its intended users, including empty and error states.`,
   },
@@ -91,6 +92,7 @@ export const en: GeneratorCopy = {
       tests: "Write tests for the critical user flows",
       deploy: (target) => `Set up deployment to ${target}`,
       landing: (concept) => `Build the landing page (${concept})`,
+      theme: (theme) => `Apply the ${theme} theme as design tokens`,
     },
   },
   memory: {
@@ -101,6 +103,7 @@ export const en: GeneratorCopy = {
     auth: (value) => `Authentication: ${value}`,
     build: (value) => `Build strategy: ${value}`,
     landing: (value) => `Landing concept: ${value}`,
+    theme: (value) => `UI theme: ${value}`,
     constraints: "Constraints",
     reason: (reason) => `Reason: ${reason}`,
   },

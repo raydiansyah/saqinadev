@@ -7,6 +7,14 @@ import { runAction } from "@/lib/actions";
 import { cancelRun, pauseRun, reassignRun, resumeRun, retryRun } from "@/lib/agents/controls";
 import { agentOptions } from "@/lib/agents/options";
 import { requireActor, requireProjectAccess } from "@/lib/auth/server";
+import {
+  forkConversation,
+  pinChapter,
+  previewRewind,
+  rewindConversation,
+  setAgentAccess,
+  unpinChapter,
+} from "@/lib/conversations/chat-tools";
 import { listConversations, loadMessages } from "@/lib/conversations/service";
 import { scheduleDocSync } from "@/lib/docsync/schedule";
 import { AppError } from "@/lib/errors";
@@ -93,4 +101,47 @@ export async function reassignRunAction(slug: string, input: unknown) {
     refresh();
     return result;
   });
+}
+
+export async function pinChapterAction(slug: string, input: unknown) {
+  return runAction("conversation.pin", { slug }, async () =>
+    pinChapter(await requireActor(), slug, input),
+  );
+}
+
+export async function unpinChapterAction(slug: string, input: unknown) {
+  return runAction("conversation.unpin", { slug }, async () =>
+    unpinChapter(await requireActor(), slug, input),
+  );
+}
+
+export async function forkConversationAction(slug: string, input: unknown) {
+  return runAction("conversation.fork", { slug }, async () =>
+    forkConversation(await requireActor(), slug, input),
+  );
+}
+
+/** Shows what a rewind would do, including anything that stops it. Changes nothing. */
+export async function previewRewindAction(slug: string, input: unknown) {
+  return runAction("conversation.rewind_preview", { slug }, async () =>
+    previewRewind(await requireActor(), slug, input),
+  );
+}
+
+export async function rewindAction(slug: string, input: unknown) {
+  return runAction("conversation.rewind", { slug }, async () => {
+    const result = await rewindConversation(await requireActor(), slug, input);
+    if (result.applied) {
+      refresh();
+      // A rewind can put an older version of a document back: push it out when sync is on.
+      scheduleDocSync({ slug });
+    }
+    return result;
+  });
+}
+
+export async function setAgentAccessAction(slug: string, input: unknown) {
+  return runAction("conversation.agent_access", { slug }, async () =>
+    setAgentAccess(await requireActor(), slug, input),
+  );
 }

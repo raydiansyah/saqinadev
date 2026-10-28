@@ -142,7 +142,7 @@ export default async function ProjectOverviewPage({
             </h2>
             <dl className="space-y-2 text-sm">
               {recs
-                .filter((r) => r.key !== "landing")
+                .filter((r) => r.key !== "landing" && r.key !== "theme")
                 .map((r) => (
                   <div
                     key={r.key}

@@ -1,4 +1,5 @@
 import type { LandingConceptId } from "@/content/landing-concepts";
+import type { UiThemeId } from "@/content/ui-themes";
 import type {
   AgentId,
   AudienceId,
@@ -27,6 +28,7 @@ export const STEPS = [
   "deployment",
   "versioning",
   "landing",
+  "theme",
   "review",
 ] as const;
 export type StepId = (typeof STEPS)[number];
@@ -57,6 +59,7 @@ export const STEP_GROUP: Record<StepId, StepGroup> = {
   deployment: "Deployment",
   versioning: "Deployment",
   landing: "Landing Page",
+  theme: "Landing Page",
   review: "Review",
 };
 
@@ -85,6 +88,8 @@ export interface Answers {
   versioning?: VersioningId;
   /** User override of the recommended landing concepts. Undefined = follow recommendation. */
   landing?: LandingSelection;
+  /** User override of the recommended UI theme. Undefined = follow recommendation. */
+  theme?: UiThemeId;
   /**
    * Accepted structural suggestion. Stored as an id so it survives a language switch;
    * the label ("Business Management Web App", "Company Website + Customer Portal") is derived.
@@ -145,6 +150,14 @@ export interface LandingRecommendation {
   overridden: boolean;
 }
 
+export interface ThemeRecommendation {
+  primary: UiThemeId;
+  /** Other recommended themes the user can switch to. */
+  alternatives: UiThemeId[];
+  reason: string;
+  overridden: boolean;
+}
+
 export interface Recommendation {
   projectLabel: string;
   slug: string;
@@ -160,6 +173,7 @@ export interface Recommendation {
   deployment: Reasoned<string> & { steps: string[] };
   versioning: Reasoned<boolean> | null;
   landing: LandingRecommendation | null;
+  theme: ThemeRecommendation | null;
   futureIntegrations: string[];
 }
 
@@ -177,4 +191,5 @@ export interface ProjectPreview {
   build: "saqina" | "external" | null;
   stack: string[];
   landing: LandingRecommendation | null;
+  theme: ThemeRecommendation | null;
 }

@@ -16,6 +16,7 @@ tick the checklist below before you open a pull request.
 | Privacy, retention, AI disclosure, licences | [compliance.md](compliance.md) |
 | White label: branding the client portal | [white-label.md](white-label.md) |
 | Ownership, risk lanes, review, AI attribution | [governance.md](governance.md) |
+| AI agents: PRD and plan workflow (Superpowers, Ruflo, antislop), install check | [ai-agents.md](ai-agents.md) |
 | README, ADRs, runbook, API docs | [documentation.md](documentation.md) |
 
 ## Status of each rule

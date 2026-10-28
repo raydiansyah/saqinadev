@@ -1,5 +1,6 @@
 import * as z from "zod/mini";
 import { LANDING_CONCEPTS } from "@/content/landing-concepts";
+import { UI_THEMES } from "@/content/ui-themes";
 import {
   AGENTS,
   AUDIENCES,
@@ -17,7 +18,7 @@ import type { InterviewState } from "./state";
 import { STEPS, STRUCTURES } from "./types";
 
 // v2: `structure` is stored as an id instead of a display string.
-export const STORAGE_KEY = "saqina.interview.v2";
+export const STORAGE_KEY = "saqina.interview.v3";
 
 // zod/mini keeps this validator small: the /start bundle is prefetched from the landing page.
 const text = (max: number) => z.string().check(z.maxLength(max));
@@ -54,6 +55,7 @@ const answersSchema = z.object({
       supporting: list(z.enum(LANDING_CONCEPTS), 2),
     }),
   ),
+  theme: z.optional(z.enum(UI_THEMES)),
   structure: z.optional(z.enum(STRUCTURES)),
   dismissedInsights: list(text(64), 32),
 });

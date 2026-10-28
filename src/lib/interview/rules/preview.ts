@@ -36,6 +36,7 @@ export function previewProject(answers: Answers, copy: EngineCopy = defaultCopy)
     build: answers.developmentMode && rec ? rec.development.value : null,
     stack: answers.techPreference && rec ? rec.stack.value.map((s) => s.value) : [],
     landing: rec?.landing ?? null,
+    theme: rec?.theme ?? null,
   };
 }
 

@@ -9,6 +9,7 @@ import { MockAiProvider } from "@/lib/ai/mock";
 import type { AiProvider } from "@/lib/ai/provider";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess, type ProjectAccess } from "@/lib/auth/permissions";
+import { recordChangesTx } from "@/lib/conversations/changes";
 import {
   findOrCreateConversation,
   lastPending,
@@ -382,6 +383,12 @@ async function applyOutcome(
     if (mode === "auto") {
       const executed = await executeActionsTx(tx, writer, outcome.actions, trace, batch, {
         assign: assignAgentTx,
+      });
+      await recordChangesTx(tx, {
+        projectId: access.project.id,
+        conversationId: env.conversationId,
+        messageId: env.messageId,
+        steps: executed.steps,
       });
       return { kind: "executed" as const, executed };
     }

@@ -1,10 +1,23 @@
 import "server-only";
-import { and, asc, count, desc, eq, gt, inArray, isNull, lt, ne, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gt,
+  inArray,
+  isNotNull,
+  isNull,
+  lt,
+  ne,
+  sql,
+} from "drizzle-orm";
 import { listRuns, type RunView } from "@/lib/agents/runs";
 import { type AssistantMetadata, assistantMetadata, type Block } from "@/lib/assistant/blocks";
 import type { ProjectAccess } from "@/lib/auth/permissions";
 import { db, type Executor } from "@/lib/db/client";
-import { conversations, messages } from "@/lib/db/schema";
+import { agents, conversationAgentReads, conversations, messages } from "@/lib/db/schema";
 import type { ConversationContext, MessageRole, MessageStatus } from "@/lib/domain/enums";
 import { AppError } from "@/lib/errors";
 import { listProposals, type ProposalView } from "@/lib/proposals/repository";
@@ -19,7 +32,30 @@ export interface MessageView {
   blocks: Block[];
   /** Which model answered (assistant messages). */
   model: AssistantMetadata["model"] | null;
+  /** Set when the message is pinned as a chapter. */
+  chapterTitle: string | null;
   createdAt: Date;
+}
+
+export interface Chapter {
+  messageId: string;
+  title: string;
+  createdAt: Date;
+}
+
+/** The newest message a connected agent has read, so each message can show who has seen it. */
+export interface AgentRead {
+  agentId: string;
+  name: string;
+  lastMessageAt: Date;
+}
+
+export interface ConversationInfo {
+  id: string;
+  title: string;
+  /** The owner lets connected agents read this thread. */
+  agentAccess: boolean;
+  parent: { id: string; title: string } | null;
 }
 
 export interface ConversationListItem {
@@ -29,6 +65,8 @@ export interface ConversationListItem {
   contextId: string | null;
   updatedAt: Date;
   lastMessage: string | null;
+  /** Set on a fork. */
+  parentConversationId: string | null;
 }
 
 export const MESSAGE_PAGE = 30;
@@ -111,9 +149,12 @@ export async function listConversations(
       contextType: conversations.contextType,
       contextId: conversations.contextId,
       updatedAt: conversations.updatedAt,
+      parentConversationId: conversations.parentConversationId,
+      // `${conversations}.id` keeps the qualifier: a bare column here would resolve to `m.id`.
       lastMessage: sql<string | null>`(
         select m.content from ${messages} m
-        where m.conversation_id = ${conversations.id} and m.content <> ''
+        where m.conversation_id = ${conversations}.id and m.content <> ''
+          and m.rewound_at is null
         order by m.created_at desc limit 1)`,
     })
     .from(conversations)
@@ -137,6 +178,7 @@ function toMessageView(row: typeof messages.$inferSelect): MessageView {
     status: row.status,
     blocks: meta.success ? meta.data.blocks : [],
     model: meta.success ? (meta.data.model ?? null) : null,
+    chapterTitle: row.pinnedAt ? (row.chapterTitle ?? "") : null,
     createdAt: row.createdAt,
   };
 }
@@ -154,21 +196,86 @@ export async function loadMessages(
   hasMore: boolean;
   proposals: ProposalView[];
   runs: RunView[];
+  chapters: Chapter[];
+  agentReads: AgentRead[];
+  conversation: ConversationInfo;
 }> {
-  await getOwnConversation(db, access, conversationId);
+  const conversation = await getOwnConversation(db, access, conversationId);
   const rows = await db
     .select()
     .from(messages)
     .where(
       and(
         eq(messages.conversationId, conversationId),
+        isNull(messages.rewoundAt),
         before ? lt(messages.createdAt, before.createdAt) : undefined,
       ),
     )
     .orderBy(desc(messages.createdAt), desc(messages.id))
     .limit(MESSAGE_PAGE + 1);
   const page = rows.slice(0, MESSAGE_PAGE).reverse().map(toMessageView);
-  return { messages: page, hasMore: rows.length > MESSAGE_PAGE, ...(await hydrate(access, page)) };
+  return {
+    messages: page,
+    hasMore: rows.length > MESSAGE_PAGE,
+    ...(await hydrate(access, page)),
+    chapters: await listChapters(conversationId),
+    agentReads: await listAgentReads(conversationId),
+    conversation: await conversationInfo(access, conversation),
+  };
+}
+
+/** Pinned messages in the order they were said, whether or not they are on the loaded page. */
+export async function listChapters(conversationId: string): Promise<Chapter[]> {
+  const rows = await db
+    .select({ id: messages.id, title: messages.chapterTitle, createdAt: messages.createdAt })
+    .from(messages)
+    .where(
+      and(
+        eq(messages.conversationId, conversationId),
+        isNull(messages.rewoundAt),
+        isNotNull(messages.pinnedAt),
+      ),
+    )
+    .orderBy(asc(messages.createdAt), asc(messages.id));
+  return rows.map((r) => ({ messageId: r.id, title: r.title ?? "", createdAt: r.createdAt }));
+}
+
+export async function listAgentReads(conversationId: string): Promise<AgentRead[]> {
+  return db
+    .select({
+      agentId: conversationAgentReads.agentId,
+      name: agents.name,
+      lastMessageAt: conversationAgentReads.lastMessageAt,
+    })
+    .from(conversationAgentReads)
+    .innerJoin(agents, eq(agents.id, conversationAgentReads.agentId))
+    .where(eq(conversationAgentReads.conversationId, conversationId));
+}
+
+async function conversationInfo(
+  access: ProjectAccess,
+  conversation: ConversationRow,
+): Promise<ConversationInfo> {
+  let parent: ConversationInfo["parent"] = null;
+  if (conversation.parentConversationId) {
+    const [row] = await db
+      .select({ id: conversations.id, title: conversations.title })
+      .from(conversations)
+      .where(
+        and(
+          eq(conversations.id, conversation.parentConversationId),
+          eq(conversations.projectId, access.project.id),
+          eq(conversations.userId, access.actor.id),
+        ),
+      );
+    parent = row ?? null;
+  }
+  return {
+    id: conversation.id,
+    title: conversation.title,
+    agentAccess: conversation.agentAccess,
+    parent,
+  };
 }
 
 /** Loads the proposals and runs referenced by blocks, scoped to the project. */
@@ -205,6 +312,7 @@ export async function lastPending(
       and(
         eq(messages.conversationId, conversationId),
         eq(messages.status, "completed"),
+        isNull(messages.rewoundAt),
         ne(messages.id, beforeId),
       ),
     )
@@ -223,6 +331,7 @@ export async function recentHistory(conversationId: string, limit = 6) {
       and(
         eq(messages.conversationId, conversationId),
         eq(messages.status, "completed"),
+        isNull(messages.rewoundAt),
         inArray(messages.role, ["user", "assistant"]),
       ),
     )
@@ -247,6 +356,7 @@ export async function refreshSummary(conversation: ConversationRow): Promise<str
     .where(
       and(
         eq(messages.conversationId, conversation.id),
+        isNull(messages.rewoundAt),
         conversation.summaryUpdatedAt
           ? gt(messages.createdAt, conversation.summaryUpdatedAt)
           : undefined,
@@ -256,7 +366,13 @@ export async function refreshSummary(conversation: ConversationRow): Promise<str
   const requests = await db
     .select({ content: messages.content })
     .from(messages)
-    .where(and(eq(messages.conversationId, conversation.id), eq(messages.role, "user")))
+    .where(
+      and(
+        eq(messages.conversationId, conversation.id),
+        eq(messages.role, "user"),
+        isNull(messages.rewoundAt),
+      ),
+    )
     .orderBy(asc(messages.createdAt));
   const summary = requests
     .slice(-15)

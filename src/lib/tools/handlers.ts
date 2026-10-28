@@ -3,6 +3,7 @@ import { and, asc, count, eq, or, sql } from "drizzle-orm";
 import type { ProjectAccess } from "@/lib/auth/permissions";
 import { getChangesSince } from "@/lib/brain/brain";
 import { listPrdFindings } from "@/lib/brain/prd-findings";
+import { listSharedConversations, readConversationForAgent } from "@/lib/conversations/agent-read";
 import { db } from "@/lib/db/client";
 import type { SymbolKind } from "@/lib/db/schema";
 import { documents, mcpConnections, memories, memoryAssets } from "@/lib/db/schema";
@@ -176,6 +177,15 @@ async function internal(tool: ToolRow, input: Input, { access, actor, batch }: H
         ? { version: prd.version, content: prd.content.slice(0, 20_000) }
         : { content: null };
     }
+    case "list_conversations":
+      return { conversations: await listSharedConversations(access.project.id) };
+    case "read_conversation":
+      return readConversationForAgent({
+        projectId: access.project.id,
+        agentId: actor.kind === "agent" ? actor.agentId : null,
+        conversationId: str(input.conversationId) ?? "",
+        limit: typeof input.limit === "number" ? input.limit : undefined,
+      });
     case "list_documents": {
       const rows = await db
         .select({

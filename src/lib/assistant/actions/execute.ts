@@ -24,6 +24,15 @@ import { createTaskTx, deleteTaskTx, updateTaskTx } from "@/lib/tasks/service";
 import type { ExecutedItem } from "../blocks";
 import { toolForAction } from "./tools";
 import { type PlannedAction, plannedActions } from "./types";
+import {
+  irreversibleStep,
+  isIrreversible,
+  readRequirementFields,
+  readTaskFields,
+  requirementSnapshot,
+  taskSnapshot,
+  type UndoStep,
+} from "./undo";
 
 export interface AssignRequest {
   taskId: string;
@@ -39,6 +48,8 @@ export interface ExecutionResult {
   toolCalls: { tool: string; input: Record<string, unknown>; idempotencyKey: string }[];
   /** Approved client reminders; they reach people, so they are sent after commit. */
   reminders: { entityType: "invoice" | "client_approval" | "change_request"; entityId: string }[];
+  /** What it takes to reverse each change, newest last. See `undo.ts`. */
+  steps: UndoStep[];
   /** Approved handoffs; packages are built and sent after commit. */
   handoffs: {
     key: string;
@@ -81,9 +92,17 @@ export async function executeActionsTx(
     toolCalls: [],
     handoffs: [],
     reminders: [],
+    steps: [],
+  };
+  const labelOf = (action: PlannedAction) => {
+    const payload = action.payload as Record<string, unknown>;
+    const text = payload.title ?? payload.kind ?? payload.tool ?? action.type;
+    return String(text);
   };
 
   for (const action of actions) {
+    if (isIrreversible(action.type) && !(action.type === "ASSIGN_AGENT" && action.skip))
+      result.steps.push(irreversibleStep(action.type, labelOf(action)));
     if (action.type === "CREATE_HANDOFF") {
       result.handoffs.push({ key: action.key, ...action.payload });
       continue;
@@ -112,6 +131,7 @@ export async function executeActionsTx(
       case "CREATE_TASK": {
         const row = await createTaskTx(tx, access, action.payload, trace);
         created[action.key] = row.id;
+        result.steps.push({ op: "task.created", id: row.id, after: taskSnapshot(row) });
         result.items.push({
           kind: "task",
           title: row.title,
@@ -121,7 +141,15 @@ export async function executeActionsTx(
         break;
       }
       case "UPDATE_TASK": {
+        const before = await readTaskFields(tx, access.project.id, action.payload.id);
         const row = await updateTaskTx(tx, access, action.payload, trace);
+        if (before)
+          result.steps.push({
+            op: "task.updated",
+            id: row.id,
+            before,
+            after: taskSnapshot(row),
+          });
         result.items.push({
           kind: "task",
           title: row.title,
@@ -142,6 +170,11 @@ export async function executeActionsTx(
       }
       case "CREATE_REQUIREMENT": {
         const row = await createRequirementTx(tx, access, action.payload, trace);
+        result.steps.push({
+          op: "requirement.created",
+          id: row.id,
+          after: requirementSnapshot(row),
+        });
         result.items.push({
           kind: "requirement",
           title: row.title,
@@ -151,7 +184,15 @@ export async function executeActionsTx(
         break;
       }
       case "UPDATE_REQUIREMENT": {
+        const before = await readRequirementFields(tx, access.project.id, action.payload.id);
         const row = await updateRequirementTx(tx, access, action.payload, trace);
+        if (before)
+          result.steps.push({
+            op: "requirement.updated",
+            id: row.id,
+            before,
+            after: requirementSnapshot(row),
+          });
         result.items.push({
           kind: "requirement",
           title: row.title,
@@ -161,7 +202,19 @@ export async function executeActionsTx(
         break;
       }
       case "APPEND_PRD": {
-        await appendDocumentSectionTx(tx, access, { docSlug: "prd", ...action.payload }, trace);
+        const appended = await appendDocumentSectionTx(
+          tx,
+          access,
+          { docSlug: "prd", ...action.payload },
+          trace,
+        );
+        result.steps.push({
+          op: "document.edited",
+          slug: "prd",
+          title: "PRD.md",
+          fromVersion: appended.version - 1,
+          toVersion: appended.version,
+        });
         result.items.push({
           kind: "document",
           title: "PRD.md",
@@ -192,13 +245,21 @@ export async function executeActionsTx(
         // Agents never touch business documents: they carry client terms and prices.
         if (!target || !isSyncType(target.type))
           throw new AppError("AUTHORIZATION_ERROR", "Document is not available to agents");
-        await saveDocumentTx(tx, access, {
+        const saved = await saveDocumentTx(tx, access, {
           docSlug: action.payload.docSlug,
           content: action.payload.content,
           baseVersion: action.payload.baseVersion,
           source: "mcp",
           trace,
         });
+        if (saved.changed)
+          result.steps.push({
+            op: "document.edited",
+            slug: action.payload.docSlug,
+            title: action.before.title,
+            fromVersion: action.payload.baseVersion,
+            toVersion: saved.version,
+          });
         result.items.push({
           kind: "document",
           title: action.before.title,
