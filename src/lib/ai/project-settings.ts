@@ -1,7 +1,7 @@
 import "server-only";
 import { and, eq, inArray } from "drizzle-orm";
 import * as z from "zod";
-import { listAgentRegistry } from "@/lib/agents/registry";
+import { ensureTeamAgents, listAgentRegistry } from "@/lib/agents/registry";
 import { recordAudit } from "@/lib/audit/service";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess, type ProjectAccess } from "@/lib/auth/permissions";
@@ -168,6 +168,8 @@ export async function setAgentModel(actor: Actor, slug: string, raw: unknown) {
   )
     throw new AppError("AUTHORIZATION_ERROR", "Policy");
 
+  // The role team is created on first use; a pin covers it too.
+  await ensureTeamAgents(db, access.project.id);
   await db.transaction(async (tx) => {
     const rows = await tx
       .select({ id: agents.id, role: agents.role, configuration: agents.configuration })

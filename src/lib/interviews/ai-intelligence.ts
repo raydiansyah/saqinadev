@@ -4,6 +4,7 @@ import { after } from "next/server";
 import * as z from "zod";
 import { recordActivity } from "@/lib/activity/service";
 import { agentCan } from "@/lib/agents/capabilities";
+import { ensureTeamAgents } from "@/lib/agents/registry";
 import { runAi } from "@/lib/ai/gateway";
 import type { AiProvider, PromptSegment } from "@/lib/ai/provider";
 import type { PlannedAction } from "@/lib/assistant/actions/types";
@@ -92,6 +93,8 @@ export async function refineAfterInterview(
   if (!interview || interview.status !== "completed") return { renamed: false, proposals: 0 };
   const data = await readInterviewData(db, interview.id);
 
+  // Team agents are created on first use; the planner must exist to author the proposal.
+  await ensureTeamAgents(db, projectId);
   const [docs, planners] = await Promise.all([
     db
       .select()

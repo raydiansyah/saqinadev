@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import * as z from "zod";
 import type { Locale } from "@/i18n/locales";
 import { isLocale } from "@/i18n/locales";
@@ -183,12 +183,25 @@ export async function savePrdBrief(actor: Actor, slug: string, raw: unknown) {
   return db.transaction(async (tx) => {
     const access = await loadProjectAccess(actor, { slug }, "content:write", tx);
     if (baseVersion === null) return insertPrdTx(tx, access, content, "generated");
-    const { version } = await saveDocumentTx(tx, access, {
+    const { version, changed } = await saveDocumentTx(tx, access, {
       docSlug: "prd",
       content,
       baseVersion,
       source: "user",
     });
+    // A regenerated PRD is a new document in all but name: it is approved again before work
+    // follows it (signatures were already cleared with the new version).
+    if (changed)
+      await tx
+        .update(documents)
+        .set({ status: "draft" })
+        .where(
+          and(
+            eq(documents.projectId, access.project.id),
+            eq(documents.slug, "prd"),
+            inArray(documents.status, ["approved", "review"]),
+          ),
+        );
     return { version };
   });
 }
