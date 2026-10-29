@@ -148,7 +148,7 @@ describe("importing the chosen models", () => {
 });
 
 describe("why no model answered", () => {
-  const useModel = async (capabilities: string[]) => {
+  const setUpModel = async (capabilities: string[]) => {
     const { id } = await createModel(owner, {
       providerId,
       modelId: "gpt-4o",
@@ -166,7 +166,7 @@ describe("why no model answered", () => {
     });
 
   it("names the model that lacks structured output, instead of 'no model is set up'", async () => {
-    await useModel(["text"]);
+    await setUpModel(["text"]);
     const outcome = await ask();
     expect(outcome.deterministic).toBe(true);
     expect(explainNoModel(outcome.diagnostics)).toEqual({
@@ -177,7 +177,7 @@ describe("why no model answered", () => {
   });
 
   it("names a model that was called and failed, with a safe code", async () => {
-    await useModel(["text", "structured_output"]);
+    await setUpModel(["text", "structured_output"]);
     vi.stubGlobal("fetch", async () => new Response("{}", { status: 401 }));
     const outcome = await runAi({
       operation: "structured_analysis",
