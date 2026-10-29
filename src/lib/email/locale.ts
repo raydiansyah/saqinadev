@@ -32,7 +32,8 @@ export function detectLocale(sources: Sources): Locale | undefined {
   let fromUrl: string | null = null;
   if (sources.url) {
     try {
-      fromUrl = new URL(sources.url).searchParams.get("callbackURL");
+      // Without a configured base URL the action link is relative ("/api/auth/verify-email?...").
+      fromUrl = new URL(sources.url, "http://localhost").searchParams.get("callbackURL");
     } catch {
       fromUrl = null;
     }
