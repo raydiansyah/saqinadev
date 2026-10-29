@@ -112,15 +112,13 @@ async function scheduleRuns(access: ProjectAccess, runIds: string[]): Promise<vo
   const work = async () => {
     for (let i = 0; i < runIds.length; i += KICKOFF_PARALLEL) {
       await Promise.all(
-        runIds
-          .slice(i, i + KICKOFF_PARALLEL)
-          .map((id) =>
-            startRun(access, id).catch((error) =>
-              log.warn("studio.run_failed", {
-                error: error instanceof Error ? error.name : "error",
-              }),
-            ),
+        runIds.slice(i, i + KICKOFF_PARALLEL).map((id) =>
+          startRun(access, id).catch((error) =>
+            log.warn("studio.run_failed", {
+              error: error instanceof Error ? error.name : "error",
+            }),
           ),
+        ),
       );
     }
   };

@@ -139,7 +139,8 @@ export function PrdGenerator({ slug, view }: { slug: string; view: PrdBriefView 
           {brief.sections.map((s, i) => {
             const st = status[i] ?? { kind: "idle" };
             return (
-              <div key={`${s.heading}-${i}`} aria-busy={st.kind === "busy"}>
+              // biome-ignore lint/suspicious/noArrayIndexKey: sections are never added, removed or reordered here, and headings may repeat
+              <div key={i} aria-busy={st.kind === "busy"}>
                 <TextArea
                   id={`${id}-s${i}`}
                   label={`${i + 1}. ${s.heading}`}

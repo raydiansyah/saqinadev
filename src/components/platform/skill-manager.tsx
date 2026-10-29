@@ -61,7 +61,7 @@ export function SkillManager({ skills }: { skills: PlatformSkillView[] }) {
                 <div className="min-w-0">
                   <p className="font-medium break-words">{s.name}</p>
                   <p className="mt-0.5 text-sm text-muted-foreground">{s.description}</p>
-                  <p className="mt-1 font-mono text-xs text-subtle-foreground">
+                  <p className="mt-1 font-mono text-xs break-all text-subtle-foreground">
                     {t(`sources.${s.source}`)}
                     {s.sourceUrl ? ` · ${s.sourceUrl}` : ""}
                   </p>

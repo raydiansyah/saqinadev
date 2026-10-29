@@ -2,7 +2,7 @@
 title: Import a project from GitHub
 description: From an existing repository to a Saqina workspace: documents, PRD, the build/review/deploy stages, and what clients see.
 order: 1
-updated: 2026-10-23
+updated: 2026-10-29
 ---
 
 Use the import when your system **already has a GitHub repository**, whether it is live, in review, or still being built. Saqina reads the README and the documentation folder and sets up the workspace, so you do not fill in the interview from scratch. GitHub stays the source of the documents: Saqina only reads, and never writes to your repository.
@@ -66,7 +66,7 @@ Until you answer, the project overview shows the next step **Say how far the sys
 
 ![The project overview with the Say how far the system is button and the stages not yet active](/api/docs/assets/owner/import-06-overview-awaiting.png)
 
-The answers settle each other. Answering **Yes** to deploy means review and build are **Yes** too. Answering **Not yet** to build clears the review and deploy answers that were given.
+Each question is answered on its own: changing one answer never changes another. If the answers disagree, for example review **Yes** while build is **Not yet**, the page shows a warning and the project's next step asks you to correct them.
 
 If the project already has tasks, Saqina offers to bring them in line with your answer:
 
