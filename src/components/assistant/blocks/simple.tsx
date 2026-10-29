@@ -138,3 +138,36 @@ export function ErrorBlock({ code, reference }: { code: string; reference?: stri
     </p>
   );
 }
+
+/** A connector tool the chat ran. The result is shown as plain text, never as HTML. */
+export function ToolResultBlock({ block }: { block: Extract<Block, { type: "tool_result" }> }) {
+  const t = useTranslations("assistant.toolResult");
+  return (
+    <section className="rounded-md border border-border bg-surface p-3 text-sm">
+      <p className="flex flex-wrap items-center gap-2">
+        <span className="font-medium">{block.connector}</span>
+        <span className="font-mono text-xs text-muted-foreground">{block.tool}</span>
+        <span
+          className={cn(
+            CHIP,
+            block.status === "succeeded"
+              ? "border-success/40 text-success"
+              : "border-error/50 text-error",
+          )}
+        >
+          {t(block.status)}
+        </span>
+      </p>
+      {block.excerpt ? (
+        <details className="mt-2">
+          <summary className="min-h-11 cursor-pointer py-2 text-xs text-muted-foreground sm:min-h-0 sm:py-0">
+            {t("show")}
+          </summary>
+          <pre className="mt-2 max-h-64 overflow-auto rounded border border-border bg-surface-raised p-2 font-mono text-xs whitespace-pre-wrap">
+            {block.excerpt}
+          </pre>
+        </details>
+      ) : null}
+    </section>
+  );
+}

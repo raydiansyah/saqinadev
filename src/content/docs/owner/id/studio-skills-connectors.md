@@ -1,0 +1,111 @@
+---
+title: Studio, skill dan konektor
+description: Mulai mengerjakan dari PRD yang disetujui, bekerja di Studio, generate PRD dengan Enhance, dan siapkan skill, konektor dan model agen.
+order: 5
+updated: 2026-10-29
+---
+
+Panduan ini membahas jalan dari PRD yang sudah disepakati sampai pekerjaan berjalan, serta pengaturan platform yang dipakai asisten dan agen di semua project.
+
+## Generate PRD
+
+Di halaman **PRD**, tekan **Generate PRD**. Form-nya punya satu isian per bagian, diisi dari PRD saat ini atau, kalau belum ada, dari interview project.
+
+- **Enhance** membuat satu bagian lebih spesifik. Kalau model AI sudah disiapkan, model menulis ulang bagian itu mengikuti skill Superpowers *brainstorming*; kalau belum, Saqina merapikan teksnya dengan aturan dan tidak menambah isi baru.
+- **Enhance semua bagian** memproses semuanya satu per satu.
+- **Simpan sebagai PRD** menulis versi baru. Tanda tangan dihapus dan PRD kembali ke draft, jadi disetujui lagi sebelum agen bekerja berdasarkan PRD itu.
+
+Setelah interview, kalau model sudah disiapkan, Saqina juga menyempurnakan PRD dan plan yang dibuat dengan skill Superpowers dan memberi nama project dari plan-nya. Dokumen yang disempurnakan menunggu di **Persetujuan**; tidak ada yang berubah sampai Anda setujui. Nama yang Anda ketik sendiri tidak pernah diganti.
+
+![Form Generate PRD dengan satu isian per bagian dan tombol Enhance di bawahnya](/api/docs/assets/owner/studio-01-generate-prd.png)
+
+## Kerjakan sekarang
+
+Begitu PRD atau plan **disetujui**, atau perjanjian sudah ditandatangani kedua pihak, dokumen menampilkan **Kerjakan sekarang**.
+
+- Kalau project dibangun di Saqina, setiap task yang masih terbuka diberikan ke agen tim yang perannya paling cocok, lalu agen mulai bekerja. Setiap hasil menjadi proposal di **Persetujuan**.
+- Kalau project dibangun di luar Saqina, tombol ini hanya membuka Studio.
+
+Menekan tombol lagi tidak memberikan satu task ke dua agen.
+
+## Studio
+
+Studio menempatkan chat di samping area kerja.
+
+- **Plan** menampilkan milestone dan task. Saat Anda meminta plan lewat chat, area kerja pindah ke tab ini.
+- **Agen** menampilkan agen yang sedang bekerja dan tautan ke setiap run.
+- **Kode** menampilkan repository (hanya baca), **Git** pull request dan check-nya, **Preview** situs yang sudah tayang, dan **Publish** menayangkannya.
+
+Kalau asisten kurang yakin maksud permintaan yang mengubah data, ia bertanya dulu di chat dan tidak melakukan apa pun sampai Anda menjawab **Ya, lanjutkan**.
+
+![Studio: chat di kiri, area kerja dengan Plan, Agen dan tab yang menyusul di kanan](/api/docs/assets/owner/studio-02-studio.png)
+
+## File dan konteks di chat
+
+Di chat Studio (dan halaman Saqina):
+
+- **Lampirkan** (ikon klip) menambahkan file: gambar, PDF, atau file teks seperti Markdown, CSV atau kode, maksimal 5 MB dan 5 file per pesan. File juga bisa diseret ke chat, atau gambar ditempel langsung. File teks dibaca ke dalam percakapan; gambar dan PDF hanya terbaca bila model AI project bisa melihatnya, dan kalau tidak, balasannya mengatakan begitu.
+- **+ Konteks** memilih skill dan konektor untuk pesan-pesan berikutnya. Skill yang dipilih selalu memandu jawaban. Dengan konektor terpilih, Saqina memakai tool-nya untuk menjawab dan menampilkan hasil dari tool itu. Tool yang bisa mengubah sesuatu di luar Saqina menunggu persetujuan Anda lebih dulu.
+- **Kelola konektor** di menu yang sama membuka pengaturan konektor, untuk owner platform dan admin project.
+
+![Menu + Konteks dengan skill, konektor dan Kelola konektor](/api/docs/assets/owner/studio-05-chat-context.png)
+
+File disimpan di penyimpanan privat dan hanya bisa dibuka anggota project.
+
+## Skill dan konektor (owner platform)
+
+Di **AI & Model**:
+
+- **Skill**: metode kerja berformat SKILL.md yang dipakai di semua project. Superpowers sudah terpasang bawaan. Pasang yang lain dengan menempel SKILL.md atau menautkan ke GitHub, lalu pilih untuk apa skill itu dipakai. Saqina hanya membaca teks skill; tidak ada yang dijalankan dari skill.
+- **Konektor**: server MCP yang dihubungkan sekali untuk semua project. Firecrawl, Exa dan Context7 cukup satu klik ditambah API key; server lain bisa ditambahkan sebagai MCP kustom. Tool yang menyatakan tidak mengubah apa pun langsung menyala; sisanya menunggu keputusan Anda. Key disimpan terenkripsi dan tidak pernah ditampilkan lagi.
+
+![Skill di AI & Model, dengan Superpowers terpasang bawaan](/api/docs/assets/owner/studio-03-skills.png)
+
+![Konektor di AI & Model: Firecrawl, Exa, Context7 dan server MCP kustom](/api/docs/assets/owner/studio-04-connectors.png)
+
+## Database dan layanan masuk untuk aplikasi Anda
+
+Di Studio, tab **Publish**, tambahkan database atau layanan masuk yang dipakai aplikasi: Neon, Supabase, Clerk, Postgres, atau variabel Anda sendiri. Semuanya selalu akun milik Anda: Saqina tidak menyediakan database, hanya menyimpan kunci Anda terenkripsi untuk project ini dan mengirimkannya ke deployment.
+
+Setiap variabel punya dua nilai, **Live** dan **Preview**. Preview butuh database sendiri (branch Neon, project Supabase kedua) dan kunci uji Clerk, agar preview tidak pernah menyentuh data asli. Selama belum begitu, Publish dan Preview menjelaskan apa yang kurang dan menunggu. Kunci tidak pernah ditampilkan lagi; kosongkan kolom untuk tetap memakai yang lama.
+
+![Database dan layanan masuk di tab Publish, dengan preview yang belum siap](/api/docs/assets/owner/studio-09-services.png)
+
+## Cara semuanya tetap sinkron
+
+Saqina adalah pusatnya. Entah pekerjaan dilakukan di Studio atau di IDE Anda sendiri, hasilnya masuk ke repository Git yang sama, dan apa yang terjadi di sana kembali ke Saqina.
+
+```mermaid
+flowchart LR
+  S[Saqina Dev] --> G[Repository Git]
+  G --> CI[CI/CD]
+  CI --> V[Vercel]
+  V --> P[project.saqina.dev]
+  P -- status --> S
+  CI -- check --> S
+  G -- pull request --> S
+  ST[Studio: build di Saqina] <--> S
+  IDE[Agen IDE lokal, model Anda sendiri] <-- MCP --> S
+  ST --> G
+  IDE --> G
+```
+
+**Git.** Menghubungkan repository GitHub memasang webhook secara otomatis. Kalau token Anda tidak punya hak admin di repository, **Studio > Git** menampilkan URL dan secret untuk ditambahkan sendiri di GitHub. Sesudah itu branch, pull request, check dan deployment muncul di tab **Git**.
+
+**Referensi task.** Setiap task punya referensi pendek seperti `T-1a2b3c4d`. Tulis di nama branch (`saqina/T-1a2b3c4d-checkout`) atau tulis `Saqina-Task: T-1a2b3c4d` di pull request. Saqina menautkan branch dan pull request ke task. Pull request yang dibuka memindahkan task ke review; saat Anda menggabungkannya di GitHub, task selesai. Pull request yang ditutup tanpa digabung tidak mengubah apa pun.
+
+![Tab Git: pull request yang tertaut ke task, dan check-nya](/api/docs/assets/owner/studio-06-git.png)
+
+**Jawaban delivery.** Di **Progress**, check hijau di branch utama, pull request yang sudah digabung dan deployment production yang berhasil muncul sebagai saran dengan tombol **Konfirmasi: Ya**. Anda tetap yang menjawab; tidak ada yang diisi otomatis.
+
+**Publish.** Di **Studio > Publish**, **Publish** membuat project Vercel dari repository Anda dan menempatkannya di `<project>.saqina.dev`. Secara default ini memakai Vercel Saqina. Anda juga bisa memilih **Vercel saya sendiri** dan menempel token Vercel Anda (serta tim dan domain Anda sendiri). Token disimpan terenkripsi, hanya untuk project ini. Aplikasi GitHub milik Vercel harus bisa melihat repository. **Preview** menampilkan situs yang sudah tayang.
+
+![Publish: alamat, daftar deployment dan pilihan akun Vercel](/api/docs/assets/owner/studio-07-publish.png)
+
+**IDE Anda sendiri.** Di **Pengaturan > Akses agen**, buat token, pilih izinnya (tambahkan *Mengambil task dan melaporkan hasilnya* dan *Memakai tool konektor project* untuk sinkron penuh), salin snippet untuk Claude Code, Cursor, Codex atau Kiro, dan unduh **AGENTS.md** ke repository Anda. Agen kemudian melihat daftar task, mengambil satu, bekerja di branch dengan referensi task, membuka pull request dan melapor `review` atau `blocked`. Agen memakai model Anda sendiri, dan mendapat skill dan konektor yang sama dengan agen Saqina. Hanya Anda yang menandai task selesai, dengan menggabungkan.
+
+![Hubungkan agen IDE: snippet dan unduhan AGENTS.md](/api/docs/assets/owner/studio-08-mcp.png)
+
+## Model agen
+
+Di halaman **Agent**, **Atur** memungkinkan Anda memilih model dari yang sudah disiapkan di AI & Model, atau **Otomatis**, yang mengikuti default project dan platform. Tidak ada isian untuk mengetik nama model.

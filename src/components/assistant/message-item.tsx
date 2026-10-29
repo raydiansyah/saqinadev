@@ -7,7 +7,14 @@ import { LocalTime } from "@/components/primitives/local-time";
 import { cn } from "@/lib/utils";
 import { ProposalCard } from "./blocks/proposal-card";
 import { RunCard } from "./blocks/run-card";
-import { ActionBlock, AnalysisBlock, ErrorBlock, QuestionBlock } from "./blocks/simple";
+import {
+  ActionBlock,
+  AnalysisBlock,
+  ErrorBlock,
+  QuestionBlock,
+  ToolResultBlock,
+} from "./blocks/simple";
+import { MessageAttachments } from "./composer-extras";
 import type { AgentOption, ProposalView, RunView, Stage, UIMessage } from "./types";
 
 /** What a message can do besides being read. Absent while a reply is still being written. */
@@ -227,6 +234,16 @@ export function MessageItem({
           {message.content}
         </p>
       ) : null}
+      {message.attachments?.length ? (
+        <MessageAttachments slug={slug} files={message.attachments} />
+      ) : null}
+      {message.use && message.use.skills.length + message.use.connectors.length > 0 ? (
+        <p className="mt-1 font-mono text-[0.6875rem] text-subtle-foreground">
+          {t("usedContext", {
+            count: message.use.skills.length + message.use.connectors.length,
+          })}
+        </p>
+      ) : null}
       {working ? (
         <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground" role="status">
           <span
@@ -279,6 +296,8 @@ export function MessageItem({
                   </div>
                 );
               }
+              case "tool_result":
+                return <ToolResultBlock key={key} block={block} />;
               case "agent_run": {
                 const view = runs[block.runId];
                 return view ? <RunCard key={key} slug={slug} view={view} /> : null;

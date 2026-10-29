@@ -1,5 +1,7 @@
+import { sql } from "drizzle-orm";
 import {
   boolean,
+  check,
   index,
   integer,
   jsonb,
@@ -20,11 +22,14 @@ import type {
   HandoffFormat,
   HandoffStatus,
   McpAuthType,
+  McpScope,
   McpServerType,
   ModelCapability,
   ModelStatus,
+  PlatformSkillSource,
   ProviderAdapterId,
   ProviderType,
+  SkillUse,
   ToolExecutionStatus,
   ToolRisk,
   ToolSource,
@@ -203,7 +208,15 @@ export const mcpConnections = pgTable(
   "mcp_connections",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    projectId: projectRef(),
+    /** Null for a platform connector, which serves every project. */
+    projectId: optionalProject(),
+    scope: text("scope").$type<McpScope>().notNull().default("project"),
+    /** Catalog preset (firecrawl, exa, context7) or null for a custom server. */
+    preset: text("preset"),
+    /** A platform connector the owner switched off is offered to no project. */
+    enabled: boolean("enabled").notNull().default(true),
+    /** Tools found at the last connect; copied into each project's `tools` (platform scope). */
+    toolCatalog: jsonb("tool_catalog").$type<McpToolCatalogEntry[]>().notNull().default([]),
     name: text("name").notNull(),
     serverType: text("server_type").$type<McpServerType>().notNull(),
     endpoint: text("endpoint").notNull(),
@@ -220,8 +233,26 @@ export const mcpConnections = pgTable(
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
-  (t) => [uniqueIndex("mcp_project_name_idx").on(t.projectId, t.name)],
+  (t) => [
+    uniqueIndex("mcp_project_name_idx").on(t.projectId, t.name),
+    uniqueIndex("mcp_platform_name_idx").on(t.name).where(sql`${t.scope} = 'platform'`),
+    check(
+      "mcp_connections_scope_check",
+      sql`(${t.scope} = 'project') = (${t.projectId} is not null)`,
+    ),
+  ],
 );
+
+/** One tool as a platform connector reported it; the shape fanned out into `tools`. */
+export interface McpToolCatalogEntry {
+  name: string;
+  description: string;
+  inputSchema: Record<string, unknown>;
+  riskLevel: ToolRisk;
+  schemaHash: string;
+  /** Read-only and non-destructive tools start enabled; the rest wait for the owner. */
+  enabled: boolean;
+}
 
 /** Normalised tools from every source. The orchestrator only ever sees this shape. */
 export const tools = pgTable(
@@ -350,3 +381,30 @@ export const platformSettings = pgTable("platform_settings", {
   updatedBy: userRef("updated_by"),
   updatedAt: updatedAt(),
 });
+
+/**
+ * Skills the platform owner installed for every project: SKILL.md text, never scripts. Built-in
+ * skills (Superpowers) keep their text in code; their row only records whether they are on.
+ */
+export const platformSkills = pgTable(
+  "platform_skills",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: text("slug").notNull().unique(),
+    name: text("name").notNull(),
+    description: text("description").notNull().default(""),
+    source: text("source").$type<PlatformSkillSource>().notNull(),
+    sourceUrl: text("source_url"),
+    content: text("content").notNull().default(""),
+    contentHash: text("content_hash").notNull().default(""),
+    uses: jsonb("uses").$type<SkillUse[]>().notNull().default(["agent_run", "assistant"]),
+    enabled: boolean("enabled").notNull().default(true),
+    installedBy: userRef("installed_by"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    index("platform_skills_enabled_idx").on(t.enabled),
+    check("platform_skills_source_check", sql`${t.source} in ('builtin','paste','github')`),
+  ],
+);

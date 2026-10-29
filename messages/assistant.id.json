@@ -499,6 +499,41 @@
       "confirm": "Kembali",
       "fork": "Fork dari sini saja",
       "done": "Sudah kembali ke pesan yang dipilih."
+    },
+    "usedContext": "{count, plural, other {# skill atau konektor ditambahkan}}",
+    "attach": {
+      "button": "Lampirkan file",
+      "uploading": "Mengunggah...",
+      "pending": "Ikut dengan pesan berikutnya",
+      "attached": "File terlampir",
+      "remove": "Hapus {name}",
+      "skill": "Skill",
+      "connector": "Konektor",
+      "errors": {
+        "tooLarge": "Lebih dari 5 MB",
+        "type": "Jenis file tidak didukung",
+        "empty": "File kosong",
+        "storage": "Penyimpanan file belum disiapkan",
+        "failed": "Gagal mengunggah",
+        "required": "Tidak ada file"
+      }
+    },
+    "contextPicker": {
+      "button": "Konteks",
+      "loading": "Memuat...",
+      "failed": "Skill dan konektor gagal dimuat.",
+      "skills": "Skill",
+      "connectors": "Konektor",
+      "noSkills": "Belum ada skill yang aktif.",
+      "noConnectors": "Belum ada konektor yang terhubung.",
+      "tools": "{count, plural, other {# tool}}",
+      "manage": "Kelola konektor",
+      "askOwner": "Minta owner platform atau admin project menambahkan konektor."
+    },
+    "toolResult": {
+      "succeeded": "Selesai",
+      "failed": "Gagal",
+      "show": "Lihat hasil"
     }
   }
 }

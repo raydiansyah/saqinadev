@@ -379,7 +379,15 @@ export type PlatformRole = (typeof PLATFORM_ROLES)[number];
 export const CREDENTIAL_SCOPES = ["platform", "project", "user"] as const;
 export type CredentialScope = (typeof CREDENTIAL_SCOPES)[number];
 
-export const CREDENTIAL_KINDS = ["ai_provider", "git", "git_webhook", "mcp", "agent"] as const;
+export const CREDENTIAL_KINDS = [
+  "ai_provider",
+  "git",
+  "git_webhook",
+  "mcp",
+  "agent",
+  "deploy",
+  "service",
+] as const;
 export type CredentialKind = (typeof CREDENTIAL_KINDS)[number];
 
 export const CONNECTION_STATUSES = [
@@ -467,10 +475,26 @@ export const TOOL_EXECUTION_STATUSES = [
 ] as const;
 export type ToolExecutionStatus = (typeof TOOL_EXECUTION_STATUSES)[number];
 
+/** Where a project's name came from; only an `auto` name is renamed from the plan. */
+export const PROJECT_NAME_SOURCES = ["auto", "user", "repository"] as const;
+export type ProjectNameSource = (typeof PROJECT_NAME_SOURCES)[number];
+
+/** A connection belongs to one project, or to the platform and serves every project. */
+export const MCP_SCOPES = ["project", "platform"] as const;
+export type McpScope = (typeof MCP_SCOPES)[number];
+
+export const PLATFORM_SKILL_SOURCES = ["builtin", "paste", "github"] as const;
+export type PlatformSkillSource = (typeof PLATFORM_SKILL_SOURCES)[number];
+
+/** Where an installed skill is offered to a model. */
+export const SKILL_USES = ["agent_run", "assistant", "prd_generation", "plan_generation"] as const;
+export type SkillUse = (typeof SKILL_USES)[number];
+
 export const MCP_SERVER_TYPES = ["remote", "local_dev", "custom", "managed"] as const;
 export type McpServerType = (typeof MCP_SERVER_TYPES)[number];
 
-export const MCP_AUTH_TYPES = ["none", "bearer", "header"] as const;
+/** `url_key`: the secret is part of the endpoint URL (`{apiKey}`), filled in only at call time. */
+export const MCP_AUTH_TYPES = ["none", "bearer", "header", "url_key"] as const;
 export type McpAuthType = (typeof MCP_AUTH_TYPES)[number];
 
 export const AGENT_STRATEGIES = ["handoff", "manual", "webhook", "api", "cli", "mcp"] as const;
@@ -520,3 +544,36 @@ export const DOC_LINK_STATES = [
   "excluded",
 ] as const;
 export type DocLinkState = (typeof DOC_LINK_STATES)[number];
+
+// ── Sync: Git events, CI, deployments ──────────────────────────────────────────────────
+
+export const TASK_LINK_KINDS = ["branch", "pr", "commit"] as const;
+export type TaskLinkKind = (typeof TASK_LINK_KINDS)[number];
+
+/** Where a linked pull request stands. */
+export const TASK_LINK_STATES = ["open", "merged", "closed"] as const;
+export type TaskLinkState = (typeof TASK_LINK_STATES)[number];
+
+export const CI_STATUSES = ["queued", "in_progress", "completed"] as const;
+export type CiStatus = (typeof CI_STATUSES)[number];
+
+export const DEPLOY_ENVIRONMENTS = ["production", "preview"] as const;
+export type DeployEnvironment = (typeof DEPLOY_ENVIRONMENTS)[number];
+
+export const DEPLOYMENT_STATES = ["pending", "success", "failure", "inactive"] as const;
+export type DeploymentState = (typeof DEPLOYMENT_STATES)[number];
+
+/** Whose Vercel account hosts the project: Saqina's team (default) or the client's own. */
+/** A database or sign-in service the project's own app uses, always the user's own account. */
+export const SERVICE_KINDS = ["database", "auth"] as const;
+export type ServiceKind = (typeof SERVICE_KINDS)[number];
+export const SERVICE_PROVIDERS = ["neon", "supabase", "clerk", "postgres", "custom"] as const;
+export type ServiceProvider = (typeof SERVICE_PROVIDERS)[number];
+export const SERVICE_STATUSES = ["incomplete", "ready"] as const;
+export type ServiceStatus = (typeof SERVICE_STATUSES)[number];
+
+export const DEPLOY_OWNERS = ["saqina", "client"] as const;
+export type DeployOwner = (typeof DEPLOY_OWNERS)[number];
+
+export const DEPLOY_TARGET_STATUSES = ["pending", "ready", "error"] as const;
+export type DeployTargetStatus = (typeof DEPLOY_TARGET_STATUSES)[number];

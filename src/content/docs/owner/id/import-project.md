@@ -2,7 +2,7 @@
 title: Mengimpor project dari GitHub
 description: Dari repository yang sudah ada menjadi workspace Saqina: dokumen, PRD, tahap build/review/deploy, dan tampilan untuk client.
 order: 1
-updated: 2026-10-23
+updated: 2026-10-29
 ---
 
 Gunakan impor kalau sistem Anda **sudah punya repository di GitHub**, mungkin sudah berjalan, sedang di-review, atau masih dibangun. Saqina membaca README dan isi folder dokumentasi, lalu menyiapkan workspace tanpa Anda mengisi interview dari nol. GitHub tetap menjadi sumber dokumen: Saqina hanya membaca dan tidak pernah menulis ke repository Anda.
@@ -66,7 +66,7 @@ Sampai ada jawaban, beranda project menampilkan langkah berikutnya **Jawab sudah
 
 ![Beranda project dengan tombol Jawab sudah sampai mana sistemnya dan tahapan yang belum aktif](/api/docs/assets/owner/import-06-overview-awaiting.png)
 
-Jawaban saling mengikat. Menjawab **Ya** untuk deploy berarti review dan build juga **Ya**. Menjawab **Belum** untuk build menghapus jawaban review dan deploy yang sudah ada.
+Setiap pertanyaan dijawab sendiri-sendiri: mengubah satu jawaban tidak pernah mengubah jawaban lain. Kalau jawabannya bertentangan, misalnya review **Ya** sementara build **Belum**, halaman menampilkan peringatan dan langkah berikutnya project meminta Anda memperbaikinya.
 
 Kalau project sudah punya task, Saqina menawarkan untuk menyesuaikan task dengan jawaban Anda:
 

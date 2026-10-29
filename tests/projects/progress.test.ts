@@ -158,4 +158,13 @@ describe("the next action follows the team's answers", () => {
       "reviewPrd",
     );
   });
+
+  it("answers that disagree ask the team to settle them first", () => {
+    expect(getNextProjectAction(snapshot({ delivery: d(false, true, false) })).kind).toBe(
+      "confirmDelivery",
+    );
+    expect(getNextProjectAction(snapshot({ delivery: d(true, false, true) })).kind).toBe(
+      "confirmDelivery",
+    );
+  });
 });

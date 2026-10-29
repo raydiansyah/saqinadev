@@ -10,11 +10,8 @@ import { deliveryChecks, milestones, tasks, users } from "@/lib/db/schema";
 import { DELIVERY_STEPS, type DeliveryStep } from "@/lib/domain/delivery";
 import { parse } from "@/lib/validation";
 import {
-  type Answers,
   type DeliveryNote,
   deliveryNotes,
-  NO_ANSWERS,
-  settleAnswers,
   type TaskAdjustment,
   type TaskCounts,
 } from "./consistency";
@@ -110,9 +107,10 @@ const answerInput = z.object({
 });
 
 /**
- * Records the team's answer and what it implies (deployed means reviewed and built; not built
- * means not reviewed and not deployed). With `adjustTasks` the plan follows the answers, forward
- * only. Answering again, even with the same answer, confirms it is current.
+ * Records the team's answer to one question. Each question stands on its own: answering one never
+ * changes another, and answers that disagree are flagged as notes, not corrected. With
+ * `adjustTasks` the plan follows this answer, forward only. Answering again, even with the same
+ * answer, confirms it is current.
  */
 export async function answerDeliveryCheck(actor: Actor, slug: string, raw: unknown) {
   const { step, done, adjustTasks } = parse(answerInput, raw);
@@ -120,37 +118,17 @@ export async function answerDeliveryCheck(actor: Actor, slug: string, raw: unkno
     const { project } = await loadProjectAccess(actor, { slug }, "project:update", tx);
     const at = new Date();
 
-    const rows = await tx
-      .select({ step: deliveryChecks.step, done: deliveryChecks.done })
-      .from(deliveryChecks)
-      .where(eq(deliveryChecks.projectId, project.id))
-      .for("update");
-    const before: Answers = { ...NO_ANSWERS };
-    for (const r of rows) before[r.step] = r.done;
-    const after = settleAnswers(before, step, done);
-
-    // The answer itself, and any earlier or later step it settles.
-    const changed = DELIVERY_STEPS.filter((s) => s === step || after[s] !== before[s]);
-    for (const s of changed) {
-      const value = after[s] ?? false;
-      await tx
-        .insert(deliveryChecks)
-        .values({
-          projectId: project.id,
-          step: s,
-          done: value,
-          answeredBy: actor.id,
-          answeredAt: at,
-        })
-        .onConflictDoUpdate({
-          target: [deliveryChecks.projectId, deliveryChecks.step],
-          set: { done: value, answeredBy: actor.id, answeredAt: at },
-        });
-    }
+    await tx
+      .insert(deliveryChecks)
+      .values({ projectId: project.id, step, done, answeredBy: actor.id, answeredAt: at })
+      .onConflictDoUpdate({
+        target: [deliveryChecks.projectId, deliveryChecks.step],
+        set: { done, answeredBy: actor.id, answeredAt: at },
+      });
 
     let moved: TaskAdjustment = { toReview: 0, toDone: 0 };
     if (adjustTasks) {
-      moved = await adjustTasksTo(tx, project.id, after, at);
+      moved = await adjustTasksTo(tx, project.id, step, done, at);
       if (moved.toReview + moved.toDone > 0) {
         // The plan now matches every answer, so none of them is out of date because of this move.
         await tx
@@ -176,7 +154,6 @@ export async function answerDeliveryCheck(actor: Actor, slug: string, raw: unkno
       metadata: {
         step,
         done,
-        implied: changed.filter((s) => s !== step).join(",") || null,
         toReview: moved.toReview,
         toDone: moved.toDone,
       },
@@ -185,14 +162,16 @@ export async function answerDeliveryCheck(actor: Actor, slug: string, raw: unkno
   });
 }
 
-/** Moves tasks forward to match the answers. The same time stamps the tasks and the answers. */
+/** Moves tasks forward to match one answer. The same time stamps the tasks and the answers. */
 async function adjustTasksTo(
   tx: Tx,
   projectId: string,
-  answers: Answers,
+  step: DeliveryStep,
+  done: boolean,
   at: Date,
 ): Promise<TaskAdjustment> {
-  if (answers.review === true) {
+  if (!done) return { toReview: 0, toDone: 0 };
+  if (step === "review") {
     const rows = await tx
       .update(tasks)
       .set({ status: "done", completedAt: at, updatedAt: at })
@@ -200,7 +179,7 @@ async function adjustTasksTo(
       .returning({ id: tasks.id });
     return { toReview: 0, toDone: rows.length };
   }
-  if (answers.build === true) {
+  if (step === "build") {
     const rows = await tx
       .update(tasks)
       .set({ status: "review", updatedAt: at })

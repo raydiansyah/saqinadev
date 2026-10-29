@@ -11,6 +11,7 @@ import { allow } from "@/lib/rate-limit";
 import { executeTool } from "@/lib/tools/executor";
 import { ensureProjectTools } from "@/lib/tools/registry";
 import { PROTOCOL_VERSION } from "./client";
+import { listResources, readResource } from "./resources";
 import { verifyAgentToken } from "./tokens";
 
 /**
@@ -41,6 +42,15 @@ export const MCP_TOOL_NAMES = [
   "read_doc_map",
   "list_prd_findings",
   "write_memory",
+  "list_tasks",
+  "read_task",
+  "claim_task",
+  "report_task_result",
+  "list_skills",
+  "get_skill",
+  "list_connector_tools",
+  "call_connector_tool",
+  "get_setup",
 ] as const;
 
 const MAX_BODY = 60_000;
@@ -112,7 +122,7 @@ export async function handleMcpRequest(request: Request, slug: string): Promise<
     case "initialize":
       return rpc(id, {
         protocolVersion: PROTOCOL_VERSION,
-        capabilities: { tools: {} },
+        capabilities: { tools: {}, resources: {} },
         serverInfo: { name: "saqina", version: "1" },
       });
     case "ping":
@@ -141,6 +151,16 @@ export async function handleMcpRequest(request: Request, slug: string): Promise<
           inputSchema: t.inputSchema,
         })),
       });
+    }
+    case "resources/list": {
+      const list = await listResources(verified.access, verified.agent);
+      return rpc(id, { resources: list });
+    }
+    case "resources/read": {
+      const uri = typeof message.params?.uri === "string" ? message.params.uri : "";
+      const found = await readResource(verified.access, verified.agent, uri);
+      if (!found) return rpcError(id, ERROR.params, "Unknown resource");
+      return rpc(id, { contents: [{ uri, mimeType: "text/markdown", text: found }] });
     }
     case "tools/call": {
       const params = message.params ?? {};

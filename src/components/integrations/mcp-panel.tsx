@@ -154,7 +154,14 @@ export function McpPanel({
               <li key={c.id} className="rounded-md border border-border p-4">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="font-medium">{c.name}</p>
+                    <p className="font-medium">
+                      {c.name}
+                      {c.platform ? (
+                        <span className="ml-2 rounded-md border border-border px-1.5 py-0.5 font-mono text-xs text-muted-foreground">
+                          {t("platform")}
+                        </span>
+                      ) : null}
+                    </p>
                     <p className="truncate font-mono text-xs text-subtle-foreground">
                       {c.endpoint}
                     </p>
@@ -167,7 +174,10 @@ export function McpPanel({
                     {c.status}
                   </span>
                 </div>
-                {canManage ? (
+                {c.platform ? (
+                  <p className="mt-2 text-xs text-muted-foreground">{t("platformHint")}</p>
+                ) : null}
+                {canManage && !c.platform ? (
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Button
                       size="sm"

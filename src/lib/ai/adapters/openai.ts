@@ -8,6 +8,23 @@ import type { AdapterConfig, ProviderAdapter } from "./types";
 type OpenAiId = Extract<ProviderAdapterId, "openai" | "openai_compatible" | "vercel_gateway">;
 
 /** Chat Completions protocol: OpenAI, any OpenAI-compatible server and the Vercel AI Gateway. */
+/**
+ * The user turn: attached images as data URLs, then the text. Chat Completions takes PDFs only
+ * as files on some providers, so a PDF is named in the text instead of being sent.
+ */
+export function userContent(req: AiRequest) {
+  const text = renderUserTurn(req);
+  const images = (req.attachments ?? []).filter((a) => a.kind === "image");
+  if (images.length === 0) return text;
+  return [
+    ...images.map((a) => ({
+      type: "image_url",
+      image_url: { url: `data:${a.mime};base64,${a.data}` },
+    })),
+    { type: "text", text },
+  ];
+}
+
 class OpenAiClient implements AiProvider {
   readonly deterministic = false;
   readonly config;
@@ -26,7 +43,7 @@ class OpenAiClient implements AiProvider {
     return [
       { role: "system", content: `${req.system}\n\n${DATA_BOUNDARY_RULES}` },
       ...(req.history ?? []),
-      { role: "user", content: renderUserTurn(req) },
+      { role: "user", content: userContent(req) },
     ];
   }
 

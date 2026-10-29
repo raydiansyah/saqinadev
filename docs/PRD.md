@@ -1,6 +1,6 @@
 # Saqina Dev: product requirements
 
-Status of this page: written 2026-10-23 from the code, the ADRs and the standards. It is the PRD that
+Status of this page: written 2026-10-23 from the code, the ADRs and the standards; updated 2026-10-29 (Studio, platform skills and connectors, Generate PRD). It is the PRD that
 [`CLAUDE.md`](../CLAUDE.md) tells every tool to check before a feature is built or changed. Change the
 product and this page in the same pull request.
 
@@ -51,8 +51,8 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 
 | # | Requirement | Status |
 |---|---|---|
-| P1 | Create a project from a brief; an interview captures objective, features, stack, delivery | Built |
-| P2 | Import an existing project from GitHub; it asks how far the system is (build, review, deploy) and the answers drive the stage, progress and tasks | Built |
+| P1 | Create a project from a brief; an interview captures objective, features, stack, delivery. Nobody types a title: the name comes from the plan (the preview plan at creation, then a model-suggested title after the interview) until a person renames it; the URL never changes ([ADR 0010](adr/0010-ai-refinement-arrives-as-proposals.md)) | Built |
+| P2 | Import an existing project from GitHub; it asks how far the system is (build, review, deploy) and the answers drive the stage, progress and tasks. Each answer is independent; answers that disagree are flagged, not corrected ([ADR 0008](adr/0008-delivery-answers-are-independent.md)) | Built |
 | P3 | Imported projects follow GitHub: documents are pulled one way, the newest edit wins, the PRD is found by name or asked for ([ADR 0005](adr/0005-imported-projects-follow-github.md)) | Built |
 | P4 | Project settings: name, build strategy, repository, deployment, domain; a failed save keeps what was typed | Built |
 | P5 | Archive, restore and delete a project (delete needs the typed name) | Built |
@@ -68,6 +68,8 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 | R4 | Features, decisions, change requests and client approvals, each recorded and linked | Built |
 | R5 | Progress and stepper derived from real records, not typed by hand | Built |
 | R6 | Meetings and requests feed the same record | Built |
+| R7 | Generate PRD: a form with one field per section, filled from the current PRD or the interview; Enhance improves a section (a model when set up, rules otherwise); saving writes a new version that is approved again | Built |
+| R8 | After the interview a model refines the PRD and plan document following the Superpowers `brainstorming` and `writing-plans` skills; the result is a proposal from the planner agent ([ADR 0010](adr/0010-ai-refinement-arrives-as-proposals.md)) | Built |
 
 ### 5.3 Documents and agreements
 
@@ -110,12 +112,15 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 | A5 | Governed project memory: owner, visibility, lifecycle, versions, citations; chat suggestions wait for review; access is checked before search ([ADR 0004](adr/0004-project-memory.md)) | Built |
 | A6 | Retrieval is full-text plus exact match, with a budget; the UI states that semantic search is off | Built |
 | A7 | MCP tools for agents (`search_memory`, `read_memory`, `write_memory`); agent writes are candidates, never straight into memory; every call audited | Built |
-| A8 | Semantic (vector) search, wiki, skills and code-graph assets | Planned |
+| A8 | Semantic (vector) search, wiki, skills and code-graph assets | Partial: platform skills (A14) are built; semantic search is planned |
 | A9 | Every chat message shows its time in the reader's timezone, can be copied, and shows who has read it: Saqina, and any connected agent that read up to it | Built |
 | A10 | Pin a message as a named chapter; a chapter list jumps to it, loading older pages when needed | Built |
 | A11 | Fork from a message: a copy of the thread up to it, in a new thread; proposals and agent runs are not copied and the original is not touched | Built |
 | A12 | Rewind to a message: later messages are hidden and the project changes the assistant made after it (tasks, requirements, the PRD and other documents) are put back. All or nothing: it refuses when a later change cannot be reversed or a record was edited since ([ADR 0007](adr/0007-chat-rewind-is-all-or-nothing.md)) | Built |
 | A13 | Chat threads stay private; the owner can open one to connected agents (MCP `list_conversations`, `read_conversation`), and every read is recorded and shown as "read by" | Built |
+| A14 | Platform skills: the platform owner installs SKILL.md skills (pasted or from GitHub) for every project, chooses where each is used, and can switch them off; Superpowers ships built in. Skill text is never executed ([ADR 0009](adr/0009-platform-skills-and-connectors.md)) | Built |
+| A15 | Platform connectors: the owner connects MCP servers once (Firecrawl, Exa, Context7 presets, or a custom server over streamable HTTP) with encrypted keys; their tools reach every project under the same policy, audit and approval; agents read through enabled low-risk tools | Built |
+| A16 | Agent settings pick the model from the models already set up, or Automatic (the project and platform defaults); a pin for Saqina's agents is what their runs use, within the platform policy | Built |
 
 ### 5.7 White label
 
@@ -139,6 +144,28 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 | O5 | Health endpoint, cron jobs (reminders, maintenance, doc sync), post-deploy smoke test | Built |
 | O6 | End-to-end journey test at 320, 768 and 1280 px | Planned (needs Playwright and a CI job) |
 | O7 | API documentation for the outside routes (`docs/api/openapi.yaml`) | Planned |
+
+### 5.9 Studio
+
+| # | Requirement | Status |
+|---|---|---|
+| S1 | "Start building" on an approved PRD or plan, or on a document both parties signed, opens the Studio | Built |
+| S2 | Studio: the chat beside a work area. A reply that makes a plan or starts agents turns the work area to the Plan or Agents tab; a change-making request the assistant is unsure about is confirmed in the chat first | Built |
+| S3 | Build in Saqina: Start building hands each open task to the team agent whose role fits it; each result is a proposal a person approves. A project built elsewhere only opens the Studio | Built |
+| S8 | Attach files in the chat: text (into the prompt), images and PDF (to a model that can read them); stored in a private S3 bucket, served only after an access check; 5 MB and 5 files per message ([ADR 0011](adr/0011-chat-attachments-and-tools.md)) | Built |
+| S9 | Add context in the chat: pick switched-on skills (always in the prompt) and connectors; a picked or named connector's tool runs from the chat through the same policy (high risk waits for approval) and its result is shown; owners and project admins reach "Manage connectors" from the menu | Built |
+| G1 | Repository events: Saqina installs the webhook itself (a token without admin rights falls back to a manual URL and secret) and records push, pull request, check suite, workflow run and deployment status | Built |
+| G2 | A branch, pull request or commit that carries a task reference (`T-xxxxxxxx`) is linked to the task. An opened pull request puts the task in review; a merged one completes it (the merge is the person's decision) ([ADR 0012](adr/0012-git-ci-and-deploys-flow-back.md)) | Built |
+| G3 | CI results and deployments are shown, and the delivery page suggests build, review and deploy answers from them; a person confirms each one | Built |
+| G4 | A push to the default branch refreshes the head and queues a code reindex | Built |
+| L1 | Local IDE over MCP: read tasks, claim a task, report review or blocked (never done), read skills, use the project's connector tools under the same policy, read AGENTS.md and context files as resources ([ADR 0014](adr/0014-local-ide-sync-over-mcp.md)) | Built |
+| L2 | A project AGENTS.md (workflow, branch naming, reporting, skills and connectors) from live data, by MCP and as a download | Built |
+| L3 | Setup snippets for Claude Code, Cursor, Codex and Kiro, and every token scope selectable | Built |
+| S4 | Code: read-only view of the connected repository (folders and files, secrets masked) in the work area | Built |
+| S5 | Preview: the published project in a sandboxed frame, with a picker for earlier deployments (a build sandbox for unpublished code is not part of this version); for an app with a database or sign-in the preview waits for S10 | Built |
+| S6 | Git: branches, pull requests and CI checks linked to tasks, and the switch that turns repository events on; Saqina never merges | Built |
+| S7 | Publish to `<project>.saqina.dev` on Saqina's Vercel team by default, or to the client's own Vercel account (own token, optional custom domain); a person presses Publish ([ADR 0013](adr/0013-publishing-to-vercel.md)) | Built (needs `VERCEL_TOKEN` and the wildcard domain, see the runbook) |
+| S10 | Databases and sign-in for the app (Neon, Supabase, Clerk, Postgres or a custom service), always on the user's own accounts: keys are kept encrypted per project, each with a separate Live and Preview value, and sent to the Vercel deployment. An app that uses one is published and previewed only when the preview has its own database (not the live one; test keys for Clerk); until then Publish and Preview explain what is missing ([ADR 0015](adr/0015-databases-and-auth-for-the-app.md)) | Built (needs the encryption key) |
 
 ## 6. Non-functional requirements
 

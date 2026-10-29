@@ -62,6 +62,14 @@ export const block = z.discriminatedUnion("type", [
   z.object({ type: z.literal("action"), items: z.array(executedItem).max(30) }),
   z.object({ type: z.literal("proposal"), proposalId: z.uuid() }),
   z.object({ type: z.literal("agent_run"), runId: z.uuid() }),
+  /** A connector tool the chat ran: its name, source and a plain-text excerpt of the result. */
+  z.object({
+    type: z.literal("tool_result"),
+    tool: z.string().max(200),
+    connector: z.string().max(80),
+    status: z.enum(["succeeded", "failed"]),
+    excerpt: z.string().max(4000),
+  }),
   z.object({
     type: z.literal("question"),
     question: z.string().max(300),
@@ -108,4 +116,29 @@ export type StreamEvent =
   | { type: "delta"; text: string }
   | { type: "block"; block: Block }
   | { type: "done"; messageId: string; mutated: boolean }
+  /** The Studio work area should show this tab (a plan was made, agents were started). */
+  | { type: "focus"; target: "plan" | "agents" }
   | { type: "error"; code: string; ref?: string };
+
+/** What is stored in `messages.metadata` for a user message: files and the picked context. */
+export const userMetadata = z.object({
+  attachments: z
+    .array(
+      z.object({
+        id: z.uuid(),
+        name: z.string().max(200),
+        mime: z.string().max(120),
+        size: z.number(),
+        kind: z.enum(["text", "image", "pdf"]),
+      }),
+    )
+    .max(10)
+    .default([]),
+  use: z
+    .object({
+      skills: z.array(z.string().max(64)).max(10).default([]),
+      connectors: z.array(z.string().max(64)).max(10).default([]),
+    })
+    .default({ skills: [], connectors: [] }),
+});
+export type UserMetadata = z.infer<typeof userMetadata>;

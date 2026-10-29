@@ -8,10 +8,9 @@ import { useRun } from "@/components/platform/use-run";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/form";
 import {
-  type Answers,
+  CONTRADICTION_CODES,
   type DeliveryNote,
   planTaskAdjustment,
-  settleAnswers,
   type TaskAdjustment,
   type TaskCounts,
 } from "@/lib/delivery/consistency";
@@ -40,6 +39,7 @@ export function ReleaseChecklist({
   notes,
   awaiting,
   canAnswer,
+  evidence = [],
 }: {
   slug: string;
   checks: ReleaseCheck[];
@@ -48,6 +48,8 @@ export function ReleaseChecklist({
   /** Imported from GitHub and nobody has answered yet: this is the first thing to do. */
   awaiting: boolean;
   canAnswer: boolean;
+  /** What the repository, CI and Vercel have shown: suggestions the team confirms with one click. */
+  evidence?: { step: DeliveryStep; code: "ci_green" | "pr_merged" | "deployed"; detail: string }[];
 }) {
   const t = useTranslations("progress.release");
   const errors = useTranslations("app.errors");
@@ -60,11 +62,12 @@ export function ReleaseChecklist({
     value: boolean;
     moves: TaskAdjustment;
   } | null>(null);
-  const answers: Answers = { build: null, review: null, deploy: null };
-  for (const c of checks) answers[c.step] = c.unanswered ? null : c.done;
+  const contradicts = notes.some((n) =>
+    (CONTRADICTION_CODES as readonly string[]).includes(n.code),
+  );
 
   function answer(step: DeliveryStep, value: boolean) {
-    const moves = planTaskAdjustment(settleAnswers(answers, step, value), tasks);
+    const moves = planTaskAdjustment(step, value, tasks);
     if (moves.toReview + moves.toDone > 0) return setAsk({ step, value, moves });
     run(() => answerDeliveryAction(slug, step, value, false));
   }
@@ -103,6 +106,12 @@ export function ReleaseChecklist({
         </p>
       ) : null}
 
+      {contradicts ? (
+        <div className="mt-3">
+          <Notice tone="warning">{t("contradiction")}</Notice>
+        </div>
+      ) : null}
+
       <ul className="mt-4 divide-y divide-border">
         {DELIVERY_STEPS.map((step) => {
           const c = byStep.get(step);
@@ -127,6 +136,29 @@ export function ReleaseChecklist({
                         .filter(Boolean)
                         .join(" · ")}
                 </p>
+                {canAnswer
+                  ? evidence
+                      .filter((e) => e.step === step && !(c && !c.unanswered && c.done))
+                      .map((e) => (
+                        <p
+                          key={e.code}
+                          className="mt-1 flex flex-wrap items-center gap-2 text-xs text-info"
+                        >
+                          <span>
+                            {t(`evidence.${e.code}`)}
+                            {e.detail ? ` (${e.detail})` : ""}
+                          </span>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={pending}
+                            onClick={() => answer(step, true)}
+                          >
+                            {t("evidence.confirm")}
+                          </Button>
+                        </p>
+                      ))
+                  : null}
                 {notes
                   .filter((n) => n.step === step)
                   .map((n) => (

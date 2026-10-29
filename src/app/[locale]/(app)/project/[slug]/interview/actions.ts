@@ -3,6 +3,7 @@
 import { isLocale } from "@/i18n/locales";
 import { runAction } from "@/lib/actions";
 import { requireActor } from "@/lib/auth/server";
+import { scheduleInterviewRefinement } from "@/lib/interviews/ai-intelligence";
 import { reviewInterviewWithAi } from "@/lib/interviews/ai-review";
 import { completeInterview, saveAnswers } from "@/lib/interviews/service";
 import type { SaveAnswersInput } from "@/lib/interviews/validators";
@@ -20,7 +21,10 @@ export async function completeInterviewAction(slug: string) {
     const actor = await requireActor();
     // No revalidation here: re-rendering the interview route would replace the client-side
     // "project ready" screen. Its links load the workspace fresh (dynamic routes).
-    return completeInterview(actor, slug);
+    const result = await completeInterview(actor, slug);
+    // A model then refines the PRD and plan with the Superpowers skills, as a proposal.
+    scheduleInterviewRefinement(actor, slug);
+    return result;
   });
 }
 

@@ -77,5 +77,9 @@ Ruflo files are local and git-ignored. If the Ruflo server is down, say so and c
 
 An agent a person connects to a project over MCP is bound by the same rule when it writes a PRD or plan,
 and it acts only inside the permission it was granted ([governance](governance.md)).
-The "Build in Saqina" assistant that drafts a PRD or plan does not yet run these steps: **Planned**.
-Until it does, a person reviews every PRD or plan it writes.
+Inside the product, Saqina ships the Superpowers `brainstorming` and `writing-plans` skills built in
+(Settings > AI & Models > Skills, [ADR 0009](../adr/0009-platform-skills-and-connectors.md)). After the
+interview a model refines the PRD with `brainstorming` and the plan with `writing-plans`, and Generate PRD's
+Enhance uses `brainstorming`: **Built**. The result is always a proposal or a form a person saves, never a
+direct write. Ruflo and antislop are not run inside the product: **Planned**. A person reviews every PRD or
+plan Saqina writes.

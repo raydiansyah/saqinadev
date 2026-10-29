@@ -17,7 +17,9 @@ export function contentSecurityPolicy(isDev: boolean): string {
     "img-src": ["'self'", "data:", "blob:", "https:"],
     "font-src": ["'self'", "data:"],
     "connect-src": ["'self'", turnstile, ...(isDev ? ["ws:", "wss:"] : [])],
-    "frame-src": [turnstile],
+    // The Studio's Preview frames the published project (a *.saqina.dev, *.vercel.app or the
+    // client's own domain). The frame is sandboxed and Saqina's own pages cannot be framed.
+    "frame-src": [turnstile, "https:"],
     "frame-ancestors": ["'none'"],
     "object-src": ["'none'"],
     "base-uri": ["'self'"],

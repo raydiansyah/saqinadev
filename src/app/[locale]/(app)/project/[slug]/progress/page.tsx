@@ -10,6 +10,7 @@ import { Link } from "@/i18n/navigation";
 import { can } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
 import { milestones, tasks } from "@/lib/db/schema";
+import { deliveryEvidence } from "@/lib/delivery/evidence";
 import { getDeliveryOverview } from "@/lib/delivery/service";
 import { getDocument } from "@/lib/documents/service";
 import { isGithubSourced } from "@/lib/imports/choose-prd";
@@ -46,12 +47,14 @@ export default async function ProgressPage({
   ]);
   const progress = clientProgress(stages, taskRows);
   const delivery = await getDeliveryOverview(access);
+  const evidence = await deliveryEvidence(access);
 
   const checklist = (
     <ReleaseChecklist
       slug={slug}
       awaiting={delivery.awaiting}
       canAnswer={can(access.role, "project:update")}
+      evidence={evidence}
       tasks={delivery.tasks}
       notes={delivery.notes}
       checks={delivery.checks.map((c) => ({

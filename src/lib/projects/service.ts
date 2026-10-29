@@ -73,9 +73,15 @@ export async function startProject(
   const { idea, imported } = parse(startInput, input);
   const found = classify(idea);
   const answers = { ...EMPTY_ANSWERS, projectDescription: idea, projectType: found.projectType };
+  // The name comes from the plan already made: the preview answers carried over, when there are
+  // any, name it the same way the preview plan did. Nobody types a title.
+  const carried = Object.fromEntries(
+    Object.entries(imported ?? {}).filter(([, v]) => v !== null && v !== undefined),
+  ) as Partial<typeof answers>;
+  const planned = { ...answers, ...carried, projectDescription: idea };
   const name =
     options.name ??
-    projectName(answers, getEngineCopy(locale)) ??
+    projectName(planned, getEngineCopy(locale)) ??
     idea.split(/\s+/).slice(0, 4).join(" ");
 
   return db.transaction(async (tx) => {
@@ -89,6 +95,7 @@ export async function startProject(
         organizationId: org.id,
         currency: org.defaultCurrency,
         name,
+        nameSource: options.name ? "repository" : "auto",
         description: idea,
         type: found.projectType ?? null,
         status: "interview",
@@ -194,7 +201,12 @@ export async function updateProjectGeneral(actor: Actor, slug: string, input: un
   const data = parse(generalInput, input);
   await db.transaction(async (tx) => {
     const { project } = await loadProjectAccess(actor, { slug }, "project:update", tx);
-    await tx.update(projects).set(data).where(eq(projects.id, project.id));
+    // A name a person chose is theirs: the plan no longer renames the project.
+    const renamed = data.name !== project.name;
+    await tx
+      .update(projects)
+      .set({ ...data, ...(renamed ? { nameSource: "user" as const } : {}) })
+      .where(eq(projects.id, project.id));
     await recordActivity(tx, {
       projectId: project.id,
       actorId: actor.id,

@@ -29,7 +29,15 @@ class GeminiClient implements AiProvider {
         role: m.role === "assistant" ? "model" : "user",
         parts: [{ text: m.content }],
       })),
-      { role: "user", parts: [{ text: renderUserTurn(req) }] },
+      {
+        role: "user",
+        parts: [
+          ...(req.attachments ?? []).map((a) => ({
+            inline_data: { mime_type: a.mime, data: a.data },
+          })),
+          { text: renderUserTurn(req) },
+        ],
+      },
     ];
     return JSON.stringify({
       systemInstruction: { parts: [{ text: `${req.system}\n\n${DATA_BOUNDARY_RULES}` }] },

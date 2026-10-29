@@ -1,5 +1,6 @@
 import "server-only";
 import { and, inArray, isNotNull, lt, ne, sql } from "drizzle-orm";
+import { purgeUnsentAttachments } from "@/lib/attachments/service";
 import { db } from "@/lib/db/client";
 import {
   aiUsageRecords,
@@ -87,6 +88,9 @@ export async function runMaintenance(
     .where(lt(skillUsages.createdAt, cutoff(now, RETENTION_DAYS.skillUsages)))
     .returning({ id: skillUsages.id });
 
+  // Chat uploads that were never sent with a message.
+  const unsentAttachments = await purgeUnsentAttachments(now);
+
   const days = retentionDays(env.INQUIRY_RETENTION_DAYS);
   let inquiries = 0;
   if (days) {
@@ -113,6 +117,7 @@ export async function runMaintenance(
     memoryRetrievals: oldRetrievals.length,
     memoryJobs: oldJobs.length,
     skillUsages: oldSkillUsages.length,
+    attachments: unsentAttachments,
     inquiries,
     inquiryRetentionDays: days,
   };

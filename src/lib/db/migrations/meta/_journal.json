@@ -218,6 +218,34 @@
       "when": 1792999994038,
       "tag": "0030_chat_tools",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1793230870564,
+      "tag": "0031_platform_skills_connectors",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1793235055312,
+      "tag": "0032_chat_attachments",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1793240216510,
+      "tag": "0033_sync_git_ci_deploy",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1793248343780,
+      "tag": "0034_project_services",
+      "breakpoints": true
     }
   ]
 }

@@ -63,8 +63,15 @@ const byId = <T extends { id: string }>(list: T[]) =>
  * Client side of a conversation: streams replies from the assistant route, keeps the thread
  * in sync with the server after each reply, and refreshes the workspace when something changed.
  */
-export function useAssistant(slug: string, initial?: Partial<State>) {
+export function useAssistant(
+  slug: string,
+  initial?: Partial<State>,
+  options: { onFocus?: (target: "plan" | "agents") => void } = {},
+) {
   const locale = useLocale();
+  // Kept in a ref so a new callback each render never restarts a stream.
+  const onFocus = useRef(options.onFocus);
+  onFocus.current = options.onFocus;
   const router = useRouter();
   const [state, setState] = useState<State>({ ...EMPTY, ...initial });
   // The latest state for callbacks that loop (loading older pages until a message appears).
@@ -152,7 +159,17 @@ export function useAssistant(slug: string, initial?: Partial<State>) {
   );
 
   const send = useCallback(
-    async (content: string, context: ChatContext, opts: { fresh?: boolean } = {}) => {
+    async (
+      content: string,
+      context: ChatContext,
+      opts: {
+        fresh?: boolean;
+        /** Files already uploaded for this message. */
+        attachments?: NonNullable<UIMessage["attachments"]>;
+        /** Skills and connectors picked as context. */
+        use?: { skills: string[]; connectors: string[] };
+      } = {},
+    ) => {
       const text = content.trim();
       if (!text) return;
       const options = { fresh: opts.fresh ?? freshNext.current };
@@ -176,6 +193,8 @@ export function useAssistant(slug: string, initial?: Partial<State>) {
             status: "completed",
             blocks: [],
             createdAt: now,
+            attachments: opts.attachments ?? [],
+            use: opts.use ?? null,
           },
           {
             id: PENDING_ID,
@@ -202,6 +221,8 @@ export function useAssistant(slug: string, initial?: Partial<State>) {
             content: text,
             locale,
             context: context.type === "project" ? null : { type: context.type, id: context.id },
+            attachmentIds: (opts.attachments ?? []).map((a) => a.id),
+            use: opts.use ?? { skills: [], connectors: [] },
           }),
           signal: controller.signal,
         });
@@ -229,6 +250,7 @@ export function useAssistant(slug: string, initial?: Partial<State>) {
             else if (event.type === "block")
               updatePending((m) => ({ ...m, blocks: [...m.blocks, event.block] }));
             else if (event.type === "done") mutated = event.mutated;
+            else if (event.type === "focus") onFocus.current?.(event.target);
             else if (event.type === "error") failed = { code: event.code, ref: event.ref };
           }
         }

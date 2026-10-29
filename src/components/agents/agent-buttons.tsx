@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { useState, useTransition } from "react";
 import { setPreferredAgentAction } from "@/app/[locale]/(app)/project/[slug]/agents/actions";
 import { Button } from "@/components/ui/button";
+import type { AgentModelChoice } from "@/lib/ai/project-settings";
 import type { AgentType } from "@/lib/domain/enums";
 import { ConfigureDialog } from "./configure-dialog";
 
@@ -14,12 +15,14 @@ export function AgentActions({
   name,
   preferred,
   configuration,
+  models,
 }: {
   slug: string;
   type: AgentType;
   name: string;
   preferred: boolean;
   configuration: Record<string, string>;
+  models: AgentModelChoice;
 }) {
   const t = useTranslations("agents");
   const errors = useTranslations("app.errors");
@@ -63,6 +66,7 @@ export function AgentActions({
           type={type}
           name={name}
           configuration={configuration}
+          models={models}
           onClose={() => setConfiguring(false)}
         />
       ) : null}

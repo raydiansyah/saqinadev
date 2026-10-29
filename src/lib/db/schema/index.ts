@@ -1,4 +1,5 @@
 export * from "./assistant";
+export * from "./attachments";
 export * from "./auth";
 export * from "./billing";
 export * from "./brain";
@@ -13,6 +14,7 @@ export * from "./projects";
 export * from "./rate-limits";
 export * from "./services";
 export * from "./skills";
+export * from "./sync";
 export * from "./white-label";
 export * from "./wiki";
 export * from "./workspace";

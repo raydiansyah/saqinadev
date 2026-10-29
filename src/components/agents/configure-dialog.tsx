@@ -2,27 +2,33 @@
 
 import { useTranslations } from "next-intl";
 import { useId, useState, useTransition } from "react";
-import { configureAgentAction } from "@/app/[locale]/(app)/project/[slug]/agents/actions";
+import {
+  configureAgentAction,
+  setAgentModelAction,
+} from "@/app/[locale]/(app)/project/[slug]/agents/actions";
 import { Dialog } from "@/components/app/dialog";
 import { Button } from "@/components/ui/button";
-import { Field, Notice, TextArea } from "@/components/ui/form";
+import { Notice, Select, TextArea } from "@/components/ui/form";
+import type { AgentModelChoice } from "@/lib/ai/project-settings";
 import type { AgentType } from "@/lib/domain/enums";
 
 /**
- * Preferences only (model and notes). The service rejects anything that looks like a
- * credential; that rejection is shown as a specific message, not a generic error.
+ * Model and notes. The model is picked from the models already set up (or Automatic), never
+ * typed. Notes are refused when they look like a credential, with a specific message.
  */
 export function ConfigureDialog({
   slug,
   type,
   name,
   configuration,
+  models,
   onClose,
 }: {
   slug: string;
   type: AgentType;
   name: string;
   configuration: Record<string, string>;
+  models: AgentModelChoice;
   onClose: () => void;
 }) {
   const t = useTranslations("agents");
@@ -32,18 +38,27 @@ export function ConfigureDialog({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
+  const current = models.current[type] ?? null;
+  // Saqina's own agents follow the platform policy; an outside agent only records a preference.
+  const locked = type === "saqina" && !models.canPin;
+
   function onSubmit(form: FormData) {
-    const entries = {
-      model: String(form.get("model") ?? "").trim(),
-      notes: String(form.get("notes") ?? "").trim(),
-    };
-    // Empty fields are left out so clearing a value removes it from the configuration.
-    const next = Object.fromEntries(Object.entries(entries).filter(([, v]) => v.length > 0));
+    const notes = String(form.get("notes") ?? "").trim();
+    const modelId = String(form.get("modelId") ?? "") || null;
+    // Empty notes are left out so clearing them removes them from the configuration.
+    const next: Record<string, string> = notes ? { notes } : {};
     startTransition(async () => {
       const result = await configureAgentAction(slug, { type, configuration: next });
       if (!result.ok) {
         setError(result.code === "VALIDATION_ERROR" ? t("secretRejected") : errors(result.code));
         return;
+      }
+      if (!locked) {
+        const chosen = await setAgentModelAction(slug, { type, modelId });
+        if (!chosen.ok) {
+          setError(errors(chosen.code));
+          return;
+        }
       }
       onClose();
     });
@@ -57,16 +72,36 @@ export function ConfigureDialog({
       description={t("configureHint")}
     >
       <form action={onSubmit} className="space-y-4" aria-busy={pending}>
-        <Field
-          id={`${id}-model`}
-          name="model"
-          label={t("model")}
-          placeholder={t("placeholders.model")}
-          defaultValue={configuration.model ?? ""}
-          maxLength={300}
-          autoComplete="off"
-          spellCheck={false}
-        />
+        <div>
+          <Select
+            id={`${id}-model`}
+            name="modelId"
+            label={t("model")}
+            defaultValue={current ?? ""}
+            disabled={locked}
+            aria-describedby={`${id}-model-hint`}
+          >
+            <option value="">
+              {models.automatic
+                ? t("modelAutomatic", { model: models.automatic })
+                : t("modelAutomaticNone")}
+            </option>
+            {models.options.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.label}
+              </option>
+            ))}
+          </Select>
+          <p id={`${id}-model-hint`} className="mt-1.5 text-xs text-subtle-foreground">
+            {locked
+              ? t("modelLocked")
+              : models.options.length === 0
+                ? t("modelNone")
+                : type === "saqina"
+                  ? t("modelHint")
+                  : t("modelHintExternal")}
+          </p>
+        </div>
         <TextArea
           id={`${id}-notes`}
           name="notes"

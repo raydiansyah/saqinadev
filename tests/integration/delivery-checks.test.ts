@@ -124,17 +124,22 @@ describe("delivery checks against the plan", () => {
     expect(o.notes.map((n) => n.code).sort()).toEqual(["open_tasks", "tasks_in_review"]);
   });
 
-  it("asks for the answer when every task is done, and a deploy answer settles build and review", async () => {
+  it("asks for the answer when every task is done, and flags a deploy that comes before build and review", async () => {
     await addTask("done");
     await answerDeliveryCheck(owner, slug, { step: "build", done: false });
+    await answerDeliveryCheck(owner, slug, { step: "review", done: false });
+    await answerDeliveryCheck(owner, slug, { step: "deploy", done: false });
     expect((await overview()).notes.map((n) => n.code)).toEqual(["all_tasks_done"]);
-    // Deployed means built and reviewed too, so nothing is left to flag.
+    // Each answer stands alone: deploy does not answer build and review, it is flagged instead.
     await answerDeliveryCheck(owner, slug, { step: "deploy", done: true });
-    expect((await overview()).notes).toEqual([]);
+    expect((await overview()).notes.map((n) => n.code)).toEqual([
+      "all_tasks_done",
+      "needs_build_and_review",
+    ]);
   });
 });
 
-describe("answers that settle each other and the plan", () => {
+describe("each answer stands alone, and moves the plan only when asked", () => {
   const seed = async () => {
     await db.delete(tasks).where(eq(tasks.projectId, projectId));
     for (const status of ["done", "todo", "in_progress", "review", "blocked"] as const)
@@ -155,25 +160,33 @@ describe("answers that settle each other and the plan", () => {
   const answers = async () =>
     Object.fromEntries((await checks()).map((c) => [c.step, c.unanswered ? null : c.done]));
 
-  it("deployed answers build and review as yes too, and with adjustment every task is done", async () => {
+  it("deployed changes only deploy, and never moves a task", async () => {
     await seed();
+    await answerDeliveryCheck(owner, slug, { step: "build", done: false });
+    await answerDeliveryCheck(owner, slug, { step: "review", done: false });
     const moved = await answerDeliveryCheck(owner, slug, {
       step: "deploy",
       done: true,
       adjustTasks: true,
     });
-    expect(moved).toEqual({ toReview: 0, toDone: 4 });
-    expect(await answers()).toEqual({ build: true, review: true, deploy: true });
-    expect(await statuses()).toEqual(["done", "done", "done", "done", "done"]);
-    // The adjustment is part of the answer: it does not make the answer look out of date.
-    expect((await checks()).some((c) => c.stale)).toBe(false);
+    expect(moved).toEqual({ toReview: 0, toDone: 0 });
+    expect(await answers()).toEqual({ build: false, review: false, deploy: true });
+    expect(await statuses()).toEqual(["blocked", "done", "in_progress", "review", "todo"]);
   });
 
-  it("an earlier answer is not out of date because a later one moved the tasks", async () => {
+  it("reviewed with adjustment marks every task done, and leaves build as it was", async () => {
     await seed();
-    await answerDeliveryCheck(owner, slug, { step: "build", done: true });
-    await answerDeliveryCheck(owner, slug, { step: "deploy", done: true, adjustTasks: true });
-    expect((await checks()).map((c) => c.stale)).toEqual([false, false, false]);
+    await answerDeliveryCheck(owner, slug, { step: "build", done: false });
+    const moved = await answerDeliveryCheck(owner, slug, {
+      step: "review",
+      done: true,
+      adjustTasks: true,
+    });
+    expect(moved).toEqual({ toReview: 0, toDone: 4 });
+    expect((await answers()).build).toBe(false);
+    expect(await statuses()).toEqual(["done", "done", "done", "done", "done"]);
+    // The adjustment is part of the answer: it does not make any answer look out of date.
+    expect((await checks()).some((c) => c.stale)).toBe(false);
   });
 
   it("built only moves the open tasks to review and leaves done ones alone", async () => {
@@ -187,19 +200,22 @@ describe("answers that settle each other and the plan", () => {
     expect(await statuses()).toEqual(["done", "review", "review", "review", "review"]);
   });
 
-  it("without adjustment only the answers change", async () => {
+  it("without adjustment only the one answer changes", async () => {
     await seed();
+    await answerDeliveryCheck(owner, slug, { step: "build", done: false });
     const moved = await answerDeliveryCheck(owner, slug, { step: "review", done: true });
     expect(moved).toEqual({ toReview: 0, toDone: 0 });
-    expect(await answers()).toEqual({ build: true, review: true, deploy: null });
+    expect((await answers()).build).toBe(false);
+    expect((await answers()).review).toBe(true);
     expect(await statuses()).toEqual(["blocked", "done", "in_progress", "review", "todo"]);
   });
 
-  it("not built clears the later answers and never reopens a task", async () => {
+  it("not built leaves review and deploy untouched and never reopens a task", async () => {
     await seed();
-    await answerDeliveryCheck(owner, slug, { step: "deploy", done: true, adjustTasks: true });
+    await answerDeliveryCheck(owner, slug, { step: "review", done: true, adjustTasks: true });
+    await answerDeliveryCheck(owner, slug, { step: "deploy", done: true });
     await answerDeliveryCheck(owner, slug, { step: "build", done: false, adjustTasks: true });
-    expect(await answers()).toEqual({ build: false, review: false, deploy: false });
+    expect(await answers()).toEqual({ build: false, review: true, deploy: true });
     expect(await statuses()).toEqual(["done", "done", "done", "done", "done"]);
   });
 

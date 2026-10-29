@@ -11,6 +11,45 @@ const headers = (token: string | null) => ({
 });
 const path = (p: string) => p.split("/").filter(Boolean).map(encodeURIComponent).join("/");
 
+/** The events Saqina listens to: documents and code, pull requests, CI and deployments. */
+export const HOOK_EVENTS = [
+  "push",
+  "pull_request",
+  "check_suite",
+  "workflow_run",
+  "deployment_status",
+];
+
+/**
+ * Registers Saqina's webhook on the repository. Any earlier hook that points at the same URL is
+ * removed first, so installing twice (or after rotating the secret) leaves exactly one. Needs
+ * admin rights on the repository: without them GitHub answers 403/404 and the caller falls back to
+ * showing the URL and secret for a person to paste.
+ */
+export async function installGithubHook(
+  ref: RepoRef,
+  token: string | null,
+  input: { url: string; secret: string },
+): Promise<{ id: number }> {
+  const existing = await gitFetch<{ id: number; config?: { url?: string } }[]>(
+    `${repo(ref)}/hooks?per_page=100`,
+    { headers: headers(token) },
+  );
+  for (const h of existing.filter((x) => x.config?.url === input.url))
+    await gitFetch(`${repo(ref)}/hooks/${h.id}`, { method: "DELETE", headers: headers(token) });
+  const created = await gitFetch<{ id: number }>(`${repo(ref)}/hooks`, {
+    method: "POST",
+    headers: { ...headers(token), "content-type": "application/json" },
+    body: JSON.stringify({
+      name: "web",
+      active: true,
+      events: HOOK_EVENTS,
+      config: { url: input.url, content_type: "json", secret: input.secret, insecure_ssl: "0" },
+    }),
+  });
+  return { id: created.id };
+}
+
 /** GitHub REST v3 through fetch. Multi-file commits use the Git data API (tree → commit → ref). */
 export const githubAdapter: GitAdapter & DocSyncOps = {
   provider: "github",

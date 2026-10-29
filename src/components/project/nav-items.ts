@@ -10,6 +10,7 @@ export const PROJECT_NAV = [
     items: [
       { key: "overview", path: "" },
       { key: "assistant", path: "/assistant" },
+      { key: "studio", path: "/studio" },
       { key: "approvals", path: "/approvals" },
     ],
   },

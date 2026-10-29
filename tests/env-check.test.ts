@@ -14,6 +14,11 @@ const good = {
   TURNSTILE_SECRET_KEY: "s",
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: "k",
   OWNER_EMAIL: "owner@saqina.dev",
+  VERCEL_TOKEN: "vt",
+  S3_BUCKET: "saqina-files",
+  S3_REGION: "ap-southeast-1",
+  S3_ACCESS_KEY_ID: "id",
+  S3_SECRET_ACCESS_KEY: "secret",
 };
 
 describe("checkEnv", () => {
@@ -44,5 +49,18 @@ describe("checkEnv", () => {
     expect(warnings.join(" | ")).toMatch(/RESEND_API_KEY and EMAIL_FROM/);
     expect(warnings.join(" | ")).toMatch(/Turnstile needs both keys/);
     expect(warnings.join(" | ")).toMatch(/ALLOW_LOCAL_GIT/);
+  });
+
+  it("warns when S3 is missing or half configured", () => {
+    const {
+      S3_BUCKET: _b,
+      S3_REGION: _r,
+      S3_ACCESS_KEY_ID: _i,
+      S3_SECRET_ACCESS_KEY: _s,
+      ...none
+    } = good;
+    expect(checkEnv(none).warnings.join(" ")).toContain("S3 is not configured");
+    const { S3_SECRET_ACCESS_KEY: _x, ...half } = good;
+    expect(checkEnv(half).warnings.join(" ")).toContain("half configured");
   });
 });

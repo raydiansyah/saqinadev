@@ -12,11 +12,61 @@ Owner, on-call and escalation: see [governance](standards/governance.md). Fill t
 curl -s https://www.saqina.dev/api/health
 ```
 
-Expect `{"status":"ok","database":true,...}`. `commit` is the deployed commit.
+Expect `{"status":"ok","database":true,"fileStorage":true,...}`. `commit` is the deployed commit.
+`fileStorage: false` means S3 is not configured and chat attachments are refused (see below).
 
 ```bash
 pnpm smoke https://www.saqina.dev
 ```
+
+## File storage (S3) for chat attachments
+
+1. Create a private bucket (block all public access). Any S3-compatible store works (Cloudflare R2,
+   MinIO); set `S3_ENDPOINT` for those.
+2. Create an access key whose policy allows only `s3:PutObject`, `s3:GetObject` and
+   `s3:DeleteObject` on `arn:aws:s3:::<bucket>/projects/*`.
+3. Set `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` (and `S3_ENDPOINT` if
+   needed) in Vercel for Production and Preview, then redeploy.
+4. Check `/api/health` shows `"fileStorage":true`, then attach a small image in a project's chat.
+
+Objects are stored as `projects/<project id>/attachments/<uuid>`, never under the file name.
+Uploads that were never sent are deleted by the daily maintenance cron after a day. Rotate the key
+like any other secret ("Rotate a secret" below).
+
+## Publishing client projects (Vercel) and repository events
+
+**Saqina's Vercel team (default).**
+1. Create a token for the team at <https://vercel.com/account/tokens>; set `VERCEL_TOKEN`,
+   `VERCEL_TEAM_ID` and (if not `saqina.dev`) `SAQINA_PROJECTS_DOMAIN` in Vercel, then redeploy.
+2. In the team, add the domain `*.saqina.dev` once and point its DNS to Vercel (nameservers or a
+   wildcard record, as Vercel explains). Each project then gets `<slug>.saqina.dev` automatically.
+3. Install the Vercel GitHub app on the GitHub organization that holds the client repositories, or
+   Publish fails with "Vercel did not accept the request".
+4. In a project: Studio > Publish. A client who wants their own account pastes their own Vercel token.
+
+**Repository events (webhook).** Connecting a GitHub repository installs the webhook with the
+project's token. If the token lacks admin rights on the repository, Studio > Git shows the URL and a
+secret to add by hand (content type JSON; events push, pull request, check suite, workflow run,
+deployment status). Turn events on again to rotate the secret.
+
+**Local IDE agents.** A project admin creates a token under Settings > Agent access, chooses the
+scopes (`write_tasks` to claim and report tasks, `use_mcp_tools` for connector tools), copies the
+snippet for the IDE and downloads AGENTS.md into the repository.
+
+## Databases and sign-in for a client's app
+
+The keys are the client's own and live in `credentials` (kind `service`, project scope), sealed with
+`SAQINA_ENCRYPTION_KEY`. If Publish says "not ready to preview", open Studio > Publish > Databases and
+sign-in; each line names the variable and the reason. Fixes:
+
+- **Neon:** create a branch of the database for the preview and paste its connection string as the
+  Preview `DATABASE_URL`. The Live value is the main branch.
+- **Supabase:** use a second project (or a branch) for the preview: its Postgres URL, project URL and
+  keys go in the Preview column.
+- **Clerk:** the Preview column takes the development instance keys (`pk_test_`, `sk_test_`).
+- Changing a service on a published project sends the values to Vercel at once; the next deployment
+  uses them. Values are never shown again; to rotate, enter a new one.
+- Without `SAQINA_ENCRYPTION_KEY` keys cannot be stored (the form says so).
 
 ## Deploy
 

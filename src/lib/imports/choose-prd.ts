@@ -4,7 +4,7 @@ import * as z from "zod";
 import { recordActivity } from "@/lib/activity/service";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess, type ProjectAccess } from "@/lib/auth/permissions";
-import { db } from "@/lib/db/client";
+import { db, type Tx } from "@/lib/db/client";
 import { documents, documentVersions, repositoryConnections } from "@/lib/db/schema";
 import { parseProvenance } from "@/lib/docsync/paths";
 import { AppError } from "@/lib/errors";
@@ -97,35 +97,50 @@ export async function createPrdFromText(actor: Actor, slug: string, raw: unknown
   const { content } = parse(textInput, raw);
   await db.transaction(async (tx) => {
     const access = await loadProjectAccess(actor, { slug }, "content:write", tx);
-    const [existing] = await tx
-      .select({ id: documents.id })
-      .from(documents)
-      .where(and(eq(documents.projectId, access.project.id), eq(documents.slug, "prd")))
-      .for("update");
-    if (existing)
-      throw new AppError("CONFLICT", "The project already has a PRD", { content: "prd_exists" });
-    const [doc] = await tx
-      .insert(documents)
-      .values({
-        projectId: access.project.id,
-        type: "prd",
-        title: "PRD",
-        slug: "prd",
-        content,
-        createdBy: actor.id,
-        updatedBy: actor.id,
-      })
-      .returning({ id: documents.id });
-    await tx
-      .insert(documentVersions)
-      .values({ documentId: doc.id, version: 1, content, source: "user", createdBy: actor.id });
-    await recordActivity(tx, {
-      projectId: access.project.id,
-      actorId: actor.id,
-      type: "document.created",
-      entityType: "document",
-      entityId: doc.id,
-      metadata: { slug: "prd", origin: "manual" },
-    });
+    await insertPrdTx(tx, access, content, "manual");
   });
+}
+
+/**
+ * Inserts the project's first PRD (version 1). Refuses when one exists: it never replaces a PRD,
+ * a new version goes through the document save instead.
+ */
+export async function insertPrdTx(
+  tx: Tx,
+  access: ProjectAccess,
+  content: string,
+  origin: "manual" | "generated",
+): Promise<{ version: number }> {
+  const actorId = access.actor.id;
+  const [existing] = await tx
+    .select({ id: documents.id })
+    .from(documents)
+    .where(and(eq(documents.projectId, access.project.id), eq(documents.slug, "prd")))
+    .for("update");
+  if (existing)
+    throw new AppError("CONFLICT", "The project already has a PRD", { content: "prd_exists" });
+  const [doc] = await tx
+    .insert(documents)
+    .values({
+      projectId: access.project.id,
+      type: "prd",
+      title: "PRD",
+      slug: "prd",
+      content,
+      createdBy: actorId,
+      updatedBy: actorId,
+    })
+    .returning({ id: documents.id });
+  await tx
+    .insert(documentVersions)
+    .values({ documentId: doc.id, version: 1, content, source: "user", createdBy: actorId });
+  await recordActivity(tx, {
+    projectId: access.project.id,
+    actorId,
+    type: "document.created",
+    entityType: "document",
+    entityId: doc.id,
+    metadata: { slug: "prd", origin },
+  });
+  return { version: 1 };
 }

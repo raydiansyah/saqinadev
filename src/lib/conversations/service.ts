@@ -14,7 +14,13 @@ import {
   sql,
 } from "drizzle-orm";
 import { listRuns, type RunView } from "@/lib/agents/runs";
-import { type AssistantMetadata, assistantMetadata, type Block } from "@/lib/assistant/blocks";
+import {
+  type AssistantMetadata,
+  assistantMetadata,
+  type Block,
+  type UserMetadata,
+  userMetadata,
+} from "@/lib/assistant/blocks";
 import type { ProjectAccess } from "@/lib/auth/permissions";
 import { db, type Executor } from "@/lib/db/client";
 import { agents, conversationAgentReads, conversations, messages } from "@/lib/db/schema";
@@ -35,6 +41,10 @@ export interface MessageView {
   /** Set when the message is pinned as a chapter. */
   chapterTitle: string | null;
   createdAt: Date;
+  /** Files sent with a user message. */
+  attachments: UserMetadata["attachments"];
+  /** Skills and connectors the person added as context. */
+  use: UserMetadata["use"] | null;
 }
 
 export interface Chapter {
@@ -180,7 +190,16 @@ function toMessageView(row: typeof messages.$inferSelect): MessageView {
     model: meta.success ? (meta.data.model ?? null) : null,
     chapterTitle: row.pinnedAt ? (row.chapterTitle ?? "") : null,
     createdAt: row.createdAt,
+    ...userParts(row),
   };
+}
+
+function userParts(row: typeof messages.$inferSelect) {
+  if (row.role !== "user") return { attachments: [], use: null };
+  const meta = userMetadata.safeParse(row.metadata);
+  return meta.success
+    ? { attachments: meta.data.attachments, use: meta.data.use }
+    : { attachments: [], use: null };
 }
 
 /**

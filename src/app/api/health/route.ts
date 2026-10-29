@@ -1,4 +1,5 @@
 import { sql } from "drizzle-orm";
+import { storageDriver } from "@/lib/attachments/storage";
 import { db } from "@/lib/db/client";
 
 export const dynamic = "force-dynamic";
@@ -25,6 +26,8 @@ export async function GET() {
     {
       status: database ? "ok" : "degraded",
       database,
+      /** Whether chat attachments can be stored (S3, or the database outside production). */
+      fileStorage: storageDriver() !== "none",
       commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? null,
       latencyMs: Date.now() - started,
     },

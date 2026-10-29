@@ -6,6 +6,14 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ErrorBlock } from "./blocks/simple";
 import { AgentAccessToggle, ChaptersMenu, ForkBanner } from "./chat-header-tools";
+import {
+  AttachButton,
+  ComposerChips,
+  ContextPicker,
+  NO_CONTEXT,
+  type PickedContext,
+  useAttachments,
+} from "./composer-extras";
 import { MessageItem, type MessageTools } from "./message-item";
 import { RewindDialog } from "./rewind-dialog";
 import type { ChatContext } from "./types";
@@ -38,6 +46,9 @@ export function Chat({
   const [draft, setDraft] = useState("");
   const [rewindTo, setRewindTo] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
+  const attachments = useAttachments(slug);
+  // Picked skills and connectors stay until removed: they apply to every next message.
+  const [picked, setPicked] = useState<PickedContext>(NO_CONTEXT);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const lastUser = [...chat.messages].reverse().find((m) => m.role === "user");
@@ -81,9 +92,17 @@ export function Chat({
       .map((r) => r.name);
 
   const submit = (text = draft) => {
-    if (!text.trim() || chat.busy) return;
+    if (!text.trim() || chat.busy || attachments.uploading) return;
     setDraft("");
-    void chat.send(text, context);
+    const files = attachments.ready;
+    attachments.clear();
+    void chat.send(text, context, {
+      attachments: files,
+      use: {
+        skills: picked.skills.map((s) => s.slug),
+        connectors: picked.connectors.map((c) => c.id),
+      },
+    });
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -231,12 +250,32 @@ export function Chat({
           e.preventDefault();
           submit();
         }}
+        onDragOver={(e) => {
+          if (canWrite && e.dataTransfer.types.includes("Files")) e.preventDefault();
+        }}
+        onDrop={(e) => {
+          if (!canWrite || !e.dataTransfer.files.length) return;
+          e.preventDefault();
+          attachments.add(e.dataTransfer.files);
+        }}
+        onPaste={(e) => {
+          if (canWrite && e.clipboardData.files.length) attachments.add(e.clipboardData.files);
+        }}
         className="border-t border-border p-3"
       >
+        <ComposerChips
+          files={attachments.files}
+          onRemoveFile={attachments.remove}
+          picked={picked}
+          onChange={setPicked}
+        />
         <label htmlFor={`composer-${slug}`} className="sr-only">
           {t("placeholder")}
         </label>
-        <div className="flex items-end gap-2 rounded-md border border-border-strong bg-surface p-1.5 focus-within:border-primary">
+        <div className="flex items-end gap-1 rounded-md border border-border-strong bg-surface p-1.5 focus-within:border-primary">
+          {canWrite ? (
+            <AttachButton onFiles={attachments.add} disabled={attachments.full || chat.busy} />
+          ) : null}
           <textarea
             id={`composer-${slug}`}
             ref={inputRef}
@@ -254,10 +293,13 @@ export function Chat({
               {t("stop")}
             </Button>
           ) : (
-            <Button size="sm" type="submit" disabled={!draft.trim()}>
+            <Button size="sm" type="submit" disabled={!draft.trim() || attachments.uploading}>
               {t("send")}
             </Button>
           )}
+        </div>
+        <div className="mt-1 flex flex-wrap items-center gap-2">
+          <ContextPicker slug={slug} value={picked} onChange={setPicked} />
         </div>
         <p
           id={`composer-hint-${slug}`}

@@ -5,6 +5,7 @@ import { runAction } from "@/lib/actions";
 import { requireActor } from "@/lib/auth/server";
 import { dismissPrdFindings, proposePrdUpdate } from "@/lib/brain/prd-findings";
 import { choosePrd, createPrdFromText } from "@/lib/imports/choose-prd";
+import { enhancePrdSection, savePrdBrief } from "@/lib/prd/service";
 
 const refresh = () => revalidatePath("/[locale]/project/[slug]", "layout");
 
@@ -36,5 +37,21 @@ export async function createPrdFromTextAction(slug: string, content: string) {
   return runAction("prd.create_text", { slug }, async () => {
     await createPrdFromText(await requireActor(), slug, { content });
     refresh();
+  });
+}
+
+/** Enhance one section of the Generate PRD form (a model when set up, else rules). */
+export async function enhancePrdSectionAction(slug: string, input: unknown) {
+  return runAction("prd.enhance", { slug }, async () =>
+    enhancePrdSection(await requireActor(), slug, input),
+  );
+}
+
+/** Saves the Generate PRD form as the PRD (first version, or a new one). */
+export async function savePrdBriefAction(slug: string, input: unknown) {
+  return runAction("prd.generate", { slug }, async () => {
+    const result = await savePrdBrief(await requireActor(), slug, input);
+    refresh();
+    return result;
   });
 }

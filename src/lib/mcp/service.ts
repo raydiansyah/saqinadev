@@ -1,10 +1,11 @@
 import "server-only";
 import { createHash } from "node:crypto";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, or } from "drizzle-orm";
 import * as z from "zod";
 import { recordAudit } from "@/lib/audit/service";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess, type ProjectAccess } from "@/lib/auth/permissions";
+import { endpointWithKey, URL_KEY_PLACEHOLDER } from "@/lib/connectors/presets";
 import { db } from "@/lib/db/client";
 import { mcpConnections, tools } from "@/lib/db/schema";
 import {
@@ -19,6 +20,7 @@ import { EventBatch } from "@/lib/events/emitter";
 import { assertSafeEndpoint } from "@/lib/net/endpoint-guard";
 import { revokeCredential, storeCredential, withSecret } from "@/lib/secrets/service";
 import { toolKey } from "@/lib/tools/catalog";
+import { ensureProjectTools } from "@/lib/tools/registry";
 import { parse } from "@/lib/validation";
 import { McpClient, McpError, type McpTool } from "./client";
 
@@ -35,9 +37,12 @@ export interface McpConnectionView {
   lastError: string | null;
   serverInfo: Record<string, string>;
   lastConnectedAt: Date | null;
+  /** A platform connector: managed by the platform owner, read-only in a project. */
+  platform: boolean;
 }
 
 const view = (r: McpConnectionRow): McpConnectionView => ({
+  platform: r.scope === "platform",
   id: r.id,
   name: r.name,
   serverType: r.serverType,
@@ -50,12 +55,18 @@ const view = (r: McpConnectionRow): McpConnectionView => ({
   lastConnectedAt: r.lastConnectedAt,
 });
 
+/** The project's own connections, then the platform's connectors that are switched on. */
 export async function listMcpConnections(access: ProjectAccess): Promise<McpConnectionView[]> {
   const rows = await db
     .select()
     .from(mcpConnections)
-    .where(eq(mcpConnections.projectId, access.project.id))
-    .orderBy(mcpConnections.name);
+    .where(
+      or(
+        eq(mcpConnections.projectId, access.project.id),
+        and(eq(mcpConnections.scope, "platform"), eq(mcpConnections.enabled, true)),
+      ),
+    )
+    .orderBy(mcpConnections.scope, mcpConnections.name);
   return rows.map(view);
 }
 
@@ -72,8 +83,11 @@ const createInput = z.object({
   secret: z.string().trim().max(1000).optional(),
 });
 
-async function checkEndpoint(serverType: string, endpoint: string) {
-  const url = await assertSafeEndpoint(endpoint);
+/** Checks where a connection points. A `{apiKey}` placeholder is checked with a stand-in. */
+export async function checkEndpoint(serverType: string, endpoint: string, authType = "none") {
+  if (authType === "url_key" && !endpoint.includes(URL_KEY_PLACEHOLDER))
+    throw new AppError("VALIDATION_ERROR", "Missing {apiKey}", { endpoint: "urlKey" });
+  const url = await assertSafeEndpoint(endpointWithKey(endpoint, "key"));
   const local = ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
   if (serverType === "local_dev" && !local)
     throw new AppError("VALIDATION_ERROR", "local_dev must be localhost", { endpoint: "notLocal" });
@@ -81,7 +95,7 @@ async function checkEndpoint(serverType: string, endpoint: string) {
 
 export async function createMcpConnection(actor: Actor, slug: string, input: unknown) {
   const data = parse(createInput, input);
-  await checkEndpoint(data.serverType, data.endpoint);
+  await checkEndpoint(data.serverType, data.endpoint, data.authType);
   if (data.authType !== "none" && !data.secret)
     throw new AppError("VALIDATION_ERROR", "Secret required", { secret: "required" });
   return db.transaction(async (tx) => {
@@ -130,8 +144,8 @@ export async function withMcpClient<T>(
   row: McpConnectionRow,
   use: (client: McpClient) => Promise<T>,
 ): Promise<T> {
-  const run = async (headers: Record<string, string>) => {
-    const client = new McpClient(row.endpoint, headers);
+  const run = async (headers: Record<string, string>, endpoint = row.endpoint) => {
+    const client = new McpClient(endpoint, headers);
     try {
       await client.initialize();
       return await use(client);
@@ -140,13 +154,15 @@ export async function withMcpClient<T>(
     }
   };
   if (row.authType === "none" || !row.credentialId) return run({});
-  return withSecret(row.credentialId, { kind: "mcp", projectId: row.projectId }, (secret) =>
-    run(
+  return withSecret(row.credentialId, { kind: "mcp", projectId: row.projectId }, (secret) => {
+    // The key in the URL exists only for this call; the stored endpoint keeps the placeholder.
+    if (row.authType === "url_key") return run({}, endpointWithKey(row.endpoint, secret));
+    return run(
       row.authType === "bearer"
         ? { authorization: `Bearer ${secret}` }
         : { [row.authHeader ?? "x-api-key"]: secret },
-    ),
-  );
+    );
+  });
 }
 
 /** Risk from the server's own hints; the Owner or project admin can change it. */
@@ -156,7 +172,7 @@ export function riskFromAnnotations(tool: McpTool): ToolRisk {
   return "medium";
 }
 
-const hashOf = (tool: McpTool) =>
+export const hashOf = (tool: McpTool) =>
   createHash("sha256")
     .update(JSON.stringify([tool.description ?? "", tool.inputSchema ?? {}]))
     .digest("hex")
@@ -307,6 +323,8 @@ export async function setToolTrust(actor: Actor, slug: string, input: unknown) {
 }
 
 export async function listProjectTools(access: ProjectAccess) {
+  // Platform connectors' tools appear here as soon as a project is looked at.
+  await ensureProjectTools(db, access.project.id);
   return db
     .select({
       id: tools.id,
