@@ -534,6 +534,60 @@
       "succeeded": "Done",
       "failed": "Failed",
       "show": "Show result"
+    },
+    "modelPicker": {
+      "default": "Platform default",
+      "defaultHint": "The model the platform set up.",
+      "answersWith": "Answer with",
+      "own": "Your own gateway",
+      "vision": "reads images",
+      "ownNotice": "Your message, the project text it needs and your files go to this provider, not to the platform's models. If it cannot answer, Saqina answers from project data without any model.",
+      "loading": "Loading...",
+      "failed": "Could not load your models.",
+      "mine": "My AI gateways",
+      "none": "No gateway yet. Add your own OpenAI, Anthropic or Gemini key, or an OpenAI-compatible endpoint.",
+      "modelCount": "{count, plural, one {# model} other {# models}}",
+      "test": "Test",
+      "remove": "Remove",
+      "addButton": "Add my gateway",
+      "add": "Check and add",
+      "adding": "Checking...",
+      "cancel": "Cancel",
+      "provider": "Provider",
+      "name": "Name",
+      "baseUrl": "Endpoint URL",
+      "baseUrlHint": "The address of an OpenAI-compatible API, for example https://api.example.com/v1.",
+      "apiKey": "API key",
+      "apiKeyHint": "Only you can use it. Stored encrypted and never shown again.",
+      "models": "Models",
+      "modelsHint": "Optional. Model ids separated by commas; empty adds the chat models your key can see.",
+      "modelsHintRequired": "Model ids separated by commas, for example my-model-70b.",
+      "terms": "You use your own account, so the provider's terms for API use apply to you.",
+      "termsLink": "Read the terms",
+      "subscriptionNote": "Use an API key. Signing in with a ChatGPT or Claude subscription is not offered: Anthropic does not allow its subscription login in other apps, and OpenAI's third-party sign-in needs verification first.",
+      "externalOff": "The platform owner has turned off outside providers, so your own gateway cannot be used.",
+      "adapters": {
+        "openai": "OpenAI (ChatGPT API)",
+        "anthropic": "Anthropic (Claude API)",
+        "gemini": "Google Gemini",
+        "openai_compatible": "Other (OpenAI-compatible)",
+        "anthropic_compatible": "Other (Anthropic-compatible)"
+      },
+      "status": {
+        "connected": "Working",
+        "untested": "Not tested",
+        "unauthorized": "Key refused",
+        "error": "Error",
+        "disconnected": "Disconnected"
+      },
+      "errors": {
+        "refused": "The provider refused this key.",
+        "unreachable": "The provider could not be reached.",
+        "required": "This is required.",
+        "externalOff": "Outside providers are turned off by the platform owner.",
+        "invalid": "Invalid value.",
+        "testFailed": "The check failed. Look at the key and the endpoint."
+      }
     }
   }
 }

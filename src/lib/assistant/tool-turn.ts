@@ -132,7 +132,7 @@ export async function runToolTurn(
     failed: (tool: string) => string;
     none: string;
   },
-  options: { provider?: AiProvider; signal?: AbortSignal } = {},
+  options: { provider?: AiProvider; signal?: AbortSignal; userModelId?: string | null } = {},
 ): Promise<ToolTurn | null> {
   const { choices } = input;
   if (choices.length === 0) return null;
@@ -141,6 +141,7 @@ export async function runToolTurn(
     operation: "tool_call",
     required: ["structured_output"],
     override: options.provider,
+    userModelId: options.userModelId,
     run: async (client) => {
       if (client.deterministic) return ruleChoice(input.message, choices);
       const raw = await client.generateObject(

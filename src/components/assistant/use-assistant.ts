@@ -168,6 +168,8 @@ export function useAssistant(
         attachments?: NonNullable<UIMessage["attachments"]>;
         /** Skills and connectors picked as context. */
         use?: { skills: string[]; connectors: string[] };
+        /** One of the person's own models; null or empty: the platform's. */
+        modelId?: string | null;
       } = {},
     ) => {
       const text = content.trim();
@@ -223,6 +225,7 @@ export function useAssistant(
             context: context.type === "project" ? null : { type: context.type, id: context.id },
             attachmentIds: (opts.attachments ?? []).map((a) => a.id),
             use: opts.use ?? { skills: [], connectors: [] },
+            modelId: opts.modelId ?? null,
           }),
           signal: controller.signal,
         });

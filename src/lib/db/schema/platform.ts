@@ -81,22 +81,28 @@ export const credentials = pgTable(
   (t) => [index("credentials_scope_idx").on(t.scope, t.projectId)],
 );
 
-export const aiProviders = pgTable("ai_providers", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  slug: text("slug").notNull().unique(),
-  name: text("name").notNull(),
-  type: text("type").$type<ProviderType>().notNull(),
-  adapter: text("adapter").$type<ProviderAdapterId>().notNull(),
-  baseUrl: text("base_url"),
-  status: text("status").$type<ConnectionStatus>().notNull().default("untested"),
-  enabled: boolean("enabled").notNull().default(true),
-  credentialId: uuid("credential_id").references(() => credentials.id, { onDelete: "set null" }),
-  /** Non-secret adapter settings (API version, headers names). */
-  configuration: jsonb("configuration").$type<Record<string, string>>().notNull().default({}),
-  lastTestedAt: timestamp("last_tested_at", { withTimezone: true }),
-  createdAt: createdAt(),
-  updatedAt: updatedAt(),
-});
+export const aiProviders = pgTable(
+  "ai_providers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: text("slug").notNull().unique(),
+    name: text("name").notNull(),
+    type: text("type").$type<ProviderType>().notNull(),
+    adapter: text("adapter").$type<ProviderAdapterId>().notNull(),
+    baseUrl: text("base_url"),
+    status: text("status").$type<ConnectionStatus>().notNull().default("untested"),
+    enabled: boolean("enabled").notNull().default(true),
+    credentialId: uuid("credential_id").references(() => credentials.id, { onDelete: "set null" }),
+    /** Set for a person's own gateway; null for the platform's. Only that person can use it. */
+    ownerUserId: text("owner_user_id").references(() => users.id, { onDelete: "cascade" }),
+    /** Non-secret adapter settings (API version, headers names). */
+    configuration: jsonb("configuration").$type<Record<string, string>>().notNull().default({}),
+    lastTestedAt: timestamp("last_tested_at", { withTimezone: true }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [index("ai_providers_owner_idx").on(t.ownerUserId)],
+);
 
 export const aiModels = pgTable(
   "ai_models",

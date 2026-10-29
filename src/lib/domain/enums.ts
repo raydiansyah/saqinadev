@@ -437,6 +437,7 @@ export const MODEL_CAPABILITIES = [
 export type ModelCapability = (typeof MODEL_CAPABILITIES)[number];
 
 export const MODEL_SOURCES = [
+  "user_choice",
   "agent_override",
   "project_override",
   "platform_default",

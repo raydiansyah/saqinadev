@@ -589,6 +589,7 @@
       "resolved": "Resolved model per agent",
       "source": "Source",
       "sources": {
+        "user_choice": "Your own model",
         "agent_override": "Agent mapping",
         "project_override": "Project",
         "platform_default": "Platform default",
