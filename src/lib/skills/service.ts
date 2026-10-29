@@ -268,6 +268,8 @@ export async function listUsableSkills(): Promise<UsableSkill[]> {
 /** The switched-on skills a person picked by slug, for the prompt. Unknown slugs are skipped. */
 export async function platformSkillsBySlugs(slugs: string[]): Promise<PromptSkill[]> {
   if (slugs.length === 0) return [];
+  // The built-in rows are created the first time anything looks at skills.
+  await ensureBuiltinSkills();
   const rows = await db
     .select()
     .from(platformSkills)

@@ -154,10 +154,17 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 | S3 | Build in Saqina: Start building hands each open task to the team agent whose role fits it; each result is a proposal a person approves. A project built elsewhere only opens the Studio | Built |
 | S8 | Attach files in the chat: text (into the prompt), images and PDF (to a model that can read them); stored in a private S3 bucket, served only after an access check; 5 MB and 5 files per message ([ADR 0011](adr/0011-chat-attachments-and-tools.md)) | Built |
 | S9 | Add context in the chat: pick switched-on skills (always in the prompt) and connectors; a picked or named connector's tool runs from the chat through the same policy (high risk waits for approval) and its result is shown; owners and project admins reach "Manage connectors" from the menu | Built |
-| S4 | Code view of the project repository in the work area | Planned (Studio phase 2) |
-| S5 | Live preview in a sandbox | Planned (Studio phase 2) |
-| S6 | Git: branches, commits and pull requests from the work area | Planned (Studio phase 2) |
-| S7 | Publish to a `*.saqina.dev` subdomain by default, then a custom domain | Planned (Studio phase 2; needs wildcard DNS and a deploy target) |
+| G1 | Repository events: Saqina installs the webhook itself (a token without admin rights falls back to a manual URL and secret) and records push, pull request, check suite, workflow run and deployment status | Built |
+| G2 | A branch, pull request or commit that carries a task reference (`T-xxxxxxxx`) is linked to the task. An opened pull request puts the task in review; a merged one completes it (the merge is the person's decision) ([ADR 0012](adr/0012-git-ci-and-deploys-flow-back.md)) | Built |
+| G3 | CI results and deployments are shown, and the delivery page suggests build, review and deploy answers from them; a person confirms each one | Built |
+| G4 | A push to the default branch refreshes the head and queues a code reindex | Built |
+| L1 | Local IDE over MCP: read tasks, claim a task, report review or blocked (never done), read skills, use the project's connector tools under the same policy, read AGENTS.md and context files as resources ([ADR 0014](adr/0014-local-ide-sync-over-mcp.md)) | Built |
+| L2 | A project AGENTS.md (workflow, branch naming, reporting, skills and connectors) from live data, by MCP and as a download | Built |
+| L3 | Setup snippets for Claude Code, Cursor, Codex and Kiro, and every token scope selectable | Built |
+| S4 | Code: read-only view of the connected repository (folders and files, secrets masked) in the work area | Built |
+| S5 | Preview: the published project in a sandboxed frame, with a picker for earlier deployments (a build sandbox for unpublished code is not part of this version) | Built |
+| S6 | Git: branches, pull requests and CI checks linked to tasks, and the switch that turns repository events on; Saqina never merges | Built |
+| S7 | Publish to `<project>.saqina.dev` on Saqina's Vercel team by default, or to the client's own Vercel account (own token, optional custom domain); a person presses Publish ([ADR 0013](adr/0013-publishing-to-vercel.md)) | Built (needs `VERCEL_TOKEN` and the wildcard domain, see the runbook) |
 
 ## 6. Non-functional requirements
 

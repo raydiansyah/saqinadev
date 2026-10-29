@@ -232,6 +232,13 @@
       "when": 1793235055312,
       "tag": "0032_chat_attachments",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1793240216510,
+      "tag": "0033_sync_git_ci_deploy",
+      "breakpoints": true
     }
   ]
 }

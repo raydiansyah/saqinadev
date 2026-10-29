@@ -34,7 +34,7 @@ The Studio puts the chat beside a work area.
 
 - **Plan** shows milestones and tasks. When you ask for a plan in the chat, the work area turns to it.
 - **Agents** shows the agents at work and links to each run.
-- **Code**, **Preview**, **Git** and **Publish** are coming next.
+- **Code** shows the repository (read only), **Git** its pull requests and checks, **Preview** the live site and **Publish** puts it online.
 
 When the assistant is not sure what a change-making request meant, it asks in the chat first and does nothing until you answer **Yes, go ahead**.
 
@@ -62,6 +62,41 @@ Under **AI & Models**:
 ![Skills under AI & Models, with Superpowers built in](/api/docs/assets/owner/studio-03-skills.png)
 
 ![Connectors under AI & Models: Firecrawl, Exa, Context7 and a custom MCP server](/api/docs/assets/owner/studio-04-connectors.png)
+
+## How everything stays in sync
+
+Saqina is the centre. Whether the work is done in the Studio or in your own IDE, it ends up in the same Git repository, and what happens to it there comes back to Saqina.
+
+```mermaid
+flowchart LR
+  S[Saqina Dev] --> G[Git repository]
+  G --> CI[CI/CD]
+  CI --> V[Vercel]
+  V --> P[project.saqina.dev]
+  P -- status --> S
+  CI -- checks --> S
+  G -- pull requests --> S
+  ST[Studio: build in Saqina] <--> S
+  IDE[Local IDE agent, your own model] <-- MCP --> S
+  ST --> G
+  IDE --> G
+```
+
+**Git.** Connecting a GitHub repository installs the webhook by itself. If your token has no admin rights on the repository, **Studio > Git** shows a URL and a secret to add in GitHub. From then on, branches, pull requests, checks and deployments appear in the **Git** tab.
+
+**Task references.** Every task has a short reference such as `T-1a2b3c4d`. Put it in the branch name (`saqina/T-1a2b3c4d-checkout`) or write `Saqina-Task: T-1a2b3c4d` in the pull request. Saqina links the branch and the pull request to the task. An opened pull request puts the task in review; when you merge it on GitHub, the task is done. Closing a pull request without merging changes nothing.
+
+![The Git tab: pull requests linked to tasks, and the checks](/api/docs/assets/owner/studio-06-git.png)
+
+**Delivery answers.** On **Progress**, a green check on the main branch, a merged pull request and a successful production deployment appear as suggestions with a **Confirm: Yes** button. You still answer; nothing is filled in for you.
+
+**Publish.** In **Studio > Publish**, **Publish** creates the Vercel project from your repository and puts it at `<project>.saqina.dev`. By default this uses Saqina's Vercel. You can instead choose **My own Vercel** and paste your own Vercel token (and team and your own domain). The token is stored encrypted, only for this project. Vercel's GitHub app must be able to see the repository. **Preview** shows the live site.
+
+![Publish: the address, the deployments and the choice of Vercel account](/api/docs/assets/owner/studio-07-publish.png)
+
+**Your own IDE.** Under **Settings > Agent access**, create a token, choose its permissions (add *Claim tasks and report their result* and *Use the project's connector tools* for full sync), copy the snippet for Claude Code, Cursor, Codex or Kiro, and download **AGENTS.md** into your repository. The agent then lists tasks, claims one, works on a branch with the task reference, opens a pull request and reports `review` or `blocked`. It uses your own model, and gets the same skills and connectors as Saqina's agents. Only you mark a task done, by merging.
+
+![Connect an IDE agent: snippets and the AGENTS.md download](/api/docs/assets/owner/studio-08-mcp.png)
 
 ## Agent model
 

@@ -379,7 +379,14 @@ export type PlatformRole = (typeof PLATFORM_ROLES)[number];
 export const CREDENTIAL_SCOPES = ["platform", "project", "user"] as const;
 export type CredentialScope = (typeof CREDENTIAL_SCOPES)[number];
 
-export const CREDENTIAL_KINDS = ["ai_provider", "git", "git_webhook", "mcp", "agent"] as const;
+export const CREDENTIAL_KINDS = [
+  "ai_provider",
+  "git",
+  "git_webhook",
+  "mcp",
+  "agent",
+  "deploy",
+] as const;
 export type CredentialKind = (typeof CREDENTIAL_KINDS)[number];
 
 export const CONNECTION_STATUSES = [
@@ -536,3 +543,28 @@ export const DOC_LINK_STATES = [
   "excluded",
 ] as const;
 export type DocLinkState = (typeof DOC_LINK_STATES)[number];
+
+// ── Sync: Git events, CI, deployments ──────────────────────────────────────────────────
+
+export const TASK_LINK_KINDS = ["branch", "pr", "commit"] as const;
+export type TaskLinkKind = (typeof TASK_LINK_KINDS)[number];
+
+/** Where a linked pull request stands. */
+export const TASK_LINK_STATES = ["open", "merged", "closed"] as const;
+export type TaskLinkState = (typeof TASK_LINK_STATES)[number];
+
+export const CI_STATUSES = ["queued", "in_progress", "completed"] as const;
+export type CiStatus = (typeof CI_STATUSES)[number];
+
+export const DEPLOY_ENVIRONMENTS = ["production", "preview"] as const;
+export type DeployEnvironment = (typeof DEPLOY_ENVIRONMENTS)[number];
+
+export const DEPLOYMENT_STATES = ["pending", "success", "failure", "inactive"] as const;
+export type DeploymentState = (typeof DEPLOYMENT_STATES)[number];
+
+/** Whose Vercel account hosts the project: Saqina's team (default) or the client's own. */
+export const DEPLOY_OWNERS = ["saqina", "client"] as const;
+export type DeployOwner = (typeof DEPLOY_OWNERS)[number];
+
+export const DEPLOY_TARGET_STATUSES = ["pending", "ready", "error"] as const;
+export type DeployTargetStatus = (typeof DEPLOY_TARGET_STATUSES)[number];

@@ -623,6 +623,127 @@
       "starting": "Starting...",
       "started": "{count, plural, =0 {No open task was left to start.} one {# task was handed to an agent.} other {# tasks were handed to agents.}}",
       "skipped": "{count, plural, one {# task has no fitting agent and stays for the team.} other {# tasks have no fitting agent and stay for the team.}}"
+    },
+    "noRepository": "No repository is connected yet. Connect a GitHub repository and the Studio shows its code, branches, pull requests and checks.",
+    "connectRepository": "Connect a repository",
+    "errors": {
+      "notConfigured": "Saqina's Vercel account is not set up on this server. Use your own Vercel account instead.",
+      "noRepository": "Connect a GitHub repository first.",
+      "vercelAuth": "Vercel refused the token.",
+      "vercelBusy": "Vercel is busy. Try again in a minute.",
+      "vercelFailed": "Vercel did not accept the request. Check that the Vercel GitHub app can see the repository.",
+      "refused": "Vercel refused the token.",
+      "unreachable": "Vercel could not be reached.",
+      "required": "A token is needed.",
+      "invalid": "Invalid value.",
+      "ownVercel": "Custom domains need your own Vercel account.",
+      "notConnected": "No repository is connected.",
+      "gitAuth": "GitHub refused the repository token. Reconnect the repository under Integrations.",
+      "gitNotFound": "That path or repository was not found.",
+      "gitFailed": "GitHub could not be reached. Try again."
+    },
+    "code": {
+      "hint": "Read-only view of {repository} on its default branch.",
+      "open": "Open the repository",
+      "loading": "Loading...",
+      "up": "Up one level",
+      "empty": "This folder is empty.",
+      "truncated": "Only the start of the file is shown."
+    },
+    "git": {
+      "eventsOff": "Saqina is not listening to this repository yet. Turn on events to see pull requests, checks and deployments here, and to move tasks along.",
+      "enable": "Turn on events",
+      "enabling": "Setting up...",
+      "installed": "Events are on. Pull requests, checks and deployments now arrive in Saqina.",
+      "manual": "Saqina could not add the webhook itself (the token needs admin rights on the repository). In GitHub, add a webhook with these values, content type JSON, for push, pull request, check suite, workflow run and deployment status events.",
+      "secret": "Secret",
+      "links": "Branches and pull requests",
+      "noLinks": "No branch or pull request names a task yet. Use the task reference (for example T-1a2b3c4d) in the branch name or the pull request.",
+      "ci": "Checks",
+      "noCi": "No check has reported yet.",
+      "kinds": {
+        "branch": "Branch",
+        "pr": "PR",
+        "commit": "Commit"
+      },
+      "states": {
+        "open": "Open",
+        "merged": "Merged",
+        "closed": "Closed"
+      },
+      "ciResult": {
+        "success": "Passed",
+        "failure": "Failed"
+      },
+      "ciStatus": {
+        "queued": "Queued",
+        "in_progress": "Running",
+        "completed": "Done"
+      }
+    },
+    "preview": {
+      "none": "Nothing is published yet. Publish the project and its latest version shows here.",
+      "goPublish": "Go to Publish",
+      "pick": "Choose a version",
+      "open": "Open in a new tab",
+      "frame": "Preview of the published project",
+      "env": {
+        "production": "Live",
+        "preview": "Preview"
+      }
+    },
+    "publish": {
+      "where": "Published at",
+      "ownerSaqina": "Saqina's Vercel",
+      "ownerClient": "Your own Vercel",
+      "status": {
+        "pending": "Not published yet",
+        "ready": "Ready",
+        "error": "Needs attention"
+      },
+      "lastError": {
+        "vercelAuth": "Vercel refused the token",
+        "vercelBusy": "Vercel was busy",
+        "vercelFailed": "Vercel did not accept the request"
+      },
+      "needsRepository": "Connect a GitHub repository first: Vercel builds from it.",
+      "publish": "Publish",
+      "publishing": "Publishing...",
+      "published": "Publishing started. The status appears below when Vercel reports it.",
+      "refresh": "Refresh status",
+      "history": "Deployments",
+      "noDeployments": "No deployment yet.",
+      "env": {
+        "production": "Live",
+        "preview": "Preview"
+      },
+      "state": {
+        "pending": "Building",
+        "success": "Ready",
+        "failure": "Failed",
+        "inactive": "Inactive"
+      },
+      "account": "Vercel account",
+      "owners": {
+        "saqina": "Saqina's Vercel (default)",
+        "client": "My own Vercel"
+      },
+      "ownersHint": {
+        "saqina": "Published at {domain}.",
+        "saqinaOff": "Not set up on this server.",
+        "client": "Uses your token and team; you can use your own domain."
+      },
+      "token": "Vercel token",
+      "tokenHint": "Create one in Vercel under Account Settings > Tokens. Stored encrypted, never shown again.",
+      "tokenKept": "A token is stored. Leave empty to keep it.",
+      "teamId": "Team ID (optional)",
+      "teamHint": "Leave empty for a personal account.",
+      "domain": "Custom domain (optional)",
+      "domainHint": "For example app.yourcompany.com. Point its DNS to Vercel as it explains.",
+      "save": "Save",
+      "saved": "Saved. Publish to apply it.",
+      "remove": "Remove my Vercel",
+      "needsAccount": "Saqina's Vercel is not set up on this server. Choose \"My own Vercel\" below, or ask the platform owner to set it up."
     }
   }
 }

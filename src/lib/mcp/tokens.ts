@@ -20,13 +20,19 @@ import { parse } from "@/lib/validation";
  * member who created it: it can never do more than either of them could.
  */
 
-/** What a token may be scoped to. Writes are proposals only; nothing here can push or deploy. */
+/**
+ * What a token may be scoped to. Documents and memory are proposals; tasks may only be claimed and
+ * reported as review or blocked (a person marks them done); connector tools keep their own
+ * policy. Nothing here can push or deploy.
+ */
 export const TOKEN_SCOPES = [
   "read_project",
   "read_prd",
   "read_tasks",
   "read_memory",
   "read_repository",
+  "write_tasks",
+  "use_mcp_tools",
   "write_documents",
   "write_memory",
 ] as const;

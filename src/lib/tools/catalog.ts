@@ -208,6 +208,127 @@ export const STATIC_TOOLS: StaticTool[] = [
   },
   {
     source: "internal",
+    name: "list_tasks",
+    description:
+      "The project's tasks with their reference (T-xxxxxxxx), status and priority. Filter by status. Use the reference in your branch name and pull request.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        status: {
+          type: "string",
+          enum: ["backlog", "todo", "in_progress", "review", "blocked", "done"],
+        },
+      },
+      additionalProperties: false,
+    },
+    riskLevel: "low",
+    agentPermission: "read_tasks",
+  },
+  {
+    source: "internal",
+    name: "read_task",
+    description:
+      "One task by reference (T-xxxxxxxx) or id: description, status, and the branches and pull requests linked to it.",
+    inputSchema: {
+      type: "object",
+      properties: { task: str(64) },
+      required: ["task"],
+      additionalProperties: false,
+    },
+    riskLevel: "low",
+    agentPermission: "read_tasks",
+  },
+  {
+    source: "internal",
+    name: "claim_task",
+    description:
+      "Start work on a task: it moves to in progress and the team sees you are on it. Returns the branch name to use. Refuses a task that is already in progress or done.",
+    inputSchema: {
+      type: "object",
+      properties: { task: str(64) },
+      required: ["task"],
+      additionalProperties: false,
+    },
+    riskLevel: "medium",
+    agentPermission: "write_tasks",
+  },
+  {
+    source: "internal",
+    name: "report_task_result",
+    description:
+      "Report where a task stands: review (ready for a person to check) or blocked. Add a summary and the branch or pull request. Only a person marks a task done, by merging the pull request or approving it in Saqina.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        task: str(64),
+        status: { type: "string", enum: ["review", "blocked"] },
+        summary: str(2000),
+        branch: { type: "string", maxLength: 200 },
+        pullRequestUrl: { type: "string", maxLength: 300 },
+        issues: { type: "array", items: str(300), maxItems: 10 },
+      },
+      required: ["task", "status", "summary"],
+      additionalProperties: false,
+    },
+    riskLevel: "medium",
+    agentPermission: "write_tasks",
+  },
+  {
+    source: "internal",
+    name: "list_skills",
+    description:
+      "Skills the platform owner switched on (name and description). Read one with get_skill and follow its method.",
+    inputSchema: { type: "object", properties: {}, additionalProperties: false },
+    riskLevel: "low",
+    agentPermission: "read_project",
+  },
+  {
+    source: "internal",
+    name: "get_skill",
+    description: "The full SKILL.md text of one skill, by slug (see list_skills).",
+    inputSchema: {
+      type: "object",
+      properties: { slug: str(64) },
+      required: ["slug"],
+      additionalProperties: false,
+    },
+    riskLevel: "low",
+    agentPermission: "read_project",
+  },
+  {
+    source: "internal",
+    name: "list_connector_tools",
+    description:
+      "Tools of the connectors set up for this project (web search, scraping, documentation...), with their input schema. Run one with call_connector_tool.",
+    inputSchema: { type: "object", properties: {}, additionalProperties: false },
+    riskLevel: "low",
+    agentPermission: "use_mcp_tools",
+  },
+  {
+    source: "internal",
+    name: "call_connector_tool",
+    description:
+      "Run a connector tool by its key (from list_connector_tools). Saqina applies the tool's own policy: a tool that can change things outside Saqina waits for a person's approval and says so.",
+    inputSchema: {
+      type: "object",
+      properties: { tool: str(200), input: { type: "object" } },
+      required: ["tool"],
+      additionalProperties: false,
+    },
+    riskLevel: "medium",
+    agentPermission: "use_mcp_tools",
+  },
+  {
+    source: "internal",
+    name: "get_setup",
+    description:
+      "The AGENTS.md for this project: how to work with Saqina from a local IDE (workflow, branch names, reporting). Save it at the repository root.",
+    inputSchema: { type: "object", properties: {}, additionalProperties: false },
+    riskLevel: "low",
+    agentPermission: "read_project",
+  },
+  {
+    source: "internal",
     name: "read_memory",
     description:
       "One memory entry by id (from search_memory), with its full text and where it came from.",

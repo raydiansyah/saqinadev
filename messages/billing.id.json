@@ -295,6 +295,12 @@
         "toDone": "{count} task akan ditandai selesai: pekerjaannya sudah di-review.",
         "toReview": "{count} task yang masih terbuka akan dipindah ke review: pekerjaannya sudah di-build dan menunggu pengecekan.",
         "note": "Task hanya bergerak maju. Setelah itu setiap task tetap bisa Anda ubah sendiri."
+      },
+      "evidence": {
+        "ci_green": "Check lulus di branch utama",
+        "pr_merged": "Pull request sudah digabung",
+        "deployed": "Deployment production berhasil",
+        "confirm": "Konfirmasi: Ya"
       }
     },
     "noPrd": "PRD belum ditemukan di repository.",

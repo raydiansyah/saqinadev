@@ -19,9 +19,35 @@ const SCOPES = [
   "read_prd",
   "read_tasks",
   "read_memory",
+  "read_repository",
+  "write_tasks",
+  "use_mcp_tools",
   "write_documents",
   "write_memory",
 ] as const;
+const IDES = ["claude", "cursor", "codex", "kiro"] as const;
+type Ide = (typeof IDES)[number];
+
+/** The connection snippet for each IDE agent; YOUR_TOKEN is replaced with a token made below. */
+const snippetFor = (ide: Ide, endpoint: string) =>
+  ({
+    claude: `claude mcp add --transport http saqina ${endpoint} --header "Authorization: Bearer YOUR_TOKEN"`,
+    cursor: JSON.stringify(
+      {
+        mcpServers: { saqina: { url: endpoint, headers: { Authorization: "Bearer YOUR_TOKEN" } } },
+      },
+      null,
+      2,
+    ),
+    codex: `[mcp_servers.saqina]\nurl = "${endpoint}"\nbearer_token_env_var = "SAQINA_TOKEN"\n# export SAQINA_TOKEN=YOUR_TOKEN`,
+    kiro: JSON.stringify(
+      {
+        mcpServers: { saqina: { url: endpoint, headers: { Authorization: "Bearer YOUR_TOKEN" } } },
+      },
+      null,
+      2,
+    ),
+  })[ide];
 const DEFAULT_SCOPES: readonly string[] = ["read_project", "read_prd", "read_tasks", "read_memory"];
 const EXPIRIES = ["30", "90", "365", "never"] as const;
 
@@ -89,7 +115,8 @@ export function McpServerPanel({
   const { pending, error, run } = useRun();
   const tools = agents.filter((a) => !a.team);
   const team = agents.filter((a) => a.team);
-  const snippet = `claude mcp add --transport http saqina ${endpoint} --header "Authorization: Bearer YOUR_TOKEN"`;
+  const [ide, setIde] = useState<Ide>("claude");
+  const snippet = snippetFor(ide, endpoint);
 
   // The one-time token must not survive navigation.
   useEffect(() => () => setFresh(null), []);
@@ -121,6 +148,30 @@ export function McpServerPanel({
         </div>
         <div>
           <p className="mb-1.5 text-sm font-medium">{t("mcpServer.snippet")}</p>
+          <div
+            role="tablist"
+            aria-label={t("mcpServer.snippet")}
+            className="mb-2 flex flex-wrap gap-1"
+          >
+            {IDES.map((x) => (
+              <button
+                key={x}
+                type="button"
+                role="tab"
+                aria-selected={ide === x}
+                onClick={() => setIde(x)}
+                className={cn(
+                  "min-h-11 rounded-md px-3 text-sm",
+                  ide === x
+                    ? "bg-surface-raised font-medium"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {t(`mcpServer.ides.${x}`)}
+              </button>
+            ))}
+          </div>
+          <p className="mb-1.5 text-xs text-subtle-foreground">{t(`mcpServer.where.${ide}`)}</p>
           <div className="flex flex-wrap items-start gap-2">
             <pre className="min-w-0 flex-1 overflow-x-auto rounded-md border border-border bg-surface px-3 py-2 font-mono text-xs">
               <code>{snippet}</code>
@@ -128,6 +179,14 @@ export function McpServerPanel({
             <CopyButton value={snippet} label={t("mcpServer.snippet")} />
           </div>
           <p className="mt-1.5 text-xs text-subtle-foreground">{t("mcpServer.snippetHint")}</p>
+          <a
+            href={`/api/projects/${slug}/setup`}
+            download="AGENTS.md"
+            className="mt-2 inline-flex min-h-11 items-center text-sm text-primary underline-offset-2 hover:underline"
+          >
+            {t("mcpServer.downloadAgents")}
+          </a>
+          <p className="text-xs text-subtle-foreground">{t("mcpServer.downloadHint")}</p>
         </div>
       </div>
 

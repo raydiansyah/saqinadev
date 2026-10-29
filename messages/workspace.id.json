@@ -623,6 +623,127 @@
       "starting": "Memulai...",
       "started": "{count, plural, =0 {Tidak ada task terbuka yang tersisa untuk dimulai.} other {# task diserahkan ke agen.}}",
       "skipped": "{count, plural, other {# task tidak punya agen yang cocok dan tetap untuk tim.}}"
+    },
+    "noRepository": "Belum ada repository yang terhubung. Hubungkan repository GitHub dan Studio menampilkan kode, branch, pull request, dan check-nya.",
+    "connectRepository": "Hubungkan repository",
+    "errors": {
+      "notConfigured": "Akun Vercel Saqina belum disiapkan di server ini. Pakai akun Vercel Anda sendiri.",
+      "noRepository": "Hubungkan repository GitHub dulu.",
+      "vercelAuth": "Vercel menolak token.",
+      "vercelBusy": "Vercel sedang sibuk. Coba lagi sebentar lagi.",
+      "vercelFailed": "Vercel tidak menerima permintaan. Pastikan aplikasi GitHub Vercel bisa melihat repository.",
+      "refused": "Vercel menolak token.",
+      "unreachable": "Vercel tidak bisa dihubungi.",
+      "required": "Token diperlukan.",
+      "invalid": "Nilai tidak valid.",
+      "ownVercel": "Domain kustom perlu akun Vercel Anda sendiri.",
+      "notConnected": "Belum ada repository yang terhubung.",
+      "gitAuth": "GitHub menolak token repository. Hubungkan ulang repository di Integrasi.",
+      "gitNotFound": "Path atau repository tidak ditemukan.",
+      "gitFailed": "GitHub tidak bisa dihubungi. Coba lagi."
+    },
+    "code": {
+      "hint": "Tampilan baca saja untuk {repository} di branch utamanya.",
+      "open": "Buka repository",
+      "loading": "Memuat...",
+      "up": "Naik satu level",
+      "empty": "Folder ini kosong.",
+      "truncated": "Hanya awal file yang ditampilkan."
+    },
+    "git": {
+      "eventsOff": "Saqina belum mendengarkan repository ini. Nyalakan event agar pull request, check dan deployment muncul di sini, dan task ikut bergerak.",
+      "enable": "Nyalakan event",
+      "enabling": "Menyiapkan...",
+      "installed": "Event menyala. Pull request, check dan deployment kini masuk ke Saqina.",
+      "manual": "Saqina tidak bisa memasang webhook sendiri (token perlu hak admin di repository). Di GitHub, tambahkan webhook dengan nilai berikut, content type JSON, untuk event push, pull request, check suite, workflow run dan deployment status.",
+      "secret": "Secret",
+      "links": "Branch dan pull request",
+      "noLinks": "Belum ada branch atau pull request yang menyebut task. Pakai referensi task (misalnya T-1a2b3c4d) di nama branch atau pull request.",
+      "ci": "Check",
+      "noCi": "Belum ada check yang melapor.",
+      "kinds": {
+        "branch": "Branch",
+        "pr": "PR",
+        "commit": "Commit"
+      },
+      "states": {
+        "open": "Terbuka",
+        "merged": "Digabung",
+        "closed": "Ditutup"
+      },
+      "ciResult": {
+        "success": "Lulus",
+        "failure": "Gagal"
+      },
+      "ciStatus": {
+        "queued": "Antre",
+        "in_progress": "Berjalan",
+        "completed": "Selesai"
+      }
+    },
+    "preview": {
+      "none": "Belum ada yang dipublikasikan. Publikasikan project dan versi terbarunya tampil di sini.",
+      "goPublish": "Ke Publish",
+      "pick": "Pilih versi",
+      "open": "Buka di tab baru",
+      "frame": "Pratinjau project yang dipublikasikan",
+      "env": {
+        "production": "Live",
+        "preview": "Preview"
+      }
+    },
+    "publish": {
+      "where": "Dipublikasikan di",
+      "ownerSaqina": "Vercel Saqina",
+      "ownerClient": "Vercel Anda sendiri",
+      "status": {
+        "pending": "Belum dipublikasikan",
+        "ready": "Siap",
+        "error": "Perlu perhatian"
+      },
+      "lastError": {
+        "vercelAuth": "Vercel menolak token",
+        "vercelBusy": "Vercel sedang sibuk",
+        "vercelFailed": "Vercel tidak menerima permintaan"
+      },
+      "needsRepository": "Hubungkan repository GitHub dulu: Vercel membangun dari sana.",
+      "publish": "Publish",
+      "publishing": "Mempublikasikan...",
+      "published": "Publish dimulai. Statusnya muncul di bawah saat Vercel melaporkan.",
+      "refresh": "Segarkan status",
+      "history": "Deployment",
+      "noDeployments": "Belum ada deployment.",
+      "env": {
+        "production": "Live",
+        "preview": "Preview"
+      },
+      "state": {
+        "pending": "Dibangun",
+        "success": "Siap",
+        "failure": "Gagal",
+        "inactive": "Nonaktif"
+      },
+      "account": "Akun Vercel",
+      "owners": {
+        "saqina": "Vercel Saqina (default)",
+        "client": "Vercel saya sendiri"
+      },
+      "ownersHint": {
+        "saqina": "Dipublikasikan di {domain}.",
+        "saqinaOff": "Belum disiapkan di server ini.",
+        "client": "Memakai token dan tim Anda; bisa memakai domain sendiri."
+      },
+      "token": "Token Vercel",
+      "tokenHint": "Buat di Vercel pada Account Settings > Tokens. Disimpan terenkripsi, tidak ditampilkan lagi.",
+      "tokenKept": "Token sudah tersimpan. Kosongkan untuk tetap memakainya.",
+      "teamId": "Team ID (opsional)",
+      "teamHint": "Kosongkan untuk akun pribadi.",
+      "domain": "Domain kustom (opsional)",
+      "domainHint": "Misalnya app.perusahaananda.com. Arahkan DNS-nya ke Vercel sesuai petunjuknya.",
+      "save": "Simpan",
+      "saved": "Tersimpan. Publish untuk menerapkannya.",
+      "remove": "Hapus Vercel saya",
+      "needsAccount": "Vercel Saqina belum disiapkan di server ini. Pilih \"Vercel saya sendiri\" di bawah, atau minta owner platform menyiapkannya."
     }
   }
 }

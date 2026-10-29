@@ -295,6 +295,12 @@
         "toDone": "{count, plural, one {# task} other {# tasks}} will be marked done: the work was reviewed.",
         "toReview": "{count, plural, one {# open task} other {# open tasks}} will move to review: the work is built and waits for a check.",
         "note": "Tasks only move forward. You can change any task by hand afterwards."
+      },
+      "evidence": {
+        "ci_green": "Checks passed on the main branch",
+        "pr_merged": "A pull request was merged",
+        "deployed": "A production deployment succeeded",
+        "confirm": "Confirm: Yes"
       }
     },
     "noPrd": "No PRD was found in the repository.",

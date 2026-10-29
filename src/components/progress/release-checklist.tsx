@@ -39,6 +39,7 @@ export function ReleaseChecklist({
   notes,
   awaiting,
   canAnswer,
+  evidence = [],
 }: {
   slug: string;
   checks: ReleaseCheck[];
@@ -47,6 +48,8 @@ export function ReleaseChecklist({
   /** Imported from GitHub and nobody has answered yet: this is the first thing to do. */
   awaiting: boolean;
   canAnswer: boolean;
+  /** What the repository, CI and Vercel have shown: suggestions the team confirms with one click. */
+  evidence?: { step: DeliveryStep; code: "ci_green" | "pr_merged" | "deployed"; detail: string }[];
 }) {
   const t = useTranslations("progress.release");
   const errors = useTranslations("app.errors");
@@ -133,6 +136,29 @@ export function ReleaseChecklist({
                         .filter(Boolean)
                         .join(" · ")}
                 </p>
+                {canAnswer
+                  ? evidence
+                      .filter((e) => e.step === step && !(c && !c.unanswered && c.done))
+                      .map((e) => (
+                        <p
+                          key={e.code}
+                          className="mt-1 flex flex-wrap items-center gap-2 text-xs text-info"
+                        >
+                          <span>
+                            {t(`evidence.${e.code}`)}
+                            {e.detail ? ` (${e.detail})` : ""}
+                          </span>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={pending}
+                            onClick={() => answer(step, true)}
+                          >
+                            {t("evidence.confirm")}
+                          </Button>
+                        </p>
+                      ))
+                  : null}
                 {notes
                   .filter((n) => n.step === step)
                   .map((n) => (

@@ -293,8 +293,8 @@
         "endpoint": "Endpoint",
         "copy": "Salin",
         "copied": "Tersalin",
-        "snippet": "Perintah Claude Code",
-        "snippetHint": "Ganti YOUR_TOKEN dengan token yang dibuat di bawah.",
+        "snippet": "Hubungkan agen IDE Anda",
+        "snippetHint": "Ganti YOUR_TOKEN dengan token yang dibuat di bawah. Periksa dokumentasi IDE Anda bila format konfigurasinya berubah.",
         "createTitle": "Buat token",
         "label": "Label",
         "labelPlaceholder": "Claude Code di laptop saya",
@@ -309,7 +309,9 @@
           "read_memory": "Baca memori",
           "read_repository": "Membaca struktur kode (simbol, panggilan, dampak)",
           "write_documents": "Usulkan perubahan dokumen",
-          "write_memory": "Menambah memori proyek"
+          "write_memory": "Menambah memori proyek",
+          "write_tasks": "Mengambil task dan melaporkan hasilnya (review atau blocked)",
+          "use_mcp_tools": "Memakai tool konektor project"
         },
         "expiry": "Kedaluwarsa setelah",
         "expiryOptions": {
@@ -337,7 +339,21 @@
         },
         "revoke": "Cabut",
         "revokeTitle": "Cabut \"{label}\"?",
-        "revokeBody": "Agen yang memakai token ini langsung kehilangan akses. Tindakan ini tidak bisa dibatalkan."
+        "revokeBody": "Agen yang memakai token ini langsung kehilangan akses. Tindakan ini tidak bisa dibatalkan.",
+        "ides": {
+          "claude": "Claude Code",
+          "cursor": "Cursor",
+          "codex": "Codex",
+          "kiro": "Kiro"
+        },
+        "where": {
+          "claude": "Jalankan di terminal.",
+          "cursor": "Simpan sebagai .cursor/mcp.json di repository.",
+          "codex": "Tambahkan ke ~/.codex/config.toml.",
+          "kiro": "Simpan sebagai .kiro/settings/mcp.json di repository."
+        },
+        "downloadAgents": "Unduh AGENTS.md",
+        "downloadHint": "Letakkan di root repository. Isinya memberi tahu agen cara mengambil task, menamai branch dan melapor, plus daftar skill dan konektor yang bisa dipakai."
       },
       "general": "Umum",
       "name": "Nama proyek",

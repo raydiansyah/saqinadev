@@ -14,6 +14,7 @@ const good = {
   TURNSTILE_SECRET_KEY: "s",
   NEXT_PUBLIC_TURNSTILE_SITE_KEY: "k",
   OWNER_EMAIL: "owner@saqina.dev",
+  VERCEL_TOKEN: "vt",
   S3_BUCKET: "saqina-files",
   S3_REGION: "ap-southeast-1",
   S3_ACCESS_KEY_ID: "id",

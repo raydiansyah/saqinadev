@@ -293,8 +293,8 @@
         "endpoint": "Endpoint",
         "copy": "Copy",
         "copied": "Copied",
-        "snippet": "Claude Code command",
-        "snippetHint": "Replace YOUR_TOKEN with a token created below.",
+        "snippet": "Connect your IDE agent",
+        "snippetHint": "Replace YOUR_TOKEN with a token created below. Check your IDE's documentation if its configuration format has changed.",
         "createTitle": "Create a token",
         "label": "Label",
         "labelPlaceholder": "Claude Code on my laptop",
@@ -309,7 +309,9 @@
           "read_memory": "Read memory",
           "read_repository": "Read code structure (symbols, calls, impact)",
           "write_documents": "Propose document changes",
-          "write_memory": "Add project memory"
+          "write_memory": "Add project memory",
+          "write_tasks": "Claim tasks and report their result (review or blocked)",
+          "use_mcp_tools": "Use the project's connector tools"
         },
         "expiry": "Expires after",
         "expiryOptions": {
@@ -337,7 +339,21 @@
         },
         "revoke": "Revoke",
         "revokeTitle": "Revoke \"{label}\"?",
-        "revokeBody": "Any agent using this token loses access immediately. This cannot be undone."
+        "revokeBody": "Any agent using this token loses access immediately. This cannot be undone.",
+        "ides": {
+          "claude": "Claude Code",
+          "cursor": "Cursor",
+          "codex": "Codex",
+          "kiro": "Kiro"
+        },
+        "where": {
+          "claude": "Run this in a terminal.",
+          "cursor": "Save as .cursor/mcp.json in the repository.",
+          "codex": "Add to ~/.codex/config.toml.",
+          "kiro": "Save as .kiro/settings/mcp.json in the repository."
+        },
+        "downloadAgents": "Download AGENTS.md",
+        "downloadHint": "Put it at the repository root. It tells your agent how to pick tasks, name branches and report back, and lists the skills and connectors it can use."
       },
       "general": "General",
       "name": "Project name",

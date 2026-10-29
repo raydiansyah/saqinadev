@@ -10,14 +10,15 @@ import { MilestoneBlock, type PlanTask } from "@/components/plan/milestone-block
 import { buttonVariants } from "@/components/ui/button";
 import { Notice } from "@/components/ui/form";
 import { Link } from "@/i18n/navigation";
+import type { DeploymentView, DeployTargetView } from "@/lib/deploy/service";
 import type { RunStatus, TaskStatus } from "@/lib/domain/enums";
 import { formatRelative } from "@/lib/format";
+import type { GitState } from "@/lib/studio/git-state";
 import { cn } from "@/lib/utils";
+import { CodeTab, GitTab, PreviewTab, PublishTab } from "./work-tabs";
 
-const TABS = ["plan", "agents", "code", "preview", "git", "publish"] as const;
+const TABS = ["plan", "agents", "code", "git", "preview", "publish"] as const;
 type Tab = (typeof TABS)[number];
-/** Built in the next phase: shown so the layout is final, but not usable yet. */
-const LATER: ReadonlySet<Tab> = new Set(["code", "preview", "git", "publish"]);
 
 export interface StudioPlan {
   milestones: { id: string; title: string; goal: string }[];
@@ -44,6 +45,9 @@ export function StudioShell({
   prdApproved,
   plan,
   runs,
+  git,
+  deploy,
+  canManage,
   initial,
 }: {
   slug: string;
@@ -52,6 +56,9 @@ export function StudioShell({
   prdApproved: boolean;
   plan: StudioPlan;
   runs: StudioRun[];
+  git: GitState;
+  deploy: { target: DeployTargetView; deployments: DeploymentView[] };
+  canManage: boolean;
   initial?: Parameters<typeof useAssistant>[1];
 }) {
   const t = useTranslations("studio");
@@ -68,7 +75,7 @@ export function StudioShell({
     },
   });
 
-  const usable = TABS.filter((x) => !LATER.has(x));
+  const usable = TABS;
   const onKey = (e: React.KeyboardEvent) => {
     const i = usable.indexOf(tab);
     const next =
@@ -153,7 +160,6 @@ export function StudioShell({
             className="flex gap-1 overflow-x-auto border-b border-border px-2 pt-2"
           >
             {TABS.map((x) => {
-              const later = LATER.has(x);
               return (
                 <button
                   key={x}
@@ -165,20 +171,16 @@ export function StudioShell({
                   role="tab"
                   aria-selected={tab === x}
                   aria-controls={`${id}-panel`}
-                  aria-disabled={later || undefined}
                   tabIndex={tab === x ? 0 : -1}
-                  disabled={later}
-                  title={later ? t("later") : undefined}
                   onClick={() => setTab(x)}
                   className={cn(
-                    "min-h-11 shrink-0 rounded-t-md border-b-2 px-3 text-sm whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-50",
+                    "min-h-11 shrink-0 rounded-t-md border-b-2 px-3 text-sm whitespace-nowrap",
                     tab === x
                       ? "border-primary font-medium text-foreground"
                       : "border-transparent text-muted-foreground hover:text-foreground",
                   )}
                 >
                   {t(`tabs.${x}`)}
-                  {later ? <span className="sr-only"> ({t("later")})</span> : null}
                 </button>
               );
             })}
@@ -191,6 +193,21 @@ export function StudioShell({
             className="min-h-0 flex-1 overflow-y-auto p-4"
           >
             {tab === "plan" ? <PlanTab slug={slug} plan={plan} /> : null}
+            {tab === "code" ? (
+              <CodeTab slug={slug} repository={git.repository?.fullName ?? null} />
+            ) : null}
+            {tab === "git" ? <GitTab slug={slug} git={git} canManage={canManage} /> : null}
+            {tab === "preview" ? (
+              <PreviewTab deployments={deploy.deployments} onPublish={() => setTab("publish")} />
+            ) : null}
+            {tab === "publish" ? (
+              <PublishTab
+                slug={slug}
+                target={deploy.target}
+                deployments={deploy.deployments}
+                canManage={canManage}
+              />
+            ) : null}
             {tab === "agents" ? (
               <AgentsTab slug={slug} runs={runs} buildsInSaqina={buildsInSaqina} />
             ) : null}

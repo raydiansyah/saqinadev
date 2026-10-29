@@ -34,7 +34,7 @@ Studio menempatkan chat di samping area kerja.
 
 - **Plan** menampilkan milestone dan task. Saat Anda meminta plan lewat chat, area kerja pindah ke tab ini.
 - **Agen** menampilkan agen yang sedang bekerja dan tautan ke setiap run.
-- **Kode**, **Preview**, **Git** dan **Publish** menyusul berikutnya.
+- **Kode** menampilkan repository (hanya baca), **Git** pull request dan check-nya, **Preview** situs yang sudah tayang, dan **Publish** menayangkannya.
 
 Kalau asisten kurang yakin maksud permintaan yang mengubah data, ia bertanya dulu di chat dan tidak melakukan apa pun sampai Anda menjawab **Ya, lanjutkan**.
 
@@ -62,6 +62,41 @@ Di **AI & Model**:
 ![Skill di AI & Model, dengan Superpowers terpasang bawaan](/api/docs/assets/owner/studio-03-skills.png)
 
 ![Konektor di AI & Model: Firecrawl, Exa, Context7 dan server MCP kustom](/api/docs/assets/owner/studio-04-connectors.png)
+
+## Cara semuanya tetap sinkron
+
+Saqina adalah pusatnya. Entah pekerjaan dilakukan di Studio atau di IDE Anda sendiri, hasilnya masuk ke repository Git yang sama, dan apa yang terjadi di sana kembali ke Saqina.
+
+```mermaid
+flowchart LR
+  S[Saqina Dev] --> G[Repository Git]
+  G --> CI[CI/CD]
+  CI --> V[Vercel]
+  V --> P[project.saqina.dev]
+  P -- status --> S
+  CI -- check --> S
+  G -- pull request --> S
+  ST[Studio: build di Saqina] <--> S
+  IDE[Agen IDE lokal, model Anda sendiri] <-- MCP --> S
+  ST --> G
+  IDE --> G
+```
+
+**Git.** Menghubungkan repository GitHub memasang webhook secara otomatis. Kalau token Anda tidak punya hak admin di repository, **Studio > Git** menampilkan URL dan secret untuk ditambahkan sendiri di GitHub. Sesudah itu branch, pull request, check dan deployment muncul di tab **Git**.
+
+**Referensi task.** Setiap task punya referensi pendek seperti `T-1a2b3c4d`. Tulis di nama branch (`saqina/T-1a2b3c4d-checkout`) atau tulis `Saqina-Task: T-1a2b3c4d` di pull request. Saqina menautkan branch dan pull request ke task. Pull request yang dibuka memindahkan task ke review; saat Anda menggabungkannya di GitHub, task selesai. Pull request yang ditutup tanpa digabung tidak mengubah apa pun.
+
+![Tab Git: pull request yang tertaut ke task, dan check-nya](/api/docs/assets/owner/studio-06-git.png)
+
+**Jawaban delivery.** Di **Progress**, check hijau di branch utama, pull request yang sudah digabung dan deployment production yang berhasil muncul sebagai saran dengan tombol **Konfirmasi: Ya**. Anda tetap yang menjawab; tidak ada yang diisi otomatis.
+
+**Publish.** Di **Studio > Publish**, **Publish** membuat project Vercel dari repository Anda dan menempatkannya di `<project>.saqina.dev`. Secara default ini memakai Vercel Saqina. Anda juga bisa memilih **Vercel saya sendiri** dan menempel token Vercel Anda (serta tim dan domain Anda sendiri). Token disimpan terenkripsi, hanya untuk project ini. Aplikasi GitHub milik Vercel harus bisa melihat repository. **Preview** menampilkan situs yang sudah tayang.
+
+![Publish: alamat, daftar deployment dan pilihan akun Vercel](/api/docs/assets/owner/studio-07-publish.png)
+
+**IDE Anda sendiri.** Di **Pengaturan > Akses agen**, buat token, pilih izinnya (tambahkan *Mengambil task dan melaporkan hasilnya* dan *Memakai tool konektor project* untuk sinkron penuh), salin snippet untuk Claude Code, Cursor, Codex atau Kiro, dan unduh **AGENTS.md** ke repository Anda. Agen kemudian melihat daftar task, mengambil satu, bekerja di branch dengan referensi task, membuka pull request dan melapor `review` atau `blocked`. Agen memakai model Anda sendiri, dan mendapat skill dan konektor yang sama dengan agen Saqina. Hanya Anda yang menandai task selesai, dengan menggabungkan.
+
+![Hubungkan agen IDE: snippet dan unduhan AGENTS.md](/api/docs/assets/owner/studio-08-mcp.png)
 
 ## Model agen
 

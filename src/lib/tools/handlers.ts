@@ -1,5 +1,7 @@
 import "server-only";
+import { randomUUID } from "node:crypto";
 import { and, asc, count, eq, or, sql } from "drizzle-orm";
+import { availableTools } from "@/lib/assistant/tool-turn";
 import type { ProjectAccess } from "@/lib/auth/permissions";
 import { getChangesSince } from "@/lib/brain/brain";
 import { listPrdFindings } from "@/lib/brain/prd-findings";
@@ -16,6 +18,7 @@ import type { EventBatch } from "@/lib/events/emitter";
 import { assertWritableBranch, getRepository, withRepo } from "@/lib/git/service";
 import { McpError } from "@/lib/mcp/client";
 import { withMcpClient } from "@/lib/mcp/service";
+import { agentsMdFor } from "@/lib/mcp/setup";
 import { callersOf, findSymbols, impactOf, type Revision } from "@/lib/memory/code/queries";
 import { textTombKeys } from "@/lib/memory/hash";
 import type { Principal } from "@/lib/memory/policy";
@@ -28,8 +31,10 @@ import { isTombstoned } from "@/lib/memory/store";
 import { citation, retrieveWiki } from "@/lib/memory/wiki/retrieve";
 import { getTechStack } from "@/lib/projects/stack";
 import { createProposalTx } from "@/lib/proposals/repository";
+import { listUsableSkills, platformSkillsBySlugs } from "@/lib/skills/service";
 import type { ToolActor } from "./executor";
 import type { ToolRow } from "./registry";
+import { claimTaskTool, listTasksTool, readTaskTool, reportTaskResultTool } from "./task-tools";
 
 type Input = Record<string, unknown>;
 export interface HandlerContext {
@@ -158,7 +163,72 @@ async function agentDocument(projectId: string, slug: string | undefined) {
 }
 
 async function internal(tool: ToolRow, input: Input, { access, actor, batch }: HandlerContext) {
+  const agentName = actor.kind === "agent" ? actor.name : null;
   switch (tool.name) {
+    case "list_tasks":
+      return listTasksTool(access, str(input.status));
+    case "read_task":
+      return readTaskTool(access, str(input.task) ?? "");
+    case "claim_task":
+      return claimTaskTool(access, str(input.task) ?? "", agentName);
+    case "report_task_result":
+      return reportTaskResultTool(
+        access,
+        str(input.task) ?? "",
+        {
+          status: input.status as "review" | "blocked",
+          summary: str(input.summary) ?? "",
+          branch: str(input.branch),
+          pullRequestUrl: str(input.pullRequestUrl),
+          issues: Array.isArray(input.issues)
+            ? input.issues.filter((i): i is string => typeof i === "string")
+            : [],
+        },
+        agentName,
+      );
+    case "list_skills":
+      return { skills: await listUsableSkills() };
+    case "get_skill": {
+      const [skill] = await platformSkillsBySlugs([str(input.slug) ?? ""]);
+      if (!skill) throw new AppError("NOT_FOUND", "Unknown skill");
+      return { slug: skill.slug, name: skill.name, content: skill.content };
+    }
+    case "list_connector_tools":
+      return {
+        tools: (await availableTools(access, [])).map((t) => ({
+          tool: t.key,
+          connector: t.connector,
+          name: t.name,
+          description: t.description.slice(0, 300),
+          inputSchema: t.inputSchema,
+        })),
+      };
+    case "call_connector_tool": {
+      const key = str(input.tool) ?? "";
+      // Only a tool the project offers; the tool's own policy (risk, approval) runs in the executor.
+      if (!(await availableTools(access, [])).some((t) => t.key === key))
+        throw new AppError("NOT_FOUND", "Unknown connector tool");
+      const { executeTool } = await import("./executor");
+      const inner = await executeTool({
+        access,
+        tool: key,
+        input:
+          input.input && typeof input.input === "object" && !Array.isArray(input.input)
+            ? (input.input as Record<string, unknown>)
+            : {},
+        actor,
+        idempotencyKey: `mcp-connector:${randomUUID()}`,
+      });
+      return inner.status === "succeeded"
+        ? inner.output
+        : {
+            pendingApproval: true,
+            proposalId: inner.proposalId,
+            note: "A person must approve this in Saqina.",
+          };
+    }
+    case "get_setup":
+      return { agentsMd: await agentsMdFor(access) };
     case "read_project":
       return {
         name: access.project.name,

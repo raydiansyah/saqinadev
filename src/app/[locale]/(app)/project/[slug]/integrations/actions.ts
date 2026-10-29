@@ -18,6 +18,7 @@ import { setProjectAiSettings } from "@/lib/ai/project-settings";
 import { requireActor } from "@/lib/auth/server";
 import { configureDocSync, syncNow } from "@/lib/docsync/config";
 import { resolveConflict } from "@/lib/docsync/engine";
+import { enableRepositoryEvents } from "@/lib/git/hooks";
 import { connectRepository, disconnectRepository, syncRepository } from "@/lib/git/service";
 import { connectMcp, createMcpConnection, disconnectMcp, setToolTrust } from "@/lib/mcp/service";
 import { resolveStackMismatch, updateTechStack } from "@/lib/projects/stack";
@@ -38,7 +39,13 @@ const wrap =
       return result;
     });
 
-export const connectRepositoryAction = wrap("repo.connect", connectRepository);
+export const connectRepositoryAction = wrap("repo.connect", async (a, s, input) => {
+  const connected = await connectRepository(a, s, input);
+  // Repository events (pull requests, CI, deployments) start by themselves; a token without
+  // admin rights on the repository leaves the manual setup on the Integrations page.
+  const events = await enableRepositoryEvents(a, s).catch(() => null);
+  return { connected, events: events?.installed ?? false };
+});
 export const syncRepositoryAction = wrap("repo.sync", (a, s) => syncRepository(a, s));
 export const disconnectRepositoryAction = wrap("repo.disconnect", (a, s) =>
   disconnectRepository(a, s),
@@ -59,6 +66,9 @@ export const setProjectAiAction = wrap("project.ai", setProjectAiSettings);
 export const updateStackAction = wrap("stack.update", updateTechStack);
 export const resolveMismatchAction = wrap("stack.resolve", resolveStackMismatch);
 
+export const enableRepositoryEventsAction = wrap("repo.events", (a, s) =>
+  enableRepositoryEvents(a, s),
+);
 export const configureDocSyncAction = wrap("docsync.configure", configureDocSync);
 export const syncDocsNowAction = wrap("docsync.now", (a, s) => syncNow(a, s));
 export const resolveDocConflictAction = wrap("docsync.resolve", async (a, s, input) => {

@@ -55,6 +55,8 @@ export function checkEnv(env: Env): EnvReport {
     warnings.push(`S3 is half configured: set all of ${s3.join(", ")} for chat attachments`);
   else if (s3Set === 0)
     warnings.push("S3 is not configured: chat attachments are refused until it is");
+  if (!has("VERCEL_TOKEN"))
+    warnings.push("VERCEL_TOKEN is not set: Publish works only with a client's own Vercel account");
   if (!has("PLATFORM_OWNER_EMAILS") && !has("OWNER_EMAIL"))
     warnings.push("No owner email configured: run `pnpm db:create-owner` once");
   for (const key of ["ALLOW_LOCAL_ENDPOINTS", "ALLOW_LOCAL_GIT"])

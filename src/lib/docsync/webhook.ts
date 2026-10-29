@@ -3,6 +3,8 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { documentLinks, repositoryConnections, webhookDeliveries } from "@/lib/db/schema";
+import { applyGitEvent } from "@/lib/git/events/apply";
+import { parseGitEvent } from "@/lib/git/events/parse";
 import { log } from "@/lib/log";
 import { allow } from "@/lib/rate-limit";
 import { withSecret } from "@/lib/secrets/service";
@@ -66,8 +68,8 @@ export async function handleGithubWebhook(
     .select()
     .from(repositoryConnections)
     .where(eq(repositoryConnections.id, connectionId));
-  if (!connection?.docSyncEnabled || !connection.webhookCredentialId)
-    return reply(404, { ok: false });
+  // The hook serves two jobs: repository events (always) and document sync (when switched on).
+  if (!connection?.webhookCredentialId) return reply(404, { ok: false });
 
   const signature = request.headers.get("x-hub-signature-256");
   const valid = await withSecret(
@@ -82,7 +84,8 @@ export async function handleGithubWebhook(
 
   const event = request.headers.get("x-github-event");
   if (event === "ping") return reply(200, { ok: true, pong: true });
-  if (event !== "push") return reply(200, { ok: true, ignored: event });
+  const handled = ["push", "pull_request", "check_suite", "workflow_run", "deployment_status"];
+  if (!event || !handled.includes(event)) return reply(200, { ok: true, ignored: event });
 
   const delivery = request.headers.get("x-github-delivery");
   if (delivery) {
@@ -100,8 +103,24 @@ export async function handleGithubWebhook(
   } catch {
     return reply(400, { ok: false });
   }
+
+  // Tasks, CI, deployments and the code graph follow every event.
+  const parsed = parseGitEvent(event, payload);
+  let applied: { moved: number; linked: number } | null = null;
+  if (parsed) {
+    try {
+      applied = await applyGitEvent(connection, parsed);
+    } catch (error) {
+      // Recording must never make GitHub retry forever; the daily sweep catches up.
+      log.error("git.event_failed", { event, error: String(error) });
+    }
+  }
+  if (event !== "push" || !connection.docSyncEnabled)
+    return reply(200, { ok: true, event, ...(applied ?? {}) });
+
   const base = connection.developmentBranch ?? connection.defaultBranch;
-  if (payload.ref !== `refs/heads/${base}`) return reply(200, { ok: true, ignored: "branch" });
+  if (payload.ref !== `refs/heads/${base}`)
+    return reply(200, { ok: true, ignored: "branch", ...(applied ?? {}) });
 
   const links = await db
     .select({ path: documentLinks.path })
@@ -109,8 +128,8 @@ export async function handleGithubWebhook(
     .where(and(eq(documentLinks.projectId, connection.projectId)));
   const docsPath = cleanDocsPath(connection.docsPath) ?? DEFAULT_DOCS_PATH;
   if (!touchesDocs(payload, docsPath, new Set(links.map((l) => l.path))))
-    return reply(200, { ok: true, ignored: "no_docs" });
+    return reply(200, { ok: true, ignored: "no_docs", ...(applied ?? {}) });
 
   deps.schedule(connection.projectId);
-  return reply(202, { ok: true, queued: true });
+  return reply(202, { ok: true, queued: true, ...(applied ?? {}) });
 }

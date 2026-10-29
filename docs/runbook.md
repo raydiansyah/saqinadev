@@ -33,6 +33,26 @@ Objects are stored as `projects/<project id>/attachments/<uuid>`, never under th
 Uploads that were never sent are deleted by the daily maintenance cron after a day. Rotate the key
 like any other secret ("Rotate a secret" below).
 
+## Publishing client projects (Vercel) and repository events
+
+**Saqina's Vercel team (default).**
+1. Create a token for the team at <https://vercel.com/account/tokens>; set `VERCEL_TOKEN`,
+   `VERCEL_TEAM_ID` and (if not `saqina.dev`) `SAQINA_PROJECTS_DOMAIN` in Vercel, then redeploy.
+2. In the team, add the domain `*.saqina.dev` once and point its DNS to Vercel (nameservers or a
+   wildcard record, as Vercel explains). Each project then gets `<slug>.saqina.dev` automatically.
+3. Install the Vercel GitHub app on the GitHub organization that holds the client repositories, or
+   Publish fails with "Vercel did not accept the request".
+4. In a project: Studio > Publish. A client who wants their own account pastes their own Vercel token.
+
+**Repository events (webhook).** Connecting a GitHub repository installs the webhook with the
+project's token. If the token lacks admin rights on the repository, Studio > Git shows the URL and a
+secret to add by hand (content type JSON; events push, pull request, check suite, workflow run,
+deployment status). Turn events on again to rotate the secret.
+
+**Local IDE agents.** A project admin creates a token under Settings > Agent access, chooses the
+scopes (`write_tasks` to claim and report tasks, `use_mcp_tools` for connector tools), copies the
+snippet for the IDE and downloads AGENTS.md into the repository.
+
 ## Deploy
 
 1. Merge the pull request into `main` (no direct pushes).
