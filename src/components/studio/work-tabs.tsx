@@ -16,9 +16,11 @@ import { Field, Notice } from "@/components/ui/form";
 import { Link, useRouter } from "@/i18n/navigation";
 import type { DeploymentView, DeployTargetView } from "@/lib/deploy/service";
 import { formatRelative } from "@/lib/format";
+import type { ServicesState } from "@/lib/services/service";
 import type { CodeEntry } from "@/lib/studio/code";
 import type { GitState } from "@/lib/studio/git-state";
 import { cn } from "@/lib/utils";
+import { ReadinessList, ServiceConnections } from "./service-connections";
 
 type Failure = { code: string; fields?: Record<string, string> };
 
@@ -300,9 +302,11 @@ export function GitTab({
 /** The latest deployment in a frame, with a picker for earlier ones. */
 export function PreviewTab({
   deployments,
+  services,
   onPublish,
 }: {
   deployments: DeploymentView[];
+  services: ServicesState;
   onPublish: () => void;
 }) {
   const t = useTranslations("studio.preview");
@@ -310,6 +314,17 @@ export function PreviewTab({
   const withUrl = deployments.filter((d) => d.url && d.state === "success");
   const [picked, setPicked] = useState<string | null>(null);
   const current = withUrl.find((d) => d.id === picked) ?? withUrl[0];
+  // An app with a database or sign-in needs values of its own for the preview first.
+  if (services.issues.length > 0)
+    return (
+      <div className="space-y-3 text-sm">
+        <p className="font-medium">{t("servicesBlocked")}</p>
+        <ReadinessList issues={services.issues} />
+        <Button size="sm" variant="outline" onClick={onPublish}>
+          {t("goServices")}
+        </Button>
+      </div>
+    );
   if (!current?.url)
     return (
       <div className="space-y-3 text-sm text-muted-foreground">
@@ -363,11 +378,13 @@ export function PublishTab({
   slug,
   target,
   deployments,
+  services,
   canManage,
 }: {
   slug: string;
   target: DeployTargetView;
   deployments: DeploymentView[];
+  services: ServicesState;
   canManage: boolean;
 }) {
   const t = useTranslations("studio.publish");
@@ -406,12 +423,19 @@ export function PublishTab({
         {!target.repository ? (
           <p className="mt-2 text-sm text-warning">{t("needsRepository")}</p>
         ) : null}
+        {services.issues.length > 0 ? (
+          <p id={`${id}-blocked`} className="mt-2 text-sm text-warning">
+            {t("servicesBlocked")}
+          </p>
+        ) : null}
         {canManage ? (
           <div className="mt-3 flex flex-wrap gap-2">
             <Button
+              aria-describedby={services.issues.length > 0 ? `${id}-blocked` : undefined}
               disabled={
                 pending ||
                 !target.repository ||
+                services.issues.length > 0 ||
                 (target.owner === "saqina" && !target.saqinaAvailable)
               }
               onClick={() => run(() => publishAction(slug), t("published"))}
@@ -430,6 +454,18 @@ export function PublishTab({
       </section>
       {notice ? <Notice tone="success">{notice}</Notice> : null}
       {error ? <Notice tone="error">{error}</Notice> : null}
+
+      <ServiceConnections
+        slug={slug}
+        state={services}
+        canManage={canManage}
+        onResult={(r, done) => {
+          if (!r.ok) return setError(failure(r));
+          setError(null);
+          if (done) setNotice(done);
+          router.refresh();
+        }}
+      />
 
       <section aria-labelledby={`${id}-dep`}>
         <h3

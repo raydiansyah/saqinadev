@@ -53,6 +53,21 @@ deployment status). Turn events on again to rotate the secret.
 scopes (`write_tasks` to claim and report tasks, `use_mcp_tools` for connector tools), copies the
 snippet for the IDE and downloads AGENTS.md into the repository.
 
+## Databases and sign-in for a client's app
+
+The keys are the client's own and live in `credentials` (kind `service`, project scope), sealed with
+`SAQINA_ENCRYPTION_KEY`. If Publish says "not ready to preview", open Studio > Publish > Databases and
+sign-in; each line names the variable and the reason. Fixes:
+
+- **Neon:** create a branch of the database for the preview and paste its connection string as the
+  Preview `DATABASE_URL`. The Live value is the main branch.
+- **Supabase:** use a second project (or a branch) for the preview: its Postgres URL, project URL and
+  keys go in the Preview column.
+- **Clerk:** the Preview column takes the development instance keys (`pk_test_`, `sk_test_`).
+- Changing a service on a published project sends the values to Vercel at once; the next deployment
+  uses them. Values are never shown again; to rotate, enter a new one.
+- Without `SAQINA_ENCRYPTION_KEY` keys cannot be stored (the form says so).
+
 ## Deploy
 
 1. Merge the pull request into `main` (no direct pushes).

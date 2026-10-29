@@ -63,6 +63,14 @@ Under **AI & Models**:
 
 ![Connectors under AI & Models: Firecrawl, Exa, Context7 and a custom MCP server](/api/docs/assets/owner/studio-04-connectors.png)
 
+## Databases and sign-in for your app
+
+In the Studio under **Publish**, add the database or sign-in your app uses: Neon, Supabase, Clerk, Postgres or your own variables. They are always your own accounts: Saqina provides no database, it only keeps your keys encrypted for this project and sends them to the deployment.
+
+Each variable has two values, **Live** and **Preview**. The preview needs a database of its own (a Neon branch, a second Supabase project) and Clerk test keys, so a preview never touches real data. Until that is so, Publish and Preview say what is missing and wait. Keys are never shown again; leave a field empty to keep it.
+
+![Databases and sign-in in the Publish tab, with the preview not ready yet](/api/docs/assets/owner/studio-09-services.png)
+
 ## How everything stays in sync
 
 Saqina is the centre. Whether the work is done in the Studio or in your own IDE, it ends up in the same Git repository, and what happens to it there comes back to Saqina.

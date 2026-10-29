@@ -239,6 +239,13 @@
       "when": 1793240216510,
       "tag": "0033_sync_git_ci_deploy",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1793248343780,
+      "tag": "0034_project_services",
+      "breakpoints": true
     }
   ]
 }

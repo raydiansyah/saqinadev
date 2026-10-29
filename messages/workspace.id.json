@@ -640,7 +640,11 @@
       "notConnected": "Belum ada repository yang terhubung.",
       "gitAuth": "GitHub menolak token repository. Hubungkan ulang repository di Integrasi.",
       "gitNotFound": "Path atau repository tidak ditemukan.",
-      "gitFailed": "GitHub tidak bisa dihubungi. Coba lagi."
+      "gitFailed": "GitHub tidak bisa dihubungi. Coba lagi.",
+      "previewNotReady": "Aplikasi memakai database atau layanan masuk yang belum siap dipreview. Lengkapi nilai yang kurang di Database dan layanan masuk.",
+      "exists": "Layanan dengan nama itu sudah ada.",
+      "unknown": "Variabel itu bukan bagian dari layanan ini.",
+      "encryptionUnavailable": "Saqina belum bisa menyimpan kunci: kunci enkripsi belum diatur di server ini."
     },
     "code": {
       "hint": "Tampilan baca saja untuk {repository} di branch utamanya.",
@@ -690,7 +694,9 @@
       "env": {
         "production": "Live",
         "preview": "Preview"
-      }
+      },
+      "servicesBlocked": "Aplikasi ini memakai database atau layanan masuk, dan preview-nya belum siap. Preview butuh database sendiri yang terpisah dari production:",
+      "goServices": "Atur database dan layanan masuk"
     },
     "publish": {
       "where": "Dipublikasikan di",
@@ -743,7 +749,57 @@
       "save": "Simpan",
       "saved": "Tersimpan. Publish untuk menerapkannya.",
       "remove": "Hapus Vercel saya",
-      "needsAccount": "Vercel Saqina belum disiapkan di server ini. Pilih \"Vercel saya sendiri\" di bawah, atau minta owner platform menyiapkannya."
+      "needsAccount": "Vercel Saqina belum disiapkan di server ini. Pilih \"Vercel saya sendiri\" di bawah, atau minta owner platform menyiapkannya.",
+      "servicesBlocked": "Publish menunggu sampai database preview dan kunci layanan masuk di bawah siap."
+    },
+    "services": {
+      "title": "Database dan layanan masuk",
+      "intro": "Pakai akun Neon, Supabase, Clerk, atau lainnya milik Anda sendiri. Saqina tidak menyediakan database: Saqina menyimpan kunci Anda terenkripsi untuk project ini dan mengirimkannya ke deployment. Kunci tidak pernah ditampilkan lagi.",
+      "none": "Belum ada database atau layanan masuk. Aplikasi yang tidak membutuhkannya bisa langsung dipublikasikan.",
+      "add": "Tambah layanan",
+      "custom": "Lainnya",
+      "edit": "Ubah kunci",
+      "remove": "Hapus",
+      "removeTitle": "Hapus {name}?",
+      "removeBody": "Kunci yang tersimpan dihapus dari Saqina. Aplikasi bisa berhenti bekerja sampai Anda menambahkannya lagi.",
+      "kind": {
+        "database": "Database",
+        "auth": "Layanan masuk"
+      },
+      "kindLabel": "Jenis",
+      "status": {
+        "incomplete": "Kunci kurang",
+        "ready": "Kunci terisi"
+      },
+      "filled": "(live: {production}, preview: {preview})",
+      "yes": "ada",
+      "no": "kurang",
+      "blocked": "Preview belum siap:",
+      "ready": "Preview siap: setiap layanan punya nilai preview sendiri.",
+      "ownAccount": "Kunci dari akun {name} milik Anda sendiri.",
+      "docs": "Cara membuat branch preview",
+      "label": "Nama",
+      "customNames": "Nama variabel",
+      "customNamesHint": "Pisahkan dengan koma, misalnya DATABASE_URL, API_KEY. Huruf, angka, dan garis bawah.",
+      "env": {
+        "production": "Situs live",
+        "preview": "Preview"
+      },
+      "envHint": {
+        "production": "Dipakai situs yang dipublikasikan.",
+        "preview": "Pakai database atau branch terpisah, dan kunci uji untuk layanan masuk. Jangan yang live."
+      },
+      "kept": "Sudah terisi. Kosongkan untuk tetap memakainya.",
+      "save": "Simpan kunci",
+      "saving": "Menyimpan...",
+      "cancel": "Batal",
+      "saved": "Tersimpan. Kunci dikirim ke deployment saat publish berikutnya.",
+      "issues": {
+        "missingProduction": "{name} ({service}) belum punya nilai untuk situs live.",
+        "missingPreview": "{name} ({service}) belum punya nilai untuk preview.",
+        "previewSameAsProduction": "{name} ({service}) sama di preview dan live. Pakai database atau branch terpisah untuk preview.",
+        "clerkLiveKeyInPreview": "{name} ({service}) adalah kunci Clerk live. Pakai kunci uji di preview."
+      }
     }
   }
 }

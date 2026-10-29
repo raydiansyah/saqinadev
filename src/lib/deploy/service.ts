@@ -10,6 +10,8 @@ import { DEPLOY_OWNERS } from "@/lib/domain/enums";
 import { AppError } from "@/lib/errors";
 import { allow } from "@/lib/rate-limit";
 import { revokeCredential, storeCredential, withSecret } from "@/lib/secrets/service";
+import { previewIssues } from "@/lib/services/preview-ready";
+import { envForDeploy, loadServiceValues, recordServicesSynced } from "@/lib/services/service";
 import { parse } from "@/lib/validation";
 import {
   checkToken,
@@ -17,6 +19,7 @@ import {
   ensureDomain,
   ensureProject,
   listDeployments,
+  upsertEnv,
   type VercelContext,
   VercelError,
   vercelNameFor,
@@ -268,6 +271,13 @@ export async function publish(actor: Actor, slug: string, deps: DeployDeps = {})
     throw new AppError("VALIDATION_ERROR", "Connect a GitHub repository first", {
       deploy: "noRepository",
     });
+  // An app that uses a database or sign-in service is only published (and previewed) once the
+  // preview has values of its own, so a preview never touches production data.
+  const services = await loadServiceValues(projectId);
+  if (previewIssues(services).length > 0)
+    throw new AppError("CONFLICT", "Services not ready to preview", {
+      services: "previewNotReady",
+    });
   if (!(await allow(`publish:${projectId}`, 10, 60 * 60_000))) throw new AppError("RATE_LIMIT");
 
   let [target] = await db
@@ -283,6 +293,8 @@ export async function publish(actor: Actor, slug: string, deps: DeployDeps = {})
       const name = vercelNameFor(access.project.slug);
       const project = await ensureProject(ctx, { name, repo: repo.fullName });
       if (target.domain) await ensureDomain(ctx, project.id, target.domain);
+      // The user's own database and sign-in keys reach the deployment here and nowhere else.
+      await upsertEnv(ctx, project.id, envForDeploy(services));
       const deployment = await createDeployment(ctx, {
         name,
         projectId: project.id,
@@ -326,6 +338,7 @@ export async function publish(actor: Actor, slug: string, deps: DeployDeps = {})
         metadata: { owner: target.owner, domain: target.domain },
       });
     });
+    if (services.length > 0) await recordServicesSynced(projectId, null);
     return { domain: target.domain, url: result.deployment.url };
   } catch (error) {
     const key = errorKey(error);
@@ -335,6 +348,28 @@ export async function publish(actor: Actor, slug: string, deps: DeployDeps = {})
       .where(eq(deployTargets.id, target.id));
     if (error instanceof AppError) throw error;
     throw new AppError("VALIDATION_ERROR", "Publish failed", { deploy: key });
+  }
+}
+
+/**
+ * After a service changes: if the project already has a Vercel project, pushes the new values so
+ * the next preview uses them. Best effort; Publish sends them again.
+ */
+export async function syncServiceEnv(projectId: string, deps: DeployDeps = {}): Promise<void> {
+  const [target] = await db
+    .select()
+    .from(deployTargets)
+    .where(eq(deployTargets.projectId, projectId));
+  if (!target?.vercelProjectId) return;
+  const services = await loadServiceValues(projectId);
+  if (previewIssues(services).length > 0) return;
+  try {
+    await withVercel(target, deps, (ctx) =>
+      upsertEnv(ctx, target.vercelProjectId as string, envForDeploy(services)),
+    );
+    await recordServicesSynced(projectId, null);
+  } catch (error) {
+    await recordServicesSynced(projectId, errorKey(error));
   }
 }
 

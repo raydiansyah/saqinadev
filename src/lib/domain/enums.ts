@@ -386,6 +386,7 @@ export const CREDENTIAL_KINDS = [
   "mcp",
   "agent",
   "deploy",
+  "service",
 ] as const;
 export type CredentialKind = (typeof CREDENTIAL_KINDS)[number];
 
@@ -563,6 +564,14 @@ export const DEPLOYMENT_STATES = ["pending", "success", "failure", "inactive"] a
 export type DeploymentState = (typeof DEPLOYMENT_STATES)[number];
 
 /** Whose Vercel account hosts the project: Saqina's team (default) or the client's own. */
+/** A database or sign-in service the project's own app uses, always the user's own account. */
+export const SERVICE_KINDS = ["database", "auth"] as const;
+export type ServiceKind = (typeof SERVICE_KINDS)[number];
+export const SERVICE_PROVIDERS = ["neon", "supabase", "clerk", "postgres", "custom"] as const;
+export type ServiceProvider = (typeof SERVICE_PROVIDERS)[number];
+export const SERVICE_STATUSES = ["incomplete", "ready"] as const;
+export type ServiceStatus = (typeof SERVICE_STATUSES)[number];
+
 export const DEPLOY_OWNERS = ["saqina", "client"] as const;
 export type DeployOwner = (typeof DEPLOY_OWNERS)[number];
 

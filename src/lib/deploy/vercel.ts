@@ -106,6 +106,28 @@ export async function ensureDomain(ctx: VercelContext, projectId: string, domain
   }
 }
 
+export interface VercelEnvVar {
+  key: string;
+  value: string;
+  /** A secret goes in as a sensitive variable: Vercel never shows its value again. */
+  secret: boolean;
+  target: "production" | "preview";
+}
+
+/** Sets or replaces the variables of one environment; the same key in both environments is two entries. */
+export async function upsertEnv(ctx: VercelContext, projectId: string, vars: VercelEnvVar[]) {
+  if (vars.length === 0) return;
+  await call(ctx, `/v10/projects/${encodeURIComponent(projectId)}/env?upsert=true`, {
+    method: "POST",
+    body: vars.map((v) => ({
+      key: v.key,
+      value: v.value,
+      type: v.secret ? "sensitive" : "plain",
+      target: [v.target],
+    })),
+  });
+}
+
 export interface VercelDeployment {
   id: string;
   url: string | null;

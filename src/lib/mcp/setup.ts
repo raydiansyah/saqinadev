@@ -4,14 +4,16 @@ import type { ProjectAccess } from "@/lib/auth/permissions";
 import { renderAgentsMd } from "@/lib/context/agents-md";
 import { siteBase } from "@/lib/email/layout";
 import { getRepository } from "@/lib/git/service";
+import { getServicesState } from "@/lib/services/service";
 import { listUsableSkills } from "@/lib/skills/service";
 
 /** The project's AGENTS.md, from live data: repository, skills switched on, connectors set up. */
 export async function agentsMdFor(access: ProjectAccess): Promise<string> {
-  const [repo, skills, tools] = await Promise.all([
+  const [repo, skills, tools, servicesState] = await Promise.all([
     getRepository(access),
     listUsableSkills(),
     availableTools(access, []),
+    getServicesState(access),
   ]);
   const byConnector = new Map<string, string[]>();
   for (const t of tools)
@@ -29,6 +31,11 @@ export async function agentsMdFor(access: ProjectAccess): Promise<string> {
         }
       : null,
     skills,
+    services: servicesState.services.map((s) => ({
+      kind: s.kind,
+      provider: s.provider,
+      envVars: s.vars.map((v) => v.name),
+    })),
     connectors: [...byConnector].map(([name, names]) => ({ name, tools: names })),
   });
 }

@@ -63,6 +63,14 @@ Di **AI & Model**:
 
 ![Konektor di AI & Model: Firecrawl, Exa, Context7 dan server MCP kustom](/api/docs/assets/owner/studio-04-connectors.png)
 
+## Database dan layanan masuk untuk aplikasi Anda
+
+Di Studio, tab **Publish**, tambahkan database atau layanan masuk yang dipakai aplikasi: Neon, Supabase, Clerk, Postgres, atau variabel Anda sendiri. Semuanya selalu akun milik Anda: Saqina tidak menyediakan database, hanya menyimpan kunci Anda terenkripsi untuk project ini dan mengirimkannya ke deployment.
+
+Setiap variabel punya dua nilai, **Live** dan **Preview**. Preview butuh database sendiri (branch Neon, project Supabase kedua) dan kunci uji Clerk, agar preview tidak pernah menyentuh data asli. Selama belum begitu, Publish dan Preview menjelaskan apa yang kurang dan menunggu. Kunci tidak pernah ditampilkan lagi; kosongkan kolom untuk tetap memakai yang lama.
+
+![Database dan layanan masuk di tab Publish, dengan preview yang belum siap](/api/docs/assets/owner/studio-09-services.png)
+
 ## Cara semuanya tetap sinkron
 
 Saqina adalah pusatnya. Entah pekerjaan dilakukan di Studio atau di IDE Anda sendiri, hasilnya masuk ke repository Git yang sama, dan apa yang terjadi di sana kembali ke Saqina.

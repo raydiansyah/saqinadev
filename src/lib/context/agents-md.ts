@@ -4,6 +4,8 @@ export interface AgentsMdInput {
   repository: { fullName: string; defaultBranch: string; branchPrefix: string } | null;
   skills: { slug: string; name: string; description: string }[];
   connectors: { name: string; tools: string[] }[];
+  /** The app's own databases and sign-in services: names of environment variables only. */
+  services: { kind: "database" | "auth"; provider: string; envVars: string[] }[];
 }
 
 /**
@@ -68,6 +70,20 @@ export function renderAgentsMd(input: AgentsMdInput): string {
       "",
     );
     for (const c of input.connectors) lines.push(`- ${c.name}: ${c.tools.join(", ")}`);
+    lines.push("");
+  }
+  if (input.services.length > 0) {
+    lines.push(
+      "## Database and sign-in",
+      "",
+      "The app uses the owner's own services. Saqina sets these environment variables on the",
+      "deployment (live and preview have different values); read them from `process.env`, never",
+      "hardcode, print or commit a value. The app must start and render with the preview values,",
+      "because Saqina previews every version before it is published.",
+      "",
+    );
+    for (const s of input.services)
+      lines.push(`- ${s.provider} (${s.kind}): ${s.envVars.join(", ")}`);
     lines.push("");
   }
   if (input.repository)

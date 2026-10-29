@@ -13,6 +13,7 @@ import { Link } from "@/i18n/navigation";
 import type { DeploymentView, DeployTargetView } from "@/lib/deploy/service";
 import type { RunStatus, TaskStatus } from "@/lib/domain/enums";
 import { formatRelative } from "@/lib/format";
+import type { ServicesState } from "@/lib/services/service";
 import type { GitState } from "@/lib/studio/git-state";
 import { cn } from "@/lib/utils";
 import { CodeTab, GitTab, PreviewTab, PublishTab } from "./work-tabs";
@@ -47,6 +48,7 @@ export function StudioShell({
   runs,
   git,
   deploy,
+  services,
   canManage,
   initial,
 }: {
@@ -58,6 +60,7 @@ export function StudioShell({
   runs: StudioRun[];
   git: GitState;
   deploy: { target: DeployTargetView; deployments: DeploymentView[] };
+  services: ServicesState;
   canManage: boolean;
   initial?: Parameters<typeof useAssistant>[1];
 }) {
@@ -198,13 +201,18 @@ export function StudioShell({
             ) : null}
             {tab === "git" ? <GitTab slug={slug} git={git} canManage={canManage} /> : null}
             {tab === "preview" ? (
-              <PreviewTab deployments={deploy.deployments} onPublish={() => setTab("publish")} />
+              <PreviewTab
+                deployments={deploy.deployments}
+                services={services}
+                onPublish={() => setTab("publish")}
+              />
             ) : null}
             {tab === "publish" ? (
               <PublishTab
                 slug={slug}
                 target={deploy.target}
                 deployments={deploy.deployments}
+                services={services}
                 canManage={canManage}
               />
             ) : null}

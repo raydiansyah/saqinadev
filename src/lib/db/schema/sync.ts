@@ -3,6 +3,7 @@ import {
   check,
   index,
   integer,
+  jsonb,
   pgTable,
   text,
   timestamp,
@@ -15,6 +16,9 @@ import type {
   DeploymentState,
   DeployOwner,
   DeployTargetStatus,
+  ServiceKind,
+  ServiceProvider,
+  ServiceStatus,
   TaskLinkKind,
   TaskLinkState,
 } from "@/lib/domain/enums";
@@ -124,5 +128,41 @@ export const deployTargets = pgTable(
     // A domain belongs to one project.
     uniqueIndex("deploy_targets_domain_idx").on(t.domain),
     check("deploy_targets_owner_check", sql`${t.owner} in ('saqina','client')`),
+  ],
+);
+
+/** Names of the variables a service needs, per environment, and which are filled. No values. */
+export interface ServiceVarConfig {
+  name: string;
+  secret: boolean;
+  production: boolean;
+  preview: boolean;
+}
+
+/**
+ * A database or sign-in service the project's app uses, on the user's own account. The values
+ * live encrypted in `credentials` (kind "service"); this row only knows names and what is filled.
+ */
+export const projectServices = pgTable(
+  "project_services",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: projectRef(),
+    kind: text("kind").$type<ServiceKind>().notNull(),
+    provider: text("provider").$type<ServiceProvider>().notNull(),
+    label: text("label").notNull(),
+    credentialId: uuid("credential_id").references(() => credentials.id, { onDelete: "set null" }),
+    vars: jsonb("vars").$type<ServiceVarConfig[]>().notNull().default([]),
+    status: text("status").$type<ServiceStatus>().notNull().default("incomplete"),
+    lastSyncedAt: timestamp("last_synced_at", { withTimezone: true }),
+    lastError: text("last_error"),
+    createdBy: text("created_by"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    uniqueIndex("project_services_label_idx").on(t.projectId, t.provider, t.label),
+    index("project_services_project_idx").on(t.projectId),
+    check("project_services_kind_check", sql`${t.kind} in ('database','auth')`),
   ],
 );

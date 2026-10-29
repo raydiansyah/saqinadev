@@ -259,6 +259,7 @@ describe("AGENTS.md", () => {
         },
       ],
       connectors: [{ name: "Exa", tools: ["web_search"] }],
+      services: [{ kind: "database", provider: "neon", envVars: ["DATABASE_URL"] }],
     });
     expect(md).toContain("claim_task");
     expect(md).toContain("saqina/T-xxxxxxxx");
@@ -266,5 +267,7 @@ describe("AGENTS.md", () => {
     expect(md).toContain("`superpowers-brainstorming`");
     expect(md).toContain("Exa: web_search");
     expect(md).not.toMatch(/sqn_/);
+    expect(md).toContain("neon (database): DATABASE_URL");
+    expect(md).toContain("process.env");
   });
 });

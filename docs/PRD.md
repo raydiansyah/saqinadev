@@ -162,9 +162,10 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 | L2 | A project AGENTS.md (workflow, branch naming, reporting, skills and connectors) from live data, by MCP and as a download | Built |
 | L3 | Setup snippets for Claude Code, Cursor, Codex and Kiro, and every token scope selectable | Built |
 | S4 | Code: read-only view of the connected repository (folders and files, secrets masked) in the work area | Built |
-| S5 | Preview: the published project in a sandboxed frame, with a picker for earlier deployments (a build sandbox for unpublished code is not part of this version) | Built |
+| S5 | Preview: the published project in a sandboxed frame, with a picker for earlier deployments (a build sandbox for unpublished code is not part of this version); for an app with a database or sign-in the preview waits for S10 | Built |
 | S6 | Git: branches, pull requests and CI checks linked to tasks, and the switch that turns repository events on; Saqina never merges | Built |
 | S7 | Publish to `<project>.saqina.dev` on Saqina's Vercel team by default, or to the client's own Vercel account (own token, optional custom domain); a person presses Publish ([ADR 0013](adr/0013-publishing-to-vercel.md)) | Built (needs `VERCEL_TOKEN` and the wildcard domain, see the runbook) |
+| S10 | Databases and sign-in for the app (Neon, Supabase, Clerk, Postgres or a custom service), always on the user's own accounts: keys are kept encrypted per project, each with a separate Live and Preview value, and sent to the Vercel deployment. An app that uses one is published and previewed only when the preview has its own database (not the live one; test keys for Clerk); until then Publish and Preview explain what is missing ([ADR 0015](adr/0015-databases-and-auth-for-the-app.md)) | Built (needs the encryption key) |
 
 ## 6. Non-functional requirements
 

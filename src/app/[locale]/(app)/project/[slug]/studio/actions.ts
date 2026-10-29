@@ -8,7 +8,9 @@ import {
   refreshDeployments,
   removeDeployTarget,
   setupDeployTarget,
+  syncServiceEnv,
 } from "@/lib/deploy/service";
+import { removeService, saveService } from "@/lib/services/service";
 import { listCode, readCode } from "@/lib/studio/code";
 import { startBuilding } from "@/lib/studio/kickoff";
 
@@ -62,6 +64,25 @@ export async function refreshDeploymentsAction(slug: string) {
 export async function removeDeployAction(slug: string) {
   return runAction("studio.deploy.remove", { slug }, async () => {
     await removeDeployTarget(await requireActor(), slug);
+    revalidatePath("/[locale]/project/[slug]", "layout");
+  });
+}
+
+/** Adds or updates a database or sign-in service. Values are write-only. */
+export async function saveServiceAction(slug: string, input: unknown) {
+  return runAction("studio.service.save", { slug }, async () => {
+    const actor = await requireActor();
+    const access = await requireProjectAccess(slug);
+    const result = await saveService(actor, slug, input);
+    await syncServiceEnv(access.project.id);
+    revalidatePath("/[locale]/project/[slug]", "layout");
+    return result;
+  });
+}
+
+export async function removeServiceAction(slug: string, id: string) {
+  return runAction("studio.service.remove", { slug }, async () => {
+    await removeService(await requireActor(), slug, { id });
     revalidatePath("/[locale]/project/[slug]", "layout");
   });
 }
