@@ -4,21 +4,13 @@ import { getActor } from "@/lib/auth/server";
 import { scheduleDocSync } from "@/lib/docsync/schedule";
 import { errorRef, isAppError } from "@/lib/errors";
 import { log } from "@/lib/log";
+import { sameOrigin } from "@/lib/net/same-origin";
 import { allow } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const MAX_BODY = 16_000;
-
-/** Same-origin only: route handlers do not get the Server Action CSRF check for free. */
-function sameOrigin(request: Request): boolean {
-  const origin = request.headers.get("origin");
-  if (!origin) return false;
-  const allowed = new Set([new URL(request.url).origin]);
-  if (process.env.BETTER_AUTH_URL) allowed.add(new URL(process.env.BETTER_AUTH_URL).origin);
-  return allowed.has(origin);
-}
 
 const json = (status: number, code: string) =>
   Response.json({ ok: false, code }, { status, headers: { "cache-control": "no-store" } });

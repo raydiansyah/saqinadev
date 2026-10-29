@@ -40,6 +40,18 @@ When the assistant is not sure what a change-making request meant, it asks in th
 
 ![The Studio: the chat on the left, the work area with Plan, Agents and the coming tabs on the right](/api/docs/assets/owner/studio-02-studio.png)
 
+## Files and context in the chat
+
+In the Studio chat (and the Saqina page):
+
+- **Attach** (the paper clip) adds files: images, PDF, or text files such as Markdown, CSV or code, up to 5 MB and 5 files per message. You can also drag them onto the chat or paste an image. Text files are read into the conversation; images and PDF are read only when the project's AI model can see them, otherwise the reply says so.
+- **+ Context** picks skills and connectors for the next messages. A picked skill always guides the answer. With a connector picked, Saqina uses its tools to answer, and shows what the tool returned. A tool that can change something outside Saqina waits for your approval first.
+- **Manage connectors** in the same menu opens the connector settings, for platform owners and project admins.
+
+![The + Context menu with skills, a connector and Manage connectors](/api/docs/assets/owner/studio-05-chat-context.png)
+
+Files are kept in private storage and open only for members of the project.
+
 ## Skills and connectors (platform owner)
 
 Under **AI & Models**:

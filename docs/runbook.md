@@ -12,11 +12,26 @@ Owner, on-call and escalation: see [governance](standards/governance.md). Fill t
 curl -s https://www.saqina.dev/api/health
 ```
 
-Expect `{"status":"ok","database":true,...}`. `commit` is the deployed commit.
+Expect `{"status":"ok","database":true,"fileStorage":true,...}`. `commit` is the deployed commit.
+`fileStorage: false` means S3 is not configured and chat attachments are refused (see below).
 
 ```bash
 pnpm smoke https://www.saqina.dev
 ```
+
+## File storage (S3) for chat attachments
+
+1. Create a private bucket (block all public access). Any S3-compatible store works (Cloudflare R2,
+   MinIO); set `S3_ENDPOINT` for those.
+2. Create an access key whose policy allows only `s3:PutObject`, `s3:GetObject` and
+   `s3:DeleteObject` on `arn:aws:s3:::<bucket>/projects/*`.
+3. Set `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` (and `S3_ENDPOINT` if
+   needed) in Vercel for Production and Preview, then redeploy.
+4. Check `/api/health` shows `"fileStorage":true`, then attach a small image in a project's chat.
+
+Objects are stored as `projects/<project id>/attachments/<uuid>`, never under the file name.
+Uploads that were never sent are deleted by the daily maintenance cron after a day. Rotate the key
+like any other secret ("Rotate a secret" below).
 
 ## Deploy
 

@@ -34,6 +34,15 @@ export interface AssistantCopy {
   needsTask: string;
   needsTitle: string;
   needsPriority: string;
+  /** A connector tool run from the chat. */
+  tools: {
+    ran: (tool: string) => string;
+    pending: (tool: string) => string;
+    failed: (tool: string) => string;
+    none: string;
+  };
+  /** Images or PDFs were attached but no model that can read them answered. */
+  attachmentsUnread: string;
   /** Asked when a request that would change data was not understood with confidence. */
   unsure: {
     question: (what: string) => string;

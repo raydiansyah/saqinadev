@@ -6,7 +6,8 @@ import { assignAgentTx, startRun } from "@/lib/agents/orchestrator";
 import { EXECUTABLE_TYPES } from "@/lib/agents/registry";
 import { runAi } from "@/lib/ai/gateway";
 import { MockAiProvider } from "@/lib/ai/mock";
-import type { AiProvider } from "@/lib/ai/provider";
+import type { AiProvider, PromptSegment } from "@/lib/ai/provider";
+import { attachToMessageTx, loadForPrompt, MAX_ATTACHMENTS } from "@/lib/attachments/service";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess, type ProjectAccess } from "@/lib/auth/permissions";
 import { recordChangesTx } from "@/lib/conversations/changes";
@@ -28,7 +29,7 @@ import { scheduleMemoryJobs } from "@/lib/memory/schedule";
 import { getNextProjectAction } from "@/lib/projects/progress";
 import { createProposalTx } from "@/lib/proposals/repository";
 import { skillSegments } from "@/lib/skills/prompt";
-import { platformSkillsFor } from "@/lib/skills/service";
+import { platformSkillsBySlugs, platformSkillsFor } from "@/lib/skills/service";
 import { parse } from "@/lib/validation";
 import projectEn from "../../../messages/project.en.json";
 import projectId from "../../../messages/project.id.json";
@@ -48,6 +49,7 @@ import { classifyIntent } from "./intents/classifier";
 import { priorityIn } from "./intents/rules";
 import type { IntentClassification, PendingIntent } from "./intents/types";
 import { type PlanOutcome, plan } from "./planner";
+import { availableTools, mentionedTools, runToolTurn } from "./tool-turn";
 
 export const messageInput = z.object({
   conversationId: z.uuid().nullish(),
@@ -59,6 +61,18 @@ export const messageInput = z.object({
     .object({ type: z.enum(CONVERSATION_CONTEXTS), id: z.string().max(80).nullable() })
     .nullish(),
   locale: z.enum(LOCALES),
+  /** Files uploaded for this message (`/api/projects/[slug]/attachments`). */
+  attachmentIds: z.array(z.uuid()).max(MAX_ATTACHMENTS).default([]),
+  /** Skills and connectors the person added to the chat as context. */
+  use: z
+    .object({
+      skills: z
+        .array(z.string().regex(/^[a-z0-9][a-z0-9-]{0,63}$/))
+        .max(5)
+        .default([]),
+      connectors: z.array(z.uuid()).max(5).default([]),
+    })
+    .default({ skills: [], connectors: [] }),
 });
 export type MessageInput = z.infer<typeof messageInput>;
 
@@ -142,10 +156,22 @@ export async function handleMessage(
         role: "user",
         content: input.content,
         createdAt: new Date(),
+        metadata: { use: input.use },
       })
       .onConflictDoNothing()
       .returning();
     if (!user) return { conversation, user: null, reply: null };
+    // Files go with the message: only the sender's own uploads, never one already sent.
+    const attached = await attachToMessageTx(tx, access, {
+      ids: input.attachmentIds,
+      conversationId: conversation.id,
+      messageId: user.id,
+    });
+    if (attached.length > 0)
+      await tx
+        .update(messages)
+        .set({ metadata: { use: input.use, attachments: attached } })
+        .where(eq(messages.id, user.id));
     const [reply] = await tx
       .insert(messages)
       .values({
@@ -213,13 +239,35 @@ export async function handleMessage(
     }
     const ctx = await buildContext(access, classified.intent, entity, summary, input.content);
     const pm = PROJECT_MESSAGES[input.locale];
-    const outcome = plan(classified, ctx, copy, {
-      status:
-        pm.statuses[access.project.status as keyof typeof pm.statuses] ?? access.project.status,
-      next: pm.nextActions[getNextProjectAction(ctx.snapshot).kind],
-      executableTypes: EXECUTABLE_TYPES,
-      repositoryRead,
-    });
+    // Connectors picked in the composer, or named in the message, answer through their tools.
+    const toolChoices = await availableTools(access, input.use.connectors);
+    const choices = input.use.connectors.length
+      ? toolChoices
+      : mentionedTools(input.content, toolChoices);
+    const toolTurn =
+      choices.length > 0
+        ? await runToolTurn(
+            access,
+            {
+              message: input.content,
+              choices,
+              conversationId: conversation.id,
+              messageId: user.id,
+            },
+            copy.tools,
+            { provider: options.provider, signal: options.signal },
+          )
+        : null;
+    if (toolTurn?.mutated) mutated = true;
+    const outcome: PlanOutcome = toolTurn
+      ? { kind: "answer", draft: toolTurn.draft, blocks: toolTurn.blocks }
+      : plan(classified, ctx, copy, {
+          status:
+            pm.statuses[access.project.status as keyof typeof pm.statuses] ?? access.project.status,
+          next: pm.nextActions[getNextProjectAction(ctx.snapshot).kind],
+          executableTypes: EXECUTABLE_TYPES,
+          repositoryRead,
+        });
 
     emit({ type: "status", stage: "preparing" });
     const draft = await applyOutcome(outcome, access, ctx.approvalPolicy, {
@@ -241,23 +289,46 @@ export async function handleMessage(
     // as the application wrote them, so they are labelled as rules.
     if (outcome.kind === "answer" && !outcome.exact) {
       const history = await recentHistory(conversation.id);
-      const skills = skillSegments(await platformSkillsFor("assistant", input.content, 2));
+      // Skills the person picked always come along; the best matches fill the rest.
+      const picked = await platformSkillsBySlugs(input.use.skills);
+      const ranked = (await platformSkillsFor("assistant", input.content, 2)).filter(
+        (s) => !picked.some((p) => p.slug === s.slug),
+      );
+      const skills = skillSegments([...picked, ...ranked]);
+      const files = await loadForPrompt(access, user.id);
+      const media = files.filter((f) => f.kind !== "text" && f.bytes);
+      const fileSegments: PromptSegment[] = files.map((f) => ({
+        kind: "external",
+        label: `attached file: ${f.name}`,
+        content: f.text
+          ? f.text.slice(0, 20_000)
+          : `(${f.kind}, ${f.size} bytes, sent with this message)`,
+      }));
+      const extra = [...(toolTurn?.segments ?? []), ...fileSegments];
+      const mediaDraft = media.length ? `${draft}\n\n${copy.attachmentsUnread}` : draft;
       const answer = await runAi({
         access,
         operation: "conversation",
-        required: ["text"],
+        // A picture or PDF needs a model that can see it.
+        required: media.length ? ["text", "vision"] : ["text"],
         override: options.provider,
         run: (client) =>
           client.deterministic
-            ? streamDraft(draft, emit, options.signal)
+            ? streamDraft(mediaDraft, emit, options.signal)
             : streamModel(
                 client,
                 {
                   system: SYSTEM(input.locale),
-                  segments: [...contextSegments(ctx), ...skills],
+                  segments: [...contextSegments(ctx), ...skills, ...extra],
                   history,
                   userMessage: input.content,
                   draft,
+                  attachments: media.map((f) => ({
+                    kind: f.kind as "image" | "pdf",
+                    mime: f.mime,
+                    name: f.name,
+                    data: Buffer.from(f.bytes ?? new Uint8Array()).toString("base64"),
+                  })),
                   signal: options.signal,
                 },
                 emit,

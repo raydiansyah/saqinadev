@@ -35,6 +35,15 @@ export interface PromptSegment {
   content: string;
 }
 
+/** A file the person attached, sent to models that can read it (images, PDF). */
+export interface AiAttachment {
+  kind: "image" | "pdf";
+  mime: string;
+  name: string;
+  /** Base64 of the bytes. */
+  data: string;
+}
+
 export interface AiRequest {
   /** Application-owned instructions. Never contains user or project text. */
   system: string;
@@ -46,6 +55,8 @@ export interface AiRequest {
    * as grounding; the mock provider returns it as is.
    */
   draft: string;
+  /** Images and PDFs for the user turn; text files travel as `external` segments instead. */
+  attachments?: AiAttachment[];
   maxOutputTokens?: number;
   signal?: AbortSignal;
 }

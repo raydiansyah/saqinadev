@@ -36,6 +36,15 @@ export const id: AssistantCopy = {
       HANDOFF_AGENT: "menyerahkan task ke agen",
     },
   },
+  tools: {
+    ran: (tool) => `Saya memakai ${tool}. Hasilnya ada di bawah.`,
+    pending: (tool) =>
+      `${tool} bisa mengubah sesuatu di luar Saqina, jadi menunggu persetujuan Anda.`,
+    failed: (tool) => `${tool} tidak menjawab. Coba lagi, atau periksa konektornya di Integrasi.`,
+    none: "Tidak ada tool dari konektor terpilih yang cocok untuk permintaan ini.",
+  },
+  attachmentsUnread:
+    "Gambar atau PDF yang dilampirkan tidak terbaca: belum ada model AI yang bisa membacanya untuk project ini.",
   needsPriority: "Prioritasnya mau apa?",
   pendingApprovals: (n) =>
     n === 0

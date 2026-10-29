@@ -6,6 +6,7 @@ import { isLocale } from "@/i18n/locales";
 import { runAction } from "@/lib/actions";
 import { cancelRun, pauseRun, reassignRun, resumeRun, retryRun } from "@/lib/agents/controls";
 import { agentOptions } from "@/lib/agents/options";
+import { chatContextOptions } from "@/lib/assistant/chat-context";
 import { requireActor, requireProjectAccess } from "@/lib/auth/server";
 import {
   forkConversation,
@@ -143,5 +144,12 @@ export async function rewindAction(slug: string, input: unknown) {
 export async function setAgentAccessAction(slug: string, input: unknown) {
   return runAction("conversation.agent_access", { slug }, async () =>
     setAgentAccess(await requireActor(), slug, input),
+  );
+}
+
+/** Skills and connectors the composer offers as context, plus where to manage connectors. */
+export async function chatContextOptionsAction(slug: string) {
+  return runAction("assistant.contextOptions", { slug }, async () =>
+    chatContextOptions(await requireProjectAccess(slug)),
   );
 }

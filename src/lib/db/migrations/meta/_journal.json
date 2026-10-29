@@ -225,6 +225,13 @@
       "when": 1793230870564,
       "tag": "0031_platform_skills_connectors",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1793235055312,
+      "tag": "0032_chat_attachments",
+      "breakpoints": true
     }
   ]
 }

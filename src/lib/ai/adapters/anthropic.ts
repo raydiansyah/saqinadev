@@ -6,6 +6,24 @@ import type { AdapterConfig, ProviderAdapter } from "./types";
 
 const API_VERSION = "2023-06-01";
 
+/** The user turn: attached images and PDFs first, then the text. */
+export function userContent(req: AiRequest) {
+  const text = renderUserTurn(req);
+  if (!req.attachments?.length) return text;
+  return [
+    ...req.attachments.map((a) =>
+      a.kind === "image"
+        ? { type: "image", source: { type: "base64", media_type: a.mime, data: a.data } }
+        : {
+            type: "document",
+            title: a.name,
+            source: { type: "base64", media_type: "application/pdf", data: a.data },
+          },
+    ),
+    { type: "text", text },
+  ];
+}
+
 class AnthropicClient implements AiProvider {
   readonly deterministic = false;
   readonly config;
@@ -25,7 +43,7 @@ class AnthropicClient implements AiProvider {
       model: this.config.model,
       max_tokens: req.maxOutputTokens ?? 1024,
       system: `${req.system}\n\n${DATA_BOUNDARY_RULES}`,
-      messages: [...(req.history ?? []), { role: "user", content: renderUserTurn(req) }],
+      messages: [...(req.history ?? []), { role: "user", content: userContent(req) }],
       ...extra,
     });
   }

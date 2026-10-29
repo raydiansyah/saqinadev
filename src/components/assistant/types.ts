@@ -16,6 +16,16 @@ export interface UIMessage {
   /** Set when the message is pinned as a chapter. */
   chapterTitle?: string | null;
   createdAt: Date | string;
+  /** Files sent with a user message. */
+  attachments?: {
+    id: string;
+    name: string;
+    mime: string;
+    size: number;
+    kind: "text" | "image" | "pdf";
+  }[];
+  /** Skills and connectors added as context. */
+  use?: { skills: string[]; connectors: string[] } | null;
 }
 
 export interface ChapterItem {

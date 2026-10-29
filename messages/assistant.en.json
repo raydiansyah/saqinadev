@@ -499,6 +499,41 @@
       "confirm": "Rewind",
       "fork": "Fork from here instead",
       "done": "Rewound to the chosen message."
+    },
+    "usedContext": "{count, plural, one {# skill or connector added} other {# skills or connectors added}}",
+    "attach": {
+      "button": "Attach files",
+      "uploading": "Uploading...",
+      "pending": "Goes with your next message",
+      "attached": "Attached files",
+      "remove": "Remove {name}",
+      "skill": "Skill",
+      "connector": "Connector",
+      "errors": {
+        "tooLarge": "Over 5 MB",
+        "type": "File type not supported",
+        "empty": "Empty file",
+        "storage": "File storage is not set up",
+        "failed": "Upload failed",
+        "required": "No file"
+      }
+    },
+    "contextPicker": {
+      "button": "Context",
+      "loading": "Loading...",
+      "failed": "Could not load skills and connectors.",
+      "skills": "Skills",
+      "connectors": "Connectors",
+      "noSkills": "No skill is switched on.",
+      "noConnectors": "No connector is connected yet.",
+      "tools": "{count, plural, one {# tool} other {# tools}}",
+      "manage": "Manage connectors",
+      "askOwner": "Ask the platform owner or a project admin to add connectors."
+    },
+    "toolResult": {
+      "succeeded": "Done",
+      "failed": "Failed",
+      "show": "Show result"
     }
   }
 }

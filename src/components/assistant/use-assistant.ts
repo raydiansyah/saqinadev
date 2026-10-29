@@ -159,7 +159,17 @@ export function useAssistant(
   );
 
   const send = useCallback(
-    async (content: string, context: ChatContext, opts: { fresh?: boolean } = {}) => {
+    async (
+      content: string,
+      context: ChatContext,
+      opts: {
+        fresh?: boolean;
+        /** Files already uploaded for this message. */
+        attachments?: NonNullable<UIMessage["attachments"]>;
+        /** Skills and connectors picked as context. */
+        use?: { skills: string[]; connectors: string[] };
+      } = {},
+    ) => {
       const text = content.trim();
       if (!text) return;
       const options = { fresh: opts.fresh ?? freshNext.current };
@@ -183,6 +193,8 @@ export function useAssistant(
             status: "completed",
             blocks: [],
             createdAt: now,
+            attachments: opts.attachments ?? [],
+            use: opts.use ?? null,
           },
           {
             id: PENDING_ID,
@@ -209,6 +221,8 @@ export function useAssistant(
             content: text,
             locale,
             context: context.type === "project" ? null : { type: context.type, id: context.id },
+            attachmentIds: (opts.attachments ?? []).map((a) => a.id),
+            use: opts.use ?? { skills: [], connectors: [] },
           }),
           signal: controller.signal,
         });

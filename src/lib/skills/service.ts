@@ -1,6 +1,6 @@
 import "server-only";
 import { createHash } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import * as z from "zod";
 import { recordAudit } from "@/lib/audit/service";
 import type { Actor } from "@/lib/auth/actor";
@@ -243,4 +243,39 @@ export async function platformSkillsFor(
     log.warn("skills.load_failed", { error: error instanceof Error ? error.name : "error" });
     return [];
   }
+}
+
+export interface UsableSkill {
+  slug: string;
+  name: string;
+  description: string;
+}
+
+/** Switched-on skills a project member may pick in the chat; names only, never the text. */
+export async function listUsableSkills(): Promise<UsableSkill[]> {
+  await ensureBuiltinSkills();
+  return db
+    .select({
+      slug: platformSkills.slug,
+      name: platformSkills.name,
+      description: platformSkills.description,
+    })
+    .from(platformSkills)
+    .where(eq(platformSkills.enabled, true))
+    .orderBy(platformSkills.name);
+}
+
+/** The switched-on skills a person picked by slug, for the prompt. Unknown slugs are skipped. */
+export async function platformSkillsBySlugs(slugs: string[]): Promise<PromptSkill[]> {
+  if (slugs.length === 0) return [];
+  const rows = await db
+    .select()
+    .from(platformSkills)
+    .where(and(eq(platformSkills.enabled, true), inArray(platformSkills.slug, slugs)));
+  return rows.map(toView).map((s) => ({
+    slug: s.slug,
+    name: s.name,
+    content: s.content,
+    builtin: s.source === "builtin",
+  }));
 }

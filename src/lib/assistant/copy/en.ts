@@ -36,6 +36,15 @@ export const en: AssistantCopy = {
       HANDOFF_AGENT: "hand the task to an agent",
     },
   },
+  tools: {
+    ran: (tool) => `I used ${tool}. The result is below.`,
+    pending: (tool) => `${tool} can change things outside Saqina, so it waits for your approval.`,
+    failed: (tool) =>
+      `${tool} did not answer. Try again, or check the connector under Integrations.`,
+    none: "None of the selected connectors has a tool that fits this request.",
+  },
+  attachmentsUnread:
+    "The attached images or PDFs were not read: no AI model that can read them is set up for this project.",
   needsPriority: "Which priority should it get?",
   pendingApprovals: (n) =>
     n === 0 ? "Nothing is waiting for your approval." : `${n} proposal(s) wait for your approval.`,

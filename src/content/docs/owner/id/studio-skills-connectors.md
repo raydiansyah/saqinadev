@@ -40,6 +40,18 @@ Kalau asisten kurang yakin maksud permintaan yang mengubah data, ia bertanya dul
 
 ![Studio: chat di kiri, area kerja dengan Plan, Agen dan tab yang menyusul di kanan](/api/docs/assets/owner/studio-02-studio.png)
 
+## File dan konteks di chat
+
+Di chat Studio (dan halaman Saqina):
+
+- **Lampirkan** (ikon klip) menambahkan file: gambar, PDF, atau file teks seperti Markdown, CSV atau kode, maksimal 5 MB dan 5 file per pesan. File juga bisa diseret ke chat, atau gambar ditempel langsung. File teks dibaca ke dalam percakapan; gambar dan PDF hanya terbaca bila model AI project bisa melihatnya, dan kalau tidak, balasannya mengatakan begitu.
+- **+ Konteks** memilih skill dan konektor untuk pesan-pesan berikutnya. Skill yang dipilih selalu memandu jawaban. Dengan konektor terpilih, Saqina memakai tool-nya untuk menjawab dan menampilkan hasil dari tool itu. Tool yang bisa mengubah sesuatu di luar Saqina menunggu persetujuan Anda lebih dulu.
+- **Kelola konektor** di menu yang sama membuka pengaturan konektor, untuk owner platform dan admin project.
+
+![Menu + Konteks dengan skill, konektor dan Kelola konektor](/api/docs/assets/owner/studio-05-chat-context.png)
+
+File disimpan di penyimpanan privat dan hanya bisa dibuka anggota project.
+
 ## Skill dan konektor (owner platform)
 
 Di **AI & Model**:
