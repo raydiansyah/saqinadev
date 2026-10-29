@@ -8,7 +8,7 @@ import { listConversations, loadMessages } from "@/lib/conversations/service";
 import { getDeployState } from "@/lib/deploy/service";
 import { getDocument } from "@/lib/documents/service";
 import { projectPageAccess } from "@/lib/projects/page";
-import { getServicesState } from "@/lib/services/service";
+import { envSync, getServicesState } from "@/lib/services/service";
 import { getGitState } from "@/lib/studio/git-state";
 import { listMilestones, listTasks } from "@/lib/tasks/service";
 
@@ -21,16 +21,18 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function StudioPage({ params }: PageProps<"/[locale]/project/[slug]/studio">) {
   const { slug } = await params;
   const access = await projectPageAccess(slug);
-  const [conversations, milestones, tasks, runs, prd, git, deploy, services] = await Promise.all([
-    listConversations(access),
-    listMilestones(access),
-    listTasks(access),
-    listRuns(access, { limit: 30 }),
-    getDocument(access, "prd"),
-    getGitState(access),
-    getDeployState(access),
-    getServicesState(access),
-  ]);
+  const [conversations, milestones, tasks, runs, prd, git, deploy, services, gap] =
+    await Promise.all([
+      listConversations(access),
+      listMilestones(access),
+      listTasks(access),
+      listRuns(access, { limit: 30 }),
+      getDocument(access, "prd"),
+      getGitState(access),
+      getDeployState(access),
+      getServicesState(access),
+      envSync(access),
+    ]);
   const latest = conversations[0] ?? null;
   const page = latest ? await loadMessages(access, latest.id) : null;
   const needsAgents = page?.proposals.some((p) => p.actions.some((a) => a.type === "ASSIGN_AGENT"));
@@ -43,7 +45,7 @@ export default async function StudioPage({ params }: PageProps<"/[locale]/projec
       buildsInSaqina={access.project.buildStrategy === "saqina"}
       git={git}
       deploy={deploy}
-      services={services}
+      services={{ ...services, gap }}
       canManage={can(access.role, "project:update")}
       prdApproved={prd?.status === "approved" || prd?.status === "signed"}
       plan={{

@@ -26,6 +26,7 @@
 - [ ] Failure paths tested (empty, null, timeout, concurrent)
 - [ ] `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` pass
 - [ ] Docs updated (README, ADR, runbook as needed)
+- [ ] User guide in `src/content/docs/` updated in English and Indonesian (with screenshots) for every visible change
 
 ## Migration and rollout
 

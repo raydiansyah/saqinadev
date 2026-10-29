@@ -111,7 +111,7 @@ export interface VercelEnvVar {
   value: string;
   /** A secret goes in as a sensitive variable: Vercel never shows its value again. */
   secret: boolean;
-  target: "production" | "preview";
+  target: "production" | "preview" | "development";
 }
 
 /** Sets or replaces the variables of one environment; the same key in both environments is two entries. */
@@ -122,7 +122,9 @@ export async function upsertEnv(ctx: VercelContext, projectId: string, vars: Ver
     body: vars.map((v) => ({
       key: v.key,
       value: v.value,
-      type: v.secret ? "sensitive" : "plain",
+      // Vercel does not allow sensitive variables in development, where `vercel env pull` reads
+      // them; there a secret is stored encrypted instead.
+      type: !v.secret ? "plain" : v.target === "development" ? "encrypted" : "sensitive",
       target: [v.target],
     })),
   });

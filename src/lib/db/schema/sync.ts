@@ -137,6 +137,8 @@ export interface ServiceVarConfig {
   secret: boolean;
   production: boolean;
   preview: boolean;
+  /** Local development (a developer's own machine); falls back to the preview value. */
+  development?: boolean;
 }
 
 /**

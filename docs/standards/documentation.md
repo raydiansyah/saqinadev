@@ -16,6 +16,10 @@
 
 - A pull request that changes behaviour, configuration, an endpoint or an operational step changes the
   matching document in the same pull request.
+- A change a user can see (a new screen, button, setting, rule or message) updates the matching user
+  guide in `src/content/docs/` in **both** English and Indonesian, with its screenshots, in the same
+  pull request. A feature with no guide yet gets a section in the closest guide. The pull request lists
+  the guide pages it changed; "docs to follow" is not done.
 - A change to a flow that a user guide shows changes that guide and its screenshots in the same pull request.
   Screenshots come from the real product on a local database seeded with demo data, never from production.
 - Write for the person on call at 3 a.m.: exact commands in code blocks, one command per block,

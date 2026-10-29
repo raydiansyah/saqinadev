@@ -11,7 +11,9 @@ export type ReadinessIssue =
   | { code: "missingProduction"; service: string; name: string }
   | { code: "missingPreview"; service: string; name: string }
   | { code: "previewSameAsProduction"; service: string; name: string }
-  | { code: "clerkLiveKeyInPreview"; service: string; name: string };
+  | { code: "clerkLiveKeyInPreview"; service: string; name: string }
+  | { code: "localSameAsProduction"; service: string; name: string }
+  | { code: "clerkLiveKeyInLocal"; service: string; name: string };
 
 export interface ServiceValues {
   provider: ServiceProvider;
@@ -19,6 +21,8 @@ export interface ServiceValues {
   vars: ServiceVarConfig[];
   production: Record<string, string>;
   preview: Record<string, string>;
+  /** A developer's own machine; empty falls back to the preview value. */
+  development: Record<string, string>;
 }
 
 /** Variables whose value must differ between production and preview. */
@@ -43,6 +47,12 @@ export function previewIssues(services: ServiceValues[]): ReadinessIssue[] {
         issues.push({ code: "previewSameAsProduction", service, name: v.name });
       if (s.provider === "clerk" && /^(pk|sk)_live_/.test(prev))
         issues.push({ code: "clerkLiveKeyInPreview", service, name: v.name });
+      // A local value is optional, but when set it must stay off live data too.
+      const local = s.development[v.name];
+      if (local && prod && local === prod && MUST_DIFFER(s.provider, v.name))
+        issues.push({ code: "localSameAsProduction", service, name: v.name });
+      if (local && s.provider === "clerk" && /^(pk|sk)_live_/.test(local))
+        issues.push({ code: "clerkLiveKeyInLocal", service, name: v.name });
     }
   }
   return issues;

@@ -1,6 +1,6 @@
 ---
 title: Studio, skills and connectors
-description: Start building from an approved PRD, work in the Studio, generate a PRD with Enhance, and set up skills, connectors and agent models.
+description: Start building from an approved PRD, work in the Studio, generate a PRD with Enhance, choose your own AI model in the chat, keep env the same locally and in Saqina, and set up skills, connectors and agent models.
 order: 5
 updated: 2026-10-29
 ---
@@ -67,9 +67,39 @@ Under **AI & Models**:
 
 In the Studio under **Publish**, add the database or sign-in your app uses: Neon, Supabase, Clerk, Postgres or your own variables. They are always your own accounts: Saqina provides no database, it only keeps your keys encrypted for this project and sends them to the deployment.
 
-Each variable has two values, **Live** and **Preview**. The preview needs a database of its own (a Neon branch, a second Supabase project) and Clerk test keys, so a preview never touches real data. Until that is so, Publish and Preview say what is missing and wait. Keys are never shown again; leave a field empty to keep it.
+Each variable has three values:
 
-![Databases and sign-in in the Publish tab, with the preview not ready yet](/api/docs/assets/owner/studio-09-services.png)
+| Value | Where it is used | Rule |
+|---|---|---|
+| **Live** | The published site | Your real database and live keys |
+| **Preview** | Saqina's preview of every version | A database of its own (a Neon branch, a second Supabase project) and Clerk test keys |
+| **Local** | A developer's own machine | Optional; empty uses the Preview value. Never the live database or a live Clerk key |
+
+Until Live and Preview are filled and kept apart, Publish and Preview say what is missing and wait. Keys are never shown again; leave a field empty to keep it.
+
+![Databases and sign-in in the Publish tab: Live, Preview and Local values for each variable](/api/docs/assets/owner/studio-09-services.png)
+
+### The same env in Saqina and in a local IDE
+
+The app reads the same variable names everywhere; only the values differ.
+
+- **Built in Saqina:** Saqina sends Live and Preview to the deployment before each publish, and again when you change a value on a published project. Agents only ever see the names.
+- **In a local IDE:** under **Working in a local IDE**, download **.env.example** (names only; commit it to the repository) and, as a project admin, **.env.local** (the Local values, or Preview where Local is empty; never commit it, never the live values). Each `.env.local` download is recorded in the activity log. On your own Vercel account, `vercel env pull` gives the same Local values.
+- **Kept in step:** Saqina reads `.env.example` from the repository. A name there that is not set up in Saqina shows as a warning, because the preview would fail without it. A name set up in Saqina but missing from `.env.example` is listed so you can add it.
+- **AGENTS.md** tells an IDE agent the same rules: read `process.env`, add new names to `.env.example`, ask the owner to set the value in Saqina.
+
+## Your own AI model in the chat
+
+Under the chat box, the model button shows who answers: **Platform default**, or one of your own models.
+
+1. Open it and choose **Add my gateway**.
+2. Pick the provider (OpenAI, Anthropic, Google Gemini, or any OpenAI-compatible endpoint), give it a name and paste your API key. List model ids, or leave it empty to add the chat models your key can see.
+3. **Check and add** tests the key with the provider first; a refused key is never stored.
+4. Pick your model. The choice is remembered in this browser.
+
+Your gateway is yours alone: nobody else in the project, nor the platform owner, can see, use or remove it, and the key is never shown again. It works only while the platform owner allows outside providers. When you answer with your own model, your message, the project text it needs and your files go to that provider; if it cannot answer, Saqina answers from project data without any model rather than switching to another provider. Use an API key: signing in with a ChatGPT or Claude subscription is not offered.
+
+![The model picker under the chat box, with the form to add your own gateway](/api/docs/assets/owner/studio-10-model-picker.png)
 
 ## How everything stays in sync
 

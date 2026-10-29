@@ -754,7 +754,7 @@
     },
     "services": {
       "title": "Databases and sign-in",
-      "intro": "Use your own Neon, Supabase, Clerk or other account. Saqina does not provide a database: it keeps your keys encrypted for this project and sends them to the deployment. Keys are never shown again.",
+      "intro": "Use your own Neon, Supabase, Clerk or other account. Saqina does not provide a database: it keeps your keys encrypted for this project and sends them to the deployment (live and preview) and to your machine (local). Keys are never shown again.",
       "none": "No database or sign-in service yet. An app that does not need one can be published as it is.",
       "add": "Add a service",
       "custom": "Other",
@@ -771,7 +771,7 @@
         "incomplete": "Keys missing",
         "ready": "Keys filled"
       },
-      "filled": "(live: {production}, preview: {preview})",
+      "filled": "(live: {production}, preview: {preview}, local: {local})",
       "yes": "set",
       "no": "missing",
       "blocked": "The preview is not ready:",
@@ -783,11 +783,13 @@
       "customNamesHint": "Separated by commas, for example DATABASE_URL, API_KEY. Letters, digits and underscores.",
       "env": {
         "production": "Live site",
-        "preview": "Preview"
+        "preview": "Preview",
+        "development": "Local"
       },
       "envHint": {
         "production": "Used by the published site.",
-        "preview": "Use a separate database or branch, and test keys for sign-in. Never the live ones."
+        "preview": "Use a separate database or branch, and test keys for sign-in. Never the live ones.",
+        "development": "Optional. A developer's own machine; empty uses the Preview value. Never the live one."
       },
       "kept": "Already set. Leave empty to keep it.",
       "save": "Save keys",
@@ -798,7 +800,21 @@
         "missingProduction": "{name} ({service}) has no value for the live site.",
         "missingPreview": "{name} ({service}) has no value for the preview.",
         "previewSameAsProduction": "{name} ({service}) is the same in preview and live. Use a separate database or branch for the preview.",
-        "clerkLiveKeyInPreview": "{name} ({service}) is a live Clerk key. Use a test key in the preview."
+        "clerkLiveKeyInPreview": "{name} ({service}) is a live Clerk key. Use a test key in the preview.",
+        "localSameAsProduction": "{name} ({service}) is the same locally and live. Use a separate database or branch on your machine.",
+        "clerkLiveKeyInLocal": "{name} ({service}) is a live Clerk key. Use a test key locally."
+      },
+      "usesPreview": "uses preview",
+      "gap": {
+        "missingInSaqina": "The repository's .env.example uses variables that are not set up here. The preview may fail until you add them:",
+        "missingInRepo": "Not in the repository's .env.example yet: {names}. Add them so a local IDE knows about them."
+      },
+      "local": {
+        "title": "Working in a local IDE",
+        "hint": "Keep .env.example in the repository (names only) and .env.local on your machine (values, never committed). The app then reads the same names locally, in the preview and live.",
+        "example": "Download .env.example",
+        "download": "Download .env.local",
+        "downloadHint": "Holds the Local values (or Preview where Local is empty), never the live ones. Each download is recorded."
       }
     }
   }
