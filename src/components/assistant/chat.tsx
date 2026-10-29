@@ -15,6 +15,7 @@ import {
   useAttachments,
 } from "./composer-extras";
 import { MessageItem, type MessageTools } from "./message-item";
+import { ModelPicker } from "./model-picker";
 import { RewindDialog } from "./rewind-dialog";
 import type { ChatContext } from "./types";
 import type { AssistantController } from "./use-assistant";
@@ -49,6 +50,7 @@ export function Chat({
   const attachments = useAttachments(slug);
   // Picked skills and connectors stay until removed: they apply to every next message.
   const [picked, setPicked] = useState<PickedContext>(NO_CONTEXT);
+  const [modelId, setModelId] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const lastUser = [...chat.messages].reverse().find((m) => m.role === "user");
@@ -102,6 +104,7 @@ export function Chat({
         skills: picked.skills.map((s) => s.slug),
         connectors: picked.connectors.map((c) => c.id),
       },
+      modelId,
     });
   };
 
@@ -261,7 +264,7 @@ export function Chat({
         onPaste={(e) => {
           if (canWrite && e.clipboardData.files.length) attachments.add(e.clipboardData.files);
         }}
-        className="border-t border-border p-3"
+        className="relative border-t border-border p-3"
       >
         <ComposerChips
           files={attachments.files}
@@ -300,6 +303,7 @@ export function Chat({
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-2">
           <ContextPicker slug={slug} value={picked} onChange={setPicked} />
+          <ModelPicker value={modelId} onChange={setModelId} />
         </div>
         <p
           id={`composer-hint-${slug}`}

@@ -1,5 +1,5 @@
 import "server-only";
-import { and, eq, or } from "drizzle-orm";
+import { and, eq, isNull, or } from "drizzle-orm";
 import { db, type Executor } from "@/lib/db/client";
 import {
   agentModelMappings,
@@ -17,7 +17,14 @@ import {
   type ResolveInput,
 } from "./model-resolver";
 
-export async function loadCatalog(executor: Executor = db): Promise<CatalogModel[]> {
+/**
+ * The platform's models, plus (only when `ownedBy` is given) that person's own. Nobody else's own
+ * gateway ever appears, so the platform's pages and defaults never see it.
+ */
+export async function loadCatalog(
+  executor: Executor = db,
+  ownedBy: string | null = null,
+): Promise<CatalogModel[]> {
   return executor
     .select({
       id: aiModels.id,
@@ -31,9 +38,15 @@ export async function loadCatalog(executor: Executor = db): Promise<CatalogModel
       providerAdapter: aiProviders.adapter,
       providerEnabled: aiProviders.enabled,
       providerStatus: aiProviders.status,
+      ownerUserId: aiProviders.ownerUserId,
     })
     .from(aiModels)
     .innerJoin(aiProviders, eq(aiProviders.id, aiModels.providerId))
+    .where(
+      ownedBy
+        ? or(isNull(aiProviders.ownerUserId), eq(aiProviders.ownerUserId, ownedBy))
+        : isNull(aiProviders.ownerUserId),
+    )
     .orderBy(aiProviders.name, aiModels.displayName);
 }
 
@@ -60,9 +73,11 @@ export async function platformSettings(
 export async function resolutionInput(options: {
   projectId?: string | null;
   agent?: { id: string; role: AgentRole } | null;
+  /** The person whose own models may be used, and the one they chose. */
+  user?: { id: string; modelId: string } | null;
 }): Promise<Omit<ResolveInput, "required">> {
   const [catalog, settings, project, mappings] = await Promise.all([
-    loadCatalog(),
+    loadCatalog(db, options.user?.id ?? null),
     platformSettings(),
     options.projectId
       ? db
@@ -107,5 +122,6 @@ export async function resolutionInput(options: {
     },
     project,
     agentMappings: ordered,
+    userChoice: options.user ? { modelId: options.user.modelId } : null,
   };
 }

@@ -25,6 +25,8 @@ export interface CatalogModel {
   providerAdapter: ProviderAdapterId;
   providerEnabled: boolean;
   providerStatus: ConnectionStatus;
+  /** A person's own gateway; only that person may use it. */
+  ownerUserId: string | null;
 }
 
 export interface Policy {
@@ -60,6 +62,8 @@ export interface ResolveInput {
   /** Project mapping for this agent first, then the platform mapping for its role. */
   agentMappings?: Mapping[];
   required?: ModelCapability[];
+  /** The person's own model picked in the chat: tried first, and the only one tried. */
+  userChoice?: { modelId: string } | null;
 }
 
 export type RejectReason = "unavailable" | "policy" | "project_policy" | "capability";
@@ -85,6 +89,9 @@ export function modelUsable(m: CatalogModel): boolean {
 }
 
 export function policyAllows(m: CatalogModel, p: Policy): boolean {
+  // A person's own gateway sends their data to a provider the platform did not set up: only the
+  // external-providers switch decides; the owner's allow-lists name platform providers.
+  if (m.ownerUserId) return p.allowExternalProviders;
   if (p.allowedProviderIds && !p.allowedProviderIds.includes(m.providerId)) return false;
   if (p.allowedModelIds && !p.allowedModelIds.includes(m.id)) return false;
   if (!p.allowExternalProviders && m.providerType === "custom") return false;
@@ -108,19 +115,23 @@ export function resolveModel(input: ResolveInput): Resolution {
   ];
 
   const wanted: { id: string | null; source: ModelSource }[] = [];
+  // The person chose their own model: it alone answers, so nothing is sent to another provider.
+  if (input.userChoice) wanted.push({ id: input.userChoice.modelId, source: "user_choice" });
   const agentAllowed = policy.allowAgentOverride && (project?.allowAgentOverrides ?? true);
-  if (agentAllowed)
+  if (agentAllowed && !input.userChoice)
     for (const m of mappings)
       wanted.push(
         { id: m.primaryModelId, source: "agent_override" },
         { id: m.fallbackModelId, source: "agent_override" },
       );
-  if (policy.allowProjectOverride && project?.preferredModelId)
-    wanted.push({ id: project.preferredModelId, source: "project_override" });
-  wanted.push(
-    { id: platform.defaultModelId, source: "platform_default" },
-    { id: platform.fallbackModelId, source: "fallback" },
-  );
+  if (!input.userChoice) {
+    if (policy.allowProjectOverride && project?.preferredModelId)
+      wanted.push({ id: project.preferredModelId, source: "project_override" });
+    wanted.push(
+      { id: platform.defaultModelId, source: "platform_default" },
+      { id: platform.fallbackModelId, source: "fallback" },
+    );
+  }
 
   const chain: Candidate[] = [];
   const rejected: Resolution["rejected"] = [];

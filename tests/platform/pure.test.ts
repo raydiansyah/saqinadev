@@ -54,6 +54,7 @@ const model = (id: string, extra: Partial<CatalogModel> = {}): CatalogModel => (
   providerAdapter: "openai",
   providerEnabled: true,
   providerStatus: "connected",
+  ownerUserId: null,
   ...extra,
 });
 
@@ -65,6 +66,31 @@ describe("model resolver", () => {
     model("off", { status: "disabled" }),
   ];
   const platform = { defaultModelId: "a", fallbackModelId: "b", policy: DEFAULT_POLICY };
+
+  it("a person's own model alone answers; the platform's models are not in the chain", () => {
+    const own = model("own", { ownerUserId: "u1", providerType: "custom" });
+    const r = resolveModel({
+      catalog: [...catalog, own],
+      platform,
+      userChoice: { modelId: "own" },
+    });
+    expect(r.chain.map((c) => [c.model.id, c.source])).toEqual([["own", "user_choice"]]);
+  });
+
+  it("a person's own model needs the external-providers switch, whatever the allow-lists say", () => {
+    const own = model("own", { ownerUserId: "u1", providerType: "custom" });
+    const off = { ...platform, policy: { ...DEFAULT_POLICY, allowExternalProviders: false } };
+    const r = resolveModel({ catalog: [own], platform: off, userChoice: { modelId: "own" } });
+    expect(r.chain).toEqual([]);
+    expect(r.rejected).toEqual([{ modelId: "own", source: "user_choice", reason: "policy" }]);
+    const listed = {
+      ...platform,
+      policy: { ...DEFAULT_POLICY, allowedModelIds: ["a"], allowedProviderIds: ["p-a"] },
+    };
+    expect(
+      resolveModel({ catalog: [own], platform: listed, userChoice: { modelId: "own" } }).chain,
+    ).toHaveLength(1);
+  });
 
   it("orders agent override, project override, default, fallback", () => {
     const r = resolveModel({

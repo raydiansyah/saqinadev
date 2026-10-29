@@ -534,6 +534,60 @@
       "succeeded": "Selesai",
       "failed": "Gagal",
       "show": "Lihat hasil"
+    },
+    "modelPicker": {
+      "default": "Default platform",
+      "defaultHint": "Model yang disiapkan platform.",
+      "answersWith": "Jawab dengan",
+      "own": "Gateway milik Anda",
+      "vision": "bisa membaca gambar",
+      "ownNotice": "Pesan Anda, teks project yang dibutuhkan, dan file Anda dikirim ke penyedia ini, bukan ke model platform. Kalau penyedia tidak bisa menjawab, Saqina menjawab dari data project tanpa model.",
+      "loading": "Memuat...",
+      "failed": "Tidak bisa memuat model Anda.",
+      "mine": "Gateway AI saya",
+      "none": "Belum ada gateway. Tambahkan kunci OpenAI, Anthropic, atau Gemini milik Anda, atau endpoint yang kompatibel dengan OpenAI.",
+      "modelCount": "{count, plural, other {# model}}",
+      "test": "Uji",
+      "remove": "Hapus",
+      "addButton": "Tambah gateway saya",
+      "add": "Periksa dan tambah",
+      "adding": "Memeriksa...",
+      "cancel": "Batal",
+      "provider": "Penyedia",
+      "name": "Nama",
+      "baseUrl": "URL endpoint",
+      "baseUrlHint": "Alamat API yang kompatibel dengan OpenAI, misalnya https://api.example.com/v1.",
+      "apiKey": "API key",
+      "apiKeyHint": "Hanya Anda yang bisa memakainya. Disimpan terenkripsi dan tidak pernah ditampilkan lagi.",
+      "models": "Model",
+      "modelsHint": "Opsional. Id model dipisah koma; kosong berarti model chat yang bisa dilihat kunci Anda.",
+      "modelsHintRequired": "Id model dipisah koma, misalnya my-model-70b.",
+      "terms": "Anda memakai akun sendiri, jadi syarat penyedia untuk pemakaian API berlaku untuk Anda.",
+      "termsLink": "Baca syaratnya",
+      "subscriptionNote": "Pakai API key. Masuk dengan langganan ChatGPT atau Claude tidak ditawarkan: Anthropic tidak mengizinkan login langganannya di aplikasi lain, dan login pihak ketiga OpenAI perlu diverifikasi dulu.",
+      "externalOff": "Owner platform mematikan penyedia luar, jadi gateway Anda tidak bisa dipakai.",
+      "adapters": {
+        "openai": "OpenAI (API ChatGPT)",
+        "anthropic": "Anthropic (API Claude)",
+        "gemini": "Google Gemini",
+        "openai_compatible": "Lainnya (kompatibel OpenAI)",
+        "anthropic_compatible": "Lainnya (kompatibel Anthropic)"
+      },
+      "status": {
+        "connected": "Berfungsi",
+        "untested": "Belum diuji",
+        "unauthorized": "Kunci ditolak",
+        "error": "Galat",
+        "disconnected": "Terputus"
+      },
+      "errors": {
+        "refused": "Penyedia menolak kunci ini.",
+        "unreachable": "Penyedia tidak bisa dihubungi.",
+        "required": "Wajib diisi.",
+        "externalOff": "Penyedia luar dimatikan oleh owner platform.",
+        "invalid": "Nilai tidak valid.",
+        "testFailed": "Pemeriksaan gagal. Periksa kunci dan endpoint."
+      }
     }
   }
 }

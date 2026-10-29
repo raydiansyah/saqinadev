@@ -6,6 +6,13 @@ import { isLocale } from "@/i18n/locales";
 import { runAction } from "@/lib/actions";
 import { cancelRun, pauseRun, reassignRun, resumeRun, retryRun } from "@/lib/agents/controls";
 import { agentOptions } from "@/lib/agents/options";
+import {
+  addMyGateway,
+  chatModelOptions,
+  listMyGateways,
+  removeMyGateway,
+  testMyGateway,
+} from "@/lib/ai/user-gateway";
 import { chatContextOptions } from "@/lib/assistant/chat-context";
 import { requireActor, requireProjectAccess } from "@/lib/auth/server";
 import {
@@ -151,5 +158,32 @@ export async function setAgentAccessAction(slug: string, input: unknown) {
 export async function chatContextOptionsAction(slug: string) {
   return runAction("assistant.contextOptions", { slug }, async () =>
     chatContextOptions(await requireProjectAccess(slug)),
+  );
+}
+
+/** The person's own AI gateways and the models the chat picker offers. Never a key. */
+export async function myGatewaysAction() {
+  return runAction("assistant.myGateways", {}, async () => {
+    const actor = await requireActor();
+    const [mine, options] = await Promise.all([listMyGateways(actor), chatModelOptions(actor)]);
+    return { ...mine, options };
+  });
+}
+
+export async function addMyGatewayAction(input: unknown) {
+  return runAction("assistant.myGateway.add", {}, async () =>
+    addMyGateway(await requireActor(), input),
+  );
+}
+
+export async function removeMyGatewayAction(id: string) {
+  return runAction("assistant.myGateway.remove", {}, async () =>
+    removeMyGateway(await requireActor(), { id }),
+  );
+}
+
+export async function testMyGatewayAction(id: string) {
+  return runAction("assistant.myGateway.test", {}, async () =>
+    testMyGateway(await requireActor(), { id }),
   );
 }

@@ -121,6 +121,7 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 | A14 | Platform skills: the platform owner installs SKILL.md skills (pasted or from GitHub) for every project, chooses where each is used, and can switch them off; Superpowers ships built in. Skill text is never executed ([ADR 0009](adr/0009-platform-skills-and-connectors.md)) | Built |
 | A15 | Platform connectors: the owner connects MCP servers once (Firecrawl, Exa, Context7 presets, or a custom server over streamable HTTP) with encrypted keys; their tools reach every project under the same policy, audit and approval; agents read through enabled low-risk tools | Built |
 | A16 | Agent settings pick the model from the models already set up, or Automatic (the project and platform defaults); a pin for Saqina's agents is what their runs use, within the platform policy | Built |
+| A17 | Own AI gateway in the Studio chat: a person adds their own OpenAI, Anthropic or Gemini API key (or an OpenAI-compatible endpoint) and picks, per chat, the platform default or one of their own models. It belongs to that person only, the key is encrypted and never shown, it follows the owner's external-providers switch, and if their model cannot answer nothing goes to another provider ([ADR 0017](adr/0017-own-ai-gateway.md)). Subscription logins (ChatGPT, Claude) are not offered | Built (API key); ChatGPT sign-in open |
 
 ### 5.7 White label
 

@@ -93,7 +93,7 @@ export async function credentialStatus(
  */
 export async function withSecret<T>(
   id: string,
-  expected: { kind: CredentialKind; projectId?: string | null },
+  expected: { kind: CredentialKind; projectId?: string | null; userId?: string | null },
   use: (secret: string) => Promise<T>,
 ): Promise<T> {
   const [row] = await db
@@ -103,6 +103,9 @@ export async function withSecret<T>(
   if (!row || row.kind !== expected.kind) throw new AppError("NOT_FOUND", "Credential missing");
   // Project credentials never cross into another project.
   if (row.scope === "project" && row.projectId !== (expected.projectId ?? null))
+    throw new AppError("NOT_FOUND", "Credential missing");
+  // A person's own credential is only ever opened for that person.
+  if (expected.userId !== undefined && row.scope === "user" && row.userId !== expected.userId)
     throw new AppError("NOT_FOUND", "Credential missing");
   const secret = open(row);
   return use(secret);

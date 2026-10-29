@@ -63,6 +63,8 @@ export const messageInput = z.object({
   locale: z.enum(LOCALES),
   /** Files uploaded for this message (`/api/projects/[slug]/attachments`). */
   attachmentIds: z.array(z.uuid()).max(MAX_ATTACHMENTS).default([]),
+  /** One of the person's own models (their gateway) to answer with; empty: the platform's. */
+  modelId: z.uuid().nullish(),
   /** Skills and connectors the person added to the chat as context. */
   use: z
     .object({
@@ -223,6 +225,7 @@ export async function handleMessage(
       operation: "intent",
       required: ["structured_output"],
       override: options.provider,
+      userModelId: input.modelId,
       run: (client) => classifyIntent(input.content, { entity }, client, options.signal),
     });
     const classified = mergePending(intent.value, pending, input.content);
@@ -255,7 +258,7 @@ export async function handleMessage(
               messageId: user.id,
             },
             copy.tools,
-            { provider: options.provider, signal: options.signal },
+            { provider: options.provider, signal: options.signal, userModelId: input.modelId },
           )
         : null;
     if (toolTurn?.mutated) mutated = true;
@@ -312,6 +315,7 @@ export async function handleMessage(
         // A picture or PDF needs a model that can see it.
         required: media.length ? ["text", "vision"] : ["text"],
         override: options.provider,
+        userModelId: input.modelId,
         run: (client) =>
           client.deterministic
             ? streamDraft(mediaDraft, emit, options.signal)

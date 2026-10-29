@@ -19,6 +19,7 @@ import type { AiProvider } from "./provider";
 import { getAiProvider } from "./registry";
 
 export type ResolvedSource =
+  | "user_choice"
   | "agent_override"
   | "project_override"
   | "platform_default"
@@ -55,6 +56,11 @@ export interface AiCall<T> {
   run: (client: AiProvider) => Promise<T>;
   /** Tests inject a provider instead of the catalog. */
   override?: AiProvider;
+  /**
+   * The person's own model (an id from their own gateway). It alone is tried: if it cannot answer,
+   * the platform's models are not used, so what they wrote never goes to a provider they avoided.
+   */
+  userModelId?: string | null;
 }
 
 const label = (m: CatalogModel) => `${m.providerName} / ${m.displayName}`;
@@ -113,7 +119,9 @@ export async function runAi<T>(call: AiCall<T>): Promise<AiOutcome<T>> {
     };
   }
 
-  const input = await resolutionInput({ projectId, agent: call.agent ?? null });
+  const userId = call.access?.actor.id ?? null;
+  const own = call.userModelId && userId ? { id: userId, modelId: call.userModelId } : null;
+  const input = await resolutionInput({ projectId, agent: call.agent ?? null, user: own });
   const resolution = resolveModel({ ...input, required: call.required ?? [] });
   const providers = resolution.chain.length
     ? await db
@@ -148,14 +156,18 @@ export async function runAi<T>(call: AiCall<T>): Promise<AiOutcome<T>> {
     const started = performance.now();
     let client: AiProvider | null = null;
     try {
-      const value = await withSecret(provider.credentialId, { kind: "ai_provider" }, (secret) => {
-        client = ADAPTERS[provider.adapter].createClient(
-          { baseUrl: provider.baseUrl, configuration: provider.configuration },
-          secret,
-          candidate.model.modelId,
-        );
-        return call.run(client);
-      });
+      const value = await withSecret(
+        provider.credentialId,
+        { kind: "ai_provider", userId: provider.ownerUserId },
+        (secret) => {
+          client = ADAPTERS[provider.adapter].createClient(
+            { baseUrl: provider.baseUrl, configuration: provider.configuration },
+            secret,
+            candidate.model.modelId,
+          );
+          return call.run(client);
+        },
+      );
       const fallbackUsed = index > 0;
       await recordUsage({
         projectId,
@@ -204,7 +216,8 @@ export async function runAi<T>(call: AiCall<T>): Promise<AiOutcome<T>> {
   }
 
   // Nothing configured worked: the env model if present, otherwise rules. Recorded either way.
-  const system = getAiProvider();
+  // A person's own choice never falls back to another provider: rules answer, with the reasons.
+  const system = own ? new MockAiProvider() : getAiProvider();
   const started = performance.now();
   let value: T;
   try {

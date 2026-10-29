@@ -589,6 +589,7 @@
       "resolved": "Model per agent",
       "source": "Sumber",
       "sources": {
+        "user_choice": "Model Anda sendiri",
         "agent_override": "Pemetaan agent",
         "project_override": "Proyek",
         "platform_default": "Default platform",

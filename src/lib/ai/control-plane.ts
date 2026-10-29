@@ -1,5 +1,5 @@
 import "server-only";
-import { and, count, eq, ne } from "drizzle-orm";
+import { and, count, eq, isNull, ne } from "drizzle-orm";
 import * as z from "zod";
 import { recordAudit } from "@/lib/audit/service";
 import type { Actor } from "@/lib/auth/actor";
@@ -62,7 +62,11 @@ export interface ProviderView {
 
 export async function listProviders(actor: Actor): Promise<ProviderView[]> {
   await requirePlatformOwner(actor);
-  const rows = await db.select().from(aiProviders).orderBy(aiProviders.name);
+  const rows = await db
+    .select()
+    .from(aiProviders)
+    .where(isNull(aiProviders.ownerUserId))
+    .orderBy(aiProviders.name);
   const counts = await db
     .select({ providerId: aiModels.providerId, n: count() })
     .from(aiModels)
@@ -82,7 +86,7 @@ export async function listProviders(actor: Actor): Promise<ProviderView[]> {
   }));
 }
 
-async function checkBaseUrl(
+export async function checkBaseUrl(
   adapter: (typeof PROVIDER_ADAPTERS)[number],
   baseUrl: string | null | undefined,
 ) {
@@ -138,7 +142,10 @@ export async function updateProvider(actor: Actor, input: unknown) {
   const { id, ...data } = parse(providerInput.extend({ id: z.uuid() }), input);
   await checkBaseUrl(data.adapter, data.baseUrl);
   await db.transaction(async (tx) => {
-    const [current] = await tx.select().from(aiProviders).where(eq(aiProviders.id, id));
+    const [current] = await tx
+      .select()
+      .from(aiProviders)
+      .where(and(eq(aiProviders.id, id), isNull(aiProviders.ownerUserId)));
     if (!current) throw new AppError("NOT_FOUND");
     let credentialId = current.credentialId;
     // A new secret replaces the old one; the old ciphertext is revoked, not kept active.
@@ -162,7 +169,7 @@ export async function updateProvider(actor: Actor, input: unknown) {
         credentialId,
         status: "untested",
       })
-      .where(eq(aiProviders.id, id));
+      .where(and(eq(aiProviders.id, id), isNull(aiProviders.ownerUserId)));
     await recordAudit(tx, {
       actorId: actor.id,
       scope: "platform",
@@ -181,7 +188,7 @@ export async function setProviderEnabled(actor: Actor, input: unknown) {
     const [row] = await tx
       .update(aiProviders)
       .set({ enabled, ...(enabled ? {} : { status: "disabled" as const }) })
-      .where(eq(aiProviders.id, id))
+      .where(and(eq(aiProviders.id, id), isNull(aiProviders.ownerUserId)))
       .returning({ name: aiProviders.name });
     if (!row) throw new AppError("NOT_FOUND");
     await recordAudit(tx, {
@@ -200,13 +207,16 @@ export async function disconnectProvider(actor: Actor, input: unknown) {
   await requirePlatformOwner(actor);
   const { id } = parse(z.object({ id: z.uuid() }), input);
   await db.transaction(async (tx) => {
-    const [row] = await tx.select().from(aiProviders).where(eq(aiProviders.id, id));
+    const [row] = await tx
+      .select()
+      .from(aiProviders)
+      .where(and(eq(aiProviders.id, id), isNull(aiProviders.ownerUserId)));
     if (!row) throw new AppError("NOT_FOUND");
     if (row.credentialId) await revokeCredential(tx, row.credentialId);
     await tx
       .update(aiProviders)
       .set({ credentialId: null, status: "disconnected" })
-      .where(eq(aiProviders.id, id));
+      .where(and(eq(aiProviders.id, id), isNull(aiProviders.ownerUserId)));
     await recordAudit(tx, {
       actorId: actor.id,
       scope: "platform",
@@ -222,7 +232,10 @@ export async function disconnectProvider(actor: Actor, input: unknown) {
 export async function testProvider(actor: Actor, input: unknown) {
   await requirePlatformOwner(actor);
   const { id } = parse(z.object({ id: z.uuid() }), input);
-  const [row] = await db.select().from(aiProviders).where(eq(aiProviders.id, id));
+  const [row] = await db
+    .select()
+    .from(aiProviders)
+    .where(and(eq(aiProviders.id, id), isNull(aiProviders.ownerUserId)));
   if (!row) throw new AppError("NOT_FOUND");
   if (!row.credentialId)
     return { ok: false, code: "no_credential" as const, models: [] as string[] };
@@ -235,7 +248,7 @@ export async function testProvider(actor: Actor, input: unknown) {
     await tx
       .update(aiProviders)
       .set({ status, lastTestedAt: new Date() })
-      .where(eq(aiProviders.id, id));
+      .where(and(eq(aiProviders.id, id), isNull(aiProviders.ownerUserId)));
     if (row.credentialId) await recordTest(tx, row.credentialId, result.code);
     await recordAudit(tx, {
       actorId: actor.id,
@@ -274,7 +287,7 @@ export async function createModel(actor: Actor, input: unknown) {
     const [provider] = await tx
       .select({ id: aiProviders.id })
       .from(aiProviders)
-      .where(eq(aiProviders.id, data.providerId));
+      .where(and(eq(aiProviders.id, data.providerId), isNull(aiProviders.ownerUserId)));
     if (!provider) throw new AppError("NOT_FOUND");
     const [row] = await tx
       .insert(aiModels)
@@ -460,7 +473,10 @@ export async function setRoleMapping(actor: Actor, input: unknown) {
 export async function controlPlaneOverview(actor: Actor) {
   await requirePlatformOwner(actor);
   const [providers, catalog, settings] = await Promise.all([
-    db.select({ status: aiProviders.status, enabled: aiProviders.enabled }).from(aiProviders),
+    db
+      .select({ status: aiProviders.status, enabled: aiProviders.enabled })
+      .from(aiProviders)
+      .where(isNull(aiProviders.ownerUserId)),
     loadCatalog(),
     platformSettings(),
   ]);
@@ -499,7 +515,10 @@ export interface FetchedModel {
 export async function fetchProviderModels(actor: Actor, input: unknown) {
   await requirePlatformOwner(actor);
   const { providerId } = parse(z.object({ providerId: z.uuid() }), input);
-  const [row] = await db.select().from(aiProviders).where(eq(aiProviders.id, providerId));
+  const [row] = await db
+    .select()
+    .from(aiProviders)
+    .where(and(eq(aiProviders.id, providerId), isNull(aiProviders.ownerUserId)));
   if (!row) throw new AppError("NOT_FOUND");
   if (!row.credentialId) return { ok: false as const, code: "no_credential" as const, models: [] };
   const adapter = ADAPTERS[row.adapter];
@@ -549,7 +568,7 @@ export async function importModels(actor: Actor, input: unknown) {
     const [provider] = await tx
       .select({ id: aiProviders.id })
       .from(aiProviders)
-      .where(eq(aiProviders.id, data.providerId));
+      .where(and(eq(aiProviders.id, data.providerId), isNull(aiProviders.ownerUserId)));
     if (!provider) throw new AppError("NOT_FOUND");
     const unique = [...new Map(data.models.map((m) => [m.modelId, m])).values()];
     const rows = await tx
