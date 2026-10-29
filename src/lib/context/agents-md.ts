@@ -81,6 +81,12 @@ export function renderAgentsMd(input: AgentsMdInput): string {
       "hardcode, print or commit a value. The app must start and render with the preview values,",
       "because Saqina previews every version before it is published.",
       "",
+      "On this machine: keep `.env.example` in the repository with every variable name (no values);",
+      "Saqina compares it with what is set up and warns about a name it does not know. Values for",
+      "local work go in `.env.local` (never committed): a project admin downloads it from the Studio",
+      "(Publish > Databases and sign-in). When you add a variable, add it to `.env.example` and ask",
+      "the owner to set it in Saqina, or the preview fails.",
+      "",
     );
     for (const s of input.services)
       lines.push(`- ${s.provider} (${s.kind}): ${s.envVars.join(", ")}`);

@@ -754,7 +754,7 @@
     },
     "services": {
       "title": "Database dan layanan masuk",
-      "intro": "Pakai akun Neon, Supabase, Clerk, atau lainnya milik Anda sendiri. Saqina tidak menyediakan database: Saqina menyimpan kunci Anda terenkripsi untuk project ini dan mengirimkannya ke deployment. Kunci tidak pernah ditampilkan lagi.",
+      "intro": "Pakai akun Neon, Supabase, Clerk, atau lainnya milik Anda sendiri. Saqina tidak menyediakan database: Saqina menyimpan kunci Anda terenkripsi untuk project ini dan mengirimkannya ke deployment (live dan preview) serta ke komputer Anda (lokal). Kunci tidak pernah ditampilkan lagi.",
       "none": "Belum ada database atau layanan masuk. Aplikasi yang tidak membutuhkannya bisa langsung dipublikasikan.",
       "add": "Tambah layanan",
       "custom": "Lainnya",
@@ -771,7 +771,7 @@
         "incomplete": "Kunci kurang",
         "ready": "Kunci terisi"
       },
-      "filled": "(live: {production}, preview: {preview})",
+      "filled": "(live: {production}, preview: {preview}, lokal: {local})",
       "yes": "ada",
       "no": "kurang",
       "blocked": "Preview belum siap:",
@@ -783,11 +783,13 @@
       "customNamesHint": "Pisahkan dengan koma, misalnya DATABASE_URL, API_KEY. Huruf, angka, dan garis bawah.",
       "env": {
         "production": "Situs live",
-        "preview": "Preview"
+        "preview": "Preview",
+        "development": "Lokal"
       },
       "envHint": {
         "production": "Dipakai situs yang dipublikasikan.",
-        "preview": "Pakai database atau branch terpisah, dan kunci uji untuk layanan masuk. Jangan yang live."
+        "preview": "Pakai database atau branch terpisah, dan kunci uji untuk layanan masuk. Jangan yang live.",
+        "development": "Opsional. Komputer developer sendiri; kosong berarti memakai nilai Preview. Tidak pernah nilai live."
       },
       "kept": "Sudah terisi. Kosongkan untuk tetap memakainya.",
       "save": "Simpan kunci",
@@ -798,7 +800,21 @@
         "missingProduction": "{name} ({service}) belum punya nilai untuk situs live.",
         "missingPreview": "{name} ({service}) belum punya nilai untuk preview.",
         "previewSameAsProduction": "{name} ({service}) sama di preview dan live. Pakai database atau branch terpisah untuk preview.",
-        "clerkLiveKeyInPreview": "{name} ({service}) adalah kunci Clerk live. Pakai kunci uji di preview."
+        "clerkLiveKeyInPreview": "{name} ({service}) adalah kunci Clerk live. Pakai kunci uji di preview.",
+        "localSameAsProduction": "{name} ({service}) sama di lokal dan live. Pakai database atau branch terpisah di komputer Anda.",
+        "clerkLiveKeyInLocal": "{name} ({service}) adalah kunci Clerk live. Pakai kunci uji di lokal."
+      },
+      "usesPreview": "memakai preview",
+      "gap": {
+        "missingInSaqina": ".env.example di repository memakai variabel yang belum diatur di sini. Preview bisa gagal sampai Anda menambahkannya:",
+        "missingInRepo": "Belum ada di .env.example repository: {names}. Tambahkan supaya IDE lokal mengetahuinya."
+      },
+      "local": {
+        "title": "Bekerja di IDE lokal",
+        "hint": "Simpan .env.example di repository (nama saja) dan .env.local di komputer Anda (nilai, jangan di-commit). Aplikasi lalu membaca nama yang sama di lokal, di preview, dan di live.",
+        "example": "Unduh .env.example",
+        "download": "Unduh .env.local",
+        "downloadHint": "Berisi nilai Lokal (atau Preview bila Lokal kosong), tidak pernah nilai live. Setiap unduhan dicatat."
       }
     }
   }

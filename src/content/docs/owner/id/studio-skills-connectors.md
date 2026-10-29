@@ -1,6 +1,6 @@
 ---
 title: Studio, skill dan konektor
-description: Mulai mengerjakan dari PRD yang disetujui, bekerja di Studio, generate PRD dengan Enhance, dan siapkan skill, konektor dan model agen.
+description: Mulai mengerjakan dari PRD yang disetujui, bekerja di Studio, generate PRD dengan Enhance, pilih model AI sendiri di chat, jaga env tetap sama di lokal dan di Saqina, dan siapkan skill, konektor dan model agen.
 order: 5
 updated: 2026-10-29
 ---
@@ -67,9 +67,39 @@ Di **AI & Model**:
 
 Di Studio, tab **Publish**, tambahkan database atau layanan masuk yang dipakai aplikasi: Neon, Supabase, Clerk, Postgres, atau variabel Anda sendiri. Semuanya selalu akun milik Anda: Saqina tidak menyediakan database, hanya menyimpan kunci Anda terenkripsi untuk project ini dan mengirimkannya ke deployment.
 
-Setiap variabel punya dua nilai, **Live** dan **Preview**. Preview butuh database sendiri (branch Neon, project Supabase kedua) dan kunci uji Clerk, agar preview tidak pernah menyentuh data asli. Selama belum begitu, Publish dan Preview menjelaskan apa yang kurang dan menunggu. Kunci tidak pernah ditampilkan lagi; kosongkan kolom untuk tetap memakai yang lama.
+Setiap variabel punya tiga nilai:
 
-![Database dan layanan masuk di tab Publish, dengan preview yang belum siap](/api/docs/assets/owner/studio-09-services.png)
+| Nilai | Dipakai di | Aturan |
+|---|---|---|
+| **Live** | Situs yang dipublikasikan | Database asli dan kunci live Anda |
+| **Preview** | Preview Saqina untuk setiap versi | Database sendiri (branch Neon, project Supabase kedua) dan kunci uji Clerk |
+| **Lokal** | Komputer developer sendiri | Opsional; kosong berarti memakai nilai Preview. Tidak pernah database live atau kunci Clerk live |
+
+Selama Live dan Preview belum terisi dan belum terpisah, Publish dan Preview menjelaskan apa yang kurang dan menunggu. Kunci tidak pernah ditampilkan lagi; kosongkan kolom untuk tetap memakai yang lama.
+
+![Database dan layanan masuk di tab Publish: nilai Live, Preview dan Lokal untuk setiap variabel](/api/docs/assets/owner/studio-09-services.png)
+
+### Env yang sama di Saqina dan di IDE lokal
+
+Aplikasi membaca nama variabel yang sama di mana pun; hanya nilainya yang berbeda.
+
+- **Build in Saqina:** Saqina mengirim nilai Live dan Preview ke deployment sebelum setiap publish, dan langsung lagi saat Anda mengubah nilai pada project yang sudah dipublikasikan. Agen hanya melihat nama variabel.
+- **Di IDE lokal:** di bagian **Bekerja di IDE lokal**, unduh **.env.example** (nama saja; commit ke repository) dan, sebagai admin project, **.env.local** (nilai Lokal, atau Preview bila Lokal kosong; jangan di-commit, tidak pernah nilai live). Setiap unduhan `.env.local` dicatat di log aktivitas. Di akun Vercel Anda sendiri, `vercel env pull` memberi nilai Lokal yang sama.
+- **Tetap selaras:** Saqina membaca `.env.example` dari repository. Nama di sana yang belum diatur di Saqina tampil sebagai peringatan, karena preview akan gagal tanpanya. Nama yang sudah diatur di Saqina tetapi belum ada di `.env.example` ditampilkan supaya Anda bisa menambahkannya.
+- **AGENTS.md** memberi tahu agen IDE aturan yang sama: baca `process.env`, tambahkan nama baru ke `.env.example`, minta owner mengisi nilainya di Saqina.
+
+## Model AI Anda sendiri di chat
+
+Di bawah kotak chat, tombol model menunjukkan siapa yang menjawab: **Default platform**, atau salah satu model Anda sendiri.
+
+1. Buka dan pilih **Tambah gateway saya**.
+2. Pilih penyedia (OpenAI, Anthropic, Google Gemini, atau endpoint yang kompatibel dengan OpenAI), beri nama, lalu tempel API key Anda. Tulis id model, atau kosongkan untuk menambah model chat yang bisa dilihat kunci Anda.
+3. **Periksa dan tambah** menguji kunci ke penyedia lebih dulu; kunci yang ditolak tidak pernah disimpan.
+4. Pilih model Anda. Pilihan diingat di browser ini.
+
+Gateway ini hanya milik Anda: anggota project lain maupun owner platform tidak bisa melihat, memakai, atau menghapusnya, dan kuncinya tidak pernah ditampilkan lagi. Gateway hanya berfungsi selama owner platform mengizinkan penyedia luar. Saat menjawab dengan model Anda, pesan Anda, teks project yang dibutuhkan, dan file Anda dikirim ke penyedia itu; kalau penyedia tidak bisa menjawab, Saqina menjawab dari data project tanpa model, bukan beralih ke penyedia lain. Pakai API key: masuk dengan langganan ChatGPT atau Claude tidak ditawarkan.
+
+![Pemilih model di bawah kotak chat, dengan formulir untuk menambah gateway sendiri](/api/docs/assets/owner/studio-10-model-picker.png)
 
 ## Cara semuanya tetap sinkron
 

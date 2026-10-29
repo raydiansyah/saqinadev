@@ -13,7 +13,13 @@ import {
 import { publish, syncServiceEnv } from "@/lib/deploy/service";
 import { AppError } from "@/lib/errors";
 import { agentsMdFor } from "@/lib/mcp/setup";
-import { getServicesState, removeService, saveService } from "@/lib/services/service";
+import {
+  envExampleFor,
+  envLocalFor,
+  getServicesState,
+  removeService,
+  saveService,
+} from "@/lib/services/service";
 import { createUser, resetDatabase } from "../helpers/db";
 import { project } from "../helpers/project";
 
@@ -109,12 +115,59 @@ describe("databases and sign-in of the app", () => {
     expect(env?.body).toEqual([
       { key: "DATABASE_URL", value: LIVE, type: "sensitive", target: ["production"] },
       { key: "DATABASE_URL", value: BRANCH, type: "sensitive", target: ["preview"] },
+      // No local value yet: a developer's machine (Vercel's development target) gets the preview's.
+      { key: "DATABASE_URL", value: BRANCH, type: "encrypted", target: ["development"] },
     ]);
     // Variables are set before the deployment starts.
     expect(sent.findIndex((c) => c.path.endsWith("/env"))).toBeLessThan(
       sent.findIndex((c) => c.path === "POST /v13/deployments"),
     );
     expect(await getServicesState(access).then((s) => s.issues)).toEqual([]);
+  });
+
+  it("a local value goes to the developer's machine only, and the env files follow it", async () => {
+    const access = await loadProjectAccess(owner, { slug }, "project:read");
+    const { services } = await getServicesState(access);
+    const LOCAL = "postgresql://me:pw@localhost:5432/shop";
+    await saveService(owner, slug, {
+      id: services[0].id,
+      provider: "neon",
+      development: { DATABASE_URL: LOCAL },
+    });
+    const [view] = (await getServicesState(access)).services;
+    expect(view.vars[0]).toMatchObject({ production: true, preview: true, development: true });
+    const local = await envLocalFor(owner, slug);
+    expect(local).toContain(`DATABASE_URL="${LOCAL}"`);
+    expect(local).not.toContain("live.example");
+    expect(local).not.toContain("branch.example");
+    const example = await envExampleFor(access);
+    expect(example).toContain("DATABASE_URL=\n");
+    expect(example).not.toContain("postgresql://");
+    // A local value equal to the live one is refused like a preview one would be.
+    await saveService(owner, slug, {
+      id: services[0].id,
+      provider: "neon",
+      development: { DATABASE_URL: LIVE },
+    });
+    expect((await getServicesState(access)).issues.map((i) => i.code)).toEqual([
+      "localSameAsProduction",
+    ]);
+    await saveService(owner, slug, {
+      id: services[0].id,
+      provider: "neon",
+      development: { DATABASE_URL: LOCAL },
+    });
+  });
+
+  it("only project admins download values; every download is audited without them", async () => {
+    await expectCode(envLocalFor(viewer, slug), "AUTHORIZATION_ERROR");
+    await expectCode(envLocalFor(stranger, slug), "NOT_FOUND");
+    const viewerAccess = await loadProjectAccess(viewer, { slug }, "project:read");
+    expect(await envExampleFor(viewerAccess)).toContain("DATABASE_URL=");
+    const events = await db.select().from(auditEvents);
+    const downloads = events.filter((e) => e.type === "service.env_downloaded");
+    expect(downloads.length).toBeGreaterThan(0);
+    expect(JSON.stringify(downloads)).not.toContain("localhost:5432");
   });
 
   it("sends changed values to Vercel straight away once the project is published", async () => {

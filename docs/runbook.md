@@ -64,6 +64,14 @@ sign-in; each line names the variable and the reason. Fixes:
 - **Supabase:** use a second project (or a branch) for the preview: its Postgres URL, project URL and
   keys go in the Preview column.
 - **Clerk:** the Preview column takes the development instance keys (`pk_test_`, `sk_test_`).
+- **Local column:** optional, for developers' machines; empty uses the Preview value. It may not equal
+  the Live database or hold a live Clerk key. It goes to Vercel's `development` target (encrypted, as
+  Vercel does not allow sensitive variables there) and into the `.env.local` download.
+- **Env files:** `GET /api/projects/<slug>/env?file=example` (names, any member) and `?file=local`
+  (values, project admins only, 20 per hour, audited as `service.env_downloaded` with names only).
+- **"Variables not set up here" warning in the Studio:** the repository's `.env.example` names a
+  variable Saqina does not have. Add the service or a custom variable with that name, or remove it from
+  `.env.example` if the app no longer reads it.
 - Changing a service on a published project sends the values to Vercel at once; the next deployment
   uses them. Values are never shown again; to rotate, enter a new one.
 - Without `SAQINA_ENCRYPTION_KEY` keys cannot be stored (the form says so).

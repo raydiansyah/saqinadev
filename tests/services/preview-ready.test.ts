@@ -8,6 +8,7 @@ const neon = (over: Partial<ServiceValues> = {}): ServiceValues => ({
   vars: [{ name: "DATABASE_URL", secret: true, production: true, preview: true }],
   production: { DATABASE_URL: "postgres://prod" },
   preview: { DATABASE_URL: "postgres://branch" },
+  development: {},
   ...over,
 });
 
@@ -52,12 +53,22 @@ describe("preview readiness", () => {
       ],
       production: { NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_live_a", CLERK_SECRET_KEY: "sk_live_a" },
       preview: { NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: "pk_live_a", CLERK_SECRET_KEY: "sk_live_a" },
+      development: {},
     };
     expect(
       previewIssues([clerk])
         .map((i) => i.code)
         .sort(),
     ).toEqual(["clerkLiveKeyInPreview", "clerkLiveKeyInPreview", "previewSameAsProduction"]);
+  });
+
+  it("a local value is optional, but never the live database or a live Clerk key", () => {
+    expect(previewIssues([neon({ development: { DATABASE_URL: "postgres://mine" } })])).toEqual([]);
+    expect(
+      previewIssues([neon({ development: { DATABASE_URL: "postgres://prod" } })]).map(
+        (i) => i.code,
+      ),
+    ).toEqual(["localSameAsProduction"]);
   });
 
   it("checks the shape of a value per provider", () => {

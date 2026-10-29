@@ -41,6 +41,7 @@ Every rule is marked so nobody mistakes an aspiration for a guarantee:
 - [ ] `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` pass.
 - [ ] Portal-facing change: white-label rules respected ([white-label.md](white-label.md)).
 - [ ] Docs updated (README, ADR for a decision, runbook for an operational change).
+- [ ] User guide in `src/content/docs/` updated in English and Indonesian for every visible change.
 - [ ] AI-written code: attribution filled in, adversarial review done for Red lane.
 
 ## Where the rules live in code

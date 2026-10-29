@@ -7,12 +7,15 @@ import {
   saveServiceAction,
 } from "@/app/[locale]/(app)/project/[slug]/studio/actions";
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Field, Notice, Select } from "@/components/ui/form";
 import type { ServiceKind } from "@/lib/domain/enums";
 import { SERVICE_PRESETS } from "@/lib/services/presets";
 import type { ReadinessIssue } from "@/lib/services/preview-ready";
 import type { ServicesState, ServiceView } from "@/lib/services/service";
+
+const ENVS = ["production", "preview", "development"] as const;
+
 import { cn } from "@/lib/utils";
 
 type Failure = { code: string; fields?: Record<string, string> };
@@ -43,8 +46,10 @@ export function ReadinessList({ issues }: { issues: ReadinessIssue[] }) {
 
 /**
  * Databases and sign-in services of the app, on the user's own accounts. Each variable has a
- * Production value and a separate Preview value, so a preview never touches real data. Values are
- * write-only: a filled variable shows as filled, never as its text.
+ * Live value, a separate Preview value (so a preview never touches real data) and an optional Local
+ * value for a developer's machine, which falls back to Preview. Values are write-only: a filled
+ * variable shows as filled, never as its text. The env files and the repository comparison keep
+ * work in a local IDE and in Saqina on the same names.
  */
 export function ServiceConnections({
   slug,
@@ -57,6 +62,7 @@ export function ServiceConnections({
   canManage: boolean;
   onResult: (r: Result, done?: string) => void;
 }) {
+  const gap = state.gap ?? null;
   const t = useTranslations("studio.services");
   const [adding, setAdding] = useState<string | null>(null);
   const [removing, setRemoving] = useState<ServiceView | null>(null);
@@ -96,6 +102,7 @@ export function ServiceConnections({
                         {t("filled", {
                           production: v.production ? t("yes") : t("no"),
                           preview: v.preview ? t("yes") : t("no"),
+                          local: v.development ? t("yes") : t("usesPreview"),
                         })}
                       </span>
                     </li>
@@ -132,6 +139,42 @@ export function ServiceConnections({
           )}
         </>
       )}
+
+      {gap && gap.missingInSaqina.length > 0 ? (
+        <Notice tone="warning">
+          <p className="mb-1 font-medium">{t("gap.missingInSaqina")}</p>
+          <p className="break-all font-mono text-xs">{gap.missingInSaqina.join(", ")}</p>
+        </Notice>
+      ) : null}
+      {gap && gap.missingInRepo.length > 0 ? (
+        <p className="text-xs text-muted-foreground">
+          {t("gap.missingInRepo", { names: gap.missingInRepo.join(", ") })}
+        </p>
+      ) : null}
+
+      <div className="space-y-2 border-t border-border pt-3">
+        <p className="text-xs font-medium">{t("local.title")}</p>
+        <p className="text-xs text-muted-foreground">{t("local.hint")}</p>
+        <div className="flex flex-wrap gap-2">
+          <a
+            href={`/api/projects/${slug}/env?file=example`}
+            className={buttonVariants({ variant: "outline", size: "sm" })}
+          >
+            {t("local.example")}
+          </a>
+          {canManage ? (
+            <a
+              href={`/api/projects/${slug}/env?file=local`}
+              className={buttonVariants({ variant: "outline", size: "sm" })}
+            >
+              {t("local.download")}
+            </a>
+          ) : null}
+        </div>
+        {canManage ? (
+          <p className="text-xs text-muted-foreground">{t("local.downloadHint")}</p>
+        ) : null}
+      </div>
 
       {canManage ? (
         <div className="space-y-2">
@@ -213,7 +256,7 @@ function ServiceForm({
       className="space-y-3 rounded-md border border-border bg-surface p-3"
       action={(form) =>
         start(async () => {
-          const pick = (env: "production" | "preview") =>
+          const pick = (env: (typeof ENVS)[number]) =>
             Object.fromEntries(
               vars
                 .map((v) => [v.name, String(form.get(`${env}:${v.name}`) ?? "").trim()] as const)
@@ -227,6 +270,7 @@ function ServiceForm({
             label: String(form.get("label") ?? "") || undefined,
             production: pick("production"),
             preview: pick("preview"),
+            development: pick("development"),
           });
           onResult(r, t("saved"));
           if (r.ok) onClose();
@@ -276,8 +320,8 @@ function ServiceForm({
         disabled={Boolean(existing)}
       />
       {vars.length === 0 ? null : (
-        <div className="grid gap-4 lg:grid-cols-2">
-          {(["production", "preview"] as const).map((env) => (
+        <div className="grid gap-4 lg:grid-cols-3">
+          {ENVS.map((env) => (
             <fieldset key={env} className={cn("space-y-3 rounded-md border border-border p-3")}>
               <legend className="px-1 text-sm font-medium">{t(`env.${env}`)}</legend>
               <p className="text-xs text-muted-foreground">{t(`envHint.${env}`)}</p>
