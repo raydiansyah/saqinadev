@@ -3,6 +3,7 @@ import { AppHeader } from "@/components/app/app-header";
 import { AskSaqinaTrigger, CommandCenterProvider } from "@/components/assistant/command-center";
 import { ProjectDrawer } from "@/components/project/project-drawer";
 import { ProjectHeader } from "@/components/project/project-header";
+import { ProjectMain } from "@/components/project/project-main";
 import { ProjectSidebarNav } from "@/components/project/project-sidebar";
 import type { Locale } from "@/i18n/locales";
 import { can } from "@/lib/auth/permissions";
@@ -43,10 +44,10 @@ export default async function ProjectLayout({
           <ProjectSidebarNav project={sidebarProject} />
         </aside>
         <main id="main" className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
-          <div className="mx-auto max-w-5xl">
+          <ProjectMain slug={slug}>
             <ProjectHeader project={project} next={getNextProjectAction(snapshot)} />
             <div className="pt-8">{children}</div>
-          </div>
+          </ProjectMain>
         </main>
       </div>
     </CommandCenterProvider>

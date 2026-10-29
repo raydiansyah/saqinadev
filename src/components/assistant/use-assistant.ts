@@ -63,8 +63,15 @@ const byId = <T extends { id: string }>(list: T[]) =>
  * Client side of a conversation: streams replies from the assistant route, keeps the thread
  * in sync with the server after each reply, and refreshes the workspace when something changed.
  */
-export function useAssistant(slug: string, initial?: Partial<State>) {
+export function useAssistant(
+  slug: string,
+  initial?: Partial<State>,
+  options: { onFocus?: (target: "plan" | "agents") => void } = {},
+) {
   const locale = useLocale();
+  // Kept in a ref so a new callback each render never restarts a stream.
+  const onFocus = useRef(options.onFocus);
+  onFocus.current = options.onFocus;
   const router = useRouter();
   const [state, setState] = useState<State>({ ...EMPTY, ...initial });
   // The latest state for callbacks that loop (loading older pages until a message appears).
@@ -229,6 +236,7 @@ export function useAssistant(slug: string, initial?: Partial<State>) {
             else if (event.type === "block")
               updatePending((m) => ({ ...m, blocks: [...m.blocks, event.block] }));
             else if (event.type === "done") mutated = event.mutated;
+            else if (event.type === "focus") onFocus.current?.(event.target);
             else if (event.type === "error") failed = { code: event.code, ref: event.ref };
           }
         }

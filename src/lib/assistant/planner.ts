@@ -4,7 +4,7 @@ import { analyzePrd, analyzeRequirements, analyzeTasks, explainChoice } from "./
 import type { Block, Finding } from "./blocks";
 import { businessPlan } from "./business-planner";
 import type { AssistantContext } from "./context-builder";
-import type { AssistantCopy, Clarification } from "./copy/types";
+import type { AssistantCopy, Clarification, WriteIntent } from "./copy/types";
 import { engagementPlan, scopeConflict } from "./engagement-planner";
 import { clarificationFor, featurePlan, pickAgent } from "./feature-plan";
 import type { IntentClassification, PendingIntent } from "./intents/types";
@@ -57,6 +57,9 @@ function analysis(
   ]);
 }
 
+/** Below this confidence a request that changes data is confirmed in the chat first. */
+export const UNSURE_BELOW = 0.5;
+
 function clarify(
   c: IntentClassification,
   question: string,
@@ -90,6 +93,15 @@ export function plan(
   const e = c.entities;
   const task = ctx.entity.type === "task" ? ctx.entity.task : null;
   const s = ctx.snapshot;
+
+  // Not sure what a change-making request meant: ask in the chat before doing anything.
+  if (c.confidence < UNSURE_BELOW && c.intent in copy.unsure.actions)
+    return clarify(
+      c,
+      copy.unsure.question(copy.unsure.actions[c.intent as WriteIntent]),
+      "confirm_intent",
+      [copy.unsure.yes, copy.unsure.no],
+    );
 
   switch (c.intent) {
     case "HELP":

@@ -336,6 +336,29 @@
     "letterhead": {
       "issuedBy": "Issued by {name}",
       "reference": "Ref. {reference}"
+    },
+    "prdGenerate": {
+      "open": "Generate PRD",
+      "title": "Generate PRD",
+      "source": {
+        "prd": "Filled from the current PRD. Change any section, or let Enhance make it more specific.",
+        "interview": "Filled from the project interview. Change any section, or let Enhance make it more specific.",
+        "empty": "Nothing to fill from yet. Write each section, or let Enhance start from what you type."
+      },
+      "newVersion": "Saving creates a new PRD version. Signatures are cleared and the PRD needs approval again.",
+      "docTitle": "Title",
+      "enhance": "Enhance",
+      "enhancing": "Enhancing...",
+      "enhanceAll": "Enhance all sections",
+      "enhancingAll": "Enhancing all...",
+      "byModel": "Enhanced with {model}. Check it before saving.",
+      "byRules": "Tidied by rules (no AI model is set up).",
+      "preview": "Preview",
+      "edit": "Back to the form",
+      "save": "Save as PRD",
+      "saving": "Saving...",
+      "cancel": "Cancel",
+      "stale": "Someone saved the PRD while you were editing. Open Generate PRD again to start from the new version."
     }
   },
   "plan": {
@@ -567,5 +590,39 @@
     "tasks": "Tasks",
     "memory": "Memory",
     "decisions": "Decisions"
+  },
+  "studio": {
+    "metaTitle": "Studio",
+    "title": "Studio",
+    "panes": "Show chat or work area",
+    "pane": {
+      "chat": "Chat",
+      "work": "Work area"
+    },
+    "updated": "Work area updated",
+    "tabs": {
+      "plan": "Plan",
+      "agents": "Agents",
+      "code": "Code",
+      "preview": "Preview",
+      "git": "Git",
+      "publish": "Publish"
+    },
+    "later": "Coming soon",
+    "prdNotApproved": "The PRD is not approved yet. Agents work from it, so approve it first.",
+    "openPrd": "Open the PRD",
+    "planEmpty": "No plan yet. Ask in the chat, for example \"make a plan for the checkout\", and it appears here.",
+    "openPlan": "Open the full plan",
+    "agentsHint": "Saqina's agents work on the open tasks. Each result waits in Approvals before anything changes.",
+    "agentsManual": "This project is built outside Saqina, so agents do not start by themselves. Assign a task to an agent from the chat or the task list.",
+    "noRuns": "No agent has started yet.",
+    "noTask": "No task",
+    "openApprovals": "Open Approvals",
+    "start": {
+      "button": "Start building",
+      "starting": "Starting...",
+      "started": "{count, plural, =0 {No open task was left to start.} one {# task was handed to an agent.} other {# tasks were handed to agents.}}",
+      "skipped": "{count, plural, one {# task has no fitting agent and stays for the team.} other {# tasks have no fitting agent and stay for the team.}}"
+    }
   }
 }

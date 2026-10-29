@@ -108,4 +108,6 @@ export type StreamEvent =
   | { type: "delta"; text: string }
   | { type: "block"; block: Block }
   | { type: "done"; messageId: string; mutated: boolean }
+  /** The Studio work area should show this tab (a plan was made, agents were started). */
+  | { type: "focus"; target: "plan" | "agents" }
   | { type: "error"; code: string; ref?: string };

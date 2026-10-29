@@ -10,6 +10,23 @@ export interface Clarification {
   group: RequirementGroup;
 }
 
+/** Requests that change project data; a low-confidence one is confirmed first. */
+export type WriteIntent =
+  | "CREATE_TASK"
+  | "UPDATE_TASK"
+  | "COMPLETE_TASK"
+  | "DELETE_TASKS"
+  | "SPLIT_TASK"
+  | "CREATE_REQUIREMENT"
+  | "UPDATE_REQUIREMENT"
+  | "ADD_FEATURE"
+  | "UPDATE_PRD"
+  | "GENERATE_PLAN"
+  | "GENERATE_PRD"
+  | "ASSIGN_AGENT"
+  | "RUN_AGENT"
+  | "HANDOFF_AGENT";
+
 /** Strings the assistant writes into conversations and generated changes. */
 export interface AssistantCopy {
   help: string;
@@ -17,6 +34,14 @@ export interface AssistantCopy {
   needsTask: string;
   needsTitle: string;
   needsPriority: string;
+  /** Asked when a request that would change data was not understood with confidence. */
+  unsure: {
+    question: (what: string) => string;
+    yes: string;
+    no: string;
+    /** What each change-making request does, in a few words; `other` for the rest. */
+    actions: Record<"other" | WriteIntent, string>;
+  };
   pendingApprovals: (count: number) => string;
   needsFeature: string;
   noAgent: string;

@@ -95,7 +95,8 @@
         "requests": "Permintaan",
         "messages": "Pesan",
         "clientApprovals": "Persetujuan client",
-        "changes": "Change request"
+        "changes": "Change request",
+        "studio": "Studio"
       },
       "pending": "menunggu"
     },

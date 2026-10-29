@@ -10,6 +10,7 @@ import {
 import { SaveIndicator, type SaveState } from "@/components/app/save-indicator";
 import { AskSaqinaButton } from "@/components/assistant/command-center";
 import { LocalTime } from "@/components/primitives/local-time";
+import { StartBuildingButton } from "@/components/studio/start-building-button";
 import { Button } from "@/components/ui/button";
 import { FIELD_CLASS, Notice } from "@/components/ui/form";
 import { useRouter } from "@/i18n/navigation";
@@ -53,6 +54,7 @@ export function DocumentWorkspace({
   signing,
   canSign = false,
   issuer = "",
+  startBuilding = false,
 }: {
   projectSlug: string;
   doc: DocumentData;
@@ -64,6 +66,8 @@ export function DocumentWorkspace({
   canSign?: boolean;
   /** Name of the organization that owns the document, for the letterhead. */
   issuer?: string;
+  /** Show "Start building", which opens the Studio (and starts agents when Saqina builds). */
+  startBuilding?: boolean;
 }) {
   const t = useTranslations("documents");
   const errors = useTranslations("app.errors");
@@ -320,6 +324,9 @@ export function DocumentWorkspace({
                   {t("approve")}
                 </Button>
               )
+            ) : null}
+            {startBuilding && mode !== "edit" ? (
+              <StartBuildingButton slug={projectSlug} size="sm" />
             ) : null}
           </div>
         </footer>

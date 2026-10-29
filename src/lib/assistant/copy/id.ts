@@ -14,6 +14,28 @@ export const id: AssistantCopy = {
     "Anda punya akses lihat saja di proyek ini, jadi saya bisa menjawab pertanyaan tetapi tidak bisa mengubah apa pun.",
   needsTask: "Task yang mana? Buka task-nya dulu atau tanyakan dari task tersebut.",
   needsTitle: "Task ini mau diberi judul apa?",
+  unsure: {
+    question: (what) => `Saya kurang yakin memahaminya. Apakah Anda ingin saya ${what}?`,
+    yes: "Ya, lanjutkan",
+    no: "Bukan, maksud saya lain",
+    actions: {
+      other: "melakukan perubahan ini",
+      CREATE_TASK: "membuat task",
+      UPDATE_TASK: "mengubah task",
+      COMPLETE_TASK: "menandai task selesai",
+      DELETE_TASKS: "menghapus task",
+      SPLIT_TASK: "memecah task",
+      CREATE_REQUIREMENT: "menambah requirement",
+      UPDATE_REQUIREMENT: "mengubah requirement",
+      ADD_FEATURE: "menambah fitur",
+      UPDATE_PRD: "memperbarui PRD",
+      GENERATE_PLAN: "membuat plan",
+      GENERATE_PRD: "menulis PRD",
+      ASSIGN_AGENT: "menugaskan agen",
+      RUN_AGENT: "menjalankan agen",
+      HANDOFF_AGENT: "menyerahkan task ke agen",
+    },
+  },
   needsPriority: "Prioritasnya mau apa?",
   pendingApprovals: (n) =>
     n === 0

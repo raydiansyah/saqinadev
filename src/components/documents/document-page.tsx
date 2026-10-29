@@ -7,6 +7,7 @@ import { organizations } from "@/lib/db/schema";
 import { listDocLinkStates } from "@/lib/docsync/config";
 import { getDocument } from "@/lib/documents/service";
 import { getSigningState, toSigningView } from "@/lib/documents/signing";
+import { canStartBuilding } from "@/lib/studio/ready";
 import { DocumentWorkspace } from "./document-workspace";
 
 /** Server wrapper shared by /prd and /documents/[doc]. */
@@ -33,6 +34,8 @@ export async function DocumentPage({
       signing={signing}
       issuer={org?.name ?? ""}
       canSign={can(access.role, "project:update")}
+      // Approved PRD or plan, or a signed and issued agreement: the work can begin.
+      startBuilding={can(access.role, "content:write") && canStartBuilding(doc)}
       doc={{
         slug: doc.slug,
         content: doc.content,

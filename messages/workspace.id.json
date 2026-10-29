@@ -336,6 +336,29 @@
     "letterhead": {
       "issuedBy": "Diterbitkan oleh {name}",
       "reference": "No. ref {reference}"
+    },
+    "prdGenerate": {
+      "open": "Generate PRD",
+      "title": "Generate PRD",
+      "source": {
+        "prd": "Diisi dari PRD saat ini. Ubah bagian mana pun, atau biarkan Enhance membuatnya lebih spesifik.",
+        "interview": "Diisi dari interview project. Ubah bagian mana pun, atau biarkan Enhance membuatnya lebih spesifik.",
+        "empty": "Belum ada data untuk mengisi form. Tulis tiap bagian, atau biarkan Enhance memulai dari yang Anda ketik."
+      },
+      "newVersion": "Menyimpan akan membuat versi PRD baru. Tanda tangan dihapus dan PRD perlu disetujui lagi.",
+      "docTitle": "Judul",
+      "enhance": "Enhance",
+      "enhancing": "Memproses...",
+      "enhanceAll": "Enhance semua bagian",
+      "enhancingAll": "Memproses semua...",
+      "byModel": "Diperbaiki dengan {model}. Periksa sebelum menyimpan.",
+      "byRules": "Dirapikan dengan aturan (belum ada model AI yang disiapkan).",
+      "preview": "Pratinjau",
+      "edit": "Kembali ke form",
+      "save": "Simpan sebagai PRD",
+      "saving": "Menyimpan...",
+      "cancel": "Batal",
+      "stale": "Ada yang menyimpan PRD saat Anda mengedit. Buka Generate PRD lagi untuk mulai dari versi terbaru."
     }
   },
   "plan": {
@@ -567,5 +590,39 @@
     "tasks": "Task",
     "memory": "Memory",
     "decisions": "Keputusan"
+  },
+  "studio": {
+    "metaTitle": "Studio",
+    "title": "Studio",
+    "panes": "Tampilkan chat atau area kerja",
+    "pane": {
+      "chat": "Chat",
+      "work": "Area kerja"
+    },
+    "updated": "Area kerja diperbarui",
+    "tabs": {
+      "plan": "Plan",
+      "agents": "Agen",
+      "code": "Kode",
+      "preview": "Preview",
+      "git": "Git",
+      "publish": "Publish"
+    },
+    "later": "Segera hadir",
+    "prdNotApproved": "PRD belum disetujui. Agen bekerja berdasarkan PRD, jadi setujui dulu.",
+    "openPrd": "Buka PRD",
+    "planEmpty": "Belum ada plan. Minta lewat chat, misalnya \"buatkan plan untuk checkout\", dan plan akan muncul di sini.",
+    "openPlan": "Buka plan lengkap",
+    "agentsHint": "Agen Saqina mengerjakan task yang masih terbuka. Setiap hasil menunggu di Persetujuan sebelum ada yang berubah.",
+    "agentsManual": "Project ini dibangun di luar Saqina, jadi agen tidak mulai sendiri. Tugaskan task ke agen lewat chat atau daftar task.",
+    "noRuns": "Belum ada agen yang mulai bekerja.",
+    "noTask": "Tanpa task",
+    "openApprovals": "Buka Persetujuan",
+    "start": {
+      "button": "Kerjakan sekarang",
+      "starting": "Memulai...",
+      "started": "{count, plural, =0 {Tidak ada task terbuka yang tersisa untuk dimulai.} other {# task diserahkan ke agen.}}",
+      "skipped": "{count, plural, other {# task tidak punya agen yang cocok dan tetap untuk tim.}}"
+    }
   }
 }

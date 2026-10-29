@@ -95,7 +95,8 @@
         "requests": "Requests",
         "messages": "Messages",
         "clientApprovals": "Client approvals",
-        "changes": "Change requests"
+        "changes": "Change requests",
+        "studio": "Studio"
       },
       "pending": "waiting"
     },

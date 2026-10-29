@@ -43,6 +43,7 @@ import {
 } from "./blocks";
 import { buildContext, contextSegments, resolveEntity } from "./context-builder";
 import { getAssistantCopy } from "./copy";
+import { focusFor } from "./focus";
 import { classifyIntent } from "./intents/classifier";
 import { priorityIn } from "./intents/rules";
 import type { IntentClassification, PendingIntent } from "./intents/types";
@@ -64,12 +65,21 @@ export type MessageInput = z.infer<typeof messageInput>;
 const PROJECT_MESSAGES = { en: projectEn.project, id: projectId.project } as const;
 
 /** A short follow-up answers the question Saqina asked last; a clear new command does not. */
+const CONFIRM_YES = /^(ya|iya|yes|y|ok|oke|okay|sure|boleh|lanjut|lanjutkan|go|go ahead)\b/i;
+
 export function mergePending(
   c: IntentClassification,
   pending: PendingIntent | null,
   message: string,
 ): IntentClassification {
   if (!pending) return c;
+  // The answer to "did you mean ...?": yes runs the request as understood, anything else is
+  // treated as "no" and gets the help text, so an unsure request is never carried out.
+  if (pending.question === "confirm_intent") {
+    if (CONFIRM_YES.test(message.trim()))
+      return { intent: pending.intent, confidence: 1, entities: pending.entities };
+    return c.confidence >= 0.8 ? c : { intent: "HELP", confidence: 1, entities: {} };
+  }
   // Answering with the same kind of request adds to it ("DP 50%" after "25 juta").
   if (c.intent === pending.intent) {
     const fresh = Object.fromEntries(Object.entries(c.entities).filter(([, v]) => v !== undefined));
@@ -222,6 +232,9 @@ export async function handleMessage(
         mutated = true;
       },
     });
+
+    const focus = focusFor(classified.intent, outcome);
+    if (focus) emit({ type: "focus", target: focus });
 
     emit({ type: "status", stage: "writing" });
     // Only read-only answers are phrased by a model; action results and questions stay exactly
