@@ -56,7 +56,7 @@ Files are kept in private storage and open only for members of the project.
 
 Under **AI & Models**:
 
-- **Skills**: working methods in SKILL.md format used in every project. Superpowers is built in. Install more by pasting a SKILL.md or linking to one on GitHub, and choose where each is used. Saqina only reads a skill's text; it never runs anything from it.
+- **Skills**: working methods in SKILL.md format used in every project. Superpowers and antislop are built in: Superpowers shapes PRDs and plans, antislop (core, copywriting, UI, people and accessibility, mobile layout, code comments) keeps text, interfaces and code free of generic AI patterns and always runs while writing. Install more by pasting a SKILL.md or linking to one on GitHub, and choose where each is used. Saqina only reads a skill's text; it never runs anything from it.
 - **Connectors**: MCP servers connected once for every project. Firecrawl, Exa and Context7 are one click plus an API key; any other server can be added as a custom MCP. Tools that say they change nothing start switched on; the rest wait for you. Keys are stored encrypted and never shown again.
 
 ![Skills under AI & Models, with Superpowers built in](/api/docs/assets/owner/studio-03-skills.png)

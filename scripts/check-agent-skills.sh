@@ -5,13 +5,16 @@ set -u
 
 SKILLS=(brainstorming writing-plans executing-plans sparc-spec goal-plan antislop antislop-copywriting)
 
+# Skills that ship with this repository (antislop) count for every agent that reads them.
+REPO="$(cd "$(dirname "$0")/.." && pwd)"
+
 # agent name | folders searched (colon separated)
 AGENTS=(
-  "claude|$HOME/.claude/skills:$HOME/.claude/plugins/cache"
-  "codex|$HOME/.codex/skills:$HOME/.codex/superpowers:$HOME/.agents/skills"
-  "gemini|$HOME/.gemini/skills:$HOME/.gemini/extensions:$HOME/.agents/skills"
-  "antigravity|$HOME/.gemini/antigravity/skills:$HOME/.gemini/antigravity-ide:$HOME/.agents/skills"
-  "kiro|$HOME/.kiro/skills:$HOME/.kiro/powers"
+  "claude|$REPO/.claude/skills:$HOME/.claude/skills:$HOME/.claude/plugins/cache"
+  "codex|$REPO/.claude/skills:$HOME/.codex/skills:$HOME/.codex/superpowers:$HOME/.agents/skills"
+  "gemini|$REPO/.claude/skills:$HOME/.gemini/skills:$HOME/.gemini/extensions:$HOME/.agents/skills"
+  "antigravity|$REPO/.claude/skills:$HOME/.gemini/antigravity/skills:$HOME/.gemini/antigravity-ide:$HOME/.agents/skills"
+  "kiro|$REPO/.claude/skills:$HOME/.kiro/skills:$HOME/.kiro/powers"
 )
 
 hint() {

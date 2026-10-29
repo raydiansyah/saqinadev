@@ -36,7 +36,7 @@ It lists, for each agent, which of the nine required skills it can find, and pri
 |---|---|
 | Superpowers | Claude Code: `/plugin install superpowers@claude-plugins-official`. Other agents: follow the README at <https://github.com/obra/superpowers> for Codex, Gemini CLI and Kiro |
 | Ruflo | `claude mcp add claude-flow -- npx -y @claude-flow/cli@latest`, then `npx @claude-flow/cli@latest init --wizard` |
-| Antislop | Put the `antislop*` folders in `~/.agents/skills/`, then link them into each agent's skills folder |
+| Antislop | Ships with this repository in `.claude/skills/antislop*` (release and commit in `.claude/skills/ANTISLOP-SOURCE.md`); the pointer block at the end of `AGENTS.md` points every agent at it and sets the mode to DURING. Nothing to install. The product also carries it as built-in skills (`src/lib/skills/builtin/antislop/`) |
 
 Superpowers and Ruflo skills installed through Claude Code live in `~/.claude/plugins/cache/`. Other agents
 reach them by a symlink in `~/.agents/skills/` (and `~/.kiro/skills/` for Kiro) that points at the version
@@ -81,5 +81,8 @@ Inside the product, Saqina ships the Superpowers `brainstorming` and `writing-pl
 (Settings > AI & Models > Skills, [ADR 0009](../adr/0009-platform-skills-and-connectors.md)). After the
 interview a model refines the PRD with `brainstorming` and the plan with `writing-plans`, and Generate PRD's
 Enhance uses `brainstorming`: **Built**. The result is always a proposal or a form a person saves, never a
-direct write. Ruflo and antislop are not run inside the product: **Planned**. A person reviews every PRD or
+direct write. antislop also ships built in, always in DURING mode: its core and copywriting skills join PRD
+and plan generation, and the UI, people, mobile layout and code-comment skills join agent runs
+([ADR 0019](../adr/0019-antislop-built-in.md)): **Built**. Ruflo is not run inside the product:
+**Planned**. A person reviews every PRD or
 plan Saqina writes.

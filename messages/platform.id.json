@@ -227,7 +227,7 @@
     },
     "skills": {
       "title": "Skill",
-      "hint": "Skill adalah metode kerja (SKILL.md) yang dipakai semua project. Saqina hanya membaca teksnya; tidak ada isi skill yang dijalankan. Superpowers sudah terpasang bawaan.",
+      "hint": "Skill adalah metode kerja (SKILL.md) yang dipakai semua project. Saqina hanya membaca teksnya; tidak ada isi skill yang dijalankan. Superpowers dan antislop sudah terpasang bawaan; antislop selalu dipakai saat menulis (mode DURING).",
       "install": "Pasang skill",
       "installing": "Memasang...",
       "empty": "Belum ada skill. Pasang dari GitHub atau tempel SKILL.md.",

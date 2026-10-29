@@ -8,7 +8,9 @@ export interface PromptSkill {
 }
 
 const PER_SKILL = 20_000;
-const TOTAL = 40_000;
+/** Built-in skills ship whole (antislop's core is about 46 000 characters); installed ones stay capped. */
+const PER_BUILTIN = 50_000;
+const TOTAL = 100_000;
 
 /**
  * Skills as prompt segments. Built-in skills ship with Saqina and are instructions; a skill the
@@ -20,7 +22,7 @@ export function skillSegments(skills: PromptSkill[]): PromptSegment[] {
   let budget = TOTAL;
   for (const s of skills) {
     if (budget <= 0) break;
-    const text = s.content.slice(0, Math.min(PER_SKILL, budget));
+    const text = s.content.slice(0, Math.min(s.builtin ? PER_BUILTIN : PER_SKILL, budget));
     budget -= text.length;
     out.push(
       s.builtin

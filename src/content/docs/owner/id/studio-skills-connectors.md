@@ -56,7 +56,7 @@ File disimpan di penyimpanan privat dan hanya bisa dibuka anggota project.
 
 Di **AI & Model**:
 
-- **Skill**: metode kerja berformat SKILL.md yang dipakai di semua project. Superpowers sudah terpasang bawaan. Pasang yang lain dengan menempel SKILL.md atau menautkan ke GitHub, lalu pilih untuk apa skill itu dipakai. Saqina hanya membaca teks skill; tidak ada yang dijalankan dari skill.
+- **Skill**: metode kerja berformat SKILL.md yang dipakai di semua project. Superpowers dan antislop sudah terpasang bawaan: Superpowers membentuk PRD dan rencana, antislop (inti, copywriting, UI, aksesibilitas, layout mobile, komentar kode) menjaga teks, antarmuka, dan kode bebas dari pola AI yang generik dan selalu dipakai saat menulis. Pasang yang lain dengan menempel SKILL.md atau menautkan ke GitHub, lalu pilih untuk apa skill itu dipakai. Saqina hanya membaca teks skill; tidak ada yang dijalankan dari skill.
 - **Konektor**: server MCP yang dihubungkan sekali untuk semua project. Firecrawl, Exa dan Context7 cukup satu klik ditambah API key; server lain bisa ditambahkan sebagai MCP kustom. Tool yang menyatakan tidak mengubah apa pun langsung menyala; sisanya menunggu keputusan Anda. Key disimpan terenkripsi dan tidak pernah ditampilkan lagi.
 
 ![Skill di AI & Model, dengan Superpowers terpasang bawaan](/api/docs/assets/owner/studio-03-skills.png)
