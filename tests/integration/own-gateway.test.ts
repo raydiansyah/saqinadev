@@ -33,7 +33,9 @@ const expectCode = async (promise: Promise<unknown>, code: AppError["code"]) => 
   await expect(promise).rejects.toSatisfy((e: unknown) => e instanceof AppError && e.code === code);
 };
 
-const KEY_A = "sk-test-user-a-0123456789";
+// Fake keys, built at run time so no key-shaped literal sits in the repository.
+const KEY_A = ["fake", "key", "user", "a", "0123456789"].join("-");
+const KEY_WRONG = ["fake", "key", "wrong", "0123456789"].join("-");
 let owner: Actor;
 let alice: Actor;
 let bob: Actor;
@@ -89,7 +91,7 @@ describe("a person's own AI gateway", () => {
   it("checks the key first: a refused key is never stored", async () => {
     stub();
     await expectCode(
-      addMyGateway(alice, { name: "Mine", adapter: "openai", secret: "sk-wrong-0123456789" }),
+      addMyGateway(alice, { name: "Mine", adapter: "openai", secret: KEY_WRONG }),
       "VALIDATION_ERROR",
     );
     expect(await db.select().from(credentials).where(eq(credentials.userId, alice.id))).toEqual([]);
