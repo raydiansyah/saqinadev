@@ -27,6 +27,9 @@ describe("locale detection", () => {
   it("prefers the callback page in the action link, then the body, then the referer", () => {
     const url = "https://saqina.dev/api/auth/verify-email?token=t&callbackURL=%2Fid%2Fdashboard";
     expect(detectLocale({ url, referer: "https://saqina.dev/en/sign-up" })).toBe("id");
+    expect(
+      detectLocale({ url: "/api/auth/verify-email?token=t&callbackURL=%2Fid%2Fdashboard" }),
+    ).toBe("id");
     expect(detectLocale({ callbackURL: "/id/dashboard", referer: "https://x/en/y" })).toBe("id");
     expect(detectLocale({ redirectTo: "/id/reset-password" })).toBe("id");
     expect(detectLocale({ referer: "https://saqina.dev/en/forgot-password" })).toBe("en");

@@ -2,8 +2,11 @@ import type { AiRequest, PromptSegment } from "./provider";
 
 /** Neutralises tag-like text so project content cannot close its own data block. */
 function escapeData(text: string): string {
-  return text.replace(/<\/?(project_data|external|tool_output|instruction)\b/gi, (m) =>
-    m.replace("<", "&lt;"),
+  return text.replace(
+    /<\/?(project_data|external|tool_output|instruction)\b/gi,
+    (m) =>
+      // `m` always starts with the "<" being neutralised.
+      `&lt;${m.slice(1)}`,
   );
 }
 

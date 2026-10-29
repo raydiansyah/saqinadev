@@ -63,12 +63,21 @@ export async function availableTools(
 /** Without picked connectors, a turn uses tools only when the message names a connector or tool. */
 export function mentionedTools(message: string, choices: ToolChoice[]): ToolChoice[] {
   const text = message.toLowerCase();
-  const named = (s: string) =>
-    s.length >= 3 && new RegExp(`\\b${escape(s.toLowerCase())}\\b`).test(text);
+  const named = (s: string) => s.length >= 3 && hasWord(text, s.toLowerCase());
   return choices.filter((c) => named(c.name) || named(c.connector));
 }
 
-const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const WORD = /\w/;
+
+/** Whether `word` appears in `text` with a word boundary on both sides (no regex from input). */
+function hasWord(text: string, word: string): boolean {
+  for (let at = text.indexOf(word); at !== -1; at = text.indexOf(word, at + 1)) {
+    const before = text[at - 1];
+    const after = text[at + word.length];
+    if ((!before || !WORD.test(before)) && (!after || !WORD.test(after))) return true;
+  }
+  return false;
+}
 
 /**
  * The rules' guess, used when no model is set up: a tool named in the message (or the only one),

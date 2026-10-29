@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
@@ -105,7 +105,7 @@ describe("approved licence exceptions", () => {
     ]);
     for (const e of APPROVED_EXCEPTIONS)
       expect(
-        existsSync(resolve(__dirname, `../../docs/adr/${e.adr}-licence-exceptions.md`)),
+        readdirSync(resolve(__dirname, "../../docs/adr")).some((f) => f.startsWith(`${e.adr}-`)),
         e.adr,
       ).toBe(true);
   });

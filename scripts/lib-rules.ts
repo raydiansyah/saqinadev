@@ -80,6 +80,10 @@ export const APPROVED_EXCEPTIONS: { match: string; adr: string }[] = [
   { match: "@img/sharp-libvips-*", adr: "0002" },
   // GSAP's own licence (free for commercial use). Unused today; remove the dependency, see the ADR.
   { match: "gsap", adr: "0002" },
+  // Mermaid's dependencies: khroma ships an MIT licence file but declares none; elkjs is EPL-2.0
+  // (file-level copyleft), used unmodified.
+  { match: "khroma", adr: "0016" },
+  { match: "elkjs", adr: "0016" },
 ];
 
 const excepted = (name: string, patterns: string[]) =>

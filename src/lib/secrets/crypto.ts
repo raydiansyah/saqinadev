@@ -30,6 +30,9 @@ function keyFor(id: number, env: Record<string, string | undefined> = process.en
   return key;
 }
 
+/** GCM authentication tag length in bytes. */
+const TAG_LENGTH = 16;
+
 export function cryptoAvailable(env: Record<string, string | undefined> = process.env): boolean {
   try {
     keyFor(CURRENT_KEY_ID, env);
@@ -41,7 +44,9 @@ export function cryptoAvailable(env: Record<string, string | undefined> = proces
 
 export function seal(plaintext: string, env?: Record<string, string | undefined>): Sealed {
   const iv = randomBytes(12);
-  const cipher = createCipheriv("aes-256-gcm", keyFor(CURRENT_KEY_ID, env), iv);
+  const cipher = createCipheriv("aes-256-gcm", keyFor(CURRENT_KEY_ID, env), iv, {
+    authTagLength: TAG_LENGTH,
+  });
   const ciphertext = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
   return {
     ciphertext: ciphertext.toString("base64"),
@@ -53,12 +58,16 @@ export function seal(plaintext: string, env?: Record<string, string | undefined>
 
 /** Throws if the data was tampered with or the key is wrong (GCM authentication). */
 export function open(sealed: Sealed, env?: Record<string, string | undefined>): string {
+  const tag = Buffer.from(sealed.authTag, "base64");
+  // A shorter tag would be easier to forge: refuse it before decrypting.
+  if (tag.length !== TAG_LENGTH) throw new Error("Invalid authentication tag");
   const decipher = createDecipheriv(
     "aes-256-gcm",
     keyFor(sealed.keyId, env),
     Buffer.from(sealed.iv, "base64"),
+    { authTagLength: TAG_LENGTH },
   );
-  decipher.setAuthTag(Buffer.from(sealed.authTag, "base64"));
+  decipher.setAuthTag(tag);
   return Buffer.concat([
     decipher.update(Buffer.from(sealed.ciphertext, "base64")),
     decipher.final(),
