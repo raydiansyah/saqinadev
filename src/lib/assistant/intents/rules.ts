@@ -222,7 +222,7 @@ const RULES: Rule[] = [
     build: () => result("ANALYZE_REQUIREMENTS", 0.85),
   },
   {
-    test: /\b(?:siapkan|susun|buat(?:kan)?|prepare|create|draft|write)\b.*\b(?:rencana|plan)\b\s*(.*)/,
+    test: /\b(?:siapkan|susun|buat(?:kan)?|prepare|create|draft|write|make|generate)\b.*\b(?:rencana|plan)\b\s*(.*)/,
     build: (_t, m) => result("GENERATE_PLAN", 0.85, { feature: clean(m[1]) }),
   },
   {

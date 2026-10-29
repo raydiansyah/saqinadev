@@ -11,6 +11,7 @@ describe("intent rules", () => {
     ["Kenapa kamu memilih PostgreSQL?", "ASK_DECISION", { topic: "PostgreSQL" }],
     ["Analisa task yang sedang blocked.", "ANALYZE_TASKS", { target: "blocked" }],
     ["Siapkan rencana implementasi login.", "GENERATE_PLAN", { feature: "Login" }],
+    ["Make a plan for the checkout", "GENERATE_PLAN", { feature: "Checkout" }],
     ["Jadikan task ini prioritas tinggi.", "UPDATE_TASK", { priority: "high", target: "current" }],
     ["Pecah task ini menjadi beberapa subtask.", "SPLIT_TASK", { target: "current" }],
     ["Hapus semua task yang belum dimulai.", "DELETE_TASKS", { target: "all_not_started" }],
