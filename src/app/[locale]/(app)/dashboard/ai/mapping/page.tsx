@@ -2,7 +2,18 @@ import { MappingForm } from "@/components/platform/mapping-form";
 import { listModels, listRoleMappings } from "@/lib/ai/control-plane";
 import { requireActorPage } from "@/lib/auth/server";
 
-const ROLES = ["planner", "frontend", "backend", "qa", "docs", "general"] as const;
+const ROLES = [
+  "planner",
+  "architect",
+  "frontend",
+  "backend",
+  "database",
+  "qa",
+  "reviewer",
+  "devops",
+  "docs",
+  "general",
+] as const;
 
 export default async function MappingPage() {
   const actor = await requireActorPage("/dashboard/ai/mapping");

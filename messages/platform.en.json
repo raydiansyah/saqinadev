@@ -11,7 +11,8 @@
       "mapping": "Agent mapping",
       "policies": "Policies",
       "skills": "Skills",
-      "connectors": "Connectors"
+      "connectors": "Connectors",
+      "agents": "Agents"
     },
     "overview": {
       "activeProviders": "Active providers",
@@ -223,7 +224,9 @@
       "unreachable": "The file could not be downloaded. Check the link and that the repository is public.",
       "builtin": "Built-in skills can be switched off but not removed.",
       "urlKey": "Put '{apiKey}' in the URL where the key goes.",
-      "notLocal": "Use a localhost address for a local server."
+      "notLocal": "Use a localhost address for a local server.",
+      "taken": "That key is already in use.",
+      "unknown": "Unknown value."
     },
     "skills": {
       "title": "Skills",
@@ -315,6 +318,55 @@
       "secretOptional": "Optional. Without a key the server answers with lower limits.",
       "docs": "Setup guide",
       "save": "Save"
+    },
+    "agents": {
+      "title": "Agent registry",
+      "description": "Who each agent is and what it may do. Projects follow these definitions; they cannot change them. A change applies to new executions, never to one that is running.",
+      "new": "New agent",
+      "edit": "Edit",
+      "editTitle": "Edit {name}",
+      "save": "Save",
+      "cancel": "Cancel",
+      "activate": "Switch on",
+      "deactivate": "Switch off",
+      "archive": "Archive",
+      "restore": "Restore",
+      "archiveTitle": "Archive {name}?",
+      "archiveBody": "An archived agent takes no new tasks and leaves every project's team. Past executions keep their record.",
+      "archivedCount": "Archived ({count})",
+      "status": {
+        "active": "On",
+        "inactive": "Off",
+        "archived": "Archived"
+      },
+      "summary": "{tools} tools · {permissions} permissions",
+      "key": "Key",
+      "keyHint": "Lowercase letters, digits and dashes. It cannot change later.",
+      "name": "Name",
+      "role": "Role",
+      "descriptionLabel": "Short description",
+      "instructions": "Instructions",
+      "instructionsHint": "What this agent is told before every task. Write the job, the limits and how to finish.",
+      "responsibilities": "Responsibilities",
+      "allowedScope": "Allowed scope",
+      "forbidden": "Forbidden work",
+      "definitionOfDone": "Definition of done",
+      "inputRequirements": "Input it needs",
+      "expectedOutput": "Output it gives",
+      "perLine": "One per line.",
+      "model": "Model",
+      "modelDefault": "Use the role's model from Agent mapping",
+      "tools": "Tools",
+      "toolsHint": "Only these tools can run for this agent. Merging and deploying are never available.",
+      "permissions": "Permissions",
+      "permissionsHint": "What the agent may touch in a project.",
+      "handoff": "May hand work to",
+      "skills": "Skills",
+      "maxAttempts": "Attempts per task",
+      "timeout": "Time limit (seconds)",
+      "priority": "Priority",
+      "history": "Version history",
+      "system": "System"
     }
   },
   "integrations": {

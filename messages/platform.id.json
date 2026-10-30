@@ -11,7 +11,8 @@
       "mapping": "Pemetaan agent",
       "policies": "Kebijakan",
       "skills": "Skill",
-      "connectors": "Konektor"
+      "connectors": "Konektor",
+      "agents": "Agen"
     },
     "overview": {
       "activeProviders": "Penyedia aktif",
@@ -223,7 +224,9 @@
       "unreachable": "File tidak dapat diunduh. Periksa tautan dan pastikan repositorinya publik.",
       "builtin": "Skill bawaan bisa dimatikan tetapi tidak bisa dihapus.",
       "urlKey": "Tulis '{apiKey}' di URL pada posisi key.",
-      "notLocal": "Gunakan alamat localhost untuk server lokal."
+      "notLocal": "Gunakan alamat localhost untuk server lokal.",
+      "taken": "Kunci itu sudah dipakai.",
+      "unknown": "Nilai tidak dikenal."
     },
     "skills": {
       "title": "Skill",
@@ -315,6 +318,55 @@
       "secretOptional": "Opsional. Tanpa key, server menjawab dengan batas lebih rendah.",
       "docs": "Panduan setup",
       "save": "Simpan"
+    },
+    "agents": {
+      "title": "Registri agen",
+      "description": "Siapa setiap agen dan apa yang boleh dikerjakannya. Proyek mengikuti definisi ini dan tidak dapat mengubahnya. Perubahan berlaku untuk eksekusi baru, tidak untuk yang sedang berjalan.",
+      "new": "Agen baru",
+      "edit": "Ubah",
+      "editTitle": "Ubah {name}",
+      "save": "Simpan",
+      "cancel": "Batal",
+      "activate": "Nyalakan",
+      "deactivate": "Matikan",
+      "archive": "Arsipkan",
+      "restore": "Pulihkan",
+      "archiveTitle": "Arsipkan {name}?",
+      "archiveBody": "Agen yang diarsipkan tidak menerima tugas baru dan keluar dari tim semua proyek. Eksekusi yang sudah lewat tetap tercatat.",
+      "archivedCount": "Diarsipkan ({count})",
+      "status": {
+        "active": "Menyala",
+        "inactive": "Mati",
+        "archived": "Diarsipkan"
+      },
+      "summary": "{tools} tool · {permissions} izin",
+      "key": "Kunci",
+      "keyHint": "Huruf kecil, angka, dan tanda hubung. Tidak dapat diubah kemudian.",
+      "name": "Nama",
+      "role": "Peran",
+      "descriptionLabel": "Deskripsi singkat",
+      "instructions": "Instruksi",
+      "instructionsHint": "Yang disampaikan kepada agen ini sebelum setiap tugas. Tulis pekerjaannya, batasnya, dan cara menyelesaikannya.",
+      "responsibilities": "Tanggung jawab",
+      "allowedScope": "Lingkup yang diizinkan",
+      "forbidden": "Pekerjaan terlarang",
+      "definitionOfDone": "Kriteria selesai",
+      "inputRequirements": "Masukan yang dibutuhkan",
+      "expectedOutput": "Keluaran yang diberikan",
+      "perLine": "Satu per baris.",
+      "model": "Model",
+      "modelDefault": "Pakai model peran dari Pemetaan agen",
+      "tools": "Tool",
+      "toolsHint": "Hanya tool ini yang dapat berjalan untuk agen ini. Merge dan deploy tidak pernah tersedia.",
+      "permissions": "Izin",
+      "permissionsHint": "Yang boleh disentuh agen di sebuah proyek.",
+      "handoff": "Boleh menyerahkan pekerjaan ke",
+      "skills": "Skill",
+      "maxAttempts": "Percobaan per tugas",
+      "timeout": "Batas waktu (detik)",
+      "priority": "Prioritas",
+      "history": "Riwayat versi",
+      "system": "Sistem"
     }
   },
   "integrations": {

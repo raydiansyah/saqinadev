@@ -4,6 +4,11 @@ import { revalidatePath } from "next/cache";
 import * as z from "zod";
 import { runAction } from "@/lib/actions";
 import {
+  createDefinition,
+  setDefinitionStatus,
+  updateDefinition,
+} from "@/lib/agent-definitions/service";
+import {
   createModel,
   createProvider,
   disconnectProvider,
@@ -80,4 +85,18 @@ export const setPlatformRoleAction = wrap("owner.set", (actor, input) => {
     input,
   );
   return setPlatformRole(actor, email, role);
+});
+
+const idAnd = (input: unknown) => {
+  const { id, ...rest } = (input ?? {}) as { id?: string } & Record<string, unknown>;
+  return { id: String(id ?? ""), rest };
+};
+export const createAgentDefinitionAction = wrap("agent_definition.create", createDefinition);
+export const updateAgentDefinitionAction = wrap("agent_definition.update", (actor, input) => {
+  const { id, rest } = idAnd(input);
+  return updateDefinition(actor, id, rest);
+});
+export const setAgentDefinitionStatusAction = wrap("agent_definition.status", (actor, input) => {
+  const { id, rest } = idAnd(input);
+  return setDefinitionStatus(actor, id, rest.status);
 });

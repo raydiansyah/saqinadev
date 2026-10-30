@@ -296,7 +296,12 @@
         "frontend": "Frontend",
         "backend": "Backend",
         "qa": "QA",
-        "docs": "Documentation"
+        "docs": "Documentation",
+        "architect": "Architect",
+        "database": "Database",
+        "reviewer": "Code review",
+        "devops": "DevOps",
+        "custom": "Custom"
       },
       "capabilities": {
         "planning": "Planning",

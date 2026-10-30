@@ -1,5 +1,6 @@
 import "server-only";
 import { and, eq, inArray } from "drizzle-orm";
+import { definitionAcceptsWork } from "@/lib/agent-definitions/team";
 import type { ProjectAccess } from "@/lib/auth/permissions";
 import type { Tx } from "@/lib/db/client";
 import { agentAssignments, agentRuns, agents, tasks } from "@/lib/db/schema";
@@ -45,6 +46,9 @@ export async function assignAgentTx(
   if (!task || !agent) throw new AppError("NOT_FOUND");
   if (agent.status === "disabled")
     throw new AppError("VALIDATION_ERROR", "Agent disabled", { agentId: "invalid" });
+  // An Owner switched this kind of agent off: no new work, whatever the project's own setting.
+  if (!(await definitionAcceptsWork(tx, agent.definitionId)))
+    throw new AppError("VALIDATION_ERROR", "Agent inactive", { agentId: "inactive" });
 
   // Close any open assignment for this task, together with its unfinished runs.
   const open = await tx
