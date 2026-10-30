@@ -83,7 +83,7 @@ Open <http://localhost:3000> and sign in as the Owner.
 
 For development only, a deterministic mock model stands in for a provider.
 
-1. Set `ALLOW_LOCAL_ENDPOINTS=1` and `ALLOW_LOCAL_GIT=1` in `.env.local`.
+1. Set `ALLOW_LOCAL_GIT=1` in `.env.local` (it lets a local repository path act as the Git connection). `ALLOW_LOCAL_ENDPOINTS=1` is only needed when running a production build; `pnpm dev` already allows localhost endpoints.
 2. Start the mock:
 
 ```bash
