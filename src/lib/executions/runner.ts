@@ -139,6 +139,17 @@ async function begin(job: JobRow, access: ProjectAccess): Promise<Started | null
       await settleCancellation(tx, execution);
       return null;
     }
+    // The time budget ran out while this task waited in the queue: it is not started. The next
+    // dispatch round ends the execution with the reason.
+    const startedAt = execution.startedAt?.getTime() ?? Date.now();
+    if (
+      task.executionStatus === "queued" &&
+      Date.now() - startedAt > execution.budget.maxMinutes * 60_000
+    ) {
+      await cancelBusyTask(tx, access, task, "deadline", batch);
+      await enqueueDispatch(tx, scope);
+      return null;
+    }
     // A task still marked running when its job comes back means the worker died mid-task: that try failed.
     if (task.executionStatus === "running" && run && member) {
       await concludeFailed(
@@ -191,7 +202,7 @@ async function execute(
   }, CANCEL_POLL_MS);
   try {
     const run: TaskExecutor = options.taskExecutor ?? modelTaskExecutor;
-    return await run({
+    const work = run({
       execution: s.execution,
       task: s.task,
       agent: s.member.agent,
@@ -203,6 +214,15 @@ async function execute(
       provider: options.provider,
       ...s.input,
     });
+    // The limit is enforced here, not left to the executor: one that ignores its signal still
+    // cannot hold the worker. Whatever it returns after that is dropped.
+    const stopped = new Promise<never>((_, reject) => {
+      controller.signal.addEventListener("abort", () => reject(controller.signal.reason), {
+        once: true,
+      });
+    });
+    work.catch(() => undefined);
+    return await Promise.race([work, stopped]);
   } catch (error) {
     const reason = controller.signal.aborted
       ? String((controller.signal.reason as Error)?.message)

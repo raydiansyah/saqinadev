@@ -204,11 +204,14 @@ async function readContext(
   };
   for (const path of [...new Set(wanted)].slice(0, 10)) {
     // Listing is only a probe for "is this a folder". Any failure means it is not, so a file path is read directly.
-    const entries = tools.has("list_files")
-      ? await listFiles(input, branch, path).catch((e) =>
-          e instanceof RepoError ? [] : Promise.reject(e),
-        )
-      : [];
+    // A name with an extension is a file: it is read directly, without asking the host to list it.
+    const looksLikeFile = /\.[A-Za-z0-9]+$/.test(path);
+    const entries =
+      tools.has("list_files") && !looksLikeFile
+        ? await listFiles(input, branch, path).catch((e) =>
+            e instanceof RepoError ? [] : Promise.reject(e),
+          )
+        : [];
     const files = entries.filter((e) => e.type === "file").slice(0, 6);
     if (files.length) for (const f of files) await add(f.path);
     else await add(path);

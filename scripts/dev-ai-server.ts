@@ -208,7 +208,7 @@ async function handle(req: IncomingMessage, res: ServerResponse, key: string) {
 }
 
 export function startDevAiServer(
-  port = 4100,
+  port = Number(process.env.DEV_AI_SERVER_PORT ?? 4100),
   key = process.env.DEV_AI_SERVER_KEY ?? "dev-mock-key-0000",
 ): Promise<Server> {
   const server = createServer((req, res) => {

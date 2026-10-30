@@ -366,7 +366,9 @@
       "timeout": "Batas waktu (detik)",
       "priority": "Prioritas",
       "history": "Riwayat versi",
-      "system": "Sistem"
+      "system": "Sistem",
+      "usage": "{runs} run, {succeeded} selesai, {failed} gagal",
+      "usageNone": "belum dipakai"
     }
   },
   "integrations": {

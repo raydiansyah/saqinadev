@@ -366,7 +366,9 @@
       "timeout": "Time limit (seconds)",
       "priority": "Priority",
       "history": "Version history",
-      "system": "System"
+      "system": "System",
+      "usage": "{runs} runs, {succeeded} finished, {failed} failed",
+      "usageNone": "not used yet"
     }
   },
   "integrations": {

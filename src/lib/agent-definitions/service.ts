@@ -1,10 +1,17 @@
 import "server-only";
-import { and, desc, eq, inArray, ne } from "drizzle-orm";
+import { and, count, desc, eq, inArray, isNotNull, max, ne } from "drizzle-orm";
 import * as z from "zod";
 import { recordAudit } from "@/lib/audit/service";
 import type { Actor } from "@/lib/auth/actor";
 import { db, type Executor, type Tx } from "@/lib/db/client";
-import { agentDefinitions, agentDefinitionVersions, aiModels, users } from "@/lib/db/schema";
+import {
+  agentDefinitions,
+  agentDefinitionVersions,
+  agentRuns,
+  agents,
+  aiModels,
+  users,
+} from "@/lib/db/schema";
 import type { AgentPermission } from "@/lib/domain/enums";
 import { AGENT_DEFINITION_STATUSES, type AgentDefinitionStatus } from "@/lib/domain/executions";
 import { AppError } from "@/lib/errors";
@@ -268,4 +275,40 @@ export async function activeDefinitions(executor: Executor): Promise<AgentDefini
     .from(agentDefinitions)
     .where(eq(agentDefinitions.status, "active"))
     .orderBy(desc(agentDefinitions.priority), agentDefinitions.name);
+}
+
+export interface DefinitionUsage {
+  runs: number;
+  succeeded: number;
+  failed: number;
+  lastRunAt: Date | null;
+}
+
+/**
+ * How each kind of agent has done across all projects, as numbers only. The Owner sees whether an
+ * agent works; the messages, files and tasks of a client's project stay in that project.
+ */
+export async function definitionUsage(actor: Actor): Promise<Record<string, DefinitionUsage>> {
+  await requirePlatformOwner(actor);
+  const rows = await db
+    .select({
+      definitionId: agents.definitionId,
+      status: agentRuns.status,
+      n: count(),
+      last: max(agentRuns.createdAt),
+    })
+    .from(agentRuns)
+    .innerJoin(agents, eq(agents.id, agentRuns.agentId))
+    .where(isNotNull(agents.definitionId))
+    .groupBy(agents.definitionId, agentRuns.status);
+  const out: Record<string, DefinitionUsage> = {};
+  for (const r of rows) {
+    if (!r.definitionId) continue;
+    const u = (out[r.definitionId] ??= { runs: 0, succeeded: 0, failed: 0, lastRunAt: null });
+    u.runs += r.n;
+    if (r.status === "completed") u.succeeded += r.n;
+    if (r.status === "failed") u.failed += r.n;
+    if (r.last && (!u.lastRunAt || r.last > u.lastRunAt)) u.lastRunAt = r.last;
+  }
+  return out;
 }

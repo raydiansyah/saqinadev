@@ -2,7 +2,7 @@
 title: Studio, skill dan konektor
 description: Mulai mengerjakan dari PRD yang disetujui, bekerja di Studio, generate PRD dengan Enhance, pilih model AI sendiri di chat, jaga env tetap sama di lokal dan di Saqina, dan siapkan skill, konektor dan model agen.
 order: 5
-updated: 2026-10-29
+updated: 2026-10-30
 ---
 
 Panduan ini membahas jalan dari PRD yang sudah disepakati sampai pekerjaan berjalan, serta pengaturan platform yang dipakai asisten dan agen di semua project.
@@ -32,13 +32,15 @@ Menekan tombol lagi tidak memberikan satu task ke dua agen.
 
 Studio menempatkan chat di samping area kerja.
 
-- **Plan** menampilkan milestone dan task. Saat Anda meminta plan lewat chat, area kerja pindah ke tab ini.
-- **Agen** menampilkan agen yang sedang bekerja dan tautan ke setiap run.
-- **Kode** menampilkan repository (hanya baca), **Git** pull request dan check-nya, **Preview** situs yang sudah tayang, dan **Publish** menayangkannya.
+- **Plan** menampilkan rencana eksekusi yang sedang berjalan, atau milestone dan task proyek. Saat Anda meminta plan lewat chat, area kerja pindah ke tab ini.
+- **Agen** menampilkan setiap agen yang bekerja, apa yang mereka sampaikan satu sama lain dan apa yang terjadi, serta tautan ke run sebelumnya.
+- **Kode** menampilkan apa yang diubah agen di branch kerjanya (dengan diff) dan, di bawahnya, repository (hanya baca). **Git** menampilkan branch kerja, commit, dan CI-nya, serta pull request proyek. **Preview** menampilkan preview branch kerja dan situs yang sudah tayang. **Publish** menampilkan tahap dari kode sampai tayang, dan menayangkan situsnya.
+
+Di bawah kotak pesan, **Chat**, **Plan**, dan **Build** menentukan apa yang dilakukan Saqina dengan pesan Anda. Plan dan Build menjalankan tim agen: lihat [Plan dan Build dengan agen](/dashboard/docs/agents-and-builds).
 
 Kalau asisten kurang yakin maksud permintaan yang mengubah data, ia bertanya dulu di chat dan tidak melakukan apa pun sampai Anda menjawab **Ya, lanjutkan**.
 
-![Studio: chat di kiri, area kerja dengan Plan, Agen dan tab yang menyusul di kanan](/api/docs/assets/owner/studio-02-studio.png)
+![Studio setelah sebuah build: chat dengan kartunya di kiri, area kerja dengan Plan, Agen, Kode, Git, Preview, dan Publish di kanan](/api/docs/assets/owner/studio-02-studio.png)
 
 ## File dan konteks di chat
 
@@ -124,13 +126,13 @@ flowchart LR
 
 **Referensi task.** Setiap task punya referensi pendek seperti `T-1a2b3c4d`. Tulis di nama branch (`saqina/T-1a2b3c4d-checkout`) atau tulis `Saqina-Task: T-1a2b3c4d` di pull request. Saqina menautkan branch dan pull request ke task. Pull request yang dibuka memindahkan task ke review; saat Anda menggabungkannya di GitHub, task selesai. Pull request yang ditutup tanpa digabung tidak mengubah apa pun.
 
-![Tab Git: pull request yang tertaut ke task, dan check-nya](/api/docs/assets/owner/studio-06-git.png)
+![Tab Git: branch kerja dan commit-nya, CI untuk branch itu, dan pull request yang tertaut ke task](/api/docs/assets/owner/studio-06-git.png)
 
 **Jawaban delivery.** Di **Progress**, check hijau di branch utama, pull request yang sudah digabung dan deployment production yang berhasil muncul sebagai saran dengan tombol **Konfirmasi: Ya**. Anda tetap yang menjawab; tidak ada yang diisi otomatis.
 
 **Publish.** Di **Studio > Publish**, **Publish** membuat project Vercel dari repository Anda dan menempatkannya di `<project>.saqina.dev`. Secara default ini memakai Vercel Saqina. Anda juga bisa memilih **Vercel saya sendiri** dan menempel token Vercel Anda (serta tim dan domain Anda sendiri). Token disimpan terenkripsi, hanya untuk project ini. Aplikasi GitHub milik Vercel harus bisa melihat repository. **Preview** menampilkan situs yang sudah tayang.
 
-![Publish: alamat, daftar deployment dan pilihan akun Vercel](/api/docs/assets/owner/studio-07-publish.png)
+![Publish: lima tahap dari kode sampai tayang, lalu alamat, daftar deployment dan pilihan akun Vercel](/api/docs/assets/owner/studio-07-publish.png)
 
 **IDE Anda sendiri.** Di **Pengaturan > Akses agen**, buat token, pilih izinnya (tambahkan *Mengambil task dan melaporkan hasilnya* dan *Memakai tool konektor project* untuk sinkron penuh), salin snippet untuk Claude Code, Cursor, Codex atau Kiro, dan unduh **AGENTS.md** ke repository Anda. Agen kemudian melihat daftar task, mengambil satu, bekerja di branch dengan referensi task, membuka pull request dan melapor `review` atau `blocked`. Agen memakai model Anda sendiri, dan mendapat skill dan konektor yang sama dengan agen Saqina. Hanya Anda yang menandai task selesai, dengan menggabungkan.
 

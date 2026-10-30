@@ -2,7 +2,7 @@
 title: Studio, skills and connectors
 description: Start building from an approved PRD, work in the Studio, generate a PRD with Enhance, choose your own AI model in the chat, keep env the same locally and in Saqina, and set up skills, connectors and agent models.
 order: 5
-updated: 2026-10-29
+updated: 2026-10-30
 ---
 
 This guide covers the path from an agreed PRD to work in progress, and the platform settings that the assistant and agents use in every project.
@@ -32,13 +32,15 @@ Pressing it again does not give a task to two agents.
 
 The Studio puts the chat beside a work area.
 
-- **Plan** shows milestones and tasks. When you ask for a plan in the chat, the work area turns to it.
-- **Agents** shows the agents at work and links to each run.
-- **Code** shows the repository (read only), **Git** its pull requests and checks, **Preview** the live site and **Publish** puts it online.
+- **Plan** shows the plan of the current execution, or the milestones and tasks of the project. When you ask for a plan in the chat, the work area turns to it.
+- **Agents** shows each agent at work, what they told each other and what happened, and links to earlier runs.
+- **Code** shows what the agents changed on their work branch (with the diff) and, below it, the repository (read only). **Git** shows the work branch, its commits and CI, and the project's pull requests. **Preview** shows the preview of the work branch and the published site. **Publish** shows the stages from code to published, and puts the site online.
+
+Under the message box, **Chat**, **Plan** and **Build** decide what Saqina does with your message. Plan and Build start a team of agents: see [Plan and Build with agents](/dashboard/docs/agents-and-builds).
 
 When the assistant is not sure what a change-making request meant, it asks in the chat first and does nothing until you answer **Yes, go ahead**.
 
-![The Studio: the chat on the left, the work area with Plan, Agents and the coming tabs on the right](/api/docs/assets/owner/studio-02-studio.png)
+![The Studio after a build: the chat with its card on the left, the work area with Plan, Agents, Code, Git, Preview and Publish on the right](/api/docs/assets/owner/studio-02-studio.png)
 
 ## Files and context in the chat
 
@@ -124,13 +126,13 @@ flowchart LR
 
 **Task references.** Every task has a short reference such as `T-1a2b3c4d`. Put it in the branch name (`saqina/T-1a2b3c4d-checkout`) or write `Saqina-Task: T-1a2b3c4d` in the pull request. Saqina links the branch and the pull request to the task. An opened pull request puts the task in review; when you merge it on GitHub, the task is done. Closing a pull request without merging changes nothing.
 
-![The Git tab: pull requests linked to tasks, and the checks](/api/docs/assets/owner/studio-06-git.png)
+![The Git tab: the work branch and its commits, CI for the branch, and pull requests linked to tasks](/api/docs/assets/owner/studio-06-git.png)
 
 **Delivery answers.** On **Progress**, a green check on the main branch, a merged pull request and a successful production deployment appear as suggestions with a **Confirm: Yes** button. You still answer; nothing is filled in for you.
 
 **Publish.** In **Studio > Publish**, **Publish** creates the Vercel project from your repository and puts it at `<project>.saqina.dev`. By default this uses Saqina's Vercel. You can instead choose **My own Vercel** and paste your own Vercel token (and team and your own domain). The token is stored encrypted, only for this project. Vercel's GitHub app must be able to see the repository. **Preview** shows the live site.
 
-![Publish: the address, the deployments and the choice of Vercel account](/api/docs/assets/owner/studio-07-publish.png)
+![Publish: the five stages from code to published, then the address, the deployments and the choice of Vercel account](/api/docs/assets/owner/studio-07-publish.png)
 
 **Your own IDE.** Under **Settings > Agent access**, create a token, choose its permissions (add *Claim tasks and report their result* and *Use the project's connector tools* for full sync), copy the snippet for Claude Code, Cursor, Codex or Kiro, and download **AGENTS.md** into your repository. The agent then lists tasks, claims one, works on a branch with the task reference, opens a pull request and reports `review` or `blocked`. It uses your own model, and gets the same skills and connectors as Saqina's agents. Only you mark a task done, by merging.
 

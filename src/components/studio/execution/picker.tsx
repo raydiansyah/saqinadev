@@ -21,7 +21,7 @@ export function ExecutionPicker() {
         id={id}
         value={activeId ?? ""}
         onChange={(e) => setActiveId(e.target.value)}
-        className={`${FIELD_CLASS} min-h-10 py-1.5 text-sm`}
+        className={`${FIELD_CLASS} min-h-11 py-1.5 text-sm`}
       >
         {list.map((e) => {
           // The one on screen shows what the server says now; the others, what it said when the page loaded.

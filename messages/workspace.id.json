@@ -1094,6 +1094,15 @@
           "unknown": "Belum terbit. Seseorang melakukan merge dan menekan Publish.",
           "not_published": "Belum terbit. Seseorang melakukan merge dan menekan Publish."
         }
+      },
+      "planProblems": {
+        "cycle": "tugas saling menunggu secara melingkar",
+        "self_dependency": "sebuah tugas menunggu dirinya sendiri",
+        "unknown_dependency": "sebuah tugas menunggu tugas yang tidak ada",
+        "duplicate_key": "dua tugas memakai nama yang sama",
+        "too_many_tasks": "tugas lebih banyak dari batas",
+        "too_deep": "tugas saling menunggu dalam rantai yang terlalu panjang",
+        "unknown_role": "sebuah tugas menyebut peran yang tidak dipegang agen mana pun (mungkin ada agen yang dimatikan)"
       }
     }
   }

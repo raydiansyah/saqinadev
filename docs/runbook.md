@@ -76,6 +76,95 @@ sign-in; each line names the variable and the reason. Fixes:
   uses them. Values are never shown again; to rotate, enter a new one.
 - Without `SAQINA_ENCRYPTION_KEY` keys cannot be stored (the form says so).
 
+## Executions: Plan and Build with agents
+
+An execution (a plan or a build started from the Studio) is worked by a queue in the database
+(`execution_jobs`). It is worked in two places: after the response that started it, and by
+`GET /api/cron/executions`, which takes every job that is due, including those a dead worker left
+locked. Decisions: [ADR 0020](adr/0020-execution-engine.md), [0021](adr/0021-agents-commit-to-a-work-branch.md),
+[0022](adr/0022-owner-agent-registry.md).
+
+What it needs:
+
+- An AI model set up under AI & Models. Without one, a plan fails at once with the reason "no AI model is set up".
+- `CRON_SECRET` (already used by the other cron routes).
+- A repository connected to the project, for agents to write code.
+- For a preview of the work branch: the repository connected to Vercel, and repository events switched on in the Git tab.
+
+### Run the queue every minute
+
+`vercel.json` calls the route once a day, which is all Vercel's Hobby plan allows. In production call it
+every minute: on Vercel Pro change the schedule to `* * * * *`, or call it from an outside scheduler:
+
+```bash
+curl -s -H "Authorization: Bearer $CRON_SECRET" https://www.saqina.dev/api/cron/executions
+```
+
+Expect `{"handled":N}`. `401` means the secret is wrong; `503` means `CRON_SECRET` is not set.
+Until it runs every minute, a job the first worker missed waits for the next call, or for someone to open the execution (an open stream starts a drain).
+
+### An execution looks stuck
+
+Find the open ones and their tasks:
+
+```sql
+select left(id::text, 8) as id, status, mode, error_summary, now() - created_at as age
+from executions where status not in ('succeeded', 'failed', 'cancelled') order by created_at;
+```
+
+```sql
+select t.title, t.execution_status, t.blocked_reason
+from tasks t where t.execution_id = (select id from executions where id::text like '<id>%') order by t.position;
+```
+
+Then look at its jobs:
+
+```sql
+select kind, status, attempts, run_after, locked_until, last_error
+from execution_jobs where execution_id = (select id from executions where id::text like '<id>%') order by created_at;
+```
+
+- `pending` with `run_after` in the past: nothing is working the queue. Call the cron route above.
+- `running` with `locked_until` in the past: a worker died. The next drain takes it over and counts that try as failed.
+- `failed` with `attempts` 4: the job ran out of tries; read `last_error`. The task is shown as failed in the Studio, where **Try again** continues it.
+
+To stop a runaway execution, press **Stop** in the Studio. Only if the Studio cannot be reached, as a last resort:
+
+```sql
+update executions set cancel_requested_at = now() where id::text like '<id>%' and status in ('running', 'planning');
+```
+
+The next dispatch round cancels the tasks nobody is running and ends the execution once the running ones return.
+
+### Common reasons an execution fails
+
+| Reason shown | Cause | Fix |
+|---|---|---|
+| No AI model is set up | `ai_providers` or the default model is empty | Add a provider and model under AI & Models |
+| No agent is on for a role | An agent definition is switched off or archived | Switch it on under AI & Models, Agents, then try again |
+| No repository is connected | The project has no repository connection | Connect one in the Git tab |
+| The repository refused the operation | Token expired, branch locked, host down | Check the connection (Git tab), then try again |
+| The worker stopped before the task finished | A function was cut at its time limit | Nothing; the task was retried. If it repeats, shorten the agent's time limit or the task |
+
+### Locally and in tests
+
+The dev AI mock answers the planner and the agents deterministically (`DEV_AI_DELAY_MS` slows it down, `DEV_AI_SERVER_PORT` moves it):
+
+```bash
+pnpm tsx scripts/dev-ai-server.ts
+```
+
+The end-to-end test needs its own database, whose name contains `_e2e` (it is emptied):
+
+```bash
+DATABASE_URL_E2E=postgres://user@localhost:5432/saqinadev_e2e pnpm e2e
+```
+
+### Roll back
+
+Migrations `0036_executions` and `0037_task_revisions` only add tables and columns, so redeploying the
+previous version works without touching the database. Old executions stay in the tables.
+
 ## Deploy
 
 1. Merge the pull request into `main` (no direct pushes).

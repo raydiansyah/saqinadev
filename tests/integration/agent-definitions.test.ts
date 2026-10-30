@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   createDefinition,
+  definitionUsage,
   getDefinition,
   listDefinitions,
   setDefinitionStatus,
@@ -21,8 +22,11 @@ import {
 } from "@/lib/db/schema";
 import { AppError } from "@/lib/errors";
 import { EventBatch } from "@/lib/events/emitter";
+import { startExecution } from "@/lib/executions/service";
+import { drainExecutions } from "@/lib/executions/worker";
 import { createTask } from "@/lib/tasks/service";
 import { createUser, resetDatabase } from "../helpers/db";
+import { fakePlanner, PLAN, scripted } from "../helpers/engine";
 import { project } from "../helpers/project";
 
 const code = async (p: Promise<unknown>) => {
@@ -273,5 +277,31 @@ describe("agent definitions: how projects use them", () => {
       .from(agentDefinitionVersions)
       .where(eq(agentDefinitionVersions.definitionId, backend.definitionId));
     expect(versions.map((v) => v.version).sort()).toEqual([1, 2, 3, 4]);
+  });
+});
+
+describe("what the Owner can see of the agents' work", () => {
+  beforeEach(resetDatabase);
+
+  it("shows counts per kind of agent across projects, to the Owner only, with no project text", async () => {
+    const owner = await platformOwner();
+    const slug = await project(owner, "An online shop selling handmade candles to local customers");
+    const { provider } = fakePlanner(PLAN);
+    const { executor } = scripted();
+    await startExecution(owner, slug, {
+      mode: "build",
+      request: "Build the checkout page for the shop",
+    });
+    await drainExecutions({ provider, taskExecutor: executor });
+    const defs = await listDefinitions(owner);
+    const backend = defs.find((d) => d.key === "backend-developer");
+    const planner = defs.find((d) => d.key === "planner");
+    const usage = await definitionUsage(owner);
+    expect(usage[backend?.id ?? ""]).toMatchObject({ runs: 1, succeeded: 1, failed: 0 });
+    expect(usage[planner?.id ?? ""]).toMatchObject({ runs: 1, succeeded: 1 });
+    // Numbers and a time, nothing from the project.
+    expect(JSON.stringify(usage)).not.toContain("checkout");
+    const user = await createUser("Project Owner");
+    expect(await code(definitionUsage(user))).toBe("AUTHORIZATION_ERROR");
   });
 });

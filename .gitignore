@@ -73,3 +73,8 @@ agentdb.rvf.idmap.json
 
 # Supabase CLI link state (this project uses Neon; `supabase link` writes here)
 supabase/
+
+# end-to-end
+/e2e/.seed.json
+/test-results/
+/playwright-report/

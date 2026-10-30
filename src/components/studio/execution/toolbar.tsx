@@ -27,7 +27,15 @@ function useNow(active: boolean) {
 function whyFailed(t: ReturnType<typeof useTranslations>, summary: string): string {
   const cut = summary.indexOf(":");
   const code = cut < 0 ? summary : summary.slice(0, cut);
-  const detail = cut < 0 ? "" : summary.slice(cut + 1);
+  const raw = cut < 0 ? "" : summary.slice(cut + 1);
+  // "plan_invalid:cycle,unknown_role": each problem in the person's language.
+  const detail =
+    code === "plan_invalid"
+      ? raw
+          .split(",")
+          .map((p) => (t.has(`planProblems.${p}` as never) ? t(`planProblems.${p}` as never) : p))
+          .join("; ")
+      : raw;
   return t.has(`reasons.${code}` as never)
     ? t(`reasons.${code}` as never, { role: "", detail } as never)
     : summary;
@@ -68,8 +76,13 @@ export function ExecutionToolbar({
   const ended = execution.endedAt ? new Date(execution.endedAt).getTime() : now;
   const { done, total } = execution.progress;
 
+  const status = useTranslations("studio.execution.status");
   return (
     <div className="space-y-3">
+      {/* Said once when the state changes, not on every event. */}
+      <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {t(`mode.${execution.mode}`)}: {status(execution.status)}
+      </p>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <ExecutionStatusBadge status={execution.status} />
         <span className="text-xs text-muted-foreground">{t(`mode.${execution.mode}`)}</span>

@@ -64,6 +64,7 @@ pnpm dev
 | `pnpm lint` | Biome check |
 | `pnpm typecheck` | Next typegen and `tsc --noEmit` |
 | `pnpm test` / `pnpm test:coverage` | Vitest (integration tests need `DATABASE_URL_TEST`) |
+| `pnpm e2e` | Playwright end-to-end test of the Studio (needs `DATABASE_URL_E2E`; not in CI yet) |
 | `pnpm check:licenses` / `pnpm check:coverage` | Licence and coverage gates used in CI |
 | `pnpm db:generate` / `db:migrate` / `db:seed` | Schema migrations and seed data (local database only) |
 | `pnpm db:migrate:neon` | Apply migrations to Neon with `neonctl`; asks to confirm, `--backup` snapshots first, `--dry-run` shows the plan |

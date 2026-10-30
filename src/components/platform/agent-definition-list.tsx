@@ -18,7 +18,16 @@ const TONE = {
 } as const;
 
 /** Every kind of agent the platform has, with what it is for and whether it takes work. */
-export function AgentDefinitionList({ definitions }: { definitions: AgentDefinitionRow[] }) {
+export function AgentDefinitionList({
+  definitions,
+  usage,
+}: {
+  definitions: AgentDefinitionRow[];
+  usage: Record<
+    string,
+    { runs: number; succeeded: number; failed: number; lastRunAt: string | null }
+  >;
+}) {
   const t = useTranslations("platform.agents");
   const roles = useTranslations("assistant.agents.roles");
   const { pending, error, run } = useRun();
@@ -60,6 +69,14 @@ export function AgentDefinitionList({ definitions }: { definitions: AgentDefinit
                 <p className="mt-1 text-sm text-muted-foreground">{d.description}</p>
                 <p className="mt-2 text-xs text-subtle-foreground">
                   {t("summary", { tools: d.tools.length, permissions: d.permissions.length })}
+                  {" · "}
+                  {usage[d.id]
+                    ? t("usage", {
+                        runs: usage[d.id].runs,
+                        succeeded: usage[d.id].succeeded,
+                        failed: usage[d.id].failed,
+                      })
+                    : t("usageNone")}
                 </p>
               </div>
               <div className="flex flex-wrap gap-2">

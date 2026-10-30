@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
 export const COMPOSER_MODES = ["chat", "plan", "build"] as const;
@@ -44,23 +44,44 @@ export function ComposerModeSwitch({
   disabled?: boolean;
 }) {
   const t = useTranslations("studio.execution");
+  const refs = useRef<Record<string, HTMLButtonElement | null>>({});
+  // A radio group is one tab stop; the arrow keys move between its choices and choose them.
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const i = COMPOSER_MODES.indexOf(mode);
+    const step =
+      e.key === "ArrowRight" || e.key === "ArrowDown"
+        ? 1
+        : e.key === "ArrowLeft" || e.key === "ArrowUp"
+          ? -1
+          : 0;
+    if (!step) return;
+    e.preventDefault();
+    const next = COMPOSER_MODES[(i + step + COMPOSER_MODES.length) % COMPOSER_MODES.length];
+    onChange(next);
+    refs.current[next]?.focus();
+  };
   return (
     <div className="mb-2">
       <div
         role="radiogroup"
         aria-label={t("modeLabel")}
+        onKeyDown={onKeyDown}
         className="inline-flex rounded-md border border-border p-0.5"
       >
         {COMPOSER_MODES.map((m) => (
           <button
             key={m}
+            ref={(el) => {
+              refs.current[m] = el;
+            }}
             type="button"
             role="radio"
             aria-checked={mode === m}
+            tabIndex={mode === m ? 0 : -1}
             disabled={disabled}
             onClick={() => onChange(m)}
             className={cn(
-              "min-h-9 min-w-16 rounded px-3 text-sm transition-colors motion-reduce:transition-none",
+              "min-h-11 min-w-16 rounded px-3 text-sm transition-colors motion-reduce:transition-none sm:min-h-9",
               mode === m
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground",

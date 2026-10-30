@@ -170,14 +170,14 @@ async function contextFor(
   ];
 }
 
-function problemsOf(plan: ExecutionPlan, execution: ExecutionRow): GraphProblem[] {
+function problemsOf(
+  plan: ExecutionPlan,
+  execution: ExecutionRow,
+): Array<GraphProblem | { code: "unknown_role"; key: string; role: string }> {
   const roles = new Set(Object.values(definitionsOf(execution)).map((d) => d.role));
   const unknown = plan.tasks
     .filter((t) => !roles.has(t.role))
-    .map(
-      (t) =>
-        ({ code: "unknown_dependency", key: t.key, dependsOn: `role:${t.role}` }) as GraphProblem,
-    );
+    .map((t) => ({ code: "unknown_role" as const, key: t.key, role: t.role }));
   return [
     ...unknown,
     ...validateGraph(plan.tasks, {

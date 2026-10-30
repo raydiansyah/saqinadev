@@ -6,6 +6,7 @@ import { startExecutionAction } from "@/app/[locale]/(app)/project/[slug]/studio
 import { Chat } from "@/components/assistant/chat";
 import { PROJECT_CONTEXT } from "@/components/assistant/types";
 import { useAssistant } from "@/components/assistant/use-assistant";
+import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/form";
 import { Link } from "@/i18n/navigation";
 import type { DeploymentView, DeployTargetView } from "@/lib/deploy/service";
@@ -408,9 +409,9 @@ function ExecutionState({ children }: { canWrite: boolean; children: React.React
     return (
       <div className="space-y-2">
         <Notice tone="error">{t("loadFailed")}</Notice>
-        <button type="button" className="text-sm underline" onClick={() => void active.refetch()}>
+        <Button size="sm" variant="outline" onClick={() => void active.refetch()}>
           {t("tryAgain")}
-        </button>
+        </Button>
       </div>
     );
   if (active.loading)

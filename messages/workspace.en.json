@@ -1094,6 +1094,15 @@
           "unknown": "Not published. A person merges and presses Publish.",
           "not_published": "Not published. A person merges and presses Publish."
         }
+      },
+      "planProblems": {
+        "cycle": "tasks wait for each other in a circle",
+        "self_dependency": "a task waits for itself",
+        "unknown_dependency": "a task waits for one that does not exist",
+        "duplicate_key": "two tasks have the same name",
+        "too_many_tasks": "more tasks than the limit",
+        "too_deep": "tasks wait on each other in too long a chain",
+        "unknown_role": "a task names a role that no agent covers (an agent may be switched off)"
       }
     }
   }
