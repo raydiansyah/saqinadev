@@ -227,7 +227,7 @@
     },
     "skills": {
       "title": "Skills",
-      "hint": "Skills are working methods (SKILL.md) every project uses. Saqina reads only the text; nothing in a skill is run. Superpowers ships built in.",
+      "hint": "Skills are working methods (SKILL.md) every project uses. Saqina reads only the text; nothing in a skill is run. Superpowers and antislop ship built in; antislop always runs while writing (DURING mode).",
       "install": "Install skill",
       "installing": "Installing...",
       "empty": "No skills yet. Install one from GitHub or paste a SKILL.md.",

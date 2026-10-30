@@ -38,12 +38,27 @@ describe("SKILL.md parsing", () => {
     ).toBe("tooLarge");
   });
 
-  it("every built-in skill parses, is Superpowers, and carries its licence", () => {
+  it("every built-in skill parses, is Superpowers or antislop, and carries its licence", () => {
     expect(BUILTIN_SKILLS.map((s) => s.slug)).toEqual([
       "superpowers-brainstorming",
       "superpowers-writing-plans",
+      "antislop",
+      "antislop-copywriting",
+      "antislop-ui",
+      "antislop-human",
+      "antislop-layoutmobile",
+      "antislop-code",
     ]);
-    for (const s of BUILTIN_SKILLS) expect(parseSkillMd(s.content).name).toMatch(/^[a-z-]+$/);
+    for (const s of BUILTIN_SKILLS)
+      expect(parseSkillMd(s.content).name).toBe(s.slug.replace(/^superpowers-/, ""));
+  });
+
+  it("antislop runs in DURING mode inside Saqina: no install wizard, no mode question", () => {
+    for (const s of BUILTIN_SKILLS.filter((x) => x.slug.startsWith("antislop"))) {
+      expect(s.content).toContain("antislop runs in DURING mode here");
+      expect(s.content).not.toContain("## First-Run Install Wizard");
+      expect(s.content).not.toContain("## Two Usage Modes");
+    }
   });
 });
 

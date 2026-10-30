@@ -74,15 +74,32 @@ describe("platform skills", () => {
     await expectCode(installSkillFromText(member, { content: SKILL }), "AUTHORIZATION_ERROR");
   });
 
-  it("starts with Superpowers built in and switched on", async () => {
+  it("starts with Superpowers and antislop built in and switched on", async () => {
     const skills = await listPlatformSkills(owner);
-    expect(skills.filter((s) => s.source === "builtin").map((s) => s.slug)).toEqual([
+    expect(
+      skills
+        .filter((s) => s.source === "builtin")
+        .map((s) => s.slug)
+        .sort(),
+    ).toEqual([
+      "antislop",
+      "antislop-code",
+      "antislop-copywriting",
+      "antislop-human",
+      "antislop-layoutmobile",
+      "antislop-ui",
       "superpowers-brainstorming",
       "superpowers-writing-plans",
     ]);
     const forPrd = await platformSkillsFor("prd_generation");
-    expect(forPrd.map((s) => s.slug)).toEqual(["superpowers-brainstorming"]);
-    expect(forPrd[0].content).toContain("Brainstorming");
+    expect(forPrd.map((s) => s.slug).sort()).toEqual([
+      "antislop",
+      "antislop-copywriting",
+      "superpowers-brainstorming",
+    ]);
+    expect(forPrd.find((s) => s.slug === "superpowers-brainstorming")?.content).toContain(
+      "Brainstorming",
+    );
   });
 
   it("installs a pasted SKILL.md, refuses a duplicate, and audits without the text", async () => {
