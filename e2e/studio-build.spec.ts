@@ -253,3 +253,23 @@ test("the Owner picks installed skills for an agent, and they are kept", async (
     .click();
   await expect(page.getByRole("checkbox", { name: /antislop: code comments/ })).toBeChecked();
 });
+
+test("Start building on the approved PRD starts a Build, and the chat shows it live", async ({
+  page,
+}) => {
+  await signIn(page);
+  await page.goto(`/en/project/${seed.slug}/prd`);
+  await page.getByRole("button", { name: "Approve", exact: true }).click();
+  await page.getByRole("button", { name: "Start building" }).click();
+  await page.waitForURL(/\/studio$/);
+  await page.evaluate(() => {
+    (window as unknown as { __kept: boolean }).__kept = true;
+  });
+  // Nobody presses anything else: the build runs and the chat card follows it without a reload.
+  await expect(state(page)).toHaveText(/^Build: (Running|Succeeded)$/, { timeout: 30_000 });
+  await expect(
+    page.getByRole("log").or(page.getByRole("list")).getByText("Build the project").first(),
+  ).toBeVisible();
+  await expect(state(page)).toHaveText("Build: Succeeded", { timeout: 90_000 });
+  expect(await page.evaluate(() => (window as unknown as { __kept?: boolean }).__kept)).toBe(true);
+});

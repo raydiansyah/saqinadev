@@ -20,13 +20,13 @@ import {
   startExecution,
 } from "@/lib/executions/service";
 import { removeService, saveService } from "@/lib/services/service";
+import { buildNow } from "@/lib/studio/build-now";
 import { listCode, readCode } from "@/lib/studio/code";
-import { startBuilding } from "@/lib/studio/kickoff";
 
-/** "Start building": hands open tasks to the team agents when Saqina builds the project. */
-export async function startBuildingAction(slug: string) {
-  return runAction("studio.start", { slug }, async () => {
-    const result = await startBuilding(await requireActor(), slug);
+/** "Start building" on an approved document: starts a Build execution the Studio then follows. */
+export async function buildNowAction(slug: string, request: string) {
+  return runAction("studio.buildNow", { slug }, async () => {
+    const result = await buildNow(await requireActor(), slug, request);
     revalidatePath("/[locale]/project/[slug]", "layout");
     return result;
   });

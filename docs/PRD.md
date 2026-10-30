@@ -152,7 +152,7 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 |---|---|---|
 | S1 | "Start building" on an approved PRD or plan, or on a document both parties signed, opens the Studio | Built |
 | S2 | Studio: the chat beside a work area. A reply that makes a plan or starts agents turns the work area to the Plan or Agents tab; a change-making request the assistant is unsure about is confirmed in the chat first | Built |
-| S3 | Build in Saqina: Start building hands each open task to the team agent whose role fits it; each result is a proposal a person approves. A project built elsewhere only opens the Studio. The Build mode in the composer starts an execution instead (E1, E3) | Built |
+| S3 | Build in Saqina: Start building starts a Build execution (E1, E3), the same one the composer's Build mode starts, and opens the Studio on it. A project built elsewhere only opens the Studio | Built |
 | S8 | Attach files in the chat: text (into the prompt), images and PDF (to a model that can read them); stored in a private S3 bucket, served only after an access check; 5 MB and 5 files per message ([ADR 0011](adr/0011-chat-attachments-and-tools.md)) | Built |
 | S9 | Add context in the chat: pick switched-on skills (always in the prompt) and connectors; a picked or named connector's tool runs from the chat through the same policy (high risk waits for approval) and its result is shown; owners and project admins reach "Manage connectors" from the menu | Built |
 | G1 | Repository events: Saqina installs the webhook itself (a token without admin rights falls back to a manual URL and secret) and records push, pull request, check suite, workflow run and deployment status | Built |

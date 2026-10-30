@@ -622,7 +622,9 @@
       "button": "Start building",
       "starting": "Starting...",
       "started": "{count, plural, =0 {No open task was left to start.} one {# task was handed to an agent.} other {# tasks were handed to agents.}}",
-      "skipped": "{count, plural, one {# task has no fitting agent and stays for the team.} other {# tasks have no fitting agent and stay for the team.}}"
+      "skipped": "{count, plural, one {# task has no fitting agent and stays for the team.} other {# tasks have no fitting agent and stay for the team.}}",
+      "request": "Build the project from its approved plan. Work through the open tasks in order, starting with the earliest milestone.",
+      "failed": "Building could not start. Try again, or open the Studio and start it from the chat."
     },
     "noRepository": "No repository is connected yet. Connect a GitHub repository and the Studio shows its code, branches, pull requests and checks.",
     "connectRepository": "Connect a repository",

@@ -23,10 +23,9 @@ Setelah interview, kalau model sudah disiapkan, Saqina juga menyempurnakan PRD d
 
 Begitu PRD atau plan **disetujui**, atau perjanjian sudah ditandatangani kedua pihak, dokumen menampilkan **Kerjakan sekarang**.
 
-- Kalau project dibangun di Saqina, setiap task yang masih terbuka diberikan ke agen tim yang perannya paling cocok, lalu agen mulai bekerja. Setiap hasil menjadi proposal di **Persetujuan**.
+- Kalau project dibangun di Saqina, tombol ini langsung memulai **Build**, sama seperti mode Build di chat. Studio terbuka di atasnya: chat menampilkan kartu yang hidup dan tab Agen menampilkan tiap agen bekerja, tanpa reload. Agen melakukan commit ke branch kerja; tidak ada yang masuk ke branch utama tanpa Anda. Lihat [Plan dan Build dengan agen](/dashboard/docs/agents-and-builds).
 - Kalau project dibangun di luar Saqina, tombol ini hanya membuka Studio.
-
-Menekan tombol lagi tidak memberikan satu task ke dua agen.
+- Kalau project sudah punya build terbuka sebanyak yang bisa dijalankan, tombol membuka Studio tempat build yang berjalan. Kalau tidak ada yang bisa dimulai, misalnya belum ada model AI, halaman memberi tahu sebabnya.
 
 ## Studio
 

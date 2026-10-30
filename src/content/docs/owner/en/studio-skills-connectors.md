@@ -23,10 +23,9 @@ After the interview, when a model is set up, Saqina also refines the generated P
 
 Once the PRD or the plan is **approved**, or an agreement is signed by both parties, the document shows **Start building**.
 
-- When the project is built in Saqina, every open task goes to the team agent whose role fits it, and the agents start. Each result is a proposal in **Approvals**.
+- When the project is built in Saqina, it starts a **Build** at once, the same one the Build mode in the chat starts. The Studio opens on it: the chat shows the live card and the Agents tab shows each agent working, without a reload. The agents commit to a work branch; nothing reaches the main branch without you. See [Plan and Build with agents](/dashboard/docs/agents-and-builds).
 - When the project is built elsewhere, the button only opens the Studio.
-
-Pressing it again does not give a task to two agents.
+- If the project already has as many builds open as it can run, the button opens the Studio where the running build is. If nothing can start, for example no AI model is set up, the page says why.
 
 ## The Studio
 

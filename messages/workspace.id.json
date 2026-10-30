@@ -622,7 +622,9 @@
       "button": "Kerjakan sekarang",
       "starting": "Memulai...",
       "started": "{count, plural, =0 {Tidak ada task terbuka yang tersisa untuk dimulai.} other {# task diserahkan ke agen.}}",
-      "skipped": "{count, plural, other {# task tidak punya agen yang cocok dan tetap untuk tim.}}"
+      "skipped": "{count, plural, other {# task tidak punya agen yang cocok dan tetap untuk tim.}}",
+      "request": "Bangun proyek dari rencananya yang sudah disetujui. Kerjakan tugas yang masih terbuka secara berurutan, mulai dari tonggak paling awal.",
+      "failed": "Pembangunan tidak bisa dimulai. Coba lagi, atau buka Studio dan mulai dari chat."
     },
     "noRepository": "Belum ada repository yang terhubung. Hubungkan repository GitHub dan Studio menampilkan kode, branch, pull request, dan check-nya.",
     "connectRepository": "Hubungkan repository",
