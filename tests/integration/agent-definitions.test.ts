@@ -24,6 +24,7 @@ import { AppError } from "@/lib/errors";
 import { EventBatch } from "@/lib/events/emitter";
 import { startExecution } from "@/lib/executions/service";
 import { drainExecutions } from "@/lib/executions/worker";
+import { installSkillFromText, listPlatformSkills } from "@/lib/skills/service";
 import { createTask } from "@/lib/tasks/service";
 import { createUser, resetDatabase } from "../helpers/db";
 import { fakePlanner, PLAN, scripted } from "../helpers/engine";
@@ -191,6 +192,7 @@ describe("agent definitions: who may manage them", () => {
     expect(await bad({ tools: ["rm_rf"] })).toBe("VALIDATION_ERROR");
     expect(await bad({ permissions: ["deploy"] })).toBe("VALIDATION_ERROR");
     expect(await bad({ permissions: ["delete_project"] })).toBe("VALIDATION_ERROR");
+    expect(await bad({ skills: ["not-installed"] })).toBe("VALIDATION_ERROR");
     expect(await bad({ handoffTargets: ["nobody"] })).toBe("VALIDATION_ERROR");
     expect(await bad({ handoffTargets: ["bad-one"] })).toBe("VALIDATION_ERROR");
     expect(await bad({ status: "active" })).toBe("VALIDATION_ERROR");
@@ -199,6 +201,21 @@ describe("agent definitions: who may manage them", () => {
     expect(
       await db.select().from(agentDefinitions).where(eq(agentDefinitions.key, "bad-one")),
     ).toEqual([]);
+  });
+
+  it("accepts installed skills, built-in and custom, and keeps them on the definition", async () => {
+    const owner = await platformOwner();
+    await listPlatformSkills(owner);
+    await installSkillFromText(owner, {
+      content:
+        "---\nname: house-style\ndescription: How we write release notes.\n---\nKeep notes short.\n",
+    });
+    const row = await createDefinition(owner, {
+      ...config(),
+      key: "skilled",
+      skills: ["antislop-code", "house-style"],
+    });
+    expect(row.skills).toEqual(["antislop-code", "house-style"]);
   });
 
   it("refuses a second definition with the same key", async () => {

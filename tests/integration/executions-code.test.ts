@@ -25,6 +25,7 @@ import { startExecution } from "@/lib/executions/service";
 import { getExecutionView } from "@/lib/executions/view";
 import { drainExecutions } from "@/lib/executions/worker";
 import { connectRepository } from "@/lib/git/service";
+import { listPlatformSkills } from "@/lib/skills/service";
 import { executeTool } from "@/lib/tools/executor";
 import { createUser, resetDatabase } from "../helpers/db";
 import { fakeTeam, PLAN, taskTitleOf } from "../helpers/engine";
@@ -264,6 +265,27 @@ describe("code changes only when the edit really succeeded", () => {
     expect(view.tasks.find((t) => t.title === "Checkout API")?.blockedReason).toBe(
       "repository_not_connected",
     );
+  });
+
+  it("gives an agent the skills its definition lists, and no others", async () => {
+    await listPlatformSkills(owner);
+    const defs = await listDefinitions(owner);
+    const backend = defs.find((d) => d.key === "backend-developer");
+    if (!backend) throw new Error("missing preset");
+    const config = Object.fromEntries(
+      CONFIG_FIELDS.map((f) => [f, (backend as Record<string, unknown>)[f]]),
+    );
+    await updateDefinition(owner, backend.id, { ...config, skills: ["antislop-code"] });
+    const model = team();
+    const { view } = await run(model);
+    expect(view.execution.status).toBe("succeeded");
+    const work = model.seen.filter((c) => c.name === "task_work");
+    const labels = (title: string) =>
+      work
+        .filter((c) => taskTitleOf(c.request) === title)
+        .flatMap((c) => c.request.segments.map((s) => s.label));
+    expect(labels("Checkout API")).toContain("skill:antislop-code");
+    expect(labels("Checkout page")).not.toContain("skill:antislop-code");
   });
 
   it("fails a builder whose Owner took the commit tool away, instead of writing a report", async () => {

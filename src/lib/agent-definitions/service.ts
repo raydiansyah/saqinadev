@@ -10,6 +10,7 @@ import {
   agentRuns,
   agents,
   aiModels,
+  platformSkills,
   users,
 } from "@/lib/db/schema";
 import type { AgentPermission } from "@/lib/domain/enums";
@@ -69,6 +70,13 @@ async function checkReferences(
         ),
       );
     if (found.length !== new Set(config.handoffTargets).size) fields.handoffTargets = "unknown";
+  }
+  if (config.skills.length > 0) {
+    const found = await tx
+      .select({ slug: platformSkills.slug })
+      .from(platformSkills)
+      .where(inArray(platformSkills.slug, config.skills));
+    if (found.length !== new Set(config.skills).size) fields.skills = "unknown";
   }
   if (config.modelId) {
     const [model] = await tx

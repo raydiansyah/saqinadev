@@ -16,6 +16,15 @@ import { AGENT_DEFINITION_ROLES } from "@/lib/domain/executions";
 import { FormError } from "./form-error";
 import { useRun } from "./use-run";
 
+/** A skill the Owner installed under AI & Models > Skills. Names only: the text stays on the server. */
+export interface InstalledSkill {
+  slug: string;
+  name: string;
+  description: string;
+  source: "builtin" | "paste" | "github";
+  enabled: boolean;
+}
+
 interface Selected {
   definition: AgentDefinitionRow;
   versions: Array<{
@@ -38,10 +47,12 @@ export function AgentDefinitionForm({
   selected,
   definitions,
   models,
+  skills,
 }: {
   selected: Selected | null;
   definitions: Array<{ key: string; name: string }>;
   models: CatalogModel[];
+  skills: InstalledSkill[];
 }) {
   const t = useTranslations("platform.agents");
   const roles = useTranslations("assistant.agents.roles");
@@ -80,7 +91,7 @@ export function AgentDefinitionForm({
           modelId: String(form.get("modelId") ?? "") || null,
           tools: form.getAll("tools").map(String),
           permissions: form.getAll("permissions").map(String),
-          skills: lines(form.get("skills")),
+          skills: form.getAll("skills").map(String),
           handoffTargets: form.getAll("handoffTargets").map(String),
           maxAttempts: num(form.get("maxAttempts")),
           timeoutMs: num(form.get("timeoutSeconds")) * 1000,
@@ -212,14 +223,55 @@ export function AgentDefinitionForm({
           d?.handoffTargets,
         )}
       </fieldset>
-      <TextArea
-        id={`${id}-skills`}
-        name="skills"
-        label={t("skills")}
-        hint={t("perLine")}
-        rows={2}
-        defaultValue={d?.skills.join("\n")}
-      />
+      <fieldset>
+        <legend className="mb-1.5 text-sm font-medium">{t("skills")}</legend>
+        <p className="mb-2 text-xs text-subtle-foreground">{t("skillsHint")}</p>
+        {skills.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t("skillsNone")}</p>
+        ) : (
+          <ul className="grid gap-1 sm:grid-cols-2">
+            {skills.map((s) => (
+              <li key={s.slug}>
+                <label className="flex min-h-11 cursor-pointer items-start gap-2 rounded-md border border-border px-3 py-2 text-sm">
+                  <input
+                    type="checkbox"
+                    name="skills"
+                    value={s.slug}
+                    defaultChecked={d?.skills.includes(s.slug)}
+                    className="mt-1"
+                  />
+                  <span className="min-w-0">
+                    <span className="block font-medium">
+                      {s.name}
+                      <span className="ml-2 font-mono text-[0.6875rem] font-normal text-subtle-foreground">
+                        {s.source === "builtin" ? t("skillBuiltin") : t("skillCustom")}
+                        {s.enabled ? "" : ` · ${t("skillOff")}`}
+                      </span>
+                    </span>
+                    <span className="line-clamp-2 block text-xs text-muted-foreground">
+                      {s.description}
+                    </span>
+                  </span>
+                </label>
+              </li>
+            ))}
+          </ul>
+        )}
+        {(d?.skills ?? [])
+          .filter((slug) => !skills.some((s) => s.slug === slug))
+          .map((slug) => (
+            <label key={slug} className="mt-1 flex min-h-8 items-center gap-2 text-sm text-error">
+              <input type="checkbox" name="skills" value={slug} defaultChecked />
+              <span className="font-mono text-xs">{slug}</span> {t("skillMissing")}
+            </label>
+          ))}
+        <Link
+          href="/dashboard/ai/skills"
+          className="mt-2 inline-flex min-h-11 items-center text-sm text-primary underline-offset-2 hover:underline"
+        >
+          {t("skillsManage")}
+        </Link>
+      </fieldset>
       <div className="grid gap-4 sm:grid-cols-3">
         <Field
           id={`${id}-attempts`}

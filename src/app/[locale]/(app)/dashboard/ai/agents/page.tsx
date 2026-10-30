@@ -4,6 +4,7 @@ import { definitionUsage, getDefinition, listDefinitions } from "@/lib/agent-def
 import { listModels } from "@/lib/ai/control-plane";
 import { requireActorPage } from "@/lib/auth/server";
 import { AppError } from "@/lib/errors";
+import { listPlatformSkills } from "@/lib/skills/service";
 
 export default async function AgentsPage({
   searchParams,
@@ -12,10 +13,11 @@ export default async function AgentsPage({
   const query = await searchParams;
   const edit = typeof query.edit === "string" ? query.edit : null;
   const creating = query.new === "1";
-  const [definitions, { models }, usage] = await Promise.all([
+  const [definitions, { models }, usage, skills] = await Promise.all([
     listDefinitions(actor),
     listModels(actor),
     definitionUsage(actor),
+    listPlatformSkills(actor),
   ]);
   const selected = edit
     ? await getDefinition(actor, edit).catch((e) =>
@@ -29,6 +31,13 @@ export default async function AgentsPage({
         selected={selected}
         definitions={definitions.map((d) => ({ key: d.key, name: d.name }))}
         models={models}
+        skills={skills.map(({ slug, name, description, source, enabled }) => ({
+          slug,
+          name,
+          description,
+          source,
+          enabled,
+        }))}
       />
     );
   return (

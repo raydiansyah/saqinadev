@@ -21,6 +21,37 @@ Di bawah kotak pesan ada pilihan dengan tiga opsi. Apa yang Anda ketik diperlaku
 
 Instruksi Anda muncul di chat bersama kartu yang menunjukkan keadaan pekerjaan. Pilihan diingat di browser ini untuk proyek ini. Orang dengan akses lihat saja hanya bisa chat.
 
+## Menu +: file, perintah slash, skill, dan konektor
+
+Tombol **+** di kotak pesan membuka sebuah menu. Pilih satu entri dan pilihannya menggantikan menu, dengan **Kembali** di atas.
+
+| Entri | Fungsinya |
+|---|---|
+| **Tambah file atau foto** | Melampirkan file ke pesan berikutnya. |
+| **Perintah slash** | `/chat`, `/plan`, dan `/build` mengganti mode; `/skills` dan `/connectors` membuka Jelajahi. |
+| **Skill** | **Jelajahi skill**, **Kelola skill** (owner platform), dan sakelar untuk tiap skill yang Anda tambahkan. |
+| **Konektor** | Sama untuk konektor: **Jelajahi konektor**, **Kelola konektor**, dan sakelar untuk tiap yang Anda tambahkan. |
+
+![Menu + pada Skill: Jelajahi skill, Kelola skill, dan sakelar untuk skill yang sudah ditambahkan](/api/docs/assets/owner/agents-08-plus-menu.png)
+
+### Jelajahi dan tambah
+
+**Jelajahi** memuat semua yang bisa dipakai proyek ini. **Temukan** menampilkan semuanya dengan tombol **+ Tambah**; **Milik Anda** menampilkan yang sudah Anda tambahkan, dengan **Hapus**. Ketik di kolom cari untuk menyaring daftar, dan pindah antara **Skill** dan **Konektor**.
+
+![Jelajahi: skill yang terpasang di Saqina, masing-masing dengan tombol + Tambah](/api/docs/assets/owner/agents-09-browse.png)
+
+Tekan **+ Tambah** dan item itu masuk menu Anda serta ikut di pesan-pesan berikutnya. Ia tampil sebagai chip di atas kotak pesan; **×** pada chip, atau sakelarnya di menu, menghentikan pemakaiannya. Skill adalah yang diaktifkan owner platform. Konektor adalah yang bisa dijangkau proyek ini. Jika daftar kosong, minta owner platform memasang skill atau menghubungkan konektor.
+
+![Chip di atas kotak pesan menunjukkan skill yang ikut di pesan berikutnya](/api/docs/assets/owner/agents-10-added.png)
+
+Yang Anda tambahkan diingat di browser ini untuk proyek ini. Itu hanya menentukan isi menu Anda: apa yang benar-benar boleh dipakai sebuah pesan diperiksa lagi di server.
+
+## Lipat sidebar proyek
+
+Di layar lebar, sidebar proyek punya tombol di bagian atasnya. **Ciutkan sidebar** memberi area kerja lebar penuh, dan **Bentangkan sidebar** mengembalikannya. Pilihan ini diingat di browser ini. Di ponsel sidebar sudah ada di balik tombol menu.
+
+![Studio dengan sidebar proyek dilipat](/api/docs/assets/owner/agents-11-sidebar-collapsed.png)
+
 ## Mengikuti sebuah build
 
 Saat build dimulai, area kerja beralih ke **Agen** dan menjadi lebih lebar. Tidak perlu memuat ulang: layar mengikuti server.
@@ -97,9 +128,12 @@ Sebuah definisi menyatakan siapa agen itu dan apa yang boleh dilakukannya:
 - **Model**: model miliknya sendiri, atau model peran dari **Pemetaan agent**.
 - **Tool** dan **izin**: hanya yang dicentang yang bisa dipakai. Merge, deploy, dan menghapus proyek tidak bisa dicentang.
 - **Boleh menyerahkan pekerjaan ke**: agen yang boleh menerima pekerjaan darinya.
+- **Skill**: centang skill terpasang yang dipakai agen ini di setiap tugas, bawaan atau yang Anda pasang di **Skill**. Teks skill masuk ke prompt agen sebagai metode, tidak pernah sebagai cara mengubah izinnya. Skill yang kemudian dimatikan atau dihapus dilewati, dan formulir memberi tahu.
 - **Percobaan per tugas**, **batas waktu**, dan **prioritas**.
 
 ![Definisi sebuah agen: instruksi dan kolom yang membatasinya](/api/docs/assets/owner/agents-02-edit.png)
+
+![Kolom Skill sebuah agen: skill terpasang untuk dicentang, dengan tautan untuk memasang lebih banyak](/api/docs/assets/owner/agents-12-agent-skills.png)
 
 Perlu diketahui:
 

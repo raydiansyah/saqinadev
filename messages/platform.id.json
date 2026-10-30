@@ -368,7 +368,14 @@
       "history": "Riwayat versi",
       "system": "Sistem",
       "usage": "{runs} run, {succeeded} selesai, {failed} gagal",
-      "usageNone": "belum dipakai"
+      "usageNone": "belum dipakai",
+      "skillsHint": "Pilih skill terpasang yang dipakai agen ini di setiap tugas. Skill bawaan ikut Saqina; skill kustom adalah yang Anda pasang.",
+      "skillsNone": "Belum ada skill terpasang.",
+      "skillBuiltin": "bawaan",
+      "skillCustom": "kustom",
+      "skillOff": "dimatikan",
+      "skillMissing": "tidak lagi terpasang",
+      "skillsManage": "Pasang atau kelola skill"
     }
   },
   "integrations": {

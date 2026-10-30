@@ -21,6 +21,37 @@ Under the message box there is a switch with three choices. What you type is han
 
 Your instruction appears in the chat with a card that shows the state of the work. The choice is remembered in this browser for this project. People with view access can only chat.
 
+## The + menu: files, slash commands, skills and connectors
+
+The **+** button in the message box opens a menu. Pick one entry and its choices replace the menu, with **Back** at the top.
+
+| Entry | What it does |
+|---|---|
+| **Add files or photos** | Attach files to the next message. |
+| **Slash commands** | `/chat`, `/plan` and `/build` switch the mode, `/skills` and `/connectors` open Browse. |
+| **Skills** | **Browse skills**, **Manage skills** (platform owners), and a switch for each skill you added. |
+| **Connectors** | The same for connectors: **Browse connectors**, **Manage connectors** and a switch for each one you added. |
+
+![The + menu on Skills: Browse skills, Manage skills and a switch for the skill that was added](/api/docs/assets/owner/agents-08-plus-menu.png)
+
+### Browse and add
+
+**Browse** lists everything this project can use. **Discover** shows all of it with a **+ Add** button; **Yours** shows what you added, with **Remove**. Type in the search box to narrow the list, and switch between **Skills** and **Connectors**.
+
+![Browse: skills that are installed in Saqina, each with a + Add button](/api/docs/assets/owner/agents-09-browse.png)
+
+Press **+ Add** and the item is in your menu and goes with your next messages. It shows as a chip above the message box; the **×** on the chip, or its switch in the menu, stops using it. Skills are the ones a platform owner switched on. Connectors are the ones this project can reach. If the list is empty, ask a platform owner to install a skill or connect a connector.
+
+![The chip above the message box shows the skill that goes with the next message](/api/docs/assets/owner/agents-10-added.png)
+
+What you added is remembered in this browser for this project. It only decides what your menu lists: what a message may really use is checked again on the server.
+
+## Fold the project sidebar
+
+On wide screens the project sidebar has a button at its top. **Collapse sidebar** gives the work area the full width, and **Expand sidebar** brings it back. The choice is remembered in this browser. On a phone the sidebar is already behind the menu button.
+
+![The Studio with the project sidebar folded away](/api/docs/assets/owner/agents-11-sidebar-collapsed.png)
+
 ## Follow a build
 
 When a build starts, the work area turns to **Agents** and gets wider. Nothing needs a reload: the screen follows the server.
@@ -97,9 +128,12 @@ A definition says who the agent is and what it may do:
 - **Model**: a model of its own, or the role's model from **Agent mapping**.
 - **Tools** and **permissions**: only what is ticked can be used. Merging, deploying and deleting a project cannot be ticked.
 - **May hand work to**: the agents it may pass work to.
+- **Skills**: tick the installed skills this agent applies on every task, built-in or ones you installed under **Skills**. The skill text goes into the agent's prompt as a method, never as a way to change its permissions. A skill that is switched off or removed later is skipped, and the form says so.
 - **Attempts per task**, **time limit** and **priority**.
 
 ![An agent's definition: instructions and the fields that limit it](/api/docs/assets/owner/agents-02-edit.png)
+
+![The Skills field of an agent: installed skills to tick, with a link to install more](/api/docs/assets/owner/agents-12-agent-skills.png)
 
 Good to know:
 

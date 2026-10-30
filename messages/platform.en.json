@@ -368,7 +368,14 @@
       "history": "Version history",
       "system": "System",
       "usage": "{runs} runs, {succeeded} finished, {failed} failed",
-      "usageNone": "not used yet"
+      "usageNone": "not used yet",
+      "skillsHint": "Pick installed skills this agent applies on every task. Built-in skills ship with Saqina; custom skills are the ones you installed.",
+      "skillsNone": "No skills installed yet.",
+      "skillBuiltin": "built-in",
+      "skillCustom": "custom",
+      "skillOff": "switched off",
+      "skillMissing": "is no longer installed",
+      "skillsManage": "Install or manage skills"
     }
   },
   "integrations": {

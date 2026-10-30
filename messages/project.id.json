@@ -98,7 +98,9 @@
         "changes": "Change request",
         "studio": "Studio"
       },
-      "pending": "menunggu"
+      "pending": "menunggu",
+      "collapse": "Ciutkan sidebar",
+      "expand": "Bentangkan sidebar"
     },
     "header": {
       "updated": "Terakhir diperbarui {time}",

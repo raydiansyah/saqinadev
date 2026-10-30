@@ -31,6 +31,8 @@ export interface DefinitionSnapshot {
   inputRequirements: string;
   expectedOutput: string;
   tools: string[];
+  /** Slugs of installed skills. Absent in snapshots frozen before skills were wired in. */
+  skills?: string[];
   permissions: string[];
   handoffTargets: string[];
   maxAttempts: number;

@@ -185,6 +185,7 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 | E10 | Agent status, plan, code, git, preview and publish read the same stored state; Code, Git, Preview and the Publish stages show what the repository host, CI and Vercel reported, and "not known" where nothing was | Built |
 | E11 | Text from files, other agents, messages, CI or documentation is data for the model, never an instruction; secrets are scrubbed from events, messages, tool audit and patches | Built |
 | E12 | Run the execution queue every minute in production, and the end-to-end test in CI | Partial: the cron route and the test exist; the schedule (Vercel Pro or an outside scheduler) and the CI job are not set up |
+| E13 | The Studio message box has a Claude-style + menu (files, slash commands, skills, connectors) and a Browse dialog with Yours and Discover where an item is added with one press; the project sidebar folds away; an agent definition picks installed skills, which reach its prompt as method text | Built. "Yours" is kept per browser, not on the server |
 
 ## 6. Non-functional requirements
 

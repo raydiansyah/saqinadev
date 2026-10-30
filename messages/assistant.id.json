@@ -593,6 +593,50 @@
         "invalid": "Nilai tidak valid.",
         "testFailed": "Pemeriksaan gagal. Periksa kunci dan endpoint."
       }
+    },
+    "menu": {
+      "button": "Tambah ke pesan",
+      "files": "Tambah file atau foto",
+      "slash": "Perintah slash",
+      "skills": "Skill",
+      "connectors": "Konektor",
+      "back": "Kembali",
+      "browseSkills": "Jelajahi skill",
+      "browseConnectors": "Jelajahi konektor",
+      "manageSkills": "Kelola skill",
+      "manageConnectors": "Kelola konektor",
+      "loading": "Memuat...",
+      "failed": "Skill dan konektor tidak bisa dimuat.",
+      "noneYet": "Belum ada yang ditambahkan. Pakai Jelajahi untuk menambah.",
+      "use": "Pakai {name} di obrolan ini",
+      "tools": "{count, plural, other {# alat}}",
+      "mode": {
+        "chat": "Ngobrol dengan Saqina",
+        "plan": "Buat rencana, tidak mengubah apa pun",
+        "build": "Jalankan agen"
+      }
+    },
+    "browse": {
+      "title": "Jelajahi",
+      "description": "Semua yang bisa dipakai proyek ini. Tambahkan yang Anda mau ke menu.",
+      "view": "Tampilan",
+      "kind": "Jenis",
+      "yours": "Milik Anda",
+      "discover": "Temukan",
+      "skills": "Skill",
+      "connectors": "Konektor",
+      "search": "Cari",
+      "loading": "Memuat...",
+      "failed": "Skill dan konektor tidak bisa dimuat.",
+      "noMatch": "Tidak ada yang cocok dengan pencarian.",
+      "emptyYours": "Anda belum menambahkan jenis ini. Buka Temukan lalu tekan Tambah.",
+      "emptySkills": "Belum ada skill yang aktif. Skill dipasang oleh pemilik platform.",
+      "emptyConnectors": "Belum ada konektor untuk proyek ini.",
+      "add": "Tambah",
+      "addNamed": "Tambah {name}",
+      "added": "Ditambahkan",
+      "remove": "Hapus",
+      "removeNamed": "Hapus {name}"
     }
   }
 }

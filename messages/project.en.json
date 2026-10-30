@@ -98,7 +98,9 @@
         "changes": "Change requests",
         "studio": "Studio"
       },
-      "pending": "waiting"
+      "pending": "waiting",
+      "collapse": "Collapse sidebar",
+      "expand": "Expand sidebar"
     },
     "header": {
       "updated": "Last updated {time}",

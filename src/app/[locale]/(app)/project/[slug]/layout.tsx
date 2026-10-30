@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { AppHeader } from "@/components/app/app-header";
 import { AskSaqinaTrigger, CommandCenterProvider } from "@/components/assistant/command-center";
+import { CollapsibleSidebar } from "@/components/project/collapsible-sidebar";
 import { ProjectDrawer } from "@/components/project/project-drawer";
 import { ProjectHeader } from "@/components/project/project-header";
 import { ProjectMain } from "@/components/project/project-main";
@@ -40,9 +41,9 @@ export default async function ProjectLayout({
         trailing={<AskSaqinaTrigger />}
       />
       <div className="flex flex-1">
-        <aside className="sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-60 shrink-0 border-r border-border pt-4 lg:block">
+        <CollapsibleSidebar>
           <ProjectSidebarNav project={sidebarProject} />
-        </aside>
+        </CollapsibleSidebar>
         <main id="main" className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
           <ProjectMain slug={slug}>
             <ProjectHeader project={project} next={getNextProjectAction(snapshot)} />

@@ -6,6 +6,8 @@ import type { AiProvider, PromptSegment } from "@/lib/ai/provider";
 import { db } from "@/lib/db/client";
 import { ciRuns, documents } from "@/lib/db/schema";
 import { AppError } from "@/lib/errors";
+import { skillSegments } from "@/lib/skills/prompt";
+import { platformSkillsBySlugs } from "@/lib/skills/service";
 import {
   commitFiles,
   ensureWorkBranch,
@@ -154,6 +156,7 @@ async function baseSegments(input: TaskInput): Promise<PromptSegment[]> {
       content: prd?.content.slice(0, 3000) ?? "(no PRD)",
     },
   ];
+  segments.push(...skillSegments(await platformSkillsBySlugs(d.skills ?? [])));
   if (input.inputs.length)
     segments.push({
       kind: "external",

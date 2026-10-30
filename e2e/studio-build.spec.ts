@@ -180,3 +180,76 @@ test("the Studio fits a phone: no sideways scrolling, and the work area is one t
   expect(overflow).toBe(false);
   await context.close();
 });
+
+test("the project sidebar folds away and stays folded after a reload", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await signIn(page);
+  await openStudio(page);
+  const nav = page.getByRole("navigation", { name: "Project" });
+  await expect(nav).toBeVisible();
+  await page.getByRole("button", { name: "Collapse sidebar" }).click();
+  await expect(nav).toBeHidden();
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Expand sidebar" })).toBeVisible();
+  await expect(nav).toBeHidden();
+  await page.getByRole("button", { name: "Expand sidebar" }).click();
+  await expect(nav).toBeVisible();
+});
+
+test("the composer + menu: browse, press Add, and the skill is in the menu and on the message", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await signIn(page);
+  await openStudio(page);
+  await page.getByRole("button", { name: "Add to message" }).click();
+  await expect(page.getByRole("menuitem", { name: "Add files or photos" })).toBeVisible();
+  await page.getByRole("menuitem", { name: "Skills" }).click();
+  await expect(page.getByText("Nothing added yet. Use Browse to add some.")).toBeVisible();
+  await page.getByRole("menuitem", { name: "Browse skills" }).click();
+
+  const dialog = page.getByRole("dialog", { name: "Browse" });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("searchbox").fill("antislop");
+  await dialog.getByRole("button", { name: "Add antislop: code comments" }).click();
+  await expect(dialog.getByText("Added")).toBeVisible();
+  await dialog.getByRole("button", { name: "Yours" }).click();
+  await expect(dialog.getByText("antislop: code comments", { exact: true })).toBeVisible();
+  await page.keyboard.press("Escape");
+
+  // It rides with the next message, and is in the menu as a switch that is on.
+  await expect(page.getByRole("button", { name: /^Remove antislop: code comments/ })).toBeVisible();
+  await page.getByRole("button", { name: "Add to message" }).click();
+  await page.getByRole("menuitem", { name: "Skills" }).click();
+  const use = page.getByRole("switch", { name: "Use antislop: code comments in this chat" });
+  await expect(use).toBeChecked();
+  await use.click();
+  await expect(use).not.toBeChecked();
+
+  // It is still there after a reload (a per-browser choice).
+  await page.reload();
+  await page.getByRole("button", { name: "Add to message" }).click();
+  await page.getByRole("menuitem", { name: "Skills" }).click();
+  await expect(
+    page.getByRole("switch", { name: "Use antislop: code comments in this chat" }),
+  ).toBeVisible();
+});
+
+test("the Owner picks installed skills for an agent, and they are kept", async ({ page }) => {
+  await signIn(page);
+  await page.goto("/en/dashboard/ai/agents");
+  const row = page.getByRole("listitem").filter({ hasText: "Backend Developer" }).first();
+  await row.getByRole("link", { name: "Edit" }).click();
+  const skill = page.getByRole("checkbox", { name: /antislop: code comments/ });
+  await expect(skill).not.toBeChecked();
+  await skill.check();
+  await page.getByRole("button", { name: "Save" }).click();
+  await page.waitForURL(/\/dashboard\/ai\/agents$/);
+  await page
+    .getByRole("listitem")
+    .filter({ hasText: "Backend Developer" })
+    .first()
+    .getByRole("link", { name: "Edit" })
+    .click();
+  await expect(page.getByRole("checkbox", { name: /antislop: code comments/ })).toBeChecked();
+});

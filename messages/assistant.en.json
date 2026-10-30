@@ -593,6 +593,50 @@
         "invalid": "Invalid value.",
         "testFailed": "The check failed. Look at the key and the endpoint."
       }
+    },
+    "menu": {
+      "button": "Add to message",
+      "files": "Add files or photos",
+      "slash": "Slash commands",
+      "skills": "Skills",
+      "connectors": "Connectors",
+      "back": "Back",
+      "browseSkills": "Browse skills",
+      "browseConnectors": "Browse connectors",
+      "manageSkills": "Manage skills",
+      "manageConnectors": "Manage connectors",
+      "loading": "Loading...",
+      "failed": "Could not load skills and connectors.",
+      "noneYet": "Nothing added yet. Use Browse to add some.",
+      "use": "Use {name} in this chat",
+      "tools": "{count, plural, one {# tool} other {# tools}}",
+      "mode": {
+        "chat": "Talk with Saqina",
+        "plan": "Make a plan, change nothing",
+        "build": "Start the agents"
+      }
+    },
+    "browse": {
+      "title": "Browse",
+      "description": "Everything this project can use. Add what you want in your menu.",
+      "view": "View",
+      "kind": "Type",
+      "yours": "Yours",
+      "discover": "Discover",
+      "skills": "Skills",
+      "connectors": "Connectors",
+      "search": "Search",
+      "loading": "Loading...",
+      "failed": "Could not load skills and connectors.",
+      "noMatch": "Nothing matches your search.",
+      "emptyYours": "You have not added anything of this type yet. Open Discover and press Add.",
+      "emptySkills": "No skill is switched on. The platform owner installs skills.",
+      "emptyConnectors": "No connector is available for this project yet.",
+      "add": "Add",
+      "addNamed": "Add {name}",
+      "added": "Added",
+      "remove": "Remove",
+      "removeNamed": "Remove {name}"
     }
   }
 }

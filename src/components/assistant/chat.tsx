@@ -7,14 +7,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ErrorBlock } from "./blocks/simple";
 import { AgentAccessToggle, ChaptersMenu, ForkBanner } from "./chat-header-tools";
-import {
-  AttachButton,
-  ComposerChips,
-  ContextPicker,
-  NO_CONTEXT,
-  type PickedContext,
-  useAttachments,
-} from "./composer-extras";
+import { ComposerChips, NO_CONTEXT, type PickedContext, useAttachments } from "./composer-extras";
+import { ComposerMenu } from "./composer-menu";
 import { MessageItem, type MessageTools } from "./message-item";
 import { ModelPicker } from "./model-picker";
 import { RewindDialog } from "./rewind-dialog";
@@ -295,9 +289,16 @@ export function Chat({
           <ComposerModeSwitch mode={mode} onChange={setMode} disabled={chat.busy || starting} />
         ) : null}
         <div className="flex items-end gap-1 rounded-md border border-border-strong bg-surface p-1.5 focus-within:border-primary">
-          {canWrite ? (
-            <AttachButton onFiles={attachments.add} disabled={attachments.full || chat.busy} />
-          ) : null}
+          <ComposerMenu
+            slug={slug}
+            canWrite={canWrite}
+            disabled={chat.busy}
+            filesDisabled={attachments.full}
+            onFiles={attachments.add}
+            picked={picked}
+            onPicked={setPicked}
+            mode={execute && canWrite ? { value: mode, set: setMode } : undefined}
+          />
           <textarea
             id={`composer-${slug}`}
             ref={inputRef}
@@ -325,7 +326,6 @@ export function Chat({
           )}
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-2">
-          <ContextPicker slug={slug} value={picked} onChange={setPicked} />
           <ModelPicker value={modelId} onChange={setModelId} />
         </div>
         <p

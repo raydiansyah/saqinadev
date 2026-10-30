@@ -20,6 +20,7 @@ export const toDefinitionSnapshot = (row: AgentDefinitionRow): DefinitionSnapsho
   inputRequirements: row.inputRequirements,
   expectedOutput: row.expectedOutput,
   tools: row.tools,
+  skills: row.skills,
   permissions: row.permissions,
   handoffTargets: row.handoffTargets,
   maxAttempts: row.maxAttempts,
