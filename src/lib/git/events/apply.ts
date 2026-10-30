@@ -4,6 +4,7 @@ import { recordActivity } from "@/lib/activity/service";
 import { db, type Tx } from "@/lib/db/client";
 import { ciRuns, deployments, repositoryConnections, taskLinks, tasks } from "@/lib/db/schema";
 import type { TaskLinkKind, TaskLinkState } from "@/lib/domain/enums";
+import { recordPreviewState } from "@/lib/executions/preview";
 import { enqueueCodeIndex } from "@/lib/memory/code/schedule";
 import { findTaskRefs } from "../task-refs";
 import type { GitEvent } from "./parse";
@@ -196,11 +197,21 @@ export async function applyGitEvent(connection: Connection, event: GitEvent): Pr
             state: event.state,
             url: event.url,
             sha: event.sha,
+            ref: event.ref,
           })
           .onConflictDoUpdate({
             target: [deployments.projectId, deployments.provider, deployments.externalId],
             set: { state: event.state, url: event.url },
           });
+        // A preview of an agent's work branch is news for that execution.
+        await recordPreviewState(tx, {
+          projectId,
+          ref: event.ref,
+          deploymentId: `github:${event.externalId}`,
+          state: event.state,
+          url: event.url,
+          environment: event.environment,
+        });
         return result;
       }
     }

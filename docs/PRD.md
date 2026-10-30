@@ -1,6 +1,6 @@
 # Saqina Dev: product requirements
 
-Status of this page: written 2026-10-23 from the code, the ADRs and the standards; updated 2026-10-29 (Studio, platform skills and connectors, Generate PRD). It is the PRD that
+Status of this page: written 2026-10-23 from the code, the ADRs and the standards; updated 2026-10-30 (agents and executions: Plan and Build, the Owner's agent registry, live Studio). It is the PRD that
 [`CLAUDE.md`](../CLAUDE.md) tells every tool to check before a feature is built or changed. Change the
 product and this page in the same pull request.
 
@@ -40,10 +40,10 @@ Goals:
 1. The project record is the single source of truth; the assistant, the portal and the documents all read it.
 2. A client can follow a project and approve work without a call.
 3. Every change to money, scope or agreements leaves an audit trail.
-4. AI helps without ever acting alone: rules validate every write, a person approves.
+4. AI helps without ever acting alone: rules validate every write, a person approves. The one exception is code on an agent's own work branch, which a person reviews and merges ([ADR 0021](adr/0021-agents-commit-to-a-work-branch.md)).
 
 Non-goals (this version): a general chat product, time tracking with payroll, accounting beyond
-invoices and payments, mobile apps, e-signature with a legal certificate authority, semantic search.
+invoices and payments, mobile apps, e-signature with a legal certificate authority, semantic search, a sandbox that runs the agents' code with hot reload, and agents that run tests themselves (CI results are shown instead).
 
 ## 5. Requirements
 
@@ -107,7 +107,7 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 |---|---|---|
 | A1 | Assistant answers from the project record; read-only answers and intent detection use Claude | Built |
 | A2 | Without `ANTHROPIC_API_KEY` Saqina answers from deterministic rules and sends nothing out; customer documents go to a model only with recorded consent | Built |
-| A3 | Actions that change data are rule-validated and need approval; a model never writes, merges or deploys alone | Built |
+| A3 | Actions that change project data (tasks, documents, requirements, decisions) are rule-validated and need approval; a model never merges, opens a pull request or deploys alone. The one write without approval is an agent's commit to its own execution's work branch, inside its task's files ([ADR 0021](adr/0021-agents-commit-to-a-work-branch.md)) | Built |
 | A4 | Project brain: every change goes to an outbox and is distilled into memory and PRD findings ([ADR 0003](adr/0003-project-brain.md)) | Built |
 | A5 | Governed project memory: owner, visibility, lifecycle, versions, citations; chat suggestions wait for review; access is checked before search ([ADR 0004](adr/0004-project-memory.md)) | Built |
 | A6 | Retrieval is full-text plus exact match, with a budget; the UI states that semantic search is off | Built |
@@ -152,7 +152,7 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 |---|---|---|
 | S1 | "Start building" on an approved PRD or plan, or on a document both parties signed, opens the Studio | Built |
 | S2 | Studio: the chat beside a work area. A reply that makes a plan or starts agents turns the work area to the Plan or Agents tab; a change-making request the assistant is unsure about is confirmed in the chat first | Built |
-| S3 | Build in Saqina: Start building hands each open task to the team agent whose role fits it; each result is a proposal a person approves. A project built elsewhere only opens the Studio | Built |
+| S3 | Build in Saqina: Start building hands each open task to the team agent whose role fits it; each result is a proposal a person approves. A project built elsewhere only opens the Studio. The Build mode in the composer starts an execution instead (E1, E3) | Built |
 | S8 | Attach files in the chat: text (into the prompt), images and PDF (to a model that can read them); stored in a private S3 bucket, served only after an access check; 5 MB and 5 files per message ([ADR 0011](adr/0011-chat-attachments-and-tools.md)) | Built |
 | S9 | Add context in the chat: pick switched-on skills (always in the prompt) and connectors; a picked or named connector's tool runs from the chat through the same policy (high risk waits for approval) and its result is shown; owners and project admins reach "Manage connectors" from the menu | Built |
 | G1 | Repository events: Saqina installs the webhook itself (a token without admin rights falls back to a manual URL and secret) and records push, pull request, check suite, workflow run and deployment status | Built |
@@ -162,12 +162,29 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 | L1 | Local IDE over MCP: read tasks, claim a task, report review or blocked (never done), read skills, use the project's connector tools under the same policy, read AGENTS.md and context files as resources ([ADR 0014](adr/0014-local-ide-sync-over-mcp.md)) | Built |
 | L2 | A project AGENTS.md (workflow, branch naming, reporting, skills and connectors) from live data, by MCP and as a download | Built |
 | L3 | Setup snippets for Claude Code, Cursor, Codex and Kiro, and every token scope selectable | Built |
-| S4 | Code: read-only view of the connected repository (folders and files, secrets masked) in the work area | Built |
-| S5 | Preview: the published project in a sandboxed frame, with a picker for earlier deployments (a build sandbox for unpublished code is not part of this version); for an app with a database or sign-in the preview waits for S10 | Built |
-| S6 | Git: branches, pull requests and CI checks linked to tasks, and the switch that turns repository events on; Saqina never merges | Built |
-| S7 | Publish to `<project>.saqina.dev` on Saqina's Vercel team by default, or to the client's own Vercel account (own token, optional custom domain); a person presses Publish ([ADR 0013](adr/0013-publishing-to-vercel.md)) | Built (needs `VERCEL_TOKEN` and the wildcard domain, see the runbook) |
+| S4 | Code: the files an execution's work branch changed against the base branch, with line counts and a diff per file, from the repository host (secrets masked); below it, a read-only view of the connected repository. Before the first commit, or when the host cannot say, it says so | Built |
+| S5 | Preview: the preview of an execution's work branch (the host's own deployment of that branch, matched by branch or commit) and the published project, in one sandboxed frame that is not recreated for each update; with no preview or a failed one it says which. A build sandbox with hot reload is not part of this version; for an app with a database or sign-in the preview waits for S10 | Built (the work-branch preview needs a repository connected to Vercel) |
+| S6 | Git: the execution's work branch, its commits and CI on it (and says when a repository is local-only); branches, pull requests and CI checks linked to tasks, and the switch that turns repository events on; Saqina never merges | Built |
+| S7 | Publish shows five separate stages for an execution (code written, build passed, preview ready, ready to deploy, published), each from what was reported and "not known" when nothing was; Publish to `<project>.saqina.dev` on Saqina's Vercel team by default, or to the client's own Vercel account (own token, optional custom domain); a person presses Publish ([ADR 0013](adr/0013-publishing-to-vercel.md)) | Built (needs `VERCEL_TOKEN` and the wildcard domain, see the runbook) |
 | S10 | Databases and sign-in for the app (Neon, Supabase, Clerk, Postgres or a custom service), always on the user's own accounts: keys are kept encrypted per project, each with a separate Live and Preview value, and sent to the Vercel deployment. An app that uses one is published and previewed only when the preview has its own database (not the live one; test keys for Clerk); until then Publish and Preview explain what is missing ([ADR 0015](adr/0015-databases-and-auth-for-the-app.md)) | Built (needs the encryption key) |
 | S11 | The same env in Saqina and in a local IDE: each service variable has Live, Preview and an optional Local value (falls back to Preview, never live); Saqina sends them to Vercel (production, preview, development), offers `.env.example` (names) and `.env.local` (Local values, admins only, audited) for download, and warns when the repository's `.env.example` names a variable Saqina does not have ([ADR 0018](adr/0018-env-in-saqina-and-local-ide.md)) | Built |
+
+### 5.10 Agents and executions
+
+| # | Requirement | Status |
+|---|---|---|
+| E1 | The Studio composer has Chat, Plan and Build. Chat answers and changes nothing; Plan makes a plan and builds nothing until "Build this plan"; Build starts the agents at once, with no click on any agent. The instruction and a live card of the execution stay in the conversation | Built |
+| E2 | The platform Owner manages agent definitions (identity, instructions, scope, definition of done, model, tool list, permissions, handoff targets, attempts, time limit, priority, status), with nine presets, a version and an audit event for every change, and counts of how each agent has done. Nobody else can read or change them; hard limits (merge, deploy, delete) cannot be configured ([ADR 0022](adr/0022-owner-agent-registry.md)) | Built |
+| E3 | An execution is stored: request, mode, status, versioned plan, task graph with dependencies, acceptance criteria and target paths, runs, messages, artifacts, an ordered event log and a budget (25 tasks, a chain of 6, 2 retries, 3 at once, 60 minutes, 400 messages; 3 open per project). It survives reload and reconnection ([ADR 0020](adr/0020-execution-engine.md)) | Built |
+| E4 | The planner turns the request into tasks with an owner role, dependencies and criteria; a plan with a cycle, an unknown role or too many tasks is refused, once re-asked, and otherwise fails with the reason. With no AI model set up nothing is planned and the execution says so; nothing is simulated | Built |
+| E5 | A task starts only when every task it depends on has succeeded; independent tasks run side by side up to the limit; tasks that write the same files run one after the other; a task goes to an agent whose definition is on and was part of the execution | Built |
+| E6 | Agents message and hand work to each other through stored messages, only to agents their definition lists, with a bounded number of messages and revisions; a failed review sends the findings back as a revision task and the review runs again | Built |
+| E7 | An agent's work is real: it reads files from the work branch, writes within its task's files and commits through the audited tool pipeline; a task succeeds only after the host returned a commit id; reviewers give a verdict with evidence per criterion ([ADR 0021](adr/0021-agents-commit-to-a-work-branch.md)) | Built |
+| E8 | Every screen shows one copy of the execution: agent status is worked out from task status, progress counts finished tasks, and the copy follows the server by a server-sent event stream that resumes after a drop, ignores repeats and older copies, and falls back to polling | Built |
+| E9 | Stop reports Cancelling until a running task has returned and tells the running agent to stop; a failed or blocked task can be tried again; transient failures retry with a pause up to the budget; a worker that dies is replaced and the task retried; a time limit and a deadline end work that runs too long | Built |
+| E10 | Agent status, plan, code, git, preview and publish read the same stored state; Code, Git, Preview and the Publish stages show what the repository host, CI and Vercel reported, and "not known" where nothing was | Built |
+| E11 | Text from files, other agents, messages, CI or documentation is data for the model, never an instruction; secrets are scrubbed from events, messages, tool audit and patches | Built |
+| E12 | Run the execution queue every minute in production, and the end-to-end test in CI | Partial: the cron route and the test exist; the schedule (Vercel Pro or an outside scheduler) and the CI job are not set up |
 
 ## 6. Non-functional requirements
 
@@ -177,6 +194,7 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 | Privacy | Retention and AI disclosure follow [compliance](standards/compliance.md) |
 | Accessibility | WCAG 2.1 AA, keyboard and screen-reader usable, 44 px touch targets |
 | Responsive | No horizontal scroll at 320, 768, 1280 px |
+| Live work | An execution's state is stored, ordered and resumable; the screen never shows a status the server did not say |
 | States | Loading, empty and error state for every async screen, in both languages |
 | Performance | No query inside a loop; new queries are indexed ([performance](standards/performance.md)) |
 | Delivery | `pnpm lint`, `typecheck`, `test`, `build` pass before merge; migrations are expand-only and reversible by redeploy ([delivery](standards/delivery.md)) |
@@ -193,6 +211,8 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 - Which plans include white label, and at what price (needed before W5).
 - Whether clients pay inside the portal or only see invoices (today: they see and track).
 - When semantic search becomes worth the pgvector and embedding cost (A8).
+- Whether to run the execution cron every minute on Vercel Pro or from an outside scheduler (E12).
+- Whether Build should require an approved PRD on the server; today the Studio only warns (S1).
 
 ## 9. Where this is built
 

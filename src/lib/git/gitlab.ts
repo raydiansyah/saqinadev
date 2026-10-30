@@ -1,5 +1,13 @@
 import { gitFetch } from "./http";
-import { type GitAdapter, GitError, MAX_FILE_BYTES, type RepoRef } from "./types";
+import {
+  type CompareFile,
+  countPatch,
+  type GitAdapter,
+  GitError,
+  limitCompare,
+  MAX_FILE_BYTES,
+  type RepoRef,
+} from "./types";
 
 const api = (ref: RepoRef) => `${(ref.baseUrl || "https://gitlab.com").replace(/\/+$/, "")}/api/v4`;
 const project = (ref: RepoRef) => `${api(ref)}/projects/${encodeURIComponent(ref.fullName)}`;
@@ -85,6 +93,45 @@ export const gitlabAdapter: GitAdapter = {
       { method: "POST", headers: headers(token) },
     );
     return { name: b.name, sha: b.commit.id };
+  },
+
+  async compare(ref, token, input) {
+    const r = await gitFetch<{
+      commits?: Array<{ id: string; title?: string }>;
+      diffs?: Array<{
+        old_path?: string;
+        new_path: string;
+        diff?: string;
+        new_file?: boolean;
+        renamed_file?: boolean;
+        deleted_file?: boolean;
+      }>;
+    }>(
+      `${project(ref)}/repository/compare?from=${enc(input.base)}&to=${enc(input.head)}&straight=false`,
+      { headers: headers(token) },
+    );
+    const all: CompareFile[] = (r.diffs ?? []).map((d) => ({
+      path: d.new_path,
+      status: d.new_file
+        ? "added"
+        : d.deleted_file
+          ? "removed"
+          : d.renamed_file
+            ? "renamed"
+            : "modified",
+      ...countPatch(d.diff ?? ""),
+      patch: d.diff ?? null,
+    }));
+    const limited = limitCompare(all);
+    return {
+      aheadBy: (r.commits ?? []).length,
+      files: limited.files,
+      commits: (r.commits ?? []).map((c) => ({
+        sha: c.id,
+        message: (c.title ?? "").slice(0, 200),
+      })),
+      truncated: limited.truncated,
+    };
   },
 
   async commitChanges(ref, token, input) {

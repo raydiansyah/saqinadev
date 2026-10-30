@@ -3,7 +3,16 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
-import { type GitAdapter, GitError, MAX_FILE_BYTES, type RepoRef } from "./types";
+import {
+  type CompareFile,
+  type GitAdapter,
+  GitError,
+  limitCompare,
+  MAX_COMPARE_FILES,
+  MAX_FILE_BYTES,
+  MAX_PATCH_CHARS,
+  type RepoRef,
+} from "./types";
 
 const run = promisify(execFile);
 
@@ -159,6 +168,65 @@ export const localGitAdapter: GitAdapter = {
     } finally {
       await rm(dir, { recursive: true, force: true });
     }
+  },
+
+  async compare(ref, _token, input) {
+    const base = safeName(input.base);
+    const head = safeName(input.head);
+    const range = `${base}...${head}`;
+    const numstat = (await git(ref, ["diff", "--numstat", "-M", range]))
+      .trim()
+      .split("\n")
+      .filter(Boolean);
+    const names = new Map<string, CompareFile["status"]>();
+    for (const line of (await git(ref, ["diff", "--name-status", "-M", range]))
+      .trim()
+      .split("\n")
+      .filter(Boolean)) {
+      const [code, ...paths] = line.split("\t");
+      names.set(
+        paths[paths.length - 1],
+        code.startsWith("A")
+          ? "added"
+          : code.startsWith("D")
+            ? "removed"
+            : code.startsWith("R")
+              ? "renamed"
+              : "modified",
+      );
+    }
+    const files: CompareFile[] = [];
+    for (const line of numstat.slice(0, MAX_COMPARE_FILES)) {
+      const [add, del, ...rest] = line.split("\t");
+      // A rename prints "old => new"; the path we keep is the new one.
+      const raw = rest.join("\t");
+      const path = raw.includes("=>") ? raw.replace(/^.*=> ?/, "").replace(/}$/, "") : raw;
+      const binary = add === "-";
+      const patch = binary
+        ? null
+        : (await git(ref, ["diff", range, "--", safePath(path)])).slice(0, MAX_PATCH_CHARS + 1);
+      files.push({
+        path,
+        status: names.get(path) ?? "modified",
+        additions: binary ? 0 : Number(add),
+        deletions: binary ? 0 : Number(del),
+        patch,
+      });
+    }
+    const log = (await git(ref, ["log", "--format=%H%x09%s", `${base}..${head}`]))
+      .trim()
+      .split("\n")
+      .filter(Boolean);
+    const limited = limitCompare(files);
+    return {
+      aheadBy: log.length,
+      files: limited.files,
+      commits: log.map((l) => {
+        const [sha, ...msg] = l.split("\t");
+        return { sha, message: msg.join("\t").slice(0, 200) };
+      }),
+      truncated: limited.truncated || numstat.length > MAX_COMPARE_FILES,
+    };
   },
 
   async createPullRequest() {

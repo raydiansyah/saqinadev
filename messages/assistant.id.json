@@ -296,7 +296,12 @@
         "frontend": "Frontend",
         "backend": "Backend",
         "qa": "QA",
-        "docs": "Dokumentasi"
+        "docs": "Dokumentasi",
+        "architect": "Arsitek",
+        "database": "Database",
+        "reviewer": "Tinjauan kode",
+        "devops": "DevOps",
+        "custom": "Kustom"
       },
       "capabilities": {
         "planning": "Perencanaan",

@@ -368,7 +368,19 @@ export const AGENT_PERMISSIONS = [
 export type AgentPermission = (typeof AGENT_PERMISSIONS)[number];
 
 /** Default role agents every project gets (provider saqina, simulated execution in Phase 3). */
-export const AGENT_ROLES = ["general", "planner", "frontend", "backend", "qa", "docs"] as const;
+export const AGENT_ROLES = [
+  "general",
+  "planner",
+  "frontend",
+  "backend",
+  "qa",
+  "docs",
+  "architect",
+  "database",
+  "reviewer",
+  "devops",
+  "custom",
+] as const;
 export type AgentRole = (typeof AGENT_ROLES)[number];
 
 // ── Phase 4: control plane, tools, MCP, external agents and Git ─────────────────────────

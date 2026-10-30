@@ -18,6 +18,7 @@ const unsupported = (provider: GitProvider): GitAdapter => {
     createBranch: fail,
     commitChanges: fail,
     createPullRequest: fail,
+    compare: fail,
   };
 };
 

@@ -1,5 +1,6 @@
 import "server-only";
-import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
+import { ensureDefinitionAgents } from "@/lib/agent-definitions/team";
 import type { ProjectAccess } from "@/lib/auth/permissions";
 import { db, type Executor } from "@/lib/db/client";
 import { agentRuns, agents } from "@/lib/db/schema";
@@ -14,7 +15,8 @@ import { ACTIVE_RUN_STATUSES } from "./state";
 
 export type AgentRow = typeof agents.$inferSelect;
 
-const ROLE_NAMES: Record<Exclude<AgentRole, "general">, string> = {
+/** Names of the five template agents. Other roles come from the Owner's agent definitions. */
+const ROLE_NAMES: Partial<Record<AgentRole, string>> = {
   planner: "Planner",
   frontend: "Frontend Developer",
   backend: "Backend Developer",
@@ -35,7 +37,7 @@ export async function ensureTeamAgents(executor: Executor, projectId: string): P
     .values(
       ROLE_TEMPLATES.map((t) => ({
         projectId,
-        name: ROLE_NAMES[t.role as Exclude<AgentRole, "general">],
+        name: ROLE_NAMES[t.role] ?? t.role,
         type: "saqina" as const,
         role: t.role,
         provider: "Saqina",
@@ -56,6 +58,8 @@ export async function ensureTeamAgents(executor: Executor, projectId: string): P
           eq(agents.projectId, projectId),
           eq(agents.type, "saqina"),
           eq(agents.role, t.role),
+          // An agent that follows an Owner's definition takes its permissions from there.
+          isNull(agents.definitionId),
           sql`${agents.permissions} <> ${JSON.stringify(t.permissions)}::jsonb`,
         ),
       );
@@ -94,6 +98,7 @@ export async function ensureTeamAgents(executor: Executor, projectId: string): P
         ),
       );
   }
+  await ensureDefinitionAgents(executor, projectId);
 }
 
 /** Every agent in the project (team first), plus how many active runs each has. */

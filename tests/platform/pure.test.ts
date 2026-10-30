@@ -12,7 +12,7 @@ import { isPrivateAddress } from "@/lib/net/endpoint-guard";
 import { open, seal } from "@/lib/secrets/crypto";
 import { containsSecret, scrubSecrets } from "@/lib/secrets/scan";
 import { validateJson } from "@/lib/tools/json-schema";
-import { decideTool } from "@/lib/tools/policy";
+import { decideTool, isWorkBranchCall } from "@/lib/tools/policy";
 
 const KEY = { SAQINA_ENCRYPTION_KEY: Buffer.alloc(32, 7).toString("base64") };
 
@@ -186,6 +186,68 @@ describe("tool policy and schema", () => {
     ).toMatchObject({
       reason: "agent_permission",
     });
+  });
+
+  it("lets an agent commit to its execution's work branch without approval, and nothing else", () => {
+    const agent = { permissions: ["write_branch" as const] };
+    const commit = {
+      ...base,
+      risk: "high" as const,
+      agent,
+      toolPermission: "write_branch" as const,
+    };
+    expect(decideTool({ ...commit })).toEqual({ kind: "approval" });
+    expect(decideTool({ ...commit, workBranch: true })).toEqual({ kind: "allow" });
+    // The permission is still checked: a work branch does not grant the right to write.
+    expect(decideTool({ ...commit, agent: { permissions: [] }, workBranch: true })).toMatchObject({
+      reason: "agent_permission",
+    });
+    // Critical stays denied whatever the branch.
+    expect(decideTool({ ...commit, risk: "critical", workBranch: true })).toMatchObject({
+      reason: "critical",
+    });
+    // A tool outside the frozen list is denied, even a low-risk read.
+    expect(
+      decideTool({ ...base, risk: "low", toolName: "read_file", allowedTools: ["read_prd"] }),
+    ).toMatchObject({ reason: "tool_not_allowed" });
+    expect(
+      decideTool({ ...base, risk: "low", toolName: "read_file", allowedTools: ["read_file"] }),
+    ).toEqual({ kind: "allow" });
+  });
+
+  it("recognises only a commit to the work branch or creating it", () => {
+    const git = { source: "git", name: "commit_changes" };
+    expect(isWorkBranchCall(git, { branch: "saqina/exec-ab12" }, "saqina/exec-ab12")).toBe(true);
+    expect(isWorkBranchCall(git, { branch: "main" }, "saqina/exec-ab12")).toBe(false);
+    expect(isWorkBranchCall(git, { branch: "saqina/exec-ab12" }, null)).toBe(false);
+    expect(
+      isWorkBranchCall(
+        { source: "git", name: "create_branch" },
+        { name: "saqina/exec-ab12" },
+        "saqina/exec-ab12",
+      ),
+    ).toBe(true);
+    expect(
+      isWorkBranchCall(
+        { source: "git", name: "create_pull_request" },
+        { branch: "saqina/exec-ab12" },
+        "saqina/exec-ab12",
+      ),
+    ).toBe(false);
+    expect(
+      isWorkBranchCall(
+        { source: "git", name: "merge_branch" },
+        { branch: "saqina/exec-ab12" },
+        "saqina/exec-ab12",
+      ),
+    ).toBe(false);
+    expect(
+      isWorkBranchCall(
+        { source: "mcp", name: "commit_changes" },
+        { branch: "saqina/exec-ab12" },
+        "saqina/exec-ab12",
+      ),
+    ).toBe(false);
   });
 
   it("validates tool input", () => {

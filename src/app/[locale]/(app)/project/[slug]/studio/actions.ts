@@ -10,6 +10,15 @@ import {
   setupDeployTarget,
   syncServiceEnv,
 } from "@/lib/deploy/service";
+import { getExecutionDelivery } from "@/lib/executions/delivery";
+import { getExecutionDiff } from "@/lib/executions/diff";
+import {
+  buildFromPlan,
+  cancelExecution,
+  retryTask,
+  revisePlan,
+  startExecution,
+} from "@/lib/executions/service";
 import { removeService, saveService } from "@/lib/services/service";
 import { listCode, readCode } from "@/lib/studio/code";
 import { startBuilding } from "@/lib/studio/kickoff";
@@ -85,4 +94,53 @@ export async function removeServiceAction(slug: string, id: string) {
     await removeService(await requireActor(), slug, { id });
     revalidatePath("/[locale]/project/[slug]", "layout");
   });
+}
+
+/** Plan or Build from the composer. Returns at once; a worker does the rest. */
+export async function startExecutionAction(slug: string, input: unknown) {
+  return runAction("studio.execution.start", { slug }, async () => {
+    const execution = await startExecution(await requireActor(), slug, input);
+    revalidatePath("/[locale]/project/[slug]", "layout");
+    return { id: execution.id, conversationId: execution.conversationId };
+  });
+}
+
+export async function cancelExecutionAction(slug: string, executionId: string) {
+  return runAction("studio.execution.cancel", { slug }, async () => {
+    const execution = await cancelExecution(await requireActor(), slug, executionId);
+    return { status: execution.status };
+  });
+}
+
+export async function retryTaskAction(slug: string, executionId: string, taskId: string) {
+  return runAction("studio.execution.retry", { slug }, async () => {
+    await retryTask(await requireActor(), slug, executionId, taskId);
+  });
+}
+
+/** "Build this plan": the planned tasks start on a work branch. */
+export async function buildFromPlanAction(slug: string, executionId: string) {
+  return runAction("studio.execution.build", { slug }, async () => {
+    await buildFromPlan(await requireActor(), slug, executionId);
+  });
+}
+
+export async function revisePlanAction(slug: string, executionId: string, input: unknown) {
+  return runAction("studio.execution.revise", { slug }, async () => {
+    await revisePlan(await requireActor(), slug, executionId, input);
+  });
+}
+
+/** What the work branch changed, from the repository host. Read only. */
+export async function getExecutionDiffAction(slug: string, executionId: string) {
+  return runAction("studio.execution.diff", { slug }, async () =>
+    getExecutionDiff(await requireActor(), slug, executionId),
+  );
+}
+
+/** CI, preview and the five publishing stages of an execution. Read only. */
+export async function getExecutionDeliveryAction(slug: string, executionId: string) {
+  return runAction("studio.execution.delivery", { slug }, async () =>
+    getExecutionDelivery(await requireActor(), slug, executionId),
+  );
 }

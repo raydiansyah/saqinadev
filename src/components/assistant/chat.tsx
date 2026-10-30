@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { type KeyboardEvent, type ReactNode, useEffect, useRef, useState } from "react";
+import { ComposerModeSwitch, useComposerMode } from "@/components/studio/execution/composer-mode";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ErrorBlock } from "./blocks/simple";
@@ -34,6 +35,7 @@ export function Chat({
   canWrite,
   toolbar,
   className,
+  execute,
 }: {
   slug: string;
   chat: AssistantController;
@@ -42,12 +44,16 @@ export function Chat({
   canWrite: boolean;
   toolbar?: ReactNode;
   className?: string;
+  /** Present in the Studio: Plan and Build start an execution instead of sending a chat message. */
+  execute?: (mode: "plan" | "build", text: string) => Promise<boolean>;
 }) {
   const t = useTranslations("assistant");
   const [draft, setDraft] = useState("");
   const [rewindTo, setRewindTo] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
   const attachments = useAttachments(slug);
+  const [mode, setMode] = useComposerMode(slug);
+  const [starting, setStarting] = useState(false);
   // Picked skills and connectors stay until removed: they apply to every next message.
   const [picked, setPicked] = useState<PickedContext>(NO_CONTEXT);
   const [modelId, setModelId] = useState<string | null>(null);
@@ -94,7 +100,17 @@ export function Chat({
       .map((r) => r.name);
 
   const submit = (text = draft) => {
-    if (!text.trim() || chat.busy || attachments.uploading) return;
+    if (!text.trim() || chat.busy || starting || attachments.uploading) return;
+    if (execute && canWrite && mode !== "chat") {
+      setDraft("");
+      setStarting(true);
+      void execute(mode, text.trim()).then((started) => {
+        // If it could not start, the words are given back instead of lost.
+        if (!started) setDraft(text);
+        setStarting(false);
+      });
+      return;
+    }
     setDraft("");
     const files = attachments.ready;
     attachments.clear();
@@ -275,6 +291,9 @@ export function Chat({
         <label htmlFor={`composer-${slug}`} className="sr-only">
           {t("placeholder")}
         </label>
+        {execute && canWrite ? (
+          <ComposerModeSwitch mode={mode} onChange={setMode} disabled={chat.busy || starting} />
+        ) : null}
         <div className="flex items-end gap-1 rounded-md border border-border-strong bg-surface p-1.5 focus-within:border-primary">
           {canWrite ? (
             <AttachButton onFiles={attachments.add} disabled={attachments.full || chat.busy} />
@@ -296,7 +315,11 @@ export function Chat({
               {t("stop")}
             </Button>
           ) : (
-            <Button size="sm" type="submit" disabled={!draft.trim() || attachments.uploading}>
+            <Button
+              size="sm"
+              type="submit"
+              disabled={!draft.trim() || attachments.uploading || starting}
+            >
               {t("send")}
             </Button>
           )}

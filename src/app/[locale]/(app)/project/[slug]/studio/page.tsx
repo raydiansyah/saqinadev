@@ -7,10 +7,14 @@ import { can } from "@/lib/auth/permissions";
 import { listConversations, loadMessages } from "@/lib/conversations/service";
 import { getDeployState } from "@/lib/deploy/service";
 import { getDocument } from "@/lib/documents/service";
+import { listExecutions } from "@/lib/executions/service";
 import { projectPageAccess } from "@/lib/projects/page";
 import { envSync, getServicesState } from "@/lib/services/service";
 import { getGitState } from "@/lib/studio/git-state";
 import { listMilestones, listTasks } from "@/lib/tasks/service";
+
+/** Plan and Build finish their work after the response; this is how long that may last. */
+export const maxDuration = 300;
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("studio");
@@ -21,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function StudioPage({ params }: PageProps<"/[locale]/project/[slug]/studio">) {
   const { slug } = await params;
   const access = await projectPageAccess(slug);
-  const [conversations, milestones, tasks, runs, prd, git, deploy, services, gap] =
+  const [conversations, milestones, tasks, runs, prd, git, deploy, services, gap, executions] =
     await Promise.all([
       listConversations(access),
       listMilestones(access),
@@ -32,6 +36,7 @@ export default async function StudioPage({ params }: PageProps<"/[locale]/projec
       getDeployState(access),
       getServicesState(access),
       envSync(access),
+      listExecutions(access.actor, slug, 20),
     ]);
   const latest = conversations[0] ?? null;
   const page = latest ? await loadMessages(access, latest.id) : null;
@@ -48,6 +53,13 @@ export default async function StudioPage({ params }: PageProps<"/[locale]/projec
       services={{ ...services, gap }}
       canManage={can(access.role, "project:update")}
       prdApproved={prd?.status === "approved" || prd?.status === "signed"}
+      executions={executions.map((e) => ({
+        id: e.id,
+        mode: e.mode,
+        status: e.status,
+        request: e.request,
+        createdAt: e.createdAt.toISOString(),
+      }))}
       plan={{
         milestones: milestones.map((m) => ({ id: m.id, title: m.title, goal: m.goal })),
         tasks: tasks.map((t) => ({

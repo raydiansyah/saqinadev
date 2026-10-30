@@ -34,7 +34,7 @@ repository / query                      drizzle queries only, no rules
 
 - **One file under 400 lines** for new and changed files. Split by responsibility, not by line count.
   Existing exceptions (data-heavy copy files, `ai/control-plane.ts`, `docsync/engine.ts`,
-  `assistant/planner.ts`, `agents/orchestrator.ts`) may not grow; split them when you next change them.
+  `assistant/planner.ts`) may not grow; split them when you next change them.
 - No duplicated logic: a second copy is the signal to extract. Prefer the existing helper
   (`parse` in `src/lib/validation.ts`, `allow` in `src/lib/rate-limit.ts`, `recordAudit`,
   `recordActivity`, `withSecret`, the `Party` pattern in `src/lib/engagement/shared.ts`).

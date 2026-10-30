@@ -9,6 +9,7 @@ const TABS = [
   { key: "providers", href: "/dashboard/ai/providers" },
   { key: "models", href: "/dashboard/ai/models" },
   { key: "mapping", href: "/dashboard/ai/mapping" },
+  { key: "agents", href: "/dashboard/ai/agents" },
   { key: "skills", href: "/dashboard/ai/skills" },
   { key: "connectors", href: "/dashboard/ai/connectors" },
   { key: "policies", href: "/dashboard/ai/policies" },

@@ -816,6 +816,294 @@
         "download": "Download .env.local",
         "downloadHint": "Holds the Local values (or Preview where Local is empty), never the live ones. Each download is recorded."
       }
+    },
+    "execution": {
+      "status": {
+        "queued": "Queued",
+        "planning": "Planning",
+        "planned": "Planned",
+        "running": "Running",
+        "waiting_approval": "Waiting for approval",
+        "succeeded": "Succeeded",
+        "failed": "Failed",
+        "cancelling": "Cancelling",
+        "cancelled": "Cancelled",
+        "pending": "Waiting",
+        "waiting_agent": "Waiting for agent",
+        "blocked": "Blocked",
+        "reviewing": "Reviewing",
+        "idle": "Idle"
+      },
+      "mode": {
+        "plan": "Plan",
+        "build": "Build"
+      },
+      "modeLabel": "What should Saqina do with this message?",
+      "modes": {
+        "chat": "Chat",
+        "plan": "Plan",
+        "build": "Build"
+      },
+      "modeHint": {
+        "chat": "Ask and talk it over. Nothing is changed.",
+        "plan": "Saqina plans the tasks and who does them. Nothing is built until you press Build this plan.",
+        "build": "The agents start working on a work branch. Merging and publishing stay yours."
+      },
+      "elapsed": "Running {time}",
+      "connection": {
+        "polling": "Live updates unavailable, checking every few seconds",
+        "reconnecting": "Reconnecting to live updates"
+      },
+      "buildPlan": "Build this plan",
+      "cancel": "Stop",
+      "cancelTitle": "Stop this execution?",
+      "cancelBody": "Work nobody is doing stops now. A task that is running finishes its current step first, and the execution says Cancelling until it has.",
+      "cancelConfirm": "Stop execution",
+      "cancellingNote": "Stopping. A task is still finishing its current step.",
+      "progress": "{done} of {total} tasks done",
+      "progressNone": "No tasks yet",
+      "progressLabel": "Tasks finished",
+      "reasons": {
+        "dependency_failed": "Waiting on a task that did not finish. Retry that task to release this one.",
+        "no_agent": "No agent is on for the role \"{role}\". Switch one on in the agent registry, then retry.",
+        "review_failed_no_budget": "The review found defects and the execution has no room for another revision.",
+        "commit_not_allowed": "This agent may not commit code. An owner can allow it in the agent registry.",
+        "repository_not_connected": "No repository is connected. Connect one in the Git tab.",
+        "no_model": "No AI model is set up, so nothing could be planned or written. Ask a platform owner to add one.",
+        "plan_invalid": "The plan was refused: {detail}.",
+        "access_lost": "The person who started this no longer has access to the project.",
+        "model_failed": "The AI model did not answer.",
+        "tasks_failed": "One or more tasks failed.",
+        "blocked": "Nothing can move: every open task is blocked.",
+        "deadline": "The time limit for this execution ran out.",
+        "no_changes": "The agent returned no change.",
+        "write_refused": "A change was refused before it was written: {detail}.",
+        "git_failed": "The repository refused the operation: {detail}.",
+        "executor_error": "The agent stopped on an error.",
+        "timeout": "The agent ran out of time.",
+        "cancelled": "Cancelled.",
+        "cancelled_by_user": "Stopped by request.",
+        "worker_lost": "The worker stopped before the task finished.",
+        "superseded": "Replaced by a newer version of the plan.",
+        "execution_failed": "The execution failed while this task was running.",
+        "no_work_to_review": "There is no code change to review.",
+        "approval_required": "This step needs approval.",
+        "executor_unavailable": "Nothing is connected to do this work."
+      },
+      "noOwner": "No owner role",
+      "attempts": "attempt {n}",
+      "revision": "revision",
+      "waitsFor": "Waits for: {titles}",
+      "criteria": "Acceptance criteria ({n})",
+      "retry": "Try again",
+      "goal": "Goal",
+      "risks": "Risks ({n})",
+      "noTasksFailed": "No plan was made.",
+      "planning": "Saqina is planning. The tasks appear here when the plan is ready.",
+      "step": "Step {n}",
+      "revise": "Change the plan",
+      "reviseLabel": "What should be different?",
+      "reviseHint": "The tasks of this plan are set aside and the plan is made again.",
+      "reviseSubmit": "Plan again",
+      "reviseCancel": "Keep this plan",
+      "agents": "Agents",
+      "agentIdle": "Nothing to do right now",
+      "blockers": "Needs attention",
+      "handoffs": "Handoffs and messages",
+      "noHandoffs": "No messages between agents yet.",
+      "everyone": "everyone",
+      "orchestrator": "Saqina",
+      "activity": "Activity",
+      "noActivity": "Nothing has happened yet.",
+      "showEarlier": "Show {n} earlier",
+      "messageTypes": {
+        "assignment": "assignment",
+        "handoff": "handoff",
+        "info_request": "question",
+        "decision": "decision",
+        "dependency_ready": "ready to start",
+        "blocker": "blocker",
+        "review_request": "review request",
+        "review_feedback": "review feedback",
+        "test_result": "test result",
+        "conflict": "conflict",
+        "completion": "done",
+        "failure": "failure"
+      },
+      "events": {
+        "execution": {
+          "created": "Started",
+          "started": "Work began",
+          "completed": "Everything is done",
+          "failed": "The execution failed",
+          "cancelled": "The execution was cancelled"
+        },
+        "task": {
+          "created": "Task added: {title}",
+          "started": "{agent} started {task}",
+          "completed": "{agent} finished {task}",
+          "failed": "{task} failed",
+          "blocked": "{task} is blocked",
+          "cancelled": "{task} was cancelled"
+        },
+        "agent": {
+          "message_created": "{agent}: message about {task}",
+          "handoff_created": "{agent} passed work to {to}"
+        },
+        "artifact": {
+          "created": "New result: {path}"
+        },
+        "git": {
+          "operation_completed": "Committed {sha} on the work branch"
+        },
+        "preview": {
+          "build_started": "Preview is building",
+          "updated": "Preview updated",
+          "failed": "Preview failed"
+        },
+        "approval": {
+          "required": "Approval needed",
+          "completed": "Approval given"
+        }
+      },
+      "startedElsewhere": "A plan or build was started here. Open the Studio to follow it.",
+      "openStudio": "Open the Studio",
+      "loading": "Loading the execution",
+      "openWork": "Show in the work area",
+      "codeChanges": "Changes by agents",
+      "noCodeYet": "No code has changed yet.",
+      "onBranch": "On branch",
+      "pick": "Execution",
+      "otherRuns": "Earlier agent runs",
+      "gone": "This execution cannot be shown.",
+      "loadFailed": "The execution could not be loaded.",
+      "tryAgain": "Try again",
+      "startErrors": {
+        "CONFLICT": "This project already has as many executions open as it can run. Wait for one to finish or stop it.",
+        "RATE_LIMIT": "Too many starts in a short time. Try again in a few minutes.",
+        "VALIDATION_ERROR": "Nothing could be started: no agent is switched on. A platform owner can switch one on."
+      },
+      "took": "Took {time}",
+      "discard": "Discard plan",
+      "discardTitle": "Discard this plan?",
+      "discardBody": "The plan is set aside. Nothing was built, so nothing needs undoing.",
+      "discardConfirm": "Discard plan",
+      "diff": {
+        "refreshing": "Updating",
+        "reading": "Reading the repository",
+        "failed": "The changes could not be read.",
+        "noRepository": "No repository is connected, so there is no diff to show.",
+        "unsupported": "This repository host cannot show a diff yet.",
+        "hostError": "The repository did not answer ({code}).",
+        "summary": "{files} files in {commits} commits",
+        "against": "against",
+        "status": {
+          "added": "added",
+          "modified": "changed",
+          "removed": "deleted",
+          "renamed": "renamed"
+        },
+        "noPatch": "No text diff for this file.",
+        "truncated": "Only part of the changes is shown here.",
+        "claimed": "Files the agents reported writing. The repository has not confirmed them:"
+      },
+      "git": {
+        "title": "Work branch",
+        "noBranch": "No work branch yet. It is made with the first commit.",
+        "branch": "Branch",
+        "base": "Based on",
+        "repository": "Repository",
+        "remote": "Remote",
+        "localOnly": "This repository is on this machine. Nothing is pushed anywhere.",
+        "onRemote": "{n} commits on the repository",
+        "notConfirmed": "The repository has not confirmed any commit yet.",
+        "lastCommit": "Last commit",
+        "commits": "Commits",
+        "ci": "CI on this branch",
+        "noCi": "No CI result for this branch. Connect repository events in the Git section below to see it."
+      },
+      "preview": {
+        "title": "Preview of the work branch",
+        "published": "Published site",
+        "reading": "Looking for the preview",
+        "noCommits": "No code to preview yet.",
+        "noneYet": "No preview yet for this branch.",
+        "noneYetHint": "A preview appears when the repository is connected to Vercel and the work branch has been built. Check the Publish tab for the Vercel connection.",
+        "building": "Building the preview",
+        "failed": "The preview build failed.",
+        "failedHint": "Open the build in Vercel or the CI link in the Git tab to see why, then ask an agent to fix it.",
+        "check": "Check again",
+        "updated": "Updated {when}",
+        "openNew": "Open in a new tab",
+        "frame": "Preview of the work branch"
+      },
+      "stages": {
+        "title": "From code to published",
+        "reading": "Checking the stages",
+        "failed": "The stages could not be read.",
+        "personNote": "Publishing stays your decision: merge the work branch, then press Publish.",
+        "state": {
+          "done": "done",
+          "pending": "in progress",
+          "blocked": "needs attention",
+          "unknown": "not known"
+        },
+        "source": {
+          "name": "Code written",
+          "done": "The agents finished and the commits are on the work branch.",
+          "pending": "The agents are still working.",
+          "blocked": "The execution did not finish.",
+          "unknown": "No code has been committed.",
+          "no_commits": "No code has been committed.",
+          "building": "The agents are still working."
+        },
+        "build": {
+          "name": "Build passed",
+          "done": "CI on the work branch passed.",
+          "pending": "CI is running.",
+          "blocked": "CI failed on the work branch.",
+          "unknown": "No CI result is known for this branch.",
+          "ci_failed": "CI failed on the work branch.",
+          "no_ci": "No CI result is known for this branch."
+        },
+        "preview": {
+          "name": "Preview ready",
+          "done": "A preview of the work branch is up.",
+          "pending": "The preview is building.",
+          "blocked": "The preview build failed.",
+          "unknown": "No preview is known yet.",
+          "preview_failed": "The preview build failed.",
+          "no_commits": "No code to preview yet.",
+          "none_yet": "No preview is known yet."
+        },
+        "deploy": {
+          "name": "Ready to deploy",
+          "done": "The Vercel project and the repository are set up.",
+          "pending": "Setting up.",
+          "blocked": "Something is missing.",
+          "unknown": "Deployment is not set up yet.",
+          "no_repository": "No repository is connected.",
+          "target_error": "The Vercel connection reported an error.",
+          "not_set_up": "Deployment is not set up yet."
+        },
+        "published": {
+          "name": "Published",
+          "done": "A production deployment is newer than this work.",
+          "pending": "Publishing.",
+          "blocked": "Publishing failed.",
+          "unknown": "Not published. A person merges and presses Publish.",
+          "not_published": "Not published. A person merges and presses Publish."
+        }
+      },
+      "planProblems": {
+        "cycle": "tasks wait for each other in a circle",
+        "self_dependency": "a task waits for itself",
+        "unknown_dependency": "a task waits for one that does not exist",
+        "duplicate_key": "two tasks have the same name",
+        "too_many_tasks": "more tasks than the limit",
+        "too_deep": "tasks wait on each other in too long a chain",
+        "unknown_role": "a task names a role that no agent covers (an agent may be switched off)"
+      }
     }
   }
 }

@@ -181,6 +181,7 @@ export const agentRuns = pgTable(
     taskId: uuid("task_id").references(() => tasks.id, { onDelete: "set null" }),
     conversationId: uuid("conversation_id"),
     proposalId: uuid("proposal_id"),
+    executionId: uuid("execution_id"),
     attempt: integer("attempt").notNull().default(1),
     status: text("status").$type<RunStatus>().notNull().default("queued"),
     input: jsonb("input").$type<Record<string, unknown>>().notNull().default({}),
@@ -194,6 +195,7 @@ export const agentRuns = pgTable(
   (t) => [
     index("runs_project_idx").on(t.projectId, t.createdAt.desc()),
     index("runs_assignment_idx").on(t.assignmentId),
+    index("runs_execution_idx").on(t.executionId),
   ],
 );
 

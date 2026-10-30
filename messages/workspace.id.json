@@ -816,6 +816,294 @@
         "download": "Unduh .env.local",
         "downloadHint": "Berisi nilai Lokal (atau Preview bila Lokal kosong), tidak pernah nilai live. Setiap unduhan dicatat."
       }
+    },
+    "execution": {
+      "status": {
+        "queued": "Antre",
+        "planning": "Menyusun rencana",
+        "planned": "Rencana siap",
+        "running": "Berjalan",
+        "waiting_approval": "Menunggu persetujuan",
+        "succeeded": "Berhasil",
+        "failed": "Gagal",
+        "cancelling": "Membatalkan",
+        "cancelled": "Dibatalkan",
+        "pending": "Menunggu",
+        "waiting_agent": "Menunggu agen",
+        "blocked": "Terhambat",
+        "reviewing": "Meninjau",
+        "idle": "Menganggur"
+      },
+      "mode": {
+        "plan": "Plan",
+        "build": "Build"
+      },
+      "modeLabel": "Apa yang harus dilakukan Saqina dengan pesan ini?",
+      "modes": {
+        "chat": "Chat",
+        "plan": "Plan",
+        "build": "Build"
+      },
+      "modeHint": {
+        "chat": "Bertanya dan berdiskusi. Tidak ada yang diubah.",
+        "plan": "Saqina menyusun tugas dan siapa yang mengerjakannya. Tidak ada yang dibangun sampai Anda menekan Bangun rencana ini.",
+        "build": "Agen mulai bekerja di branch kerja. Merge dan publish tetap di tangan Anda."
+      },
+      "elapsed": "Berjalan {time}",
+      "connection": {
+        "polling": "Pembaruan langsung tidak tersedia, memeriksa setiap beberapa detik",
+        "reconnecting": "Menyambung ulang ke pembaruan langsung"
+      },
+      "buildPlan": "Bangun rencana ini",
+      "cancel": "Hentikan",
+      "cancelTitle": "Hentikan eksekusi ini?",
+      "cancelBody": "Pekerjaan yang tidak sedang dikerjakan berhenti sekarang. Tugas yang sedang berjalan menyelesaikan langkahnya dulu, dan eksekusi tertulis Membatalkan sampai selesai.",
+      "cancelConfirm": "Hentikan eksekusi",
+      "cancellingNote": "Sedang menghentikan. Ada tugas yang masih menyelesaikan langkahnya.",
+      "progress": "{done} dari {total} tugas selesai",
+      "progressNone": "Belum ada tugas",
+      "progressLabel": "Tugas yang selesai",
+      "reasons": {
+        "dependency_failed": "Menunggu tugas yang tidak selesai. Coba lagi tugas itu untuk melepas yang ini.",
+        "no_agent": "Tidak ada agen yang menyala untuk peran \"{role}\". Nyalakan satu di registri agen, lalu coba lagi.",
+        "review_failed_no_budget": "Tinjauan menemukan cacat dan eksekusi tidak punya ruang untuk revisi lagi.",
+        "commit_not_allowed": "Agen ini tidak boleh commit kode. Owner dapat mengizinkannya di registri agen.",
+        "repository_not_connected": "Belum ada repositori yang terhubung. Hubungkan satu di tab Git.",
+        "no_model": "Belum ada model AI yang diatur, jadi tidak ada yang bisa direncanakan atau ditulis. Minta owner platform menambahkannya.",
+        "plan_invalid": "Rencana ditolak: {detail}.",
+        "access_lost": "Orang yang memulai ini sudah tidak punya akses ke proyek.",
+        "model_failed": "Model AI tidak menjawab.",
+        "tasks_failed": "Satu tugas atau lebih gagal.",
+        "blocked": "Tidak ada yang bisa bergerak: semua tugas yang terbuka terhambat.",
+        "deadline": "Batas waktu eksekusi ini habis.",
+        "no_changes": "Agen tidak mengembalikan perubahan.",
+        "write_refused": "Sebuah perubahan ditolak sebelum ditulis: {detail}.",
+        "git_failed": "Repositori menolak operasi itu: {detail}.",
+        "executor_error": "Agen berhenti karena kesalahan.",
+        "timeout": "Agen kehabisan waktu.",
+        "cancelled": "Dibatalkan.",
+        "cancelled_by_user": "Dihentikan atas permintaan.",
+        "worker_lost": "Pekerja berhenti sebelum tugas selesai.",
+        "superseded": "Diganti versi rencana yang lebih baru.",
+        "execution_failed": "Eksekusi gagal saat tugas ini berjalan.",
+        "no_work_to_review": "Tidak ada perubahan kode untuk ditinjau.",
+        "approval_required": "Langkah ini perlu persetujuan.",
+        "executor_unavailable": "Tidak ada yang terhubung untuk mengerjakan ini."
+      },
+      "noOwner": "Belum ada peran pemilik",
+      "attempts": "percobaan {n}",
+      "revision": "revisi",
+      "waitsFor": "Menunggu: {titles}",
+      "criteria": "Kriteria penerimaan ({n})",
+      "retry": "Coba lagi",
+      "goal": "Tujuan",
+      "risks": "Risiko ({n})",
+      "noTasksFailed": "Rencana tidak berhasil dibuat.",
+      "planning": "Saqina sedang menyusun rencana. Tugas muncul di sini saat rencana siap.",
+      "step": "Langkah {n}",
+      "revise": "Ubah rencana",
+      "reviseLabel": "Apa yang perlu berbeda?",
+      "reviseHint": "Tugas rencana ini disisihkan dan rencana dibuat ulang.",
+      "reviseSubmit": "Rencanakan ulang",
+      "reviseCancel": "Pertahankan rencana ini",
+      "agents": "Agen",
+      "agentIdle": "Belum ada yang dikerjakan",
+      "blockers": "Perlu perhatian",
+      "handoffs": "Serah terima dan pesan",
+      "noHandoffs": "Belum ada pesan antar agen.",
+      "everyone": "semua",
+      "orchestrator": "Saqina",
+      "activity": "Aktivitas",
+      "noActivity": "Belum ada yang terjadi.",
+      "showEarlier": "Tampilkan {n} sebelumnya",
+      "messageTypes": {
+        "assignment": "penugasan",
+        "handoff": "serah terima",
+        "info_request": "pertanyaan",
+        "decision": "keputusan",
+        "dependency_ready": "siap dimulai",
+        "blocker": "hambatan",
+        "review_request": "permintaan tinjauan",
+        "review_feedback": "masukan tinjauan",
+        "test_result": "hasil uji",
+        "conflict": "konflik",
+        "completion": "selesai",
+        "failure": "kegagalan"
+      },
+      "events": {
+        "execution": {
+          "created": "Dimulai",
+          "started": "Pekerjaan dimulai",
+          "completed": "Semuanya selesai",
+          "failed": "Eksekusi gagal",
+          "cancelled": "Eksekusi dibatalkan"
+        },
+        "task": {
+          "created": "Tugas ditambahkan: {title}",
+          "started": "{agent} memulai {task}",
+          "completed": "{agent} menyelesaikan {task}",
+          "failed": "{task} gagal",
+          "blocked": "{task} terhambat",
+          "cancelled": "{task} dibatalkan"
+        },
+        "agent": {
+          "message_created": "{agent}: pesan tentang {task}",
+          "handoff_created": "{agent} menyerahkan pekerjaan ke {to}"
+        },
+        "artifact": {
+          "created": "Hasil baru: {path}"
+        },
+        "git": {
+          "operation_completed": "Commit {sha} di branch kerja"
+        },
+        "preview": {
+          "build_started": "Preview sedang dibangun",
+          "updated": "Preview diperbarui",
+          "failed": "Preview gagal"
+        },
+        "approval": {
+          "required": "Perlu persetujuan",
+          "completed": "Persetujuan diberikan"
+        }
+      },
+      "startedElsewhere": "Rencana atau build dimulai di sini. Buka Studio untuk mengikutinya.",
+      "openStudio": "Buka Studio",
+      "loading": "Memuat eksekusi",
+      "openWork": "Tampilkan di area kerja",
+      "codeChanges": "Perubahan oleh agen",
+      "noCodeYet": "Belum ada kode yang berubah.",
+      "onBranch": "Di branch",
+      "pick": "Eksekusi",
+      "otherRuns": "Run agen sebelumnya",
+      "gone": "Eksekusi ini tidak dapat ditampilkan.",
+      "loadFailed": "Eksekusi tidak dapat dimuat.",
+      "tryAgain": "Coba lagi",
+      "startErrors": {
+        "CONFLICT": "Proyek ini sudah punya eksekusi terbuka sebanyak yang bisa dijalankan. Tunggu satu selesai atau hentikan.",
+        "RATE_LIMIT": "Terlalu banyak permulaan dalam waktu singkat. Coba lagi beberapa menit lagi.",
+        "VALIDATION_ERROR": "Tidak ada yang bisa dimulai: belum ada agen yang menyala. Owner platform dapat menyalakannya."
+      },
+      "took": "Berlangsung {time}",
+      "discard": "Buang rencana",
+      "discardTitle": "Buang rencana ini?",
+      "discardBody": "Rencana disisihkan. Belum ada yang dibangun, jadi tidak ada yang perlu dibatalkan.",
+      "discardConfirm": "Buang rencana",
+      "diff": {
+        "refreshing": "Memperbarui",
+        "reading": "Membaca repositori",
+        "failed": "Perubahan tidak dapat dibaca.",
+        "noRepository": "Belum ada repositori yang terhubung, jadi tidak ada diff untuk ditampilkan.",
+        "unsupported": "Host repositori ini belum dapat menampilkan diff.",
+        "hostError": "Repositori tidak menjawab ({code}).",
+        "summary": "{files} berkas dalam {commits} commit",
+        "against": "dibanding",
+        "status": {
+          "added": "ditambahkan",
+          "modified": "diubah",
+          "removed": "dihapus",
+          "renamed": "diganti nama"
+        },
+        "noPatch": "Tidak ada diff teks untuk berkas ini.",
+        "truncated": "Hanya sebagian perubahan yang ditampilkan di sini.",
+        "claimed": "Berkas yang dilaporkan agen telah ditulis. Repositori belum mengonfirmasinya:"
+      },
+      "git": {
+        "title": "Branch kerja",
+        "noBranch": "Belum ada branch kerja. Branch dibuat bersama commit pertama.",
+        "branch": "Branch",
+        "base": "Berdasarkan",
+        "repository": "Repositori",
+        "remote": "Remote",
+        "localOnly": "Repositori ini ada di mesin ini. Tidak ada yang di-push ke mana pun.",
+        "onRemote": "{n} commit di repositori",
+        "notConfirmed": "Repositori belum mengonfirmasi commit apa pun.",
+        "lastCommit": "Commit terakhir",
+        "commits": "Commit",
+        "ci": "CI di branch ini",
+        "noCi": "Belum ada hasil CI untuk branch ini. Hubungkan event repositori di bagian Git di bawah untuk melihatnya."
+      },
+      "preview": {
+        "title": "Preview branch kerja",
+        "published": "Situs yang dipublikasikan",
+        "reading": "Mencari preview",
+        "noCommits": "Belum ada kode untuk di-preview.",
+        "noneYet": "Belum ada preview untuk branch ini.",
+        "noneYetHint": "Preview muncul saat repositori terhubung ke Vercel dan branch kerja sudah dibangun. Periksa tab Publish untuk koneksi Vercel.",
+        "building": "Membangun preview",
+        "failed": "Build preview gagal.",
+        "failedHint": "Buka build di Vercel atau tautan CI di tab Git untuk melihat sebabnya, lalu minta agen memperbaikinya.",
+        "check": "Periksa lagi",
+        "updated": "Diperbarui {when}",
+        "openNew": "Buka di tab baru",
+        "frame": "Preview branch kerja"
+      },
+      "stages": {
+        "title": "Dari kode sampai terbit",
+        "reading": "Memeriksa tahapan",
+        "failed": "Tahapan tidak dapat dibaca.",
+        "personNote": "Publish tetap keputusan Anda: merge branch kerja, lalu tekan Publish.",
+        "state": {
+          "done": "selesai",
+          "pending": "berjalan",
+          "blocked": "perlu perhatian",
+          "unknown": "belum diketahui"
+        },
+        "source": {
+          "name": "Kode ditulis",
+          "done": "Agen selesai dan commit ada di branch kerja.",
+          "pending": "Agen masih bekerja.",
+          "blocked": "Eksekusi tidak selesai.",
+          "unknown": "Belum ada kode yang di-commit.",
+          "no_commits": "Belum ada kode yang di-commit.",
+          "building": "Agen masih bekerja."
+        },
+        "build": {
+          "name": "Build lulus",
+          "done": "CI di branch kerja lulus.",
+          "pending": "CI sedang berjalan.",
+          "blocked": "CI gagal di branch kerja.",
+          "unknown": "Belum ada hasil CI untuk branch ini.",
+          "ci_failed": "CI gagal di branch kerja.",
+          "no_ci": "Belum ada hasil CI untuk branch ini."
+        },
+        "preview": {
+          "name": "Preview siap",
+          "done": "Preview branch kerja sudah aktif.",
+          "pending": "Preview sedang dibangun.",
+          "blocked": "Build preview gagal.",
+          "unknown": "Belum ada preview yang diketahui.",
+          "preview_failed": "Build preview gagal.",
+          "no_commits": "Belum ada kode untuk di-preview.",
+          "none_yet": "Belum ada preview yang diketahui."
+        },
+        "deploy": {
+          "name": "Siap deploy",
+          "done": "Proyek Vercel dan repositori sudah diatur.",
+          "pending": "Sedang diatur.",
+          "blocked": "Ada yang kurang.",
+          "unknown": "Deploy belum diatur.",
+          "no_repository": "Belum ada repositori yang terhubung.",
+          "target_error": "Koneksi Vercel melaporkan kesalahan.",
+          "not_set_up": "Deploy belum diatur."
+        },
+        "published": {
+          "name": "Terbit",
+          "done": "Ada deployment produksi yang lebih baru dari pekerjaan ini.",
+          "pending": "Sedang dipublikasikan.",
+          "blocked": "Publish gagal.",
+          "unknown": "Belum terbit. Seseorang melakukan merge dan menekan Publish.",
+          "not_published": "Belum terbit. Seseorang melakukan merge dan menekan Publish."
+        }
+      },
+      "planProblems": {
+        "cycle": "tugas saling menunggu secara melingkar",
+        "self_dependency": "sebuah tugas menunggu dirinya sendiri",
+        "unknown_dependency": "sebuah tugas menunggu tugas yang tidak ada",
+        "duplicate_key": "dua tugas memakai nama yang sama",
+        "too_many_tasks": "tugas lebih banyak dari batas",
+        "too_deep": "tugas saling menunggu dalam rantai yang terlalu panjang",
+        "unknown_role": "sebuah tugas menyebut peran yang tidak dipegang agen mana pun (mungkin ada agen yang dimatikan)"
+      }
     }
   }
 }

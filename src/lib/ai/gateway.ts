@@ -49,7 +49,7 @@ export class AiCallFailed extends Error {
 
 export interface AiCall<T> {
   access?: ProjectAccess | null;
-  agent?: { id: string; role: AgentRole } | null;
+  agent?: { id: string; role: AgentRole; modelId?: string | null } | null;
   operation: AiOperation;
   required?: ModelCapability[];
   /** Does the work with whichever client the gateway hands over. Throwing tries the next model. */

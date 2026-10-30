@@ -8,6 +8,7 @@ import { db } from "@/lib/db/client";
 import { deployments, deployTargets, repositoryConnections } from "@/lib/db/schema";
 import { DEPLOY_OWNERS } from "@/lib/domain/enums";
 import { AppError } from "@/lib/errors";
+import { recordPreviewState } from "@/lib/executions/preview";
 import { allow } from "@/lib/rate-limit";
 import { revokeCredential, storeCredential, withSecret } from "@/lib/secrets/service";
 import { previewIssues } from "@/lib/services/preview-ready";
@@ -386,7 +387,7 @@ export async function refreshDeployments(access: ProjectAccess, deps: DeployDeps
     const list = await withVercel(target, deps, (ctx) =>
       listDeployments(ctx, target.vercelProjectId as string),
     );
-    for (const d of list)
+    for (const d of list) {
       await db
         .insert(deployments)
         .values({
@@ -397,11 +398,21 @@ export async function refreshDeployments(access: ProjectAccess, deps: DeployDeps
           state: d.state,
           url: d.url,
           sha: d.sha,
+          ref: d.ref,
         })
         .onConflictDoUpdate({
           target: [deployments.projectId, deployments.provider, deployments.externalId],
-          set: { state: d.state, url: d.url },
+          set: { state: d.state, url: d.url, ref: d.ref },
         });
+      await recordPreviewState(db, {
+        projectId,
+        ref: d.ref,
+        deploymentId: `vercel:${d.id}`,
+        state: d.state,
+        url: d.url,
+        environment: d.environment,
+      });
+    }
     return list.length;
   } catch {
     return 0;

@@ -32,6 +32,8 @@ Next.js 16 (App Router), React 19, TypeScript, PostgreSQL with Drizzle ORM, Bett
 
 ## Local setup
 
+Full walkthrough, including the agent Studio and deployment: [docs/installation.md](docs/installation.md).
+
 ```bash
 pnpm install
 ```
@@ -64,6 +66,7 @@ pnpm dev
 | `pnpm lint` | Biome check |
 | `pnpm typecheck` | Next typegen and `tsc --noEmit` |
 | `pnpm test` / `pnpm test:coverage` | Vitest (integration tests need `DATABASE_URL_TEST`) |
+| `pnpm e2e` | Playwright end-to-end test of the Studio (needs `DATABASE_URL_E2E`; not in CI yet) |
 | `pnpm check:licenses` / `pnpm check:coverage` | Licence and coverage gates used in CI |
 | `pnpm db:generate` / `db:migrate` / `db:seed` | Schema migrations and seed data (local database only) |
 | `pnpm db:migrate:neon` | Apply migrations to Neon with `neonctl`; asks to confirm, `--backup` snapshots first, `--dry-run` shows the plan |
@@ -74,6 +77,7 @@ pnpm dev
 - [Product requirements (PRD)](docs/PRD.md): users, goals, requirements with status
 - [Engineering standards](docs/standards/README.md): architecture, security, testing, delivery,
   observability, compliance, governance
+- [Installation guide](docs/installation.md): local setup, agents, deploy
 - [Runbook](docs/runbook.md): deploy, migrate, roll back, incidents
 - [Architecture decisions](docs/adr/), including [imported projects follow GitHub](docs/adr/0005-imported-projects-follow-github.md) and
   [two-party document signing](docs/adr/0006-two-party-document-signing.md)

@@ -31,6 +31,12 @@ Text from users, repositories, notes and web pages is **untrusted data**. It goe
 segments, never into the system prompt; model output is validated against a zod schema; anything a
 model proposes changes nothing until a person with the right permission approves it.
 
+Exception, narrow and enforced in `tools/policy.ts`: an agent in an execution may commit to that
+execution's own work branch (`saqina/exec-*`) without approval, using only the tools frozen in its
+definition snapshot. Main, pull requests, merges and deployments stay proposals. Messages between
+agents reach the next agent as `external` data, and the execution event stream (SSE) requires
+`project:read` and returns NOT_FOUND to non-members. See ADR 0020 and 0021.
+
 ## Row Level Security (Planned: defense in depth, in stages)
 
 Application authorization stays the primary control. RLS is added underneath for tables with personal
