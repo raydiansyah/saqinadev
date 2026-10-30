@@ -97,6 +97,8 @@ export const deployments = pgTable(
     state: text("state").$type<DeploymentState>().notNull(),
     url: text("url"),
     sha: text("sha"),
+    /** The branch the deployment was built from, when the host says. Preview picks the work branch by it. */
+    ref: text("ref"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },

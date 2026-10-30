@@ -38,6 +38,7 @@ import type {
   TaskStatus,
   VersionSource,
 } from "@/lib/domain/enums";
+import type { ExecutionTaskStatus } from "@/lib/domain/executions";
 import type { MemoryConfidence, MemoryKind, MemoryLevel } from "@/lib/domain/memory";
 import { users } from "./auth";
 import { memoryAssets } from "./memory";
@@ -194,11 +195,22 @@ export const tasks = pgTable(
     source: text("source").$type<TaskSource>().notNull().default("user"),
     phase: text("phase"),
     position: integer("position").notNull().default(0),
+    /** The execution that planned this task, with its own state, owner role and checks. */
+    executionId: uuid("execution_id"),
+    executionStatus: text("execution_status").$type<ExecutionTaskStatus>(),
+    roleKey: text("role_key"),
+    acceptanceCriteria: jsonb("acceptance_criteria").$type<string[]>().notNull().default([]),
+    targetPaths: jsonb("target_paths").$type<string[]>().notNull().default([]),
+    planVersion: integer("plan_version"),
+    blockedReason: text("blocked_reason"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
     completedAt: timestamp("completed_at", { withTimezone: true }),
   },
-  (t) => [index("tasks_project_idx").on(t.projectId, t.status, t.position)],
+  (t) => [
+    index("tasks_project_idx").on(t.projectId, t.status, t.position),
+    index("tasks_execution_idx").on(t.executionId),
+  ],
 );
 
 export const memories = pgTable(
@@ -291,6 +303,8 @@ export const agents = pgTable(
       .notNull()
       .default("untested"),
     lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+    /** The platform definition this agent follows; null for tool agents and older projects. */
+    definitionId: uuid("definition_id"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -318,6 +332,7 @@ export const proposals = pgTable(
     conversationId: uuid("conversation_id"),
     messageId: uuid("message_id"),
     runId: uuid("run_id"),
+    executionId: uuid("execution_id"),
     revisionNote: text("revision_note"),
     /** What was actually applied, written in the same transaction as the approval. */
     result: jsonb("result").$type<Record<string, unknown>>(),
