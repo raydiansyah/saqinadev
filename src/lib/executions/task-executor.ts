@@ -29,6 +29,8 @@ export interface TaskInput {
   execution: ExecutionRow;
   task: TaskRow;
   agent: AgentRow;
+  /** The run record of this try; tool calls are audited against it. */
+  runId: string;
   definition: DefinitionSnapshot;
   access: ProjectAccess;
   /** This is try number `attempt`; a retry may carry the reason the last try failed. */

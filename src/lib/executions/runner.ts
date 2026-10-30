@@ -26,6 +26,7 @@ import {
 } from "./conclude";
 import { enqueueDispatch, type JobRow } from "./jobs";
 import { moveTask } from "./lifecycle";
+import { modelTaskExecutor } from "./model-executor";
 import { beginRun, latestRun } from "./runs";
 import { executionTeam, type TeamMember } from "./snapshot";
 import type { EngineOptions, TaskExecutor, TaskInput, TaskResult } from "./task-executor";
@@ -33,13 +34,6 @@ import { type ExecutionRow, scopeOf, type TaskRow } from "./types";
 
 const FINAL = ["succeeded", "failed", "cancelled"];
 const CANCEL_POLL_MS = 3000;
-
-/** Used when nothing is plugged in: the task fails with a plain reason instead of pretending to work. */
-const unavailable: TaskExecutor = async () => ({
-  outcome: "failed",
-  error: "executor_unavailable",
-  retryable: false,
-});
 
 interface Started {
   execution: ExecutionRow;
@@ -196,11 +190,12 @@ async function execute(
     if (row?.at) controller.abort(new Error("cancelled"));
   }, CANCEL_POLL_MS);
   try {
-    const run = options.taskExecutor ?? unavailable;
+    const run: TaskExecutor = options.taskExecutor ?? modelTaskExecutor;
     return await run({
       execution: s.execution,
       task: s.task,
       agent: s.member.agent,
+      runId: s.runId,
       definition: s.member.definition,
       access,
       attempt: s.attempt,

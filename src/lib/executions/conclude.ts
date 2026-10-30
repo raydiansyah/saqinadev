@@ -289,7 +289,20 @@ export async function concludeReviewFailed(
       },
     ])
     .returning();
-  await c.tx.insert(taskDependencies).values([{ taskId: recheck.id, dependsOnId: revise.id }]);
+  // The re-check waits for the revision and looks at the same work as the review it repeats.
+  const reviewed = await c.tx
+    .select()
+    .from(taskDependencies)
+    .where(eq(taskDependencies.taskId, c.task.id));
+  await c.tx
+    .insert(taskDependencies)
+    .values(
+      [revise.id, ...reviewed.map((e) => e.dependsOnId)].map((dependsOnId) => ({
+        taskId: recheck.id,
+        dependsOnId,
+      })),
+    )
+    .onConflictDoNothing();
   // Whatever was waiting for this review now waits for the re-check as well.
   const waiting = await c.tx
     .select({ id: tasks.id })

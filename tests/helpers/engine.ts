@@ -129,3 +129,33 @@ export async function runToEnd(
   await drainExecutions({ ...engine, now });
   return { id: execution.id, view: await getExecutionView(actor, slug, execution.id) };
 }
+
+/**
+ * A model stand-in for the whole team: answers by the name of the structured call
+ * (`execution_plan`, `task_work`, `task_review`, `task_report`). A value or a function of the request.
+ */
+export function fakeTeam(answers: Record<string, unknown | ((r: AiRequest) => unknown)>) {
+  const seen: Array<{ name: string; request: AiRequest }> = [];
+  const provider = {
+    deterministic: false,
+    config: { provider: "mock" as const, model: "fake-team" },
+    generate: async () => "",
+    stream: async function* () {},
+    generateObject: async (
+      request: AiRequest,
+      schema: { parse: (v: unknown) => unknown },
+      name: string,
+    ) => {
+      seen.push({ name, request });
+      const raw = answers[name];
+      return schema.parse(
+        typeof raw === "function" ? (raw as (r: AiRequest) => unknown)(request) : raw,
+      );
+    },
+  };
+  return { provider: provider as unknown as AiProvider, seen };
+}
+
+/** The title line of the task an agent was asked to do, from its prompt. */
+export const taskTitleOf = (request: AiRequest) =>
+  request.segments.find((s) => s.label === "task")?.content.split("\n")[0] ?? "";

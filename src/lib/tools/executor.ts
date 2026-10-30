@@ -14,7 +14,7 @@ import { allow } from "@/lib/rate-limit";
 import { scrubValue } from "@/lib/secrets/scan";
 import { HANDLERS } from "./handlers";
 import { type Schema, validateJson } from "./json-schema";
-import { decideTool } from "./policy";
+import { decideTool, isWorkBranchCall } from "./policy";
 import { findTool } from "./registry";
 
 /** Tools whose input and output are memory content; the audit row keeps no copy of it. */
@@ -47,6 +47,11 @@ export interface ToolRequest {
   conversationId?: string | null;
   /** Set when a person already approved this exact call. */
   approvedProposalId?: string | null;
+  /**
+   * Set for an agent working inside an execution: the tools that execution froze for it, and its
+   * work branch. A tool outside the list is denied; a commit to that branch needs no approval.
+   */
+  execution?: { branch: string | null; tools: readonly string[] };
 }
 
 export type ToolResult =
@@ -69,6 +74,22 @@ const errorCode = (error: unknown) =>
     : isAppError(error)
       ? error.code
       : "internal";
+
+/** What the audit row keeps of the input: memory text and file contents stay out of it. */
+function auditInput(name: string, input: Record<string, unknown>): Record<string, unknown> {
+  if (MEMORY_TOOLS.has(name)) return {};
+  if (name === "commit_changes") {
+    const files = Array.isArray(input.files)
+      ? (input.files as { path?: unknown; content?: unknown }[])
+      : [];
+    return scrubValue({
+      branch: input.branch,
+      message: input.message,
+      files: files.map((f) => ({ path: f.path, bytes: String(f.content ?? "").length })),
+    }) as Record<string, unknown>;
+  }
+  return scrubValue(input) as Record<string, unknown>;
+}
 
 /**
  * The only way a tool runs. Order is fixed: identify → project access → agent permission →
@@ -110,10 +131,7 @@ export async function executeTool(request: ToolRequest): Promise<ToolResult> {
     actorId: access.actor.id,
     riskLevel: tool.riskLevel,
     // Memory text (a query, a proposal) must not outlive the memory it came from: keep who and when.
-    input: (MEMORY_TOOLS.has(tool.name) ? {} : scrubValue(request.input)) as Record<
-      string,
-      unknown
-    >,
+    input: auditInput(tool.name, request.input),
     idempotencyKey: request.idempotencyKey,
   };
   const write = async (
@@ -136,6 +154,11 @@ export async function executeTool(request: ToolRequest): Promise<ToolResult> {
     agent: actor.kind === "agent" ? { permissions: actor.permissions } : null,
     toolPermission: tool.agentPermission,
     approved: Boolean(request.approvedProposalId),
+    toolName: tool.name,
+    allowedTools: request.execution?.tools ?? null,
+    workBranch: Boolean(
+      request.execution && isWorkBranchCall(tool, request.input, request.execution.branch),
+    ),
   });
   if (decision.kind === "deny") {
     await write({ status: "denied", errorCode: decision.reason });
