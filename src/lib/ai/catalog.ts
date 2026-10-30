@@ -72,7 +72,8 @@ export async function platformSettings(
 /** Everything the resolver needs for one request, loaded with a few targeted queries. */
 export async function resolutionInput(options: {
   projectId?: string | null;
-  agent?: { id: string; role: AgentRole } | null;
+  /** `modelId` is the model an Owner pinned on the agent's definition; it is tried before the role's mapping. */
+  agent?: { id: string; role: AgentRole; modelId?: string | null } | null;
   /** The person whose own models may be used, and the one they chose. */
   user?: { id: string; modelId: string } | null;
 }): Promise<Omit<ResolveInput, "required">> {
@@ -106,13 +107,18 @@ export async function resolutionInput(options: {
       : [],
   ]);
   // Project mapping (specific agent) outranks the platform mapping for the role.
-  const ordered: Mapping[] = [...mappings]
-    .sort((a, b) => (a.scope === b.scope ? 0 : a.scope === "project" ? -1 : 1))
-    .map((m) => ({
-      primaryModelId: m.primaryModelId,
-      fallbackModelId: m.fallbackModelId,
-      requiredCapabilities: m.requiredCapabilities,
-    }));
+  const ordered: Mapping[] = [
+    ...(options.agent?.modelId
+      ? [{ primaryModelId: options.agent.modelId, fallbackModelId: null, requiredCapabilities: [] }]
+      : []),
+    ...[...mappings]
+      .sort((a, b) => (a.scope === b.scope ? 0 : a.scope === "project" ? -1 : 1))
+      .map((m) => ({
+        primaryModelId: m.primaryModelId,
+        fallbackModelId: m.fallbackModelId,
+        requiredCapabilities: m.requiredCapabilities,
+      })),
+  ];
   return {
     catalog,
     platform: {

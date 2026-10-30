@@ -203,6 +203,8 @@ export const tasks = pgTable(
     targetPaths: jsonb("target_paths").$type<string[]>().notNull().default([]),
     planVersion: integer("plan_version"),
     blockedReason: text("blocked_reason"),
+    /** The task this one revises after a failed review. Depth of the chain is bounded by the budget. */
+    parentTaskId: uuid("parent_task_id"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
     completedAt: timestamp("completed_at", { withTimezone: true }),

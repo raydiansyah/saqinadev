@@ -104,10 +104,15 @@ export function readyTasks(tasks: readonly RunnableTask[]): RunnableTask[] {
   );
 }
 
-/** Waiting tasks that can never run because a task they need failed or was cancelled. */
+/**
+ * Waiting tasks that cannot run now because a task they need failed, was cancelled or is blocked.
+ * A blocked task can come back (a person retries it), and then these are released again.
+ */
 export function unreachableTasks(tasks: readonly RunnableTask[]): RunnableTask[] {
   const dead = new Set(
-    tasks.filter((t) => t.status === "failed" || t.status === "cancelled").map((t) => t.key),
+    tasks
+      .filter((t) => t.status === "failed" || t.status === "cancelled" || t.status === "blocked")
+      .map((t) => t.key),
   );
   const out: RunnableTask[] = [];
   let grew = true;

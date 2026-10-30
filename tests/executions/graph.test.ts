@@ -110,6 +110,11 @@ describe("unreachableTasks and withDependents", () => {
     expect(unreachableTasks(tasks).map((t) => t.key)).toEqual(["b", "c"]);
   });
 
+  it("treats a blocked task like a failed one for what waits behind it", () => {
+    const tasks = [task("a", "blocked"), task("b", "pending", ["a"]), task("c", "pending")];
+    expect(unreachableTasks(tasks).map((t) => t.key)).toEqual(["b"]);
+  });
+
   it("lists a task with everything that depends on it", () => {
     const tasks = [node("a"), node("b", ["a"]), node("c", ["b"]), node("d")];
     expect(withDependents(tasks, "a").sort()).toEqual(["a", "b", "c"]);

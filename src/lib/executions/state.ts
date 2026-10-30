@@ -15,7 +15,8 @@ import type {
 const EXECUTION: Record<ExecutionStatus, readonly ExecutionStatus[]> = {
   queued: ["planning", "failed", "cancelling", "cancelled"],
   planning: ["planned", "running", "failed", "cancelling", "cancelled"],
-  planned: ["running", "cancelling", "cancelled"],
+  // planned → planning: the plan is revised before anyone builds it.
+  planned: ["planning", "running", "cancelling", "cancelled"],
   running: ["waiting_approval", "succeeded", "failed", "cancelling"],
   waiting_approval: ["running", "succeeded", "failed", "cancelling"],
   cancelling: ["cancelled"],
@@ -40,7 +41,8 @@ const TASK: Record<ExecutionTaskStatus, readonly ExecutionTaskStatus[]> = {
   waiting_approval: ["running", "succeeded", "failed", "cancelled"],
   reviewing: ["running", "succeeded", "failed", "cancelled"],
   blocked: ["pending", "queued", "failed", "cancelled"],
-  failed: ["queued", "cancelled"],
+  // failed → queued is the automatic retry; failed → pending is a person asking for another go.
+  failed: ["queued", "pending", "cancelled"],
   succeeded: [],
   cancelled: [],
 };

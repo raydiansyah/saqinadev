@@ -31,6 +31,7 @@ describe("execution and task state machines", () => {
 
   it("lets a failed task or execution be retried, and only that", () => {
     expect(canMoveTask("failed", "queued")).toBe(true);
+    expect(canMoveTask("failed", "pending")).toBe(true);
     expect(canMoveTask("failed", "succeeded")).toBe(false);
     expect(canMoveExecution("failed", "running")).toBe(true);
   });
