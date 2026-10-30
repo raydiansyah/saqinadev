@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { startExecutionAction } from "@/app/[locale]/(app)/project/[slug]/studio/actions";
 import { Chat } from "@/components/assistant/chat";
 import { PROJECT_CONTEXT } from "@/components/assistant/types";
@@ -20,8 +20,11 @@ import {
   useExecutionContext,
 } from "./execution/context";
 import { ExecutionCode } from "./execution/execution-code";
+import { ExecutionGit } from "./execution/execution-git";
+import { ExecutionPreview } from "./execution/execution-preview";
 import { ExecutionPicker } from "./execution/picker";
 import { ExecutionPlan } from "./execution/plan-tab";
+import { PublishStages } from "./execution/publish-stages";
 import { AgentsTab, PlanTab } from "./legacy-tabs";
 import { CodeTab, GitTab, PreviewTab, PublishTab } from "./work-tabs";
 
@@ -122,6 +125,11 @@ function StudioBody({
   const id = useId();
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const [startError, setStartError] = useState<string | null>(null);
+  // The preview frame is kept once it has been opened, so switching tabs does not reload the site.
+  const [seenPreview, setSeenPreview] = useState(false);
+  useEffect(() => {
+    if (tab === "preview") setSeenPreview(true);
+  }, [tab]);
   const exec = useExecutionContext();
   const chat = useAssistant(slug, initial, {
     onFocus: (target) => {
@@ -297,6 +305,11 @@ function StudioBody({
             tabIndex={0}
             className="min-h-0 flex-1 overflow-y-auto p-4"
           >
+            {exec.activeId && seenPreview ? (
+              <div hidden={tab !== "preview"}>
+                <ExecutionPreview />
+              </div>
+            ) : null}
             <div key={tab} className="panel-in">
               {tab === "plan" ? (
                 exec.activeId ? (
@@ -338,22 +351,45 @@ function StudioBody({
                   <CodeTab slug={slug} repository={git.repository?.fullName ?? null} />
                 </>
               ) : null}
-              {tab === "git" ? <GitTab slug={slug} git={git} canManage={canManage} /> : null}
+              {tab === "git" ? (
+                <>
+                  {exec.activeId ? <ExecutionGit /> : null}
+                  <GitTab slug={slug} git={git} canManage={canManage} />
+                </>
+              ) : null}
               {tab === "preview" ? (
-                <PreviewTab
-                  deployments={deploy.deployments}
-                  services={services}
-                  onPublish={() => setTab("publish")}
-                />
+                exec.activeId ? (
+                  <details className="mt-2">
+                    <summary className="cursor-pointer text-sm text-muted-foreground">
+                      {te("preview.published")}
+                    </summary>
+                    <div className="mt-3">
+                      <PreviewTab
+                        deployments={deploy.deployments}
+                        services={services}
+                        onPublish={() => setTab("publish")}
+                      />
+                    </div>
+                  </details>
+                ) : (
+                  <PreviewTab
+                    deployments={deploy.deployments}
+                    services={services}
+                    onPublish={() => setTab("publish")}
+                  />
+                )
               ) : null}
               {tab === "publish" ? (
-                <PublishTab
-                  slug={slug}
-                  target={deploy.target}
-                  deployments={deploy.deployments}
-                  services={services}
-                  canManage={canManage}
-                />
+                <>
+                  {exec.activeId ? <PublishStages /> : null}
+                  <PublishTab
+                    slug={slug}
+                    target={deploy.target}
+                    deployments={deploy.deployments}
+                    services={services}
+                    canManage={canManage}
+                  />
+                </>
               ) : null}
             </div>
           </div>

@@ -987,7 +987,114 @@
       "discard": "Buang rencana",
       "discardTitle": "Buang rencana ini?",
       "discardBody": "Rencana disisihkan. Belum ada yang dibangun, jadi tidak ada yang perlu dibatalkan.",
-      "discardConfirm": "Buang rencana"
+      "discardConfirm": "Buang rencana",
+      "diff": {
+        "refreshing": "Memperbarui",
+        "reading": "Membaca repositori",
+        "failed": "Perubahan tidak dapat dibaca.",
+        "noRepository": "Belum ada repositori yang terhubung, jadi tidak ada diff untuk ditampilkan.",
+        "unsupported": "Host repositori ini belum dapat menampilkan diff.",
+        "hostError": "Repositori tidak menjawab ({code}).",
+        "summary": "{files} berkas dalam {commits} commit",
+        "against": "dibanding",
+        "status": {
+          "added": "ditambahkan",
+          "modified": "diubah",
+          "removed": "dihapus",
+          "renamed": "diganti nama"
+        },
+        "noPatch": "Tidak ada diff teks untuk berkas ini.",
+        "truncated": "Hanya sebagian perubahan yang ditampilkan di sini.",
+        "claimed": "Berkas yang dilaporkan agen telah ditulis. Repositori belum mengonfirmasinya:"
+      },
+      "git": {
+        "title": "Branch kerja",
+        "noBranch": "Belum ada branch kerja. Branch dibuat bersama commit pertama.",
+        "branch": "Branch",
+        "base": "Berdasarkan",
+        "repository": "Repositori",
+        "remote": "Remote",
+        "localOnly": "Repositori ini ada di mesin ini. Tidak ada yang di-push ke mana pun.",
+        "onRemote": "{n} commit di repositori",
+        "notConfirmed": "Repositori belum mengonfirmasi commit apa pun.",
+        "lastCommit": "Commit terakhir",
+        "commits": "Commit",
+        "ci": "CI di branch ini",
+        "noCi": "Belum ada hasil CI untuk branch ini. Hubungkan event repositori di bagian Git di bawah untuk melihatnya."
+      },
+      "preview": {
+        "title": "Preview branch kerja",
+        "published": "Situs yang dipublikasikan",
+        "reading": "Mencari preview",
+        "noCommits": "Belum ada kode untuk di-preview.",
+        "noneYet": "Belum ada preview untuk branch ini.",
+        "noneYetHint": "Preview muncul saat repositori terhubung ke Vercel dan branch kerja sudah dibangun. Periksa tab Publish untuk koneksi Vercel.",
+        "building": "Membangun preview",
+        "failed": "Build preview gagal.",
+        "failedHint": "Buka build di Vercel atau tautan CI di tab Git untuk melihat sebabnya, lalu minta agen memperbaikinya.",
+        "check": "Periksa lagi",
+        "updated": "Diperbarui {when}",
+        "openNew": "Buka di tab baru",
+        "frame": "Preview branch kerja"
+      },
+      "stages": {
+        "title": "Dari kode sampai terbit",
+        "reading": "Memeriksa tahapan",
+        "failed": "Tahapan tidak dapat dibaca.",
+        "personNote": "Publish tetap keputusan Anda: merge branch kerja, lalu tekan Publish.",
+        "state": {
+          "done": "selesai",
+          "pending": "berjalan",
+          "blocked": "perlu perhatian",
+          "unknown": "belum diketahui"
+        },
+        "source": {
+          "name": "Kode ditulis",
+          "done": "Agen selesai dan commit ada di branch kerja.",
+          "pending": "Agen masih bekerja.",
+          "blocked": "Eksekusi tidak selesai.",
+          "unknown": "Belum ada kode yang di-commit.",
+          "no_commits": "Belum ada kode yang di-commit.",
+          "building": "Agen masih bekerja."
+        },
+        "build": {
+          "name": "Build lulus",
+          "done": "CI di branch kerja lulus.",
+          "pending": "CI sedang berjalan.",
+          "blocked": "CI gagal di branch kerja.",
+          "unknown": "Belum ada hasil CI untuk branch ini.",
+          "ci_failed": "CI gagal di branch kerja.",
+          "no_ci": "Belum ada hasil CI untuk branch ini."
+        },
+        "preview": {
+          "name": "Preview siap",
+          "done": "Preview branch kerja sudah aktif.",
+          "pending": "Preview sedang dibangun.",
+          "blocked": "Build preview gagal.",
+          "unknown": "Belum ada preview yang diketahui.",
+          "preview_failed": "Build preview gagal.",
+          "no_commits": "Belum ada kode untuk di-preview.",
+          "none_yet": "Belum ada preview yang diketahui."
+        },
+        "deploy": {
+          "name": "Siap deploy",
+          "done": "Proyek Vercel dan repositori sudah diatur.",
+          "pending": "Sedang diatur.",
+          "blocked": "Ada yang kurang.",
+          "unknown": "Deploy belum diatur.",
+          "no_repository": "Belum ada repositori yang terhubung.",
+          "target_error": "Koneksi Vercel melaporkan kesalahan.",
+          "not_set_up": "Deploy belum diatur."
+        },
+        "published": {
+          "name": "Terbit",
+          "done": "Ada deployment produksi yang lebih baru dari pekerjaan ini.",
+          "pending": "Sedang dipublikasikan.",
+          "blocked": "Publish gagal.",
+          "unknown": "Belum terbit. Seseorang melakukan merge dan menekan Publish.",
+          "not_published": "Belum terbit. Seseorang melakukan merge dan menekan Publish."
+        }
+      }
     }
   }
 }

@@ -76,9 +76,63 @@ export interface GitAdapter {
     token: string | null,
     input: { head: string; base: string; title: string; body: string },
   ): Promise<{ number: number; url: string }>;
+  /** Files and commits `head` has that `base` does not. Optional: a host without it is shown as unsupported. */
+  compare?(
+    ref: RepoRef,
+    token: string | null,
+    input: { base: string; head: string },
+  ): Promise<CompareResult>;
 }
 
 export const MAX_FILE_BYTES = 200_000;
+
+/** What a work branch changed against its base. The host's own answer, never one we assembled. */
+export interface CompareFile {
+  path: string;
+  status: "added" | "modified" | "removed" | "renamed";
+  additions: number;
+  deletions: number;
+  /** Unified diff of this file, cut to `MAX_PATCH_CHARS`; null when the host gives none (binary, too large). */
+  patch: string | null;
+}
+
+export interface CompareResult {
+  aheadBy: number;
+  files: CompareFile[];
+  commits: Array<{ sha: string; message: string }>;
+  /** True when there were more files or more text than is returned here. */
+  truncated: boolean;
+}
+
+export const MAX_COMPARE_FILES = 100;
+export const MAX_PATCH_CHARS = 20_000;
+export const MAX_TOTAL_PATCH_CHARS = 200_000;
+
+/** Cuts every patch to its limit and the whole to its limit; says if anything was cut. */
+export function limitCompare(files: CompareFile[]): { files: CompareFile[]; truncated: boolean } {
+  let truncated = files.length > MAX_COMPARE_FILES;
+  let budget = MAX_TOTAL_PATCH_CHARS;
+  const kept = files.slice(0, MAX_COMPARE_FILES).map((f) => {
+    if (f.patch === null) return f;
+    const room = Math.min(MAX_PATCH_CHARS, budget);
+    if (f.patch.length > room) truncated = true;
+    const patch = f.patch.slice(0, Math.max(room, 0));
+    budget -= patch.length;
+    return { ...f, patch };
+  });
+  return { files: kept, truncated };
+}
+
+/** Counts added and removed lines of a unified diff (headers excluded). */
+export function countPatch(patch: string): { additions: number; deletions: number } {
+  let additions = 0;
+  let deletions = 0;
+  for (const line of patch.split("\n")) {
+    if (line.startsWith("+") && !line.startsWith("+++")) additions++;
+    else if (line.startsWith("-") && !line.startsWith("---")) deletions++;
+  }
+  return { additions, deletions };
+}
 
 export interface TreeEntry {
   path: string;

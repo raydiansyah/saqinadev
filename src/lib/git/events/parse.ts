@@ -36,6 +36,8 @@ export type GitEvent =
       state: DeploymentState;
       url: string | null;
       sha: string | null;
+      /** The branch (or tag) the deployment was made from, when the host says. */
+      ref: string | null;
     };
 
 type Json = Record<string, unknown>;
@@ -144,6 +146,7 @@ export function parseGitEvent(event: string | null, payload: unknown): GitEvent 
         state,
         url: str(s.environment_url) ?? str(s.target_url),
         sha: str(d.sha),
+        ref: str(d.ref),
       };
     }
     default:

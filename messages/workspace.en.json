@@ -987,7 +987,114 @@
       "discard": "Discard plan",
       "discardTitle": "Discard this plan?",
       "discardBody": "The plan is set aside. Nothing was built, so nothing needs undoing.",
-      "discardConfirm": "Discard plan"
+      "discardConfirm": "Discard plan",
+      "diff": {
+        "refreshing": "Updating",
+        "reading": "Reading the repository",
+        "failed": "The changes could not be read.",
+        "noRepository": "No repository is connected, so there is no diff to show.",
+        "unsupported": "This repository host cannot show a diff yet.",
+        "hostError": "The repository did not answer ({code}).",
+        "summary": "{files} files in {commits} commits",
+        "against": "against",
+        "status": {
+          "added": "added",
+          "modified": "changed",
+          "removed": "deleted",
+          "renamed": "renamed"
+        },
+        "noPatch": "No text diff for this file.",
+        "truncated": "Only part of the changes is shown here.",
+        "claimed": "Files the agents reported writing. The repository has not confirmed them:"
+      },
+      "git": {
+        "title": "Work branch",
+        "noBranch": "No work branch yet. It is made with the first commit.",
+        "branch": "Branch",
+        "base": "Based on",
+        "repository": "Repository",
+        "remote": "Remote",
+        "localOnly": "This repository is on this machine. Nothing is pushed anywhere.",
+        "onRemote": "{n} commits on the repository",
+        "notConfirmed": "The repository has not confirmed any commit yet.",
+        "lastCommit": "Last commit",
+        "commits": "Commits",
+        "ci": "CI on this branch",
+        "noCi": "No CI result for this branch. Connect repository events in the Git section below to see it."
+      },
+      "preview": {
+        "title": "Preview of the work branch",
+        "published": "Published site",
+        "reading": "Looking for the preview",
+        "noCommits": "No code to preview yet.",
+        "noneYet": "No preview yet for this branch.",
+        "noneYetHint": "A preview appears when the repository is connected to Vercel and the work branch has been built. Check the Publish tab for the Vercel connection.",
+        "building": "Building the preview",
+        "failed": "The preview build failed.",
+        "failedHint": "Open the build in Vercel or the CI link in the Git tab to see why, then ask an agent to fix it.",
+        "check": "Check again",
+        "updated": "Updated {when}",
+        "openNew": "Open in a new tab",
+        "frame": "Preview of the work branch"
+      },
+      "stages": {
+        "title": "From code to published",
+        "reading": "Checking the stages",
+        "failed": "The stages could not be read.",
+        "personNote": "Publishing stays your decision: merge the work branch, then press Publish.",
+        "state": {
+          "done": "done",
+          "pending": "in progress",
+          "blocked": "needs attention",
+          "unknown": "not known"
+        },
+        "source": {
+          "name": "Code written",
+          "done": "The agents finished and the commits are on the work branch.",
+          "pending": "The agents are still working.",
+          "blocked": "The execution did not finish.",
+          "unknown": "No code has been committed.",
+          "no_commits": "No code has been committed.",
+          "building": "The agents are still working."
+        },
+        "build": {
+          "name": "Build passed",
+          "done": "CI on the work branch passed.",
+          "pending": "CI is running.",
+          "blocked": "CI failed on the work branch.",
+          "unknown": "No CI result is known for this branch.",
+          "ci_failed": "CI failed on the work branch.",
+          "no_ci": "No CI result is known for this branch."
+        },
+        "preview": {
+          "name": "Preview ready",
+          "done": "A preview of the work branch is up.",
+          "pending": "The preview is building.",
+          "blocked": "The preview build failed.",
+          "unknown": "No preview is known yet.",
+          "preview_failed": "The preview build failed.",
+          "no_commits": "No code to preview yet.",
+          "none_yet": "No preview is known yet."
+        },
+        "deploy": {
+          "name": "Ready to deploy",
+          "done": "The Vercel project and the repository are set up.",
+          "pending": "Setting up.",
+          "blocked": "Something is missing.",
+          "unknown": "Deployment is not set up yet.",
+          "no_repository": "No repository is connected.",
+          "target_error": "The Vercel connection reported an error.",
+          "not_set_up": "Deployment is not set up yet."
+        },
+        "published": {
+          "name": "Published",
+          "done": "A production deployment is newer than this work.",
+          "pending": "Publishing.",
+          "blocked": "Publishing failed.",
+          "unknown": "Not published. A person merges and presses Publish.",
+          "not_published": "Not published. A person merges and presses Publish."
+        }
+      }
     }
   }
 }

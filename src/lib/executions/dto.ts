@@ -106,3 +106,52 @@ export function toExecutionDTO(view: ExecutionViewModel): ExecutionDTO {
     progress: view.progress,
   };
 }
+
+/** The changes of the work branch against its base, as the repository host reports them. */
+export interface ExecutionDiffDTO {
+  /** `ok`: the host answered. The rest say plainly why there is nothing to show. */
+  status: "ok" | "no_branch" | "no_repository" | "unsupported" | "error";
+  code?: string;
+  base?: string;
+  head?: string;
+  aheadBy: number;
+  files: Array<{
+    path: string;
+    status: "added" | "modified" | "removed" | "renamed";
+    additions: number;
+    deletions: number;
+    patch: string | null;
+  }>;
+  commits: Array<{ sha: string; message: string }>;
+  truncated: boolean;
+}
+
+export type StageState = "done" | "pending" | "blocked" | "unknown";
+
+/** Where the work stands on the way from code to a published site. Each stage says what it knows. */
+export interface DeliveryDTO {
+  repository: { provider: string; fullName: string } | null;
+  branch: string | null;
+  ci: {
+    status: "none" | "running" | "passed" | "failed";
+    runs: Array<{
+      name: string;
+      status: string;
+      conclusion: string | null;
+      url: string | null;
+      updatedAt: string;
+    }>;
+  };
+  preview: {
+    status: "no_commits" | "none_yet" | "pending" | "ready" | "failed";
+    url: string | null;
+    updatedAt: string | null;
+  };
+  /** The last commit an agent made on the branch, from the host's own answer. */
+  lastCommit: { sha: string; at: string } | null;
+  stages: Array<{
+    key: "source" | "build" | "preview" | "deploy" | "published";
+    state: StageState;
+    detail: string | null;
+  }>;
+}

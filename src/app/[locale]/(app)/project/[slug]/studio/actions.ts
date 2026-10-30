@@ -10,6 +10,8 @@ import {
   setupDeployTarget,
   syncServiceEnv,
 } from "@/lib/deploy/service";
+import { getExecutionDelivery } from "@/lib/executions/delivery";
+import { getExecutionDiff } from "@/lib/executions/diff";
 import {
   buildFromPlan,
   cancelExecution,
@@ -127,4 +129,18 @@ export async function revisePlanAction(slug: string, executionId: string, input:
   return runAction("studio.execution.revise", { slug }, async () => {
     await revisePlan(await requireActor(), slug, executionId, input);
   });
+}
+
+/** What the work branch changed, from the repository host. Read only. */
+export async function getExecutionDiffAction(slug: string, executionId: string) {
+  return runAction("studio.execution.diff", { slug }, async () =>
+    getExecutionDiff(await requireActor(), slug, executionId),
+  );
+}
+
+/** CI, preview and the five publishing stages of an execution. Read only. */
+export async function getExecutionDeliveryAction(slug: string, executionId: string) {
+  return runAction("studio.execution.delivery", { slug }, async () =>
+    getExecutionDelivery(await requireActor(), slug, executionId),
+  );
 }

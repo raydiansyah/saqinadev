@@ -136,6 +136,8 @@ export interface VercelDeployment {
   state: "pending" | "success" | "failure" | "inactive";
   environment: "production" | "preview";
   sha: string | null;
+  /** The branch Vercel built from (`githubCommitRef`), when it knows. */
+  ref: string | null;
   createdAt: number | null;
 }
 
@@ -169,6 +171,7 @@ const toDeployment = (d: RawDeployment): VercelDeployment | null => {
     state: STATES[d.state ?? d.readyState ?? ""] ?? "pending",
     environment: d.target === "production" ? "production" : "preview",
     sha: d.meta?.githubCommitSha ?? null,
+    ref: d.meta?.githubCommitRef ?? null,
     createdAt: d.created ?? d.createdAt ?? null,
   };
 };

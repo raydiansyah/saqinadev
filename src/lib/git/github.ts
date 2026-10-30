@@ -1,5 +1,13 @@
 import { gitFetch } from "./http";
-import { type DocSyncOps, type GitAdapter, GitError, MAX_FILE_BYTES, type RepoRef } from "./types";
+import {
+  type CompareFile,
+  type DocSyncOps,
+  type GitAdapter,
+  GitError,
+  limitCompare,
+  MAX_FILE_BYTES,
+  type RepoRef,
+} from "./types";
 
 const api = (ref: RepoRef) => (ref.baseUrl || "https://api.github.com").replace(/\/+$/, "");
 const repo = (ref: RepoRef) =>
@@ -140,6 +148,48 @@ export const githubAdapter: GitAdapter & DocSyncOps = {
       body: JSON.stringify({ ref: `refs/heads/${input.name}`, sha: base.object.sha }),
     });
     return { name: input.name, sha: base.object.sha };
+  },
+
+  async compare(ref, token, input) {
+    const r = await gitFetch<{
+      ahead_by?: number;
+      commits?: Array<{ sha: string; commit?: { message?: string } }>;
+      files?: Array<{
+        filename: string;
+        status?: string;
+        additions?: number;
+        deletions?: number;
+        patch?: string;
+      }>;
+    }>(
+      `${repo(ref)}/compare/${encodeURIComponent(input.base)}...${encodeURIComponent(input.head)}?per_page=100`,
+      { headers: headers(token) },
+    );
+    const status = (s?: string): CompareFile["status"] =>
+      s === "added"
+        ? "added"
+        : s === "removed"
+          ? "removed"
+          : s === "renamed"
+            ? "renamed"
+            : "modified";
+    const all: CompareFile[] = (r.files ?? []).map((f) => ({
+      path: f.filename,
+      status: status(f.status),
+      additions: f.additions ?? 0,
+      deletions: f.deletions ?? 0,
+      patch: f.patch ?? null,
+    }));
+    const limited = limitCompare(all);
+    return {
+      aheadBy: r.ahead_by ?? (r.commits ?? []).length,
+      files: limited.files,
+      commits: (r.commits ?? []).map((c) => ({
+        sha: c.sha,
+        message: (c.commit?.message ?? "").split("\n")[0].slice(0, 200),
+      })),
+      truncated: limited.truncated,
+    };
   },
 
   async commitChanges(ref, token, input) {
