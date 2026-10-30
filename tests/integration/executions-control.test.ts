@@ -392,7 +392,7 @@ describe("a plan that changes before it is built", () => {
     expect(current.map((t) => t.title)).toEqual(["Checkout API"]);
     const old = view.tasks.filter((t) => t.planVersion === 1 && t.phase !== "plan");
     expect(old.every((t) => t.status === "cancelled")).toBe(true);
-    expect(view.progress.total).toBeLessThanOrEqual(2);
+    expect(view.progress.total).toBe(1);
   });
 
   it("refuses to rewrite a plan that is already being built", async () => {

@@ -1,5 +1,8 @@
 import "server-only";
+import { and, eq, lt, lte, or } from "drizzle-orm";
 import { after } from "next/server";
+import { db } from "@/lib/db/client";
+import { executionJobs } from "@/lib/db/schema";
 import { log } from "@/lib/log";
 
 /**
@@ -20,4 +23,26 @@ export function scheduleDrain(): void {
   } catch {
     // Not inside a request (a script or a test): the cron or an explicit drain runs them.
   }
+}
+
+/**
+ * Called when someone is looking at an execution: if a job of it is due and no worker has taken
+ * it (a cold stop, a missed cron), a drain starts. One cheap query; nothing runs when idle.
+ */
+export async function nudgeWorker(executionId: string): Promise<void> {
+  const now = new Date();
+  const [due] = await db
+    .select({ id: executionJobs.id })
+    .from(executionJobs)
+    .where(
+      and(
+        eq(executionJobs.executionId, executionId),
+        or(
+          and(eq(executionJobs.status, "pending"), lte(executionJobs.runAfter, now)),
+          and(eq(executionJobs.status, "running"), lt(executionJobs.lockedUntil, now)),
+        ),
+      ),
+    )
+    .limit(1);
+  if (due) scheduleDrain();
 }

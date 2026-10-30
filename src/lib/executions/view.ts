@@ -15,6 +15,8 @@ import {
 } from "@/lib/db/schema";
 import type { AgentLiveStatus, ExecutionTaskStatus } from "@/lib/domain/executions";
 import { AppError } from "@/lib/errors";
+import { type ExecutionSnapshotDTO, toExecutionDTO } from "./dto";
+import { latestEvents } from "./events";
 import { definitionsOf } from "./snapshot";
 import { liveStatus } from "./state";
 
@@ -151,8 +153,10 @@ export async function getExecutionView(actor: Actor, slug: string, executionId: 
       };
     });
   // Progress is about the plan as it stands now; an older version of the plan is history.
+  // The planning task is how the plan got made, not part of what the plan builds, so it is not counted.
   const counted = taskViews.filter(
-    (t) => t.planVersion === execution.planVersion && t.status !== "cancelled",
+    (t) =>
+      t.planVersion === execution.planVersion && t.phase !== "plan" && t.status !== "cancelled",
   );
   return {
     execution,
@@ -170,3 +174,22 @@ export async function getExecutionView(actor: Actor, slug: string, executionId: 
 }
 
 export type ExecutionViewModel = Awaited<ReturnType<typeof getExecutionView>>;
+
+/** The execution as the browser takes it: the view and the latest events, as plain JSON. */
+export async function getExecutionSnapshot(actor: Actor, slug: string, executionId: string) {
+  const view = await getExecutionView(actor, slug, executionId);
+  const events = await latestEvents(
+    db,
+    { executionId: view.execution.id, projectId: view.execution.projectId },
+    100,
+  );
+  return {
+    execution: toExecutionDTO(view),
+    events: events.map((e) => ({
+      seq: e.seq,
+      type: e.type,
+      payload: e.payload,
+      createdAt: e.createdAt.toISOString(),
+    })),
+  } satisfies ExecutionSnapshotDTO;
+}

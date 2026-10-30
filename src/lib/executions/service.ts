@@ -14,6 +14,7 @@ import { EventBatch } from "@/lib/events/emitter";
 import { allow } from "@/lib/rate-limit";
 import { parse } from "@/lib/validation";
 import { cancelIdleTasks, settleCancellation } from "./cancel";
+import { recordExecutionInChat } from "./chat";
 import { appendEvent } from "./events";
 import { enqueueDispatch, enqueueJob } from "./jobs";
 import { moveExecution, moveTask } from "./lifecycle";
@@ -131,11 +132,17 @@ export async function startExecution(
         createdBy: actor.id,
       })
       .returning();
-    await appendEvent(tx, scopeOf(execution), "execution.created", {
+    const recorded = await recordExecutionInChat(
+      tx,
+      access,
+      execution,
+      data.conversationId ?? null,
+    );
+    await appendEvent(tx, scopeOf(recorded), "execution.created", {
       mode: data.mode,
       request: data.request.slice(0, 300),
     });
-    await addPlanningTask(tx, execution);
+    await addPlanningTask(tx, recorded);
     await enqueueJob(tx, { ...scopeOf(execution), kind: "plan", key: "plan:1" });
     await recordAudit(tx, {
       actorId: actor.id,
@@ -146,7 +153,7 @@ export async function startExecution(
       entityId: execution.id,
       metadata: { mode: data.mode },
     });
-    return execution;
+    return recorded;
   });
   scheduleDrain();
   return row;

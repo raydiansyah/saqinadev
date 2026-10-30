@@ -816,6 +816,178 @@
         "download": "Unduh .env.local",
         "downloadHint": "Berisi nilai Lokal (atau Preview bila Lokal kosong), tidak pernah nilai live. Setiap unduhan dicatat."
       }
+    },
+    "execution": {
+      "status": {
+        "queued": "Antre",
+        "planning": "Menyusun rencana",
+        "planned": "Rencana siap",
+        "running": "Berjalan",
+        "waiting_approval": "Menunggu persetujuan",
+        "succeeded": "Berhasil",
+        "failed": "Gagal",
+        "cancelling": "Membatalkan",
+        "cancelled": "Dibatalkan",
+        "pending": "Menunggu",
+        "waiting_agent": "Menunggu agen",
+        "blocked": "Terhambat",
+        "reviewing": "Meninjau",
+        "idle": "Menganggur"
+      },
+      "mode": {
+        "plan": "Plan",
+        "build": "Build"
+      },
+      "modeLabel": "Apa yang harus dilakukan Saqina dengan pesan ini?",
+      "modes": {
+        "chat": "Chat",
+        "plan": "Plan",
+        "build": "Build"
+      },
+      "modeHint": {
+        "chat": "Bertanya dan berdiskusi. Tidak ada yang diubah.",
+        "plan": "Saqina menyusun tugas dan siapa yang mengerjakannya. Tidak ada yang dibangun sampai Anda menekan Bangun rencana ini.",
+        "build": "Agen mulai bekerja di branch kerja. Merge dan publish tetap di tangan Anda."
+      },
+      "elapsed": "Berjalan {time}",
+      "connection": {
+        "polling": "Pembaruan langsung tidak tersedia, memeriksa setiap beberapa detik",
+        "reconnecting": "Menyambung ulang ke pembaruan langsung"
+      },
+      "buildPlan": "Bangun rencana ini",
+      "cancel": "Hentikan",
+      "cancelTitle": "Hentikan eksekusi ini?",
+      "cancelBody": "Pekerjaan yang tidak sedang dikerjakan berhenti sekarang. Tugas yang sedang berjalan menyelesaikan langkahnya dulu, dan eksekusi tertulis Membatalkan sampai selesai.",
+      "cancelConfirm": "Hentikan eksekusi",
+      "cancellingNote": "Sedang menghentikan. Ada tugas yang masih menyelesaikan langkahnya.",
+      "progress": "{done} dari {total} tugas selesai",
+      "progressNone": "Belum ada tugas",
+      "progressLabel": "Tugas yang selesai",
+      "reasons": {
+        "dependency_failed": "Menunggu tugas yang tidak selesai. Coba lagi tugas itu untuk melepas yang ini.",
+        "no_agent": "Tidak ada agen yang menyala untuk peran \"{role}\". Nyalakan satu di registri agen, lalu coba lagi.",
+        "review_failed_no_budget": "Tinjauan menemukan cacat dan eksekusi tidak punya ruang untuk revisi lagi.",
+        "commit_not_allowed": "Agen ini tidak boleh commit kode. Owner dapat mengizinkannya di registri agen.",
+        "repository_not_connected": "Belum ada repositori yang terhubung. Hubungkan satu di tab Git.",
+        "no_model": "Belum ada model AI yang diatur, jadi tidak ada yang bisa direncanakan atau ditulis. Minta owner platform menambahkannya.",
+        "plan_invalid": "Rencana ditolak: {detail}.",
+        "access_lost": "Orang yang memulai ini sudah tidak punya akses ke proyek.",
+        "model_failed": "Model AI tidak menjawab.",
+        "tasks_failed": "Satu tugas atau lebih gagal.",
+        "blocked": "Tidak ada yang bisa bergerak: semua tugas yang terbuka terhambat.",
+        "deadline": "Batas waktu eksekusi ini habis.",
+        "no_changes": "Agen tidak mengembalikan perubahan.",
+        "write_refused": "Sebuah perubahan ditolak sebelum ditulis: {detail}.",
+        "git_failed": "Repositori menolak operasi itu: {detail}.",
+        "executor_error": "Agen berhenti karena kesalahan.",
+        "timeout": "Agen kehabisan waktu.",
+        "cancelled": "Dibatalkan.",
+        "cancelled_by_user": "Dihentikan atas permintaan.",
+        "worker_lost": "Pekerja berhenti sebelum tugas selesai.",
+        "superseded": "Diganti versi rencana yang lebih baru.",
+        "execution_failed": "Eksekusi gagal saat tugas ini berjalan.",
+        "no_work_to_review": "Tidak ada perubahan kode untuk ditinjau.",
+        "approval_required": "Langkah ini perlu persetujuan.",
+        "executor_unavailable": "Tidak ada yang terhubung untuk mengerjakan ini."
+      },
+      "noOwner": "Belum ada peran pemilik",
+      "attempts": "percobaan {n}",
+      "revision": "revisi",
+      "waitsFor": "Menunggu: {titles}",
+      "criteria": "Kriteria penerimaan ({n})",
+      "retry": "Coba lagi",
+      "goal": "Tujuan",
+      "risks": "Risiko ({n})",
+      "noTasksFailed": "Rencana tidak berhasil dibuat.",
+      "planning": "Saqina sedang menyusun rencana. Tugas muncul di sini saat rencana siap.",
+      "step": "Langkah {n}",
+      "revise": "Ubah rencana",
+      "reviseLabel": "Apa yang perlu berbeda?",
+      "reviseHint": "Tugas rencana ini disisihkan dan rencana dibuat ulang.",
+      "reviseSubmit": "Rencanakan ulang",
+      "reviseCancel": "Pertahankan rencana ini",
+      "agents": "Agen",
+      "agentIdle": "Belum ada yang dikerjakan",
+      "blockers": "Perlu perhatian",
+      "handoffs": "Serah terima dan pesan",
+      "noHandoffs": "Belum ada pesan antar agen.",
+      "everyone": "semua",
+      "orchestrator": "Saqina",
+      "activity": "Aktivitas",
+      "noActivity": "Belum ada yang terjadi.",
+      "showEarlier": "Tampilkan {n} sebelumnya",
+      "messageTypes": {
+        "assignment": "penugasan",
+        "handoff": "serah terima",
+        "info_request": "pertanyaan",
+        "decision": "keputusan",
+        "dependency_ready": "siap dimulai",
+        "blocker": "hambatan",
+        "review_request": "permintaan tinjauan",
+        "review_feedback": "masukan tinjauan",
+        "test_result": "hasil uji",
+        "conflict": "konflik",
+        "completion": "selesai",
+        "failure": "kegagalan"
+      },
+      "events": {
+        "execution": {
+          "created": "Dimulai",
+          "started": "Pekerjaan dimulai",
+          "completed": "Semuanya selesai",
+          "failed": "Eksekusi gagal",
+          "cancelled": "Eksekusi dibatalkan"
+        },
+        "task": {
+          "created": "Tugas ditambahkan: {title}",
+          "started": "{agent} memulai {task}",
+          "completed": "{agent} menyelesaikan {task}",
+          "failed": "{task} gagal",
+          "blocked": "{task} terhambat",
+          "cancelled": "{task} dibatalkan"
+        },
+        "agent": {
+          "message_created": "{agent}: pesan tentang {task}",
+          "handoff_created": "{agent} menyerahkan pekerjaan ke {to}"
+        },
+        "artifact": {
+          "created": "Hasil baru: {path}"
+        },
+        "git": {
+          "operation_completed": "Commit {sha} di branch kerja"
+        },
+        "preview": {
+          "build_started": "Preview sedang dibangun",
+          "updated": "Preview diperbarui",
+          "failed": "Preview gagal"
+        },
+        "approval": {
+          "required": "Perlu persetujuan",
+          "completed": "Persetujuan diberikan"
+        }
+      },
+      "startedElsewhere": "Rencana atau build dimulai di sini. Buka Studio untuk mengikutinya.",
+      "openStudio": "Buka Studio",
+      "loading": "Memuat eksekusi",
+      "openWork": "Tampilkan di area kerja",
+      "codeChanges": "Perubahan oleh agen",
+      "noCodeYet": "Belum ada kode yang berubah.",
+      "onBranch": "Di branch",
+      "pick": "Eksekusi",
+      "otherRuns": "Run agen sebelumnya",
+      "gone": "Eksekusi ini tidak dapat ditampilkan.",
+      "loadFailed": "Eksekusi tidak dapat dimuat.",
+      "tryAgain": "Coba lagi",
+      "startErrors": {
+        "CONFLICT": "Proyek ini sudah punya eksekusi terbuka sebanyak yang bisa dijalankan. Tunggu satu selesai atau hentikan.",
+        "RATE_LIMIT": "Terlalu banyak permulaan dalam waktu singkat. Coba lagi beberapa menit lagi.",
+        "VALIDATION_ERROR": "Tidak ada yang bisa dimulai: belum ada agen yang menyala. Owner platform dapat menyalakannya."
+      },
+      "took": "Berlangsung {time}",
+      "discard": "Buang rencana",
+      "discardTitle": "Buang rencana ini?",
+      "discardBody": "Rencana disisihkan. Belum ada yang dibangun, jadi tidak ada yang perlu dibatalkan.",
+      "discardConfirm": "Buang rencana"
     }
   }
 }

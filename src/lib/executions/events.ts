@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, eq, gt, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, sql } from "drizzle-orm";
 import type { Executor } from "@/lib/db/client";
 import { executionEvents, executions } from "@/lib/db/schema";
 import type { ExecutionEventType } from "@/lib/domain/executions";
@@ -69,4 +69,24 @@ export async function listEventsSince(
     )
     .orderBy(asc(executionEvents.seq))
     .limit(Math.min(Math.max(limit, 1), 500));
+}
+
+/** The newest `limit` events, oldest first: the start of the activity list after a page load. */
+export async function latestEvents(
+  executor: Executor,
+  scope: { executionId: string; projectId: string },
+  limit = 100,
+): Promise<ExecutionEventRow[]> {
+  const rows = await executor
+    .select()
+    .from(executionEvents)
+    .where(
+      and(
+        eq(executionEvents.executionId, scope.executionId),
+        eq(executionEvents.projectId, scope.projectId),
+      ),
+    )
+    .orderBy(desc(executionEvents.seq))
+    .limit(Math.min(Math.max(limit, 1), 300));
+  return rows.reverse();
 }

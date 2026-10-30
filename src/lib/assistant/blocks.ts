@@ -62,6 +62,8 @@ export const block = z.discriminatedUnion("type", [
   z.object({ type: z.literal("action"), items: z.array(executedItem).max(30) }),
   z.object({ type: z.literal("proposal"), proposalId: z.uuid() }),
   z.object({ type: z.literal("agent_run"), runId: z.uuid() }),
+  /** A plan or build the person started from the composer. The card shows its live state. */
+  z.object({ type: z.literal("execution"), executionId: z.uuid() }),
   /** A connector tool the chat ran: its name, source and a plain-text excerpt of the result. */
   z.object({
     type: z.literal("tool_result"),

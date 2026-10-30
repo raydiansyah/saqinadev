@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { type FormEvent, type ReactNode, useEffect, useRef, useState } from "react";
 import { AiLabel } from "@/components/primitives/ai-label";
 import { LocalTime } from "@/components/primitives/local-time";
+import { ExecutionCard } from "@/components/studio/execution/chat-card";
 import { cn } from "@/lib/utils";
 import { ProposalCard } from "./blocks/proposal-card";
 import { RunCard } from "./blocks/run-card";
@@ -302,6 +303,8 @@ export function MessageItem({
                 const view = runs[block.runId];
                 return view ? <RunCard key={key} slug={slug} view={view} /> : null;
               }
+              case "execution":
+                return <ExecutionCard key={key} slug={slug} executionId={block.executionId} />;
               case "error":
                 return <ErrorBlock key={key} code={block.code} reference={block.ref} />;
               default:

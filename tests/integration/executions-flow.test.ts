@@ -101,7 +101,7 @@ describe("planning", () => {
     );
     expect(view.execution.status).toBe("succeeded");
     expect(calls).toHaveLength(3);
-    expect(view.progress).toEqual({ done: 4, total: 4 });
+    expect(view.progress).toEqual({ done: 3, total: 3 });
   });
 
   it("stops with the real reason when no model is set up, and never pretends", async () => {
@@ -290,7 +290,7 @@ describe("what an agent is given and what it leaves", () => {
     expect(by("frontend")?.status).toBe("waiting_agent");
     expect(by("qa")?.status).toBe("waiting_agent");
     expect(by("devops")?.status).toBe("idle");
-    expect(view.progress.done).toBe(1); // only the planning task has finished
+    expect(view.progress.done).toBe(0); // the planning task is not counted
     hold.open();
     await drained;
     const done = await getExecutionView(owner, slug, execution.id);
