@@ -8,7 +8,6 @@ import { AppError } from "@/lib/errors";
 import { EventBatch } from "@/lib/events/emitter";
 import { log } from "@/lib/log";
 import { allow } from "@/lib/rate-limit";
-import { withSecret } from "@/lib/secrets/service";
 import { ADAPTERS } from "./adapters";
 import { AiProviderError } from "./adapters/http";
 import { resolutionInput } from "./catalog";
@@ -16,6 +15,7 @@ import { type AiDiagnostics, NO_DIAGNOSTICS } from "./diagnostics";
 import { MockAiProvider } from "./mock";
 import { type CatalogModel, missingCapabilities, resolveModel } from "./model-resolver";
 import type { AiProvider } from "./provider";
+import { usesNoKey, withProviderSecret } from "./provider-secret";
 import { getAiProvider } from "./registry";
 
 export type ResolvedSource =
@@ -152,22 +152,18 @@ export async function runAi<T>(call: AiCall<T>): Promise<AiOutcome<T>> {
 
   for (const [index, candidate] of resolution.chain.entries()) {
     const provider = providers.find((p) => p.id === candidate.model.providerId);
-    if (!provider?.credentialId) continue;
+    if (!provider || (!provider.credentialId && !usesNoKey(provider.adapter))) continue;
     const started = performance.now();
     let client: AiProvider | null = null;
     try {
-      const value = await withSecret(
-        provider.credentialId,
-        { kind: "ai_provider", userId: provider.ownerUserId },
-        (secret) => {
-          client = ADAPTERS[provider.adapter].createClient(
-            { baseUrl: provider.baseUrl, configuration: provider.configuration },
-            secret,
-            candidate.model.modelId,
-          );
-          return call.run(client);
-        },
-      );
+      const value = await withProviderSecret(provider, (secret) => {
+        client = ADAPTERS[provider.adapter].createClient(
+          { baseUrl: provider.baseUrl, configuration: provider.configuration },
+          secret,
+          candidate.model.modelId,
+        );
+        return call.run(client);
+      });
       const fallbackUsed = index > 0;
       await recordUsage({
         projectId,

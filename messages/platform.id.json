@@ -71,7 +71,8 @@
         "openai": "OpenAI",
         "openai_compatible": "Kompatibel OpenAI",
         "gemini": "Google Gemini",
-        "vercel_gateway": "Vercel AI Gateway"
+        "vercel_gateway": "Vercel AI Gateway",
+        "local_cli": "CLI lokal"
       },
       "statuses": {
         "connected": "Terhubung",
@@ -91,7 +92,8 @@
         "bad_response": "Respons tidak terduga",
         "provider_error": "Error dari penyedia",
         "no_credential": "Belum ada API key"
-      }
+      },
+      "cliLogin": "Masuk dengan login CLI itu sendiri di server"
     },
     "models": {
       "title": "Model",
@@ -226,7 +228,9 @@
       "urlKey": "Tulis '{apiKey}' di URL pada posisi key.",
       "notLocal": "Gunakan alamat localhost untuk server lokal.",
       "taken": "Kunci itu sudah dipakai.",
-      "unknown": "Nilai tidak dikenal."
+      "unknown": "Nilai tidak dikenal.",
+      "cliOff": "CLI lokal dimatikan di server ini (ALLOW_LOCAL_CLI).",
+      "cliNotInstalled": "CLI itu tidak terpasang di server ini."
     },
     "skills": {
       "title": "Skill",
@@ -376,6 +380,22 @@
       "skillOff": "dimatikan",
       "skillMissing": "tidak lagi terpasang",
       "skillsManage": "Pasang atau kelola skill"
+    },
+    "cli": {
+      "title": "CLI lokal",
+      "intro": "Pakai CLI yang sudah login di mesin yang menjalankan Saqina, seperti Claude Code, Codex, atau OpenCode, sebagai pengganti API key. Saqina hanya menjalankan program ini di folder sementara yang kosong, tanpa tool dan tanpa rahasia miliknya. Hanya owner platform yang melihat ini.",
+      "off": "CLI lokal dimatikan di server ini. Orang yang menjalankan server menyalakannya dengan",
+      "installed": "Terpasang",
+      "notInstalled": "Tidak terpasang di server ini",
+      "login": "Login di server dengan",
+      "connected": "Terhubung",
+      "notConnected": "Belum terhubung",
+      "connect": "Hubungkan dan uji",
+      "recheck": "Uji lagi",
+      "working": "Memproses...",
+      "testOk": "CLI menjawab. Sekarang ia ada di daftar provider di bawah dan bisa dijadikan model.",
+      "testFailed": "CLI tidak menjawab. Pastikan ia sudah login di server, lalu uji lagi.",
+      "rescan": "Muat ulang halaman ini setelah memasang atau login ke CLI untuk melihat perubahan."
     }
   },
   "integrations": {

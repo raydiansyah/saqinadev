@@ -165,6 +165,24 @@ DATABASE_URL_E2E=postgres://user@localhost:5432/saqinadev_e2e pnpm e2e
 Migrations `0036_executions` and `0037_task_revisions` only add tables and columns, so redeploying the
 previous version works without touching the database. Old executions stay in the tables.
 
+## Local CLI as an AI provider (Claude Code, Codex, OpenCode)
+
+An alternative to an API key, for a self-hosted server or a development machine. Decision:
+[ADR 0023](adr/0023-local-cli-provider.md). It does not work on Vercel (no CLI is installed there).
+
+1. Install the CLI on the machine that runs Saqina and log it in **as the user that runs Saqina**:
+   `claude auth login`, `codex login` or `opencode auth login`.
+2. Set `ALLOW_LOCAL_CLI=1` in that server's environment and restart. Without it the section says it
+   is off and nothing is started.
+3. As a platform Owner open **AI & Models > Providers > Local CLI** and press **Connect and test**.
+   The CLI becomes a provider with its models; set it as the default or map it to an agent role as usual.
+4. To stop using it: **Disconnect** or **Disable** the provider. Every change is in the audit log.
+
+If a test fails: confirm the CLI answers in a terminal as the server's user (`claude -p "hi"`), that
+its login has not expired, and that the server user's home is readable. Saqina passes the CLI only the
+home, search path and proxy settings, so a login kept in a different variable must be set up as a
+file-based login. A run is stopped after 3 minutes.
+
 ## Deploy
 
 1. Merge the pull request into `main` (no direct pushes).

@@ -2,7 +2,7 @@
 title: Studio, skills and connectors
 description: Start building from an approved PRD, work in the Studio, generate a PRD with Enhance, choose your own AI model in the chat, keep env the same locally and in Saqina, and set up skills, connectors and agent models.
 order: 5
-updated: 2026-10-30
+updated: 2026-10-31
 ---
 
 This guide covers the path from an agreed PRD to work in progress, and the platform settings that the assistant and agents use in every project.
@@ -63,6 +63,25 @@ Under **AI & Models**:
 ![Skills under AI & Models, with Superpowers built in](/api/docs/assets/owner/studio-03-skills.png)
 
 ![Connectors under AI & Models: Firecrawl, Exa, Context7 and a custom MCP server](/api/docs/assets/owner/studio-04-connectors.png)
+
+## Use a CLI that is logged in on the server (platform owner)
+
+Instead of an API key you can use Claude Code, Codex or OpenCode that is already logged in on the machine that runs Saqina. Under **AI & Models**, **Providers**, the **Local CLI** section lists the three, whether each is installed on this server, and its version.
+
+![The Local CLI section: Claude Code installed and connected, Codex and OpenCode not installed](/api/docs/assets/owner/providers-01-local-cli.png)
+
+1. Log the CLI in on the server, as the user that runs Saqina. The page shows the command, for example `claude auth login`.
+2. Press **Connect and test**. Saqina asks the CLI a short question. When it answers, the CLI appears in the provider list below with its models, and you can set it as the default model or map it to an agent role under **Agent mapping**.
+3. To stop using it, **Disconnect** or **Disable** it in the provider list. Pressing **Connect and test** again brings it back.
+
+Good to know:
+
+- Only platform owners see and manage this, and every change is in the audit log.
+- It is **off** until the person who runs the server sets `ALLOW_LOCAL_CLI=1`. The page says so while it is off.
+- It only works with a CLI installed on the same machine as the server. On Vercel the CLIs show as not installed.
+- Saqina starts the CLI in an empty temporary folder, with no tools, and without its own keys or database address. The CLI answers; it cannot read or change files.
+- The CLI uses the server user's login, so everything that uses this provider shares that login.
+- The CLI sends its answer when it is finished, so text does not appear word by word.
 
 ## Databases and sign-in for your app
 

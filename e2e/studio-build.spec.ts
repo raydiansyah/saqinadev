@@ -129,6 +129,7 @@ test("Plan makes a plan and builds nothing until Build this plan is pressed", as
 test("the Owner switches an agent off, and the next build says so instead of pretending", async ({
   page,
 }) => {
+  test.setTimeout(240_000);
   await signIn(page);
   await page.goto("/en/dashboard/ai/agents");
   await expect(page.getByRole("heading", { name: "Agent registry" })).toBeVisible();
@@ -151,7 +152,9 @@ test("the Owner switches an agent off, and the next build says so instead of pre
   await expect(again).toContainText("On");
   await openStudio(page);
   await send(page, "Build", "Add a loyalty card");
-  await expect(state(page)).toHaveText("Build: Succeeded", { timeout: 60_000 });
+  // Earlier builds in this run use up the project's per-minute git calls, so a task can be told to
+  // wait and is retried by the queue. Nothing runs the cron here, so the retry can take a while.
+  await expect(state(page)).toHaveText("Build: Succeeded", { timeout: 150_000 });
 });
 
 test("a person who is not the platform Owner cannot see or use the agent registry", async ({
@@ -272,4 +275,36 @@ test("Start building on the approved PRD starts a Build, and the chat shows it l
   ).toBeVisible();
   await expect(state(page)).toHaveText("Build: Succeeded", { timeout: 90_000 });
   expect(await page.evaluate(() => (window as unknown as { __kept?: boolean }).__kept)).toBe(true);
+});
+
+test.describe("local CLI as an AI provider", () => {
+  test.skip(
+    !process.env.ALLOW_LOCAL_CLI,
+    "Needs ALLOW_LOCAL_CLI=1 and a logged-in CLI on this machine",
+  );
+
+  test("the Owner connects Claude Code from AI & Models; a member cannot reach it", async ({
+    page,
+  }) => {
+    await signIn(page);
+    await page.goto("/en/dashboard/ai/providers");
+    const card = page.getByRole("listitem").filter({ hasText: "Claude Code" }).first();
+    await expect(card).toContainText("Installed");
+    await expect(card).toContainText("Not connected");
+    await card.getByRole("button", { name: "Connect and test" }).click();
+    await expect(card).toContainText("Connected", { timeout: 120_000 });
+    await expect(page.getByText("The CLI answered.")).toBeVisible();
+    // It is now an ordinary provider with models, which the Owner can disconnect.
+    const provider = page.getByRole("listitem").filter({ hasText: "Claude Code (local CLI)" });
+    await expect(provider).toContainText("Local CLI");
+    await expect(provider.getByRole("button", { name: "Edit" })).toHaveCount(0);
+    await expect(provider.getByRole("button", { name: "Disconnect" })).toBeVisible();
+  });
+
+  test("a member who is not the platform Owner cannot see the CLI section", async ({ page }) => {
+    await signIn(page, "member@example.test");
+    await page.goto("/en/dashboard/ai/providers");
+    await expect(page.getByText("This page is not part of the project yet.")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Local CLI" })).toHaveCount(0);
+  });
 });

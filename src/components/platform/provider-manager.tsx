@@ -73,7 +73,10 @@ export function ProviderManager({ providers }: { providers: ProviderView[] }) {
                       </p>
                     ) : null}
                     <p className="mt-1 text-xs text-muted-foreground">
-                      {t("credential")}: {p.hasCredential ? t("connected") : t("notConnected")} ·{" "}
+                      {p.adapter === "local_cli"
+                        ? t("cliLogin")
+                        : `${t("credential")}: ${p.hasCredential ? t("connected") : t("notConnected")}`}{" "}
+                      ·{" "}
                       {p.lastTestedAt
                         ? t("lastTested", {
                             time: formatRelative(new Date(p.lastTestedAt), locale),
@@ -114,9 +117,11 @@ export function ProviderManager({ providers }: { providers: ProviderView[] }) {
                   >
                     {pending ? t("testing") : t("test")}
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => setEditing(p)}>
-                    {t("edit")}
-                  </Button>
+                  {p.adapter === "local_cli" ? null : (
+                    <Button size="sm" variant="ghost" onClick={() => setEditing(p)}>
+                      {t("edit")}
+                    </Button>
+                  )}
                   <Button
                     size="sm"
                     variant="ghost"
@@ -209,7 +214,7 @@ function ProviderDialog({
             label={t("adapter")}
             defaultValue={provider?.adapter ?? "anthropic"}
           >
-            {PROVIDER_ADAPTERS.map((a) => (
+            {PROVIDER_ADAPTERS.filter((a) => a !== "local_cli").map((a) => (
               <option key={a} value={a}>
                 {t(`adapters.${a}`)}
               </option>

@@ -25,12 +25,13 @@ import { AppError } from "@/lib/errors";
 import { slugify } from "@/lib/interview/rules/profile";
 import { assertSafeEndpoint } from "@/lib/net/endpoint-guard";
 import { requirePlatformOwner } from "@/lib/platform/roles";
-import { recordTest, revokeCredential, storeCredential, withSecret } from "@/lib/secrets/service";
+import { recordTest, revokeCredential, storeCredential } from "@/lib/secrets/service";
 import { parse } from "@/lib/validation";
 import { ADAPTERS } from "./adapters";
 import { loadCatalog, platformSettings } from "./catalog";
 import { displayNameFor, inferCapabilities, isChatModel } from "./model-capabilities";
 import { DEFAULT_POLICY, modelUsable, validateMapping } from "./model-resolver";
+import { usesNoKey, withProviderSecret } from "./provider-secret";
 
 /**
  * Owner-only management of providers, models, defaults, agent mappings and policy. Every
@@ -40,7 +41,8 @@ import { DEFAULT_POLICY, modelUsable, validateMapping } from "./model-resolver";
 const providerInput = z.object({
   name: z.string().trim().min(2).max(60),
   type: z.enum(PROVIDER_TYPES),
-  adapter: z.enum(PROVIDER_ADAPTERS),
+  // A local CLI is connected from its own section, never through this form.
+  adapter: z.enum(PROVIDER_ADAPTERS).refine((a) => !usesNoKey(a), "keyless"),
   baseUrl: z.string().trim().max(300).nullish(),
   /** Write-only. Empty keeps the current secret. */
   secret: z.string().trim().max(500).optional(),
@@ -80,7 +82,7 @@ export async function listProviders(actor: Actor): Promise<ProviderView[]> {
     baseUrl: p.baseUrl,
     status: p.status,
     enabled: p.enabled,
-    hasCredential: Boolean(p.credentialId),
+    hasCredential: usesNoKey(p.adapter) ? p.status !== "disconnected" : Boolean(p.credentialId),
     lastTestedAt: p.lastTestedAt,
     modelCount: counts.find((c) => c.providerId === p.id)?.n ?? 0,
   }));
@@ -237,10 +239,10 @@ export async function testProvider(actor: Actor, input: unknown) {
     .from(aiProviders)
     .where(and(eq(aiProviders.id, id), isNull(aiProviders.ownerUserId)));
   if (!row) throw new AppError("NOT_FOUND");
-  if (!row.credentialId)
+  if (!row.credentialId && !usesNoKey(row.adapter))
     return { ok: false, code: "no_credential" as const, models: [] as string[] };
   const adapter = ADAPTERS[row.adapter];
-  const result = await withSecret(row.credentialId, { kind: "ai_provider" }, (secret) =>
+  const result = await withProviderSecret(row, (secret) =>
     adapter.test({ baseUrl: row.baseUrl, configuration: row.configuration }, secret),
   );
   const status = result.ok ? "connected" : result.code === "auth_failed" ? "unauthorized" : "error";
@@ -520,9 +522,10 @@ export async function fetchProviderModels(actor: Actor, input: unknown) {
     .from(aiProviders)
     .where(and(eq(aiProviders.id, providerId), isNull(aiProviders.ownerUserId)));
   if (!row) throw new AppError("NOT_FOUND");
-  if (!row.credentialId) return { ok: false as const, code: "no_credential" as const, models: [] };
+  if (!row.credentialId && !usesNoKey(row.adapter))
+    return { ok: false as const, code: "no_credential" as const, models: [] };
   const adapter = ADAPTERS[row.adapter];
-  const result = await withSecret(row.credentialId, { kind: "ai_provider" }, (secret) =>
+  const result = await withProviderSecret(row, (secret) =>
     adapter.test({ baseUrl: row.baseUrl, configuration: row.configuration }, secret),
   );
   if (!result.ok) return { ok: false as const, code: result.code, models: [] };

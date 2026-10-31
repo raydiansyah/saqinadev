@@ -424,6 +424,8 @@ export const PROVIDER_ADAPTERS = [
   "openai_compatible",
   "gemini",
   "vercel_gateway",
+  /** A CLI logged in on the server's own machine; no key. See `ai/cli`. */
+  "local_cli",
 ] as const;
 export type ProviderAdapterId = (typeof PROVIDER_ADAPTERS)[number];
 

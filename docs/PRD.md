@@ -122,6 +122,7 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 | A15 | Platform connectors: the owner connects MCP servers once (Firecrawl, Exa, Context7 presets, or a custom server over streamable HTTP) with encrypted keys; their tools reach every project under the same policy, audit and approval; agents read through enabled low-risk tools | Built |
 | A16 | Agent settings pick the model from the models already set up, or Automatic (the project and platform defaults); a pin for Saqina's agents is what their runs use, within the platform policy | Built |
 | A17 | Own AI gateway in the Studio chat: a person adds their own OpenAI, Anthropic or Gemini API key (or an OpenAI-compatible endpoint) and picks, per chat, the platform default or one of their own models. It belongs to that person only, the key is encrypted and never shown, it follows the owner's external-providers switch, and if their model cannot answer nothing goes to another provider ([ADR 0017](adr/0017-own-ai-gateway.md)). Subscription logins (ChatGPT, Claude) are not offered | Built (API key); ChatGPT sign-in open |
+| A18 | Local CLI provider: the platform Owner can connect Claude Code, Codex or OpenCode that is logged in on the server as an AI provider, with no API key. Off until `ALLOW_LOCAL_CLI=1`; Owner-only and audited; the CLI runs in an empty temporary folder with no tools and none of Saqina's secrets ([ADR 0023](adr/0023-local-cli-provider.md)) | Built (Claude Code run end to end; Codex and OpenCode not run here) |
 
 ### 5.7 White label
 

@@ -71,7 +71,8 @@
         "openai": "OpenAI",
         "openai_compatible": "OpenAI-compatible",
         "gemini": "Google Gemini",
-        "vercel_gateway": "Vercel AI Gateway"
+        "vercel_gateway": "Vercel AI Gateway",
+        "local_cli": "Local CLI"
       },
       "statuses": {
         "connected": "Connected",
@@ -91,7 +92,8 @@
         "bad_response": "Unexpected response",
         "provider_error": "Provider error",
         "no_credential": "No API key stored"
-      }
+      },
+      "cliLogin": "Signs in with the CLI's own login on the server"
     },
     "models": {
       "title": "Models",
@@ -226,7 +228,9 @@
       "urlKey": "Put '{apiKey}' in the URL where the key goes.",
       "notLocal": "Use a localhost address for a local server.",
       "taken": "That key is already in use.",
-      "unknown": "Unknown value."
+      "unknown": "Unknown value.",
+      "cliOff": "Local CLIs are switched off on this server (ALLOW_LOCAL_CLI).",
+      "cliNotInstalled": "That CLI is not installed on this server."
     },
     "skills": {
       "title": "Skills",
@@ -376,6 +380,22 @@
       "skillOff": "switched off",
       "skillMissing": "is no longer installed",
       "skillsManage": "Install or manage skills"
+    },
+    "cli": {
+      "title": "Local CLI",
+      "intro": "Use a CLI that is already logged in on the machine that serves Saqina, such as Claude Code, Codex or OpenCode, instead of an API key. Saqina only starts these programs, in an empty temporary folder, with no tools and none of its own secrets. Only platform owners see this.",
+      "off": "Local CLIs are switched off on this server. The person who runs the server turns them on with",
+      "installed": "Installed",
+      "notInstalled": "Not installed on this server",
+      "login": "Log in on the server with",
+      "connected": "Connected",
+      "notConnected": "Not connected",
+      "connect": "Connect and test",
+      "recheck": "Test again",
+      "working": "Working...",
+      "testOk": "The CLI answered. It is now in the provider list below and can be set as a model.",
+      "testFailed": "The CLI did not answer. Check that it is logged in on the server, then test again.",
+      "rescan": "Reload this page after installing or logging in to a CLI to see the change."
     }
   },
   "integrations": {

@@ -2,7 +2,7 @@
 title: Studio, skill dan konektor
 description: Mulai mengerjakan dari PRD yang disetujui, bekerja di Studio, generate PRD dengan Enhance, pilih model AI sendiri di chat, jaga env tetap sama di lokal dan di Saqina, dan siapkan skill, konektor dan model agen.
 order: 5
-updated: 2026-10-30
+updated: 2026-10-31
 ---
 
 Panduan ini membahas jalan dari PRD yang sudah disepakati sampai pekerjaan berjalan, serta pengaturan platform yang dipakai asisten dan agen di semua project.
@@ -63,6 +63,25 @@ Di **AI & Model**:
 ![Skill di AI & Model, dengan Superpowers terpasang bawaan](/api/docs/assets/owner/studio-03-skills.png)
 
 ![Konektor di AI & Model: Firecrawl, Exa, Context7 dan server MCP kustom](/api/docs/assets/owner/studio-04-connectors.png)
+
+## Pakai CLI yang sudah login di server (owner platform)
+
+Sebagai pengganti API key, Anda bisa memakai Claude Code, Codex, atau OpenCode yang sudah login di mesin yang menjalankan Saqina. Di **AI & Model**, **Provider**, bagian **CLI lokal** memuat ketiganya, apakah masing-masing terpasang di server ini, dan versinya.
+
+![Bagian CLI lokal: Claude Code terpasang dan terhubung, Codex dan OpenCode tidak terpasang](/api/docs/assets/owner/providers-01-local-cli.png)
+
+1. Login ke CLI di server, sebagai user yang menjalankan Saqina. Halaman menampilkan perintahnya, misalnya `claude auth login`.
+2. Tekan **Hubungkan dan uji**. Saqina mengajukan pertanyaan singkat ke CLI. Begitu CLI menjawab, ia muncul di daftar provider di bawah beserta modelnya, dan Anda bisa menjadikannya model default atau memetakannya ke peran agen di **Pemetaan agent**.
+3. Untuk berhenti memakainya, **Putuskan** atau **Nonaktifkan** di daftar provider. Menekan **Hubungkan dan uji** lagi mengembalikannya.
+
+Perlu diketahui:
+
+- Hanya owner platform yang melihat dan mengelola ini, dan setiap perubahan tercatat di log audit.
+- Fitur ini **mati** sampai orang yang menjalankan server mengatur `ALLOW_LOCAL_CLI=1`. Halaman memberi tahu selama masih mati.
+- Hanya bekerja dengan CLI yang terpasang di mesin yang sama dengan server. Di Vercel, CLI tampil tidak terpasang.
+- Saqina menjalankan CLI di folder sementara yang kosong, tanpa tool, dan tanpa key atau alamat database miliknya. CLI menjawab; ia tidak bisa membaca atau mengubah berkas.
+- CLI memakai login user server, jadi semua yang memakai provider ini berbagi login itu.
+- CLI mengirim jawabannya setelah selesai, jadi teks tidak muncul kata demi kata.
 
 ## Database dan layanan masuk untuk aplikasi Anda
 

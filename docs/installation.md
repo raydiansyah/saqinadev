@@ -103,6 +103,13 @@ curl -s -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/e
 
 Agents commit to `saqina/exec-<id>` only. They never touch the main branch, merge or deploy.
 
+### Use a CLI instead of an API key (optional)
+
+On a self-hosted server or your own machine you can use Claude Code, Codex or OpenCode that is already
+logged in. Log the CLI in as the user that runs Saqina, set `ALLOW_LOCAL_CLI=1`, restart, then open
+*Dashboard → AI & Models → Providers → Local CLI* and press **Connect and test**. It needs the CLI
+installed on the same machine as the server, so it does not work on Vercel. See the runbook.
+
 ## 6. Set up the agents (Owner)
 
 1. Open *Dashboard → AI & Models → Agents* (`/dashboard/ai/agents`). The 8 presets appear on first view.
