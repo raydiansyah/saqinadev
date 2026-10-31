@@ -110,6 +110,10 @@ The **Documents** page lists every file that was read.
 
 ![The document list: files in docs are Approved and Shared, the README stays Draft](/api/docs/assets/owner/import-10-documents-shared.png)
 
+## Connect the same repository to an existing project
+
+The GitHub account you connected here also works on a project's **Integrations** page. Open **Integrations**, choose **GitHub** as the provider and, if your account is not connected yet, press **Connect with GitHub**. GitHub sends you back to the same page. Then pick the repository from the list (or type `owner/name`) and press **Connect repository**. There is no token to paste: the token stays on the server, encrypted, and is stored for this project the same way a pasted one would be. GitLab and other providers still use an access token.
+
 ## How documents follow GitHub
 
 - **One direction.** Saqina only pulls from GitHub and sends nothing back: no branch, no pull request.

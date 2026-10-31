@@ -8,6 +8,7 @@ import {
   syncRepositoryAction,
 } from "@/app/[locale]/(app)/project/[slug]/integrations/actions";
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
+import { GithubConnect, type GithubState } from "@/components/app/github-connect";
 import { FormError } from "@/components/platform/form-error";
 import { useRun } from "@/components/platform/use-run";
 import { Button } from "@/components/ui/button";
@@ -22,11 +23,14 @@ export function RepositoryPanel({
   repo,
   canManage,
   localAllowed,
+  github,
 }: {
   slug: string;
   repo: RepositoryView | null;
   canManage: boolean;
   localAllowed: boolean;
+  /** The signed-in person's GitHub account, the same one the import form uses. */
+  github: GithubState;
 }) {
   const t = useTranslations("integrations.repository");
   const locale = useLocale();
@@ -35,6 +39,10 @@ export function RepositoryPanel({
   const [editing, setEditing] = useState(!repo || repo.status === "disconnected");
   const { pending, error, run } = useRun();
   const connected = repo && repo.status !== "disconnected";
+  const [provider, setProvider] = useState<string>(repo?.provider ?? "github");
+  const [fullName, setFullName] = useState(repo?.fullName ?? "");
+  // A connected GitHub account stands in for the pasted token; without one the token field stays.
+  const useAccount = provider === "github" && github.login !== null;
 
   return (
     <section aria-labelledby={`${id}-repo`} className="rounded-lg border border-border p-5">
@@ -116,7 +124,8 @@ export function RepositoryPanel({
                   provider: String(form.get("provider")),
                   fullName: String(form.get("fullName") ?? ""),
                   baseUrl: String(form.get("baseUrl") ?? "") || null,
-                  token: String(form.get("token") ?? "") || undefined,
+                  token: useAccount ? undefined : String(form.get("token") ?? "") || undefined,
+                  useConnection: useAccount,
                   developmentBranch: String(form.get("developmentBranch") ?? "") || null,
                   agentBranchPrefix: String(form.get("prefix") ?? "") || "saqina/",
                 }),
@@ -128,7 +137,8 @@ export function RepositoryPanel({
             id={`${id}-provider`}
             name="provider"
             label={t("provider")}
-            defaultValue={repo?.provider ?? "github"}
+            value={provider}
+            onChange={(e) => setProvider(e.target.value)}
           >
             {GIT_PROVIDERS.filter((p) => p !== "custom_local" || localAllowed).map((p) => (
               <option key={p} value={p} disabled={p === "bitbucket"}>
@@ -142,20 +152,34 @@ export function RepositoryPanel({
             label={t("fullName")}
             placeholder={t("placeholders.fullName")}
             hint={t("fullNameHint")}
-            defaultValue={repo?.fullName}
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
             required
             maxLength={300}
           />
-          <Field
-            id={`${id}-token`}
-            name="token"
-            type="password"
-            autoComplete="off"
-            label={t("token")}
-            placeholder={t("placeholders.token")}
-            hint={t("tokenHint")}
-            maxLength={500}
-          />
+          {provider === "github" ? (
+            <div className="sm:col-span-2">
+              <GithubConnect
+                github={github}
+                onPick={setFullName}
+                next={`/project/${slug}/integrations`}
+              />
+            </div>
+          ) : null}
+          {useAccount ? (
+            <p className="text-sm text-muted-foreground sm:col-span-2">{t("accountToken")}</p>
+          ) : (
+            <Field
+              id={`${id}-token`}
+              name="token"
+              type="password"
+              autoComplete="off"
+              label={t("token")}
+              placeholder={t("placeholders.token")}
+              hint={t("tokenHint")}
+              maxLength={500}
+            />
+          )}
           <Field
             id={`${id}-base`}
             name="baseUrl"

@@ -60,7 +60,9 @@ echo '{"is_error":false,"result":"Answer from the CLI","usage":{"input_tokens":7
 
 beforeAll(() => {
   bin = mkdtempSync(join(tmpdir(), "saqina-fake-cli-"));
-  process.env.PATH = `${bin}:${saved.path}`;
+  // Only the fake CLI and the system tools: a real claude, codex or opencode on this machine
+  // must not change what is "installed".
+  process.env.PATH = `${bin}:/usr/bin:/bin`;
 });
 afterAll(() => {
   process.env.PATH = saved.path;
@@ -287,6 +289,7 @@ describe("local CLI: what the process may see", () => {
   it("passes the home and the search path but none of the server's secrets", () => {
     const env = cliEnv({
       HOME: "/home/x",
+      USER: "x",
       PATH: "/usr/bin",
       DATABASE_URL: "postgres://secret",
       BETTER_AUTH_SECRET: "s",
@@ -294,6 +297,8 @@ describe("local CLI: what the process may see", () => {
       ANTHROPIC_API_KEY: "a",
     } as unknown as NodeJS.ProcessEnv);
     expect(env.HOME).toBe("/home/x");
+    // Claude Code looks its login up in the macOS Keychain under this name.
+    expect(env.USER).toBe("x");
     expect(env.PATH).toBe("/usr/bin");
     expect(Object.keys(env).join()).not.toMatch(/DATABASE|SECRET|KEY/);
     expect(findBinary("definitely-not-a-cli", bin)).toBeNull();

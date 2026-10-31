@@ -450,7 +450,8 @@
         "bitbucket": "Bitbucket (not supported yet)",
         "custom_local": "Local repository (development)"
       },
-      "failed": "Repository check failed: {reason}"
+      "failed": "Repository check failed: {reason}",
+      "accountToken": "Using your connected GitHub account: no token to paste. The token stays on the server, encrypted."
     },
     "docSync": {
       "title": "Document sync",

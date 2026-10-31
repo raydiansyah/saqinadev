@@ -1,6 +1,7 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { Pool } from "pg";
+import { withVerifiedSsl } from "@/lib/db/connection-string";
 
 /** Applies pending migrations. Never drops data; schema changes go through generated SQL. */
 async function main() {
@@ -8,8 +9,8 @@ async function main() {
     ? process.env.DATABASE_URL_TEST
     : process.env.DATABASE_URL;
   if (!url) throw new Error("Database URL is not set");
-  const pool = new Pool({ connectionString: url, max: 1 });
-  await migrate(drizzle(pool), { migrationsFolder: "./src/lib/db/migrations" });
+  const pool = new Pool({ connectionString: withVerifiedSsl(url), max: 1 });
+  await migrate(drizzle({ client: pool }), { migrationsFolder: "./src/lib/db/migrations" });
   await pool.end();
   console.log(`Migrations applied to ${new URL(url).pathname.slice(1)}`);
 }

@@ -20,9 +20,10 @@ export async function GET(request: Request) {
       ?.slice(STATE_COOKIE.length + 1),
   );
   const locale = cookie && isLocale(cookie.locale) ? cookie.locale : DEFAULT_LOCALE;
+  const landing = cookie?.next ?? "/dashboard/new";
   const back = (flag: string) => {
     const response = NextResponse.redirect(
-      new URL(`/${locale}/dashboard/new?github=${flag}`, request.url),
+      new URL(`/${locale}${landing}?github=${flag}`, request.url),
     );
     // The state is single use, whatever happened.
     response.cookies.delete({ name: STATE_COOKIE, path: "/api/github" });

@@ -11,6 +11,7 @@ import {
   fetchLogin,
   newState,
   packCookie,
+  safeReturnPath,
   sameState,
   unpackCookie,
 } from "@/lib/github/oauth";
@@ -61,6 +62,35 @@ describe("oauth helpers", () => {
     expect(unpackCookie(packCookie(state, "id"))).toEqual({ state, locale: "id" });
     expect(unpackCookie(undefined)).toBeNull();
     expect(unpackCookie("nodot")).toBeNull();
+  });
+
+  it("carries the page to return to in the cookie, and ignores one that is not ours", () => {
+    const state = newState();
+    const page = "/project/restaurant-pos-fhcq/integrations";
+    expect(unpackCookie(packCookie(state, "en", page))).toEqual({
+      state,
+      locale: "en",
+      next: page,
+    });
+    const forged = `${state}.en.${Buffer.from("https://evil.test/x").toString("base64url")}`;
+    expect(unpackCookie(forged)).toEqual({ state, locale: "en" });
+  });
+
+  it("only returns to pages of the signed-in app", () => {
+    expect(safeReturnPath("/project/shop-1/integrations")).toBe("/project/shop-1/integrations");
+    expect(safeReturnPath("/dashboard/new")).toBe("/dashboard/new");
+    for (const bad of [
+      "https://evil.test",
+      "//evil.test/dashboard",
+      "/\\evil.test",
+      "/project/../admin",
+      "/api/github/connect",
+      "/project/a?x=1",
+      "",
+      null,
+      undefined,
+    ])
+      expect(safeReturnPath(bad as string)).toBeNull();
   });
 
   it("asks GitHub for the minimum scope with our state and callback", () => {

@@ -16,6 +16,8 @@ import { getDocSyncStatus } from "@/lib/docsync/config";
 import { formatRelative } from "@/lib/format";
 import { localGitAllowed } from "@/lib/git/local";
 import { getRepository, toRepositoryView } from "@/lib/git/service";
+import { isGithubConnectEnabled } from "@/lib/github/config";
+import { getConnection } from "@/lib/github/connection";
 import { listMcpConnections, listProjectTools } from "@/lib/mcp/service";
 import { projectPageAccess } from "@/lib/projects/page";
 import { ensureProjectTools } from "@/lib/tools/registry";
@@ -28,40 +30,54 @@ export async function generateMetadata(): Promise<Metadata> {
 /** Each section loads only its own data. */
 export default async function IntegrationsPage({
   params,
+  searchParams,
 }: PageProps<"/[locale]/project/[slug]/integrations">) {
   const { slug } = await params;
+  const flag = (await searchParams).github;
   const access = await projectPageAccess(slug);
   await ensureProjectTools(db, access.project.id);
-  const [repo, docSync, connections, tools, registry, openTasks, handoffs, executions, t, locale] =
-    await Promise.all([
-      getRepository(access),
-      getDocSyncStatus(access.project.id),
-      listMcpConnections(access),
-      listProjectTools(access),
-      listAgentRegistry(access),
-      db
-        .select({ id: tasks.id, title: tasks.title })
-        .from(tasks)
-        .where(and(eq(tasks.projectId, access.project.id), ne(tasks.status, "done")))
-        .orderBy(tasks.position)
-        .limit(100),
-      listHandoffs(access, 10),
-      db
-        .select({
-          id: toolExecutions.id,
-          toolName: toolExecutions.toolName,
-          source: toolExecutions.source,
-          status: toolExecutions.status,
-          errorCode: toolExecutions.errorCode,
-          createdAt: toolExecutions.createdAt,
-        })
-        .from(toolExecutions)
-        .where(eq(toolExecutions.projectId, access.project.id))
-        .orderBy(desc(toolExecutions.createdAt))
-        .limit(20),
-      getTranslations("integrations"),
-      getLocale(),
-    ]);
+  const [
+    repo,
+    docSync,
+    connections,
+    tools,
+    registry,
+    openTasks,
+    handoffs,
+    executions,
+    t,
+    locale,
+    githubConnection,
+  ] = await Promise.all([
+    getRepository(access),
+    getDocSyncStatus(access.project.id),
+    listMcpConnections(access),
+    listProjectTools(access),
+    listAgentRegistry(access),
+    db
+      .select({ id: tasks.id, title: tasks.title })
+      .from(tasks)
+      .where(and(eq(tasks.projectId, access.project.id), ne(tasks.status, "done")))
+      .orderBy(tasks.position)
+      .limit(100),
+    listHandoffs(access, 10),
+    db
+      .select({
+        id: toolExecutions.id,
+        toolName: toolExecutions.toolName,
+        source: toolExecutions.source,
+        status: toolExecutions.status,
+        errorCode: toolExecutions.errorCode,
+        createdAt: toolExecutions.createdAt,
+      })
+      .from(toolExecutions)
+      .where(eq(toolExecutions.projectId, access.project.id))
+      .orderBy(desc(toolExecutions.createdAt))
+      .limit(20),
+    getTranslations("integrations"),
+    getLocale(),
+    getConnection(access.actor),
+  ]);
   const canManage = can(access.role, "project:update");
   const external = registry.agents
     .filter((a) => a.type !== "saqina")
@@ -84,6 +100,11 @@ export default async function IntegrationsPage({
           repo={repo ? toRepositoryView(repo) : null}
           canManage={canManage}
           localAllowed={localGitAllowed()}
+          github={{
+            enabled: isGithubConnectEnabled(),
+            login: githubConnection?.login ?? null,
+            flag: typeof flag === "string" ? flag : null,
+          }}
         />
         {docSync ? <DocSyncPanel slug={slug} status={docSync} canManage={canManage} /> : null}
         <McpPanel

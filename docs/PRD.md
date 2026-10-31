@@ -57,6 +57,7 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 | P4 | Project settings: name, build strategy, repository, deployment, domain; a failed save keeps what was typed | Built |
 | P5 | Archive, restore and delete a project (delete needs the typed name) | Built |
 | P6 | The interview recommends a UI theme from 21 (3 tiers: recommended, available, concept), the user can change it, and the choice feeds the PRD, plan and memory. A public `/themes` page shows all 21 with live previews, including a dashboard preview; every theme defines status and chart colours that pass contrast checks, and a concept theme on a project with data screens gets an extra warning | Built |
+| P7 | The GitHub account connected for importing is also used on a project's Integrations page: with it, connecting a repository needs no pasted token, and the picker lists the account's repositories. Without it, the token field stays. Only GitHub has this; the token stays on the server, encrypted | Built |
 
 ### 5.2 Requirements, plan and delivery
 

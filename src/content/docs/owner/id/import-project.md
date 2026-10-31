@@ -110,6 +110,10 @@ Halaman **Dokumen** memuat semua file yang dibaca.
 
 ![Daftar dokumen: file di folder docs Disetujui dan Dibagikan, README tetap Draf](/api/docs/assets/owner/import-10-documents-shared.png)
 
+## Hubungkan repository yang sama ke project yang sudah ada
+
+Akun GitHub yang Anda sambungkan di sini juga bisa dipakai di halaman **Integrasi** sebuah project. Buka **Integrasi**, pilih **GitHub** sebagai penyedia dan, bila akun belum tersambung, tekan **Hubungkan dengan GitHub**. GitHub mengembalikan Anda ke halaman yang sama. Lalu pilih repository dari daftar (atau ketik `owner/nama`) dan tekan **Hubungkan repository**. Tidak ada token yang perlu ditempel: token tetap di server, terenkripsi, dan disimpan untuk project ini sama seperti token yang ditempel. GitLab dan penyedia lain tetap memakai token akses.
+
 ## Bagaimana dokumen mengikuti GitHub
 
 - **Satu arah.** Saqina hanya menarik dari GitHub dan tidak mengirim apa pun balik: tidak ada branch atau pull request.

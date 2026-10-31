@@ -9,6 +9,7 @@ import { repositoryConnections } from "@/lib/db/schema";
 import { GIT_PROVIDERS } from "@/lib/domain/enums";
 import { AppError } from "@/lib/errors";
 import { EventBatch } from "@/lib/events/emitter";
+import { withGithubToken } from "@/lib/github/connection";
 import { enqueueCodeIndex, purgeCodeIndexes } from "@/lib/memory/code/schedule";
 import { assertSafeEndpoint } from "@/lib/net/endpoint-guard";
 import { revokeCredential, storeCredential, withSecret } from "@/lib/secrets/service";
@@ -101,6 +102,8 @@ const connectInput = z.object({
   fullName: z.string().trim().min(1).max(300),
   baseUrl: z.string().trim().max(300).nullish(),
   token: z.string().trim().max(500).optional(),
+  /** Use the signed-in person's connected GitHub account instead of a pasted token. */
+  useConnection: z.boolean().optional(),
   developmentBranch: z.string().trim().max(120).nullish(),
   agentBranchPrefix: z
     .string()
@@ -118,6 +121,17 @@ const statusFor = (error: unknown) =>
 export async function connectRepository(actor: Actor, slug: string, input: unknown) {
   const data = parse(connectInput, input);
   await loadProjectAccess(actor, { slug }, "project:update");
+  if (!data.useConnection) return connectChecked(actor, slug, data);
+  // The same account the import form uses: the token is read on the server, checked against
+  // the repository like a pasted one, and stored encrypted for this project.
+  if (data.provider !== "github")
+    throw new AppError("VALIDATION_ERROR", "Only GitHub has a connected account", {
+      provider: "invalid",
+    });
+  return withGithubToken(actor, (token) => connectChecked(actor, slug, { ...data, token }));
+}
+
+async function connectChecked(actor: Actor, slug: string, data: z.infer<typeof connectInput>) {
   if (data.provider === "custom_local") {
     if (!localGitAllowed())
       throw new AppError("VALIDATION_ERROR", "Local git disabled", { provider: "localDisabled" });

@@ -8,6 +8,7 @@ import {
   packCookie,
   STATE_COOKIE,
   STATE_MAX_AGE,
+  safeReturnPath,
 } from "@/lib/github/oauth";
 import { allow } from "@/lib/rate-limit";
 
@@ -19,16 +20,16 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const requested = url.searchParams.get("locale") ?? "";
   const locale = isLocale(requested) ? requested : DEFAULT_LOCALE;
+  // The page to come back to (the import form by default); only pages of the app are accepted.
+  const next = safeReturnPath(url.searchParams.get("next"));
+  const landing = next ?? "/dashboard/new";
   const back = (flag: string) =>
-    NextResponse.redirect(new URL(`/${locale}/dashboard/new?github=${flag}`, request.url));
+    NextResponse.redirect(new URL(`/${locale}${landing}?github=${flag}`, request.url));
 
   const actor = await getActor();
   if (!actor) {
     return NextResponse.redirect(
-      new URL(
-        `/${locale}/sign-in?next=${encodeURIComponent(`/${locale}/dashboard/new`)}`,
-        request.url,
-      ),
+      new URL(`/${locale}/sign-in?next=${encodeURIComponent(`/${locale}${landing}`)}`, request.url),
     );
   }
   const redirectUri = githubCallbackUrl();
@@ -36,7 +37,10 @@ export async function GET(request: Request) {
   if (!isGithubConnectEnabled() || !redirectUri || !origin) return back("not_configured");
   // The state cookie must come back to the same host that set it, so start on the canonical one.
   if (url.origin !== origin) {
-    return NextResponse.redirect(new URL(`/api/github/connect?locale=${locale}`, origin));
+    const again = new URL("/api/github/connect", origin);
+    again.searchParams.set("locale", locale);
+    if (next) again.searchParams.set("next", next);
+    return NextResponse.redirect(again);
   }
   if (!(await allow(`github-connect:${actor.id}`, 10, 60 * 60 * 1000))) return back("rate_limited");
 
@@ -48,7 +52,7 @@ export async function GET(request: Request) {
       state,
     }),
   );
-  response.cookies.set(STATE_COOKIE, packCookie(state, locale), {
+  response.cookies.set(STATE_COOKIE, packCookie(state, locale, next), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

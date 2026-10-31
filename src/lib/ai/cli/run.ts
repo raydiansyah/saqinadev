@@ -29,9 +29,12 @@ export class CliError extends Error {
 /**
  * What the CLI process may see. It needs the person's home (that is where its login lives) and the
  * search path; it never gets the database URL, Saqina's keys or any other server secret.
+ * USER is the account name Claude Code uses to find its login in the macOS Keychain; without it
+ * the CLI reports "Not logged in" even when it is.
  */
 const SAFE_ENV = [
   "HOME",
+  "USER",
   "USERPROFILE",
   "PATH",
   "LANG",

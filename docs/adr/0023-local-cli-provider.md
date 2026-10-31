@@ -23,7 +23,7 @@ start a program on the machine that serves it, never on a visitor's laptop.
   `ai/cli/definitions.ts`. Nothing a person or project wrote becomes part of the command line; the
   prompt goes in through stdin or a file.
 - Every run: a new empty temporary directory (removed afterwards), no shell, an environment cut down
-  to the home, the search path and proxy settings (never the database URL or Saqina's keys), a time
+  to the home, the user name (Claude Code finds its login in the macOS Keychain under it), the search path and proxy settings (never the database URL or Saqina's keys), a time
   limit, an output cap, and the caller's abort signal. Claude Code runs with `--tools ""`, Codex in a
   read-only sandbox, so the CLI answers and cannot change files or run commands. Only a failure code
   leaves the module, never what the process printed.

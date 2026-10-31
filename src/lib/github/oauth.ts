@@ -18,13 +18,30 @@ export type GithubOAuthError =
 
 export const newState = () => randomBytes(24).toString("base64url");
 
-/** The cookie holds `state.locale` so the callback can send the visitor back to their language. */
-export const packCookie = (state: string, locale: string) => `${state}.${locale}`;
-export function unpackCookie(value: string | undefined): { state: string; locale: string } | null {
+/**
+ * Where the visitor may be sent back to after connecting: a page of the signed-in app, never an
+ * address from the outside. Anything else is ignored and the default page is used.
+ */
+export function safeReturnPath(value: string | null | undefined): string | null {
+  if (!value || value.length > 200) return null;
+  return /^\/(dashboard|project)(\/[A-Za-z0-9_-]+)+$/.test(value) ? value : null;
+}
+
+/**
+ * The cookie holds `state.locale` (and `.next`, the page to return to, in base64url) so the
+ * callback can send the visitor back to their language and to the page they started from.
+ */
+export const packCookie = (state: string, locale: string, next?: string | null) =>
+  next ? `${state}.${locale}.${Buffer.from(next).toString("base64url")}` : `${state}.${locale}`;
+export function unpackCookie(
+  value: string | undefined,
+): { state: string; locale: string; next?: string } | null {
   if (!value) return null;
-  const at = value.lastIndexOf(".");
-  if (at < 1) return null;
-  return { state: value.slice(0, at), locale: value.slice(at + 1) };
+  const [state, locale, encoded, ...extra] = value.split(".");
+  if (!state || !locale || extra.length > 0) return null;
+  if (encoded === undefined) return { state, locale };
+  const next = safeReturnPath(Buffer.from(encoded, "base64url").toString("utf8"));
+  return next ? { state, locale, next } : { state, locale };
 }
 
 /** Constant-time comparison, so a guessed state leaks nothing. */

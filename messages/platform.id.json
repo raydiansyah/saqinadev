@@ -450,7 +450,8 @@
         "bitbucket": "Bitbucket (belum didukung)",
         "custom_local": "Repository lokal (development)"
       },
-      "failed": "Pemeriksaan repository gagal: {reason}"
+      "failed": "Pemeriksaan repository gagal: {reason}",
+      "accountToken": "Memakai akun GitHub Anda yang tersambung: tidak perlu menempel token. Token tetap di server dan terenkripsi."
     },
     "docSync": {
       "title": "Sinkronisasi dokumen",
