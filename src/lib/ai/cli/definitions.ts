@@ -40,8 +40,7 @@ export interface CliDefinition {
 const modelArgs = (flag: string, model: string) =>
   model === CLI_DEFAULT_MODEL ? [] : [flag, model];
 
-const stripAnsi = (s: string) =>
-  s.replace(/\u001b\[[0-9;?]*[ -/]*[@-~]/g, "");
+const stripAnsi = (s: string) => s.replace(/\u001b\[[0-9;?]*[ -/]*[@-~]/g, "");
 
 export const CLI_DEFINITIONS: Record<CliId, CliDefinition> = {
   claude: {
