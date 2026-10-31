@@ -29,6 +29,7 @@ import { recordTest, revokeCredential, storeCredential } from "@/lib/secrets/ser
 import { parse } from "@/lib/validation";
 import { ADAPTERS } from "./adapters";
 import { loadCatalog, platformSettings } from "./catalog";
+import { cliEnabled } from "./cli/run";
 import { displayNameFor, inferCapabilities, isChatModel } from "./model-capabilities";
 import { DEFAULT_POLICY, modelUsable, validateMapping } from "./model-resolver";
 import { usesNoKey, withProviderSecret } from "./provider-secret";
@@ -241,6 +242,9 @@ export async function testProvider(actor: Actor, input: unknown) {
   if (!row) throw new AppError("NOT_FOUND");
   if (!row.credentialId && !usesNoKey(row.adapter))
     return { ok: false, code: "no_credential" as const, models: [] as string[] };
+  // Switched off by the Owner: say so, and do not mark the provider as failing because of it.
+  if (usesNoKey(row.adapter) && !(await cliEnabled()))
+    return { ok: false, code: "cli_off" as const, models: [] as string[] };
   const adapter = ADAPTERS[row.adapter];
   const result = await withProviderSecret(row, (secret) =>
     adapter.test({ baseUrl: row.baseUrl, configuration: row.configuration }, secret),

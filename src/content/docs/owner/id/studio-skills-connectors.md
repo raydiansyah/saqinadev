@@ -70,14 +70,16 @@ Sebagai pengganti API key, Anda bisa memakai Claude Code, Codex, atau OpenCode y
 
 ![Bagian CLI lokal: Claude Code terpasang dan terhubung, Codex dan OpenCode tidak terpasang](/api/docs/assets/owner/providers-01-local-cli.png)
 
-1. Login ke CLI di server, sebagai user yang menjalankan Saqina. Halaman menampilkan perintahnya, misalnya `claude auth login`.
+![CLI lokal mati secara default: sakelar mati dan tidak ada yang diperiksa](/api/docs/assets/owner/providers-02-local-cli-off.png)
+
+1. Nyalakan sakelar **CLI lokal**. Login ke CLI di server, sebagai user yang menjalankan Saqina. Halaman menampilkan perintahnya, misalnya `claude auth login`.
 2. Tekan **Hubungkan dan uji**. Saqina mengajukan pertanyaan singkat ke CLI. Begitu CLI menjawab, ia muncul di daftar provider di bawah beserta modelnya, dan Anda bisa menjadikannya model default atau memetakannya ke peran agen di **Pemetaan agent**.
 3. Untuk berhenti memakainya, **Putuskan** atau **Nonaktifkan** di daftar provider. Menekan **Hubungkan dan uji** lagi mengembalikannya.
 
 Perlu diketahui:
 
 - Hanya owner platform yang melihat dan mengelola ini, dan setiap perubahan tercatat di log audit.
-- Fitur ini **mati** sampai orang yang menjalankan server mengatur `ALLOW_LOCAL_CLI=1`. Halaman memberi tahu selama masih mati.
+- Fitur ini **mati secara default**. Sakelar **CLI lokal** di bagian atas menyalakan atau mematikannya. Selama mati, tidak ada yang dijalankan, dan mematikannya menghentikan CLI yang terhubung pada jawaban berikutnya tanpa menghapusnya.
 - Hanya bekerja dengan CLI yang terpasang di mesin yang sama dengan server. Di Vercel, CLI tampil tidak terpasang.
 - Saqina menjalankan CLI di folder sementara yang kosong, tanpa tool, dan tanpa key atau alamat database miliknya. CLI menjawab; ia tidak bisa membaca atau mengubah berkas.
 - CLI memakai login user server, jadi semua yang memakai provider ini berbagi login itu.

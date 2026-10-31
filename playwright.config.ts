@@ -24,8 +24,6 @@ const env = {
   DEV_AI_SERVER_PORT: String(AI_PORT),
   DEV_AI_DELAY_MS: "2500",
   E2E_AI_PORT: String(AI_PORT),
-  // Local CLIs are off unless the person running the tests turns them on.
-  ...(process.env.ALLOW_LOCAL_CLI ? { ALLOW_LOCAL_CLI: process.env.ALLOW_LOCAL_CLI } : {}),
 };
 
 export default defineConfig({
@@ -39,6 +37,8 @@ export default defineConfig({
     baseURL: `http://localhost:${PORT}`,
     trace: "retain-on-failure",
     ...devices["Desktop Chrome"],
+    // For a machine whose Chromium was installed by another Playwright version.
+    launchOptions: { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH || undefined },
   },
   webServer: [
     {

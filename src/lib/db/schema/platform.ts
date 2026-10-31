@@ -138,6 +138,8 @@ export const platformAiSettings = pgTable("platform_ai_settings", {
   fallbackModelId: uuid("fallback_model_id").references(() => aiModels.id, {
     onDelete: "set null",
   }),
+  /** Owner switch for using CLIs logged in on the server as providers. Off by default. */
+  localCliEnabled: boolean("local_cli_enabled").notNull().default(false),
   policy: jsonb("policy").$type<ModelPolicy>().notNull(),
   updatedBy: userRef("updated_by"),
   updatedAt: updatedAt(),

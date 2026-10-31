@@ -12,8 +12,10 @@ start a program on the machine that serves it, never on a visitor's laptop.
 
 - A new adapter, `local_cli`, behind the same `AiProvider` interface. It has no key: `withProviderSecret`
   hands it an empty string and the CLI's own login on the server does the work.
-- It is **off** until the person running the server sets `ALLOW_LOCAL_CLI=1`. Without it nothing is
-  detected, connected or run.
+- It is **off by default**, with an on/off switch for the Owner (`platform_ai_settings.local_cli_enabled`,
+  audited as `provider.cli_enabled` / `provider.cli_disabled`). While it is off nothing is detected,
+  connected or run, and it is read on every call, so switching off stops existing CLI providers at
+  once without deleting them. Testing while off says so and does not mark the provider as failing.
 - Only the platform Owner can see, connect, test, switch off or disconnect one (`requirePlatformOwner`
   in every call); each change is audited (`provider.cli_connected`, and the usual provider events).
   The generic provider form cannot create a `local_cli` provider.

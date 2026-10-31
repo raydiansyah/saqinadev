@@ -11,6 +11,16 @@ const seed = JSON.parse(readFileSync(join(__dirname, ".seed.json"), "utf8")) as 
 const git = (...args: string[]) =>
   execFileSync("git", ["-C", seed.repo, ...args], { encoding: "utf8" }).trim();
 
+/** The CLI test needs a real, logged-in Claude Code on the machine that runs the tests. */
+function hasClaude() {
+  try {
+    execFileSync("claude", ["--version"], { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function signIn(page: Page, email = "owner@example.test") {
   await page.goto("/en/sign-in");
   await page.getByLabel(/email/i).fill(email);
@@ -34,7 +44,12 @@ const agent = (page: Page, name: string) =>
   page.getByRole("tabpanel").getByRole("listitem").filter({ hasText: name }).first();
 
 async function send(page: Page, mode: "Chat" | "Plan" | "Build", text: string) {
-  await page.getByRole("radio", { name: mode }).click();
+  // A click before the page is interactive does nothing; retry until the mode is really chosen.
+  const radio = page.getByRole("radio", { name: mode });
+  await expect(async () => {
+    await radio.click();
+    await expect(radio).toBeChecked({ timeout: 1_000 });
+  }).toPass({ timeout: 20_000 });
   await page.locator("textarea").first().fill(text);
   await page.getByRole("button", { name: "Send" }).click();
 }
@@ -278,17 +293,23 @@ test("Start building on the approved PRD starts a Build, and the chat shows it l
 });
 
 test.describe("local CLI as an AI provider", () => {
-  test.skip(
-    !process.env.ALLOW_LOCAL_CLI,
-    "Needs ALLOW_LOCAL_CLI=1 and a logged-in CLI on this machine",
-  );
+  test.skip(!hasClaude(), "Needs Claude Code installed and logged in on this machine");
 
   test("the Owner connects Claude Code from AI & Models; a member cannot reach it", async ({
     page,
   }) => {
     await signIn(page);
     await page.goto("/en/dashboard/ai/providers");
+    // Off by default: nothing can be connected until the Owner turns the switch on.
+    const toggle = page.getByRole("switch", { name: "Local CLIs are off" });
+    await expect(toggle).toHaveAttribute("aria-checked", "false");
     const card = page.getByRole("listitem").filter({ hasText: "Claude Code" }).first();
+    await expect(card.getByRole("button", { name: "Connect and test" })).toBeDisabled();
+    await toggle.click();
+    await expect(page.getByRole("switch", { name: "Local CLIs are on" })).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
     await expect(card).toContainText("Installed");
     await expect(card).toContainText("Not connected");
     await card.getByRole("button", { name: "Connect and test" }).click();
@@ -299,6 +320,12 @@ test.describe("local CLI as an AI provider", () => {
     await expect(provider).toContainText("Local CLI");
     await expect(provider.getByRole("button", { name: "Edit" })).toHaveCount(0);
     await expect(provider.getByRole("button", { name: "Disconnect" })).toBeVisible();
+
+    // Switching it off stops it everywhere, and keeps the provider.
+    await page.getByRole("switch", { name: "Local CLIs are on" }).click();
+    await expect(page.getByRole("switch", { name: "Local CLIs are off" })).toBeVisible();
+    await expect(card.getByRole("button", { name: /Test again|Connect and test/ })).toBeDisabled();
+    await expect(provider).toBeVisible();
   });
 
   test("a member who is not the platform Owner cannot see the CLI section", async ({ page }) => {

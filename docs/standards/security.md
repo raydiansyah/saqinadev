@@ -39,8 +39,8 @@ agents reach the next agent as `external` data, and the execution event stream (
 
 ## Running local programs (local CLI provider)
 
-The only place Saqina starts an outside program for the model is `src/lib/ai/cli`. Rules: off unless
-`ALLOW_LOCAL_CLI=1`; Owner only; a fixed list of binaries with commands built in code, no shell, nothing
+The only place Saqina starts an outside program for the model is `src/lib/ai/cli`. Rules: off by default,
+switched on by the Owner (audited); Owner only; a fixed list of binaries with commands built in code, no shell, nothing
 from a person or project in the arguments; a new empty directory per run; an environment cut to the home,
 search path and proxy settings; a time limit and an output cap; a failure code and never the output
 leaves the module. Tests: `tests/integration/local-cli.test.ts`. See ADR 0023.

@@ -3,10 +3,17 @@ import { spawn } from "node:child_process";
 import { accessSync, constants, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { delimiter, join } from "node:path";
+import { platformSettings } from "../catalog";
 import { CLI_DEFINITIONS, type CliId } from "./definitions";
 
-/** Local CLIs run commands on the machine that serves Saqina, so they are off until switched on. */
-export const cliEnabled = (env = process.env) => env.ALLOW_LOCAL_CLI === "1";
+/**
+ * Local CLIs run commands on the machine that serves Saqina, so they are off until the platform
+ * Owner switches them on (AI & Models > Providers). Read on every call: switching off takes effect
+ * at once, for providers that already exist.
+ */
+export async function cliEnabled(): Promise<boolean> {
+  return (await platformSettings()).localCliEnabled;
+}
 
 const MAX_OUTPUT = 4 * 1024 * 1024;
 export const CLI_TIMEOUT_MS = 180_000;
@@ -172,7 +179,7 @@ export async function runCli(
   model: string,
   options: { timeoutMs?: number; signal?: AbortSignal; searchPath?: string } = {},
 ): Promise<CliResult> {
-  if (!cliEnabled()) throw new CliError("disabled");
+  if (!(await cliEnabled())) throw new CliError("disabled");
   const def = CLI_DEFINITIONS[id];
   const file = findBinary(def.binary, options.searchPath);
   if (!file) throw new CliError("not_installed");

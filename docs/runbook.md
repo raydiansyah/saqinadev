@@ -172,9 +172,10 @@ An alternative to an API key, for a self-hosted server or a development machine.
 
 1. Install the CLI on the machine that runs Saqina and log it in **as the user that runs Saqina**:
    `claude auth login`, `codex login` or `opencode auth login`.
-2. Set `ALLOW_LOCAL_CLI=1` in that server's environment and restart. Without it the section says it
-   is off and nothing is started.
-3. As a platform Owner open **AI & Models > Providers > Local CLI** and press **Connect and test**.
+2. As a platform Owner open **AI & Models > Providers > Local CLI** and turn the **Local CLIs** switch
+   on. It is off by default; while it is off nothing is detected or started. Turning it off again stops
+   every CLI provider at its next call, without deleting it.
+3. In the same section press **Connect and test** on a CLI.
    The CLI becomes a provider with its models; set it as the default or map it to an agent role as usual.
 4. To stop using it: **Disconnect** or **Disable** the provider. Every change is in the audit log.
 

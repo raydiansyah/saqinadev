@@ -1,0 +1,1 @@
+ALTER TABLE "platform_ai_settings" ADD COLUMN "local_cli_enabled" boolean DEFAULT false NOT NULL;

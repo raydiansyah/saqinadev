@@ -2,7 +2,11 @@
 
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import { connectCliAction, testProviderAction } from "@/app/[locale]/(app)/dashboard/ai/actions";
+import {
+  connectCliAction,
+  setCliEnabledAction,
+  testProviderAction,
+} from "@/app/[locale]/(app)/dashboard/ai/actions";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/form";
 import { useRouter } from "@/i18n/navigation";
@@ -21,11 +25,15 @@ export function CliManager({ overview }: { overview: CliOverview }) {
   const router = useRouter();
   const { pending, error, run } = useRun();
   const [busy, setBusy] = useState<string | null>(null);
+  const [switching, setSwitching] = useState(false);
   const [tests, setTests] = useState<Record<string, { ok: boolean; code: string }>>({});
 
   // A refused connection never reaches the test, so the button is freed here.
   useEffect(() => {
-    if (error) setBusy(null);
+    if (error) {
+      setBusy(null);
+      setSwitching(false);
+    }
   }, [error]);
 
   // The connection is made first, then the CLI is asked a question; the page is refreshed after
@@ -52,11 +60,43 @@ export function CliManager({ overview }: { overview: CliOverview }) {
         {t("title")}
       </h2>
       <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{t("intro")}</p>
-      {overview.enabled ? null : (
-        <Notice tone="info" className="mt-3">
-          {t("off")} <code className="font-mono text-xs">ALLOW_LOCAL_CLI=1</code>
-        </Notice>
-      )}
+      <div className="mt-3 flex items-start gap-3 rounded-lg border border-border bg-surface p-4">
+        <button
+          type="button"
+          role="switch"
+          aria-checked={overview.enabled}
+          aria-labelledby="cli-switch-label"
+          aria-describedby="cli-switch-hint"
+          disabled={switching}
+          onClick={() => {
+            setSwitching(true);
+            run(
+              () => setCliEnabledAction({ enabled: !overview.enabled }),
+              () => setSwitching(false),
+            );
+          }}
+          className={cn(
+            "relative mt-0.5 inline-flex h-6 w-10 shrink-0 items-center rounded-full transition-colors disabled:opacity-50 motion-reduce:transition-none",
+            overview.enabled ? "bg-primary" : "bg-border-strong",
+          )}
+        >
+          <span
+            aria-hidden="true"
+            className={cn(
+              "absolute size-4 rounded-full bg-background transition-transform motion-reduce:transition-none",
+              overview.enabled ? "translate-x-5" : "translate-x-1",
+            )}
+          />
+        </button>
+        <div>
+          <p id="cli-switch-label" className="text-sm font-medium">
+            {overview.enabled ? t("switchOn") : t("switchOff")}
+          </p>
+          <p id="cli-switch-hint" className="text-xs text-muted-foreground">
+            {t("switchHint")}
+          </p>
+        </div>
+      </div>
       <FormError error={error} />
       <ul className="mt-4 space-y-3">
         {overview.clis.map((c) => {
@@ -68,9 +108,11 @@ export function CliManager({ overview }: { overview: CliOverview }) {
                 <div className="min-w-0">
                   <p className="font-medium">{c.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {c.installed
-                      ? `${t("installed")}${c.version ? ` · ${c.version}` : ""}`
-                      : t("notInstalled")}
+                    {!overview.enabled
+                      ? t("detectOff")
+                      : c.installed
+                        ? `${t("installed")}${c.version ? ` · ${c.version}` : ""}`
+                        : t("notInstalled")}
                   </p>
                   <p className="mt-1 text-xs text-subtle-foreground">
                     {t("login")}: <code className="font-mono">{c.loginHint}</code>

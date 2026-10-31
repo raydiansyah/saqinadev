@@ -7,7 +7,7 @@ import * as z from "zod";
 import { ADAPTERS } from "@/lib/ai/adapters";
 import { CLI_DEFINITIONS } from "@/lib/ai/cli/definitions";
 import { CliError, cliEnv, findBinary, runCli } from "@/lib/ai/cli/run";
-import { connectCli, listClis } from "@/lib/ai/cli/service";
+import { connectCli, listClis, setCliEnabled } from "@/lib/ai/cli/service";
 import {
   createProvider,
   disconnectProvider,
@@ -40,7 +40,6 @@ let owner: Actor;
 let stranger: Actor;
 const saved = {
   path: process.env.PATH,
-  allow: process.env.ALLOW_LOCAL_CLI,
   secret: process.env.BETTER_AUTH_SECRET,
 };
 
@@ -67,18 +66,17 @@ afterAll(() => {
   process.env.PATH = saved.path;
   if (saved.secret === undefined) delete process.env.BETTER_AUTH_SECRET;
   else process.env.BETTER_AUTH_SECRET = saved.secret;
-  if (saved.allow === undefined) delete process.env.ALLOW_LOCAL_CLI;
-  else process.env.ALLOW_LOCAL_CLI = saved.allow;
 });
 
 beforeEach(async () => {
   await resetDatabase();
-  process.env.ALLOW_LOCAL_CLI = "1";
   process.env.BETTER_AUTH_SECRET = "a-server-secret-the-cli-must-not-see";
   fakeClaude(ANSWER());
   owner = await createUser("Owner");
   await db.update(users).set({ platformRole: "owner" }).where(eq(users.id, owner.id));
   stranger = await createUser("Stranger");
+  // Off is the default; most tests need it on.
+  await setCliEnabled(owner, { enabled: true });
 });
 
 describe("local CLI: only the platform Owner manages it", () => {
@@ -91,13 +89,53 @@ describe("local CLI: only the platform Owner manages it", () => {
     expect(await listProviders(owner)).toEqual([]);
   });
 
-  it("does nothing until the server's operator switches local CLIs on", async () => {
-    delete process.env.ALLOW_LOCAL_CLI;
+  it("is off by default, and only the Owner can switch it", async () => {
+    await resetDatabase();
+    owner = await createUser("Owner");
+    await db.update(users).set({ platformRole: "owner" }).where(eq(users.id, owner.id));
+    stranger = await createUser("Stranger");
     const overview = await listClis(owner);
     expect(overview.enabled).toBe(false);
     expect(overview.clis.every((c) => !c.installed)).toBe(true);
     expect(await code(connectCli(owner, { cli: "claude" }))).toBe("VALIDATION_ERROR:cliOff");
     await expect(runCli("claude", "hi", "default")).rejects.toMatchObject({ code: "disabled" });
+
+    expect(await code(setCliEnabled(stranger, { enabled: true }))).toBe("AUTHORIZATION_ERROR");
+    expect((await listClis(owner)).enabled).toBe(false);
+    expect(await code(setCliEnabled(owner, { enabled: "yes" }))).toBe("VALIDATION_ERROR:invalid");
+
+    await setCliEnabled(owner, { enabled: true });
+    expect((await listClis(owner)).enabled).toBe(true);
+    expect((await listClis(owner)).clis.find((c) => c.id === "claude")?.installed).toBe(true);
+    const audit = await db.select().from(auditEvents);
+    expect(audit.map((a) => a.type)).toContain("provider.cli_enabled");
+  });
+
+  it("stops a connected CLI at once when switched off, and brings it back when switched on", async () => {
+    const { id } = await connectCli(owner, { cli: "claude" });
+    await testProvider(owner, { id });
+    const [def] = await db.select().from(aiModels).where(eq(aiModels.modelId, "default"));
+    await setDefaults(owner, { defaultModelId: def.id, fallbackModelId: null });
+    const ask = () =>
+      runAi({
+        operation: "conversation",
+        run: (client) =>
+          client.generate({ system: "s", segments: [], userMessage: "u", draft: "rules" }),
+      });
+    expect((await ask()).value).toBe("Answer from the CLI");
+
+    await setCliEnabled(owner, { enabled: false });
+    // The provider still exists, but it cannot start the CLI, so the rules answer instead.
+    expect((await ask()).deterministic).toBe(true);
+    expect(await listProviders(owner)).toHaveLength(1);
+    // Testing while it is off says so and leaves the provider's own state alone.
+    expect(await testProvider(owner, { id })).toMatchObject({ ok: false, code: "cli_off" });
+    expect((await listProviders(owner))[0].status).toBe("connected");
+    const audit = await db.select().from(auditEvents);
+    expect(audit.map((a) => a.type)).toContain("provider.cli_disabled");
+
+    await setCliEnabled(owner, { enabled: true });
+    expect((await ask()).value).toBe("Answer from the CLI");
   });
 });
 

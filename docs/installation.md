@@ -106,8 +106,8 @@ Agents commit to `saqina/exec-<id>` only. They never touch the main branch, merg
 ### Use a CLI instead of an API key (optional)
 
 On a self-hosted server or your own machine you can use Claude Code, Codex or OpenCode that is already
-logged in. Log the CLI in as the user that runs Saqina, set `ALLOW_LOCAL_CLI=1`, restart, then open
-*Dashboard → AI & Models → Providers → Local CLI* and press **Connect and test**. It needs the CLI
+logged in. Log the CLI in as the user that runs Saqina, then open *Dashboard → AI & Models → Providers → Local CLI*,
+turn the **Local CLIs** switch on (it is off by default) and press **Connect and test**. It needs the CLI
 installed on the same machine as the server, so it does not work on Vercel. See the runbook.
 
 ## 6. Set up the agents (Owner)

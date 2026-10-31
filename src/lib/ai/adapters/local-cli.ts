@@ -119,7 +119,7 @@ export const localCliAdapter: ProviderAdapter = {
   requiresBaseUrl: false,
   createClient: (config, _secret, model) => new CliClient(cliOf(config), model),
   async test(config) {
-    if (!cliEnabled()) return { ok: false, code: "not_found" };
+    if (!(await cliEnabled())) return { ok: false, code: "not_found" };
     const id = cliOf(config);
     const found = (await detectClis()).find((c) => c.id === id);
     if (!found?.installed) return { ok: false, code: "not_found" };

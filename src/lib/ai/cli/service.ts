@@ -4,10 +4,11 @@ import * as z from "zod";
 import { recordAudit } from "@/lib/audit/service";
 import type { Actor } from "@/lib/auth/actor";
 import { db } from "@/lib/db/client";
-import { aiModels, aiProviders } from "@/lib/db/schema";
+import { aiModels, aiProviders, platformAiSettings } from "@/lib/db/schema";
 import { AppError } from "@/lib/errors";
 import { requirePlatformOwner } from "@/lib/platform/roles";
 import { parse } from "@/lib/validation";
+import { platformSettings } from "../catalog";
 import { CLI_DEFINITIONS, CLI_IDS } from "./definitions";
 import { type CliStatus, cliEnabled, detectClis } from "./run";
 
@@ -25,7 +26,7 @@ export interface CliProviderView extends CliStatus {
 }
 
 export interface CliOverview {
-  /** False until the server's operator sets ALLOW_LOCAL_CLI=1. */
+  /** The Owner's switch. Off until they turn it on. */
   enabled: boolean;
   clis: CliProviderView[];
 }
@@ -41,17 +42,43 @@ const cliRows = () =>
     .from(aiProviders)
     .where(and(eq(aiProviders.adapter, "local_cli"), isNull(aiProviders.ownerUserId)));
 
+/**
+ * The Owner's switch for local CLIs. Off by default. Turning it off stops every CLI provider at the
+ * next call (they fail and the gateway moves on), without deleting anything.
+ */
+export async function setCliEnabled(actor: Actor, input: unknown): Promise<{ enabled: boolean }> {
+  await requirePlatformOwner(actor);
+  const { enabled } = parse(z.object({ enabled: z.boolean() }), input);
+  await db.transaction(async (tx) => {
+    await platformSettings(tx);
+    await tx
+      .update(platformAiSettings)
+      .set({ localCliEnabled: enabled, updatedBy: actor.id, updatedAt: new Date() })
+      .where(eq(platformAiSettings.id, 1));
+    await recordAudit(tx, {
+      actorId: actor.id,
+      scope: "platform",
+      type: enabled ? "provider.cli_enabled" : "provider.cli_disabled",
+      entityType: "platform_ai_settings",
+      entityId: "1",
+      metadata: {},
+    });
+  });
+  return { enabled };
+}
+
 export async function listClis(
   actor: Actor,
   options: { searchPath?: string } = {},
 ): Promise<CliOverview> {
   await requirePlatformOwner(actor);
+  const enabled = await cliEnabled();
   const [found, rows] = await Promise.all([
-    cliEnabled() ? detectClis(options.searchPath) : Promise.resolve(undefined),
+    enabled ? detectClis(options.searchPath) : Promise.resolve(undefined),
     cliRows(),
   ]);
   return {
-    enabled: cliEnabled(),
+    enabled,
     clis: CLI_IDS.map((id) => {
       const def = CLI_DEFINITIONS[id];
       const status = found?.find((c) => c.id === id) ?? {
@@ -84,7 +111,8 @@ export async function connectCli(
 ): Promise<{ id: string }> {
   await requirePlatformOwner(actor);
   const { cli } = parse(z.object({ cli: z.enum(CLI_IDS) }), input);
-  if (!cliEnabled()) throw new AppError("VALIDATION_ERROR", "Local CLI is off", { cli: "cliOff" });
+  if (!(await cliEnabled()))
+    throw new AppError("VALIDATION_ERROR", "Local CLI is off", { cli: "cliOff" });
   const status = (await detectClis(options.searchPath)).find((c) => c.id === cli);
   if (!status?.installed)
     throw new AppError("VALIDATION_ERROR", "CLI not installed", { cli: "cliNotInstalled" });

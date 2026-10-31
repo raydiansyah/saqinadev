@@ -91,7 +91,8 @@
         "network": "Tidak bisa menjangkau penyedia",
         "bad_response": "Respons tidak terduga",
         "provider_error": "Error dari penyedia",
-        "no_credential": "Belum ada API key"
+        "no_credential": "Belum ada API key",
+        "cli_off": "CLI lokal sedang mati"
       },
       "cliLogin": "Masuk dengan login CLI itu sendiri di server"
     },
@@ -229,7 +230,7 @@
       "notLocal": "Gunakan alamat localhost untuk server lokal.",
       "taken": "Kunci itu sudah dipakai.",
       "unknown": "Nilai tidak dikenal.",
-      "cliOff": "CLI lokal dimatikan di server ini (ALLOW_LOCAL_CLI).",
+      "cliOff": "CLI lokal sedang mati. Nyalakan dulu di atas.",
       "cliNotInstalled": "CLI itu tidak terpasang di server ini."
     },
     "skills": {
@@ -384,7 +385,6 @@
     "cli": {
       "title": "CLI lokal",
       "intro": "Pakai CLI yang sudah login di mesin yang menjalankan Saqina, seperti Claude Code, Codex, atau OpenCode, sebagai pengganti API key. Saqina hanya menjalankan program ini di folder sementara yang kosong, tanpa tool dan tanpa rahasia miliknya. Hanya owner platform yang melihat ini.",
-      "off": "CLI lokal dimatikan di server ini. Orang yang menjalankan server menyalakannya dengan",
       "installed": "Terpasang",
       "notInstalled": "Tidak terpasang di server ini",
       "login": "Login di server dengan",
@@ -395,7 +395,11 @@
       "working": "Memproses...",
       "testOk": "CLI menjawab. Sekarang ia ada di daftar provider di bawah dan bisa dijadikan model.",
       "testFailed": "CLI tidak menjawab. Pastikan ia sudah login di server, lalu uji lagi.",
-      "rescan": "Muat ulang halaman ini setelah memasang atau login ke CLI untuk melihat perubahan."
+      "rescan": "Muat ulang halaman ini setelah memasang atau login ke CLI untuk melihat perubahan.",
+      "switchOn": "CLI lokal menyala",
+      "switchOff": "CLI lokal mati",
+      "switchHint": "Mati secara default. Selama mati, tidak ada CLI yang dijalankan dan CLI yang sudah terhubung berhenti menjawab. Menyalakannya mengizinkan Saqina menjalankan CLI di bawah ini di server ini, sebagai user yang menjalankan Saqina.",
+      "detectOff": "Tidak diperiksa selama CLI lokal mati"
     }
   },
   "integrations": {

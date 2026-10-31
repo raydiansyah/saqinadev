@@ -70,14 +70,16 @@ Instead of an API key you can use Claude Code, Codex or OpenCode that is already
 
 ![The Local CLI section: Claude Code installed and connected, Codex and OpenCode not installed](/api/docs/assets/owner/providers-01-local-cli.png)
 
-1. Log the CLI in on the server, as the user that runs Saqina. The page shows the command, for example `claude auth login`.
+![Local CLIs are off by default: the switch is off and nothing is checked](/api/docs/assets/owner/providers-02-local-cli-off.png)
+
+1. Turn the **Local CLIs** switch on. Log the CLI in on the server, as the user that runs Saqina. The page shows the command, for example `claude auth login`.
 2. Press **Connect and test**. Saqina asks the CLI a short question. When it answers, the CLI appears in the provider list below with its models, and you can set it as the default model or map it to an agent role under **Agent mapping**.
 3. To stop using it, **Disconnect** or **Disable** it in the provider list. Pressing **Connect and test** again brings it back.
 
 Good to know:
 
 - Only platform owners see and manage this, and every change is in the audit log.
-- It is **off** until the person who runs the server sets `ALLOW_LOCAL_CLI=1`. The page says so while it is off.
+- It is **off by default**. The **Local CLIs** switch at the top of the section turns it on or off. While it is off nothing is started, and turning it off stops a connected CLI at its next answer without removing it.
 - It only works with a CLI installed on the same machine as the server. On Vercel the CLIs show as not installed.
 - Saqina starts the CLI in an empty temporary folder, with no tools, and without its own keys or database address. The CLI answers; it cannot read or change files.
 - The CLI uses the server user's login, so everything that uses this provider shares that login.

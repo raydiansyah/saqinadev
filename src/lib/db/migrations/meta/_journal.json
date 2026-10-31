@@ -267,6 +267,13 @@
       "when": 1793322307750,
       "tag": "0037_task_revisions",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1793414983812,
+      "tag": "0038_local_cli_switch",
+      "breakpoints": true
     }
   ]
 }

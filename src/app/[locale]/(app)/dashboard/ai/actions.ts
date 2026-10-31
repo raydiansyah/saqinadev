@@ -8,7 +8,7 @@ import {
   setDefinitionStatus,
   updateDefinition,
 } from "@/lib/agent-definitions/service";
-import { connectCli } from "@/lib/ai/cli/service";
+import { connectCli, setCliEnabled } from "@/lib/ai/cli/service";
 import {
   createModel,
   createProvider,
@@ -60,6 +60,7 @@ export const createProviderAction = wrap("provider.create", createProvider);
 export const updateProviderAction = wrap("provider.update", updateProvider);
 export const setProviderEnabledAction = wrap("provider.enable", setProviderEnabled);
 export const disconnectProviderAction = wrap("provider.disconnect", disconnectProvider);
+export const setCliEnabledAction = wrap("provider.cli.toggle", setCliEnabled);
 export const connectCliAction = wrap("provider.cli.connect", connectCli);
 export const testProviderAction = wrap("provider.test", testProvider);
 export const fetchProviderModelsAction = wrap("model.fetch", fetchProviderModels);

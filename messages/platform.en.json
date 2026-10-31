@@ -91,7 +91,8 @@
         "network": "Could not reach the provider",
         "bad_response": "Unexpected response",
         "provider_error": "Provider error",
-        "no_credential": "No API key stored"
+        "no_credential": "No API key stored",
+        "cli_off": "Local CLIs are switched off"
       },
       "cliLogin": "Signs in with the CLI's own login on the server"
     },
@@ -229,7 +230,7 @@
       "notLocal": "Use a localhost address for a local server.",
       "taken": "That key is already in use.",
       "unknown": "Unknown value.",
-      "cliOff": "Local CLIs are switched off on this server (ALLOW_LOCAL_CLI).",
+      "cliOff": "Local CLIs are switched off. Turn them on above first.",
       "cliNotInstalled": "That CLI is not installed on this server."
     },
     "skills": {
@@ -384,7 +385,6 @@
     "cli": {
       "title": "Local CLI",
       "intro": "Use a CLI that is already logged in on the machine that serves Saqina, such as Claude Code, Codex or OpenCode, instead of an API key. Saqina only starts these programs, in an empty temporary folder, with no tools and none of its own secrets. Only platform owners see this.",
-      "off": "Local CLIs are switched off on this server. The person who runs the server turns them on with",
       "installed": "Installed",
       "notInstalled": "Not installed on this server",
       "login": "Log in on the server with",
@@ -395,7 +395,11 @@
       "working": "Working...",
       "testOk": "The CLI answered. It is now in the provider list below and can be set as a model.",
       "testFailed": "The CLI did not answer. Check that it is logged in on the server, then test again.",
-      "rescan": "Reload this page after installing or logging in to a CLI to see the change."
+      "rescan": "Reload this page after installing or logging in to a CLI to see the change.",
+      "switchOn": "Local CLIs are on",
+      "switchOff": "Local CLIs are off",
+      "switchHint": "Off by default. While it is off, no CLI is started and any connected CLI stops answering. Turning it on lets Saqina run the CLIs below on this server, as the user that runs Saqina.",
+      "detectOff": "Not checked while local CLIs are off"
     }
   },
   "integrations": {
