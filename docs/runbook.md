@@ -39,7 +39,7 @@ private — files are served only through Saqina after an access check.
 R2 charges nothing for egress, so moving attachments here keeps their transfer off the Vercel bill.
 Setup is configuration only.
 
-1. **Bucket.** Cloudflare dashboard > R2 > Create bucket (e.g. `saqina-attachments`). Do NOT enable
+1. **Bucket.** Cloudflare dashboard > R2 > Create bucket (e.g. `saqina-storage`). Do NOT enable
    public access.
 2. **Token.** R2 > Manage R2 API Tokens > Create API token. This is an **Account API token** (R2's
    own token UI), not a User API token — only the R2 token mints the S3 Access Key ID / Secret pair.
@@ -47,7 +47,7 @@ Setup is configuration only.
    all buckets. Copy the Access Key ID, Secret Access Key and the S3 endpoint; the secret is shown
    once.
 3. **Variables.** Set in Vercel for Production and Preview, then redeploy:
-   - `S3_BUCKET=saqina-attachments`
+   - `S3_BUCKET=saqina-storage`
    - `S3_REGION=auto` — R2 ignores the region but the request signer still needs a value; `auto` is
      the one R2 documents.
    - `S3_ENDPOINT=https://<ACCOUNT_ID>.r2.cloudflarestorage.com` — the account endpoint WITHOUT the
@@ -273,17 +273,82 @@ Documents keep every version (`document_versions`); restore by saving the old co
 
 ## Cloudflare (free) caching for public pages
 
-Cloudflare free does not cache HTML by default; it must be told to, and it must respect the
-origin's `Cache-Control`. The app sends `public, s-maxage=3600, stale-while-revalidate=86400`
-on the public marketing and legal paths (see `next.config.ts`).
+This holds the public marketing and legal pages at Cloudflare's edge so most public requests never
+reach Vercel, cutting Fast Origin Transfer and Fluid Active CPU. The app sends
+`public, s-maxage=3600, stale-while-revalidate=86400` on those paths (see `next.config.ts`), and
+the service catalog is ISR (`revalidate = 3600`). Private routes stay dynamic and uncached.
 
-1. In the Cloudflare dashboard, add a Cache Rule matching the public paths
-   (`/en`, `/id`, `/*/services*`, `/*/themes`, `/*/privacy`, `/*/terms`):
-   set "Cache eligibility" to "Eligible for cache" and enable "Respect origin Cache-Control".
-2. Do NOT add a cache rule for `/*/dashboard*`, `/*/project*`, `/*/portal*`, `/*/sign-in*`,
-   `/*/sign-up*`, `/*/invite*`, or `/api/*`. These stay uncached.
-3. Confirm the session cookie is not present on public requests (it triggers a cache bypass).
-   Marketing and legal pages do not set or require it.
+### 0. The record must be proxied (orange cloud)
 
-Verify after deploy: a second request to a public page returns `cf-cache-status: HIT`. Watch the
-Fast Origin Transfer and Fluid Active CPU graphs in Vercel over a few days.
+Cloudflare only caches when it sits in the request path. A DNS-only record (grey cloud) resolves the
+name and steps aside, so no Cache Rule ever runs and `cf-cache-status` never appears.
+
+1. In the zone's DNS tab, switch the apex record that points to Vercel to **Proxied** (orange cloud).
+   A `CNAME` to a Vercel target is fine; Cloudflare flattens the apex CNAME automatically.
+2. SSL/TLS > Overview: set the mode to **Full (strict)**. Vercel serves a valid certificate, so this
+   avoids a redirect loop once traffic is proxied.
+3. Keep `*.saqina.dev` (published client projects) **DNS-only / grey** unless you have a plan to
+   cache them too — those are separate apps with their own needs.
+4. After switching, confirm the site still loads and `/api/health` still returns `"database":true`.
+
+### 1. Cache Rule: public pages are cacheable
+
+Caching > Cache Rules > Create rule.
+
+- Name: `Public pages — cacheable`
+- When incoming requests match (expression editor):
+
+  ```
+  (http.request.uri.path matches "^/(en|id)(/(services|themes|privacy|terms)(/.*)?)?$")
+  ```
+
+  Matches `/en`, `/id`, and under them `services` (including `/services/<slug>`), `themes`,
+  `privacy`, `terms`. It can never match `dashboard`, `project`, `portal`, `sign-in`, `invite` or
+  `/api`, because none of those appear in the list.
+- Then: Cache eligibility = **Eligible for cache**; Edge TTL = **Respect origin TTL**; Browser TTL =
+  **Respect origin**. The app owns the TTL (`s-maxage=3600`), so there is one source of truth —
+  change it in `next.config.ts`, not here.
+- Deploy.
+
+### 2. Cache Rule: private routes never cache
+
+Create a second rule and order it **above** the public one (rules run top to bottom).
+
+- Name: `Private — never cache`
+- Expression:
+
+  ```
+  (http.request.uri.path contains "/dashboard") or (http.request.uri.path contains "/project") or (http.request.uri.path contains "/portal") or (starts_with(http.request.uri.path, "/api")) or (http.request.uri.path contains "/sign-in") or (http.request.uri.path contains "/sign-up") or (http.request.uri.path contains "/invite")
+  ```
+
+- Then: Cache eligibility = **Bypass cache**. Deploy.
+
+### 3. No Set-Cookie on public pages (already handled in code)
+
+A shared cache bypasses any response that carries `Set-Cookie`. `src/i18n/routing.ts` sets
+`localeCookie: false`, so next-intl never writes `NEXT_LOCALE` (the locale is always in the URL).
+Auth cookies only appear on private routes. Keep it this way: do not add a cookie to a public page.
+
+### 4. Verify
+
+A public page misses on the first request and hits on the second:
+
+```bash
+curl -sI https://www.saqina.dev/en/services | grep -i 'cf-cache-status\|cache-control'
+curl -sI https://www.saqina.dev/en/services | grep -i 'cf-cache-status'
+```
+
+The second must show `cf-cache-status: HIT`. A private page must never hit:
+
+```bash
+curl -sI https://www.saqina.dev/en/dashboard | grep -i 'cf-cache-status'
+```
+
+Expect `DYNAMIC` or `BYPASS`, never `HIT`. If a public page still bypasses on the second request:
+
+- `curl -sI <url> | grep -i set-cookie` — if a cookie is present, that is the cause.
+- Confirm `Cache-Control` shows `s-maxage=3600`; if absent, the `next.config.ts` header is not
+  deployed yet.
+- Confirm the record is orange (step 0); a grey cloud yields no `cf-cache-status` at all.
+
+Then watch the Fast Origin Transfer and Fluid Active CPU graphs in Vercel over a few days.
