@@ -3,6 +3,9 @@ import type { Locale } from "@/i18n/locales";
 import { redirect } from "@/i18n/navigation";
 import { getActor } from "@/lib/auth/server";
 
+// The client portal is per-client data behind a validated session; never cache it.
+export const dynamic = "force-dynamic";
+
 /**
  * Client portal shell. The session is validated here; each project page additionally checks
  * client access through `portalPageAccess`, the only way into project data.
