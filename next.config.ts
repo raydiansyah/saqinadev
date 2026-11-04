@@ -14,7 +14,26 @@ const nextConfig: NextConfig = {
     "/api/docs/assets/[audience]/[name]": ["./src/content/docs/assets/**/*"],
   },
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders(process.env.NODE_ENV !== "production") }];
+    // Public, session-independent pages: let Cloudflare and Vercel's CDN hold them.
+    // s-maxage governs the shared cache; stale-while-revalidate serves a stale copy for a day
+    // while a fresh one is fetched in the background. Browsers get no private max-age on purpose.
+    const publicCache = [
+      { key: "Cache-Control", value: "public, s-maxage=3600, stale-while-revalidate=86400" },
+    ];
+    // Locale-prefixed public pages. The matcher is explicit so no private path can ever match:
+    // dashboard, project, portal, auth, invite and /api are absent by construction.
+    const publicSources = [
+      "/:locale(en|id)",
+      "/:locale(en|id)/themes",
+      "/:locale(en|id)/services",
+      "/:locale(en|id)/services/:slug*",
+      "/:locale(en|id)/privacy",
+      "/:locale(en|id)/terms",
+    ];
+    return [
+      { source: "/:path*", headers: securityHeaders(process.env.NODE_ENV !== "production") },
+      ...publicSources.map((source) => ({ source, headers: publicCache })),
+    ];
   },
 };
 
