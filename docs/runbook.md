@@ -296,15 +296,17 @@ name and steps aside, so no Cache Rule ever runs and `cf-cache-status` never app
 Caching > Cache Rules > Create rule.
 
 - Name: `Public pages — cacheable`
-- When incoming requests match (expression editor):
+- When incoming requests match (expression editor). The regex `matches` operator needs a Business
+  plan, so the free plan uses `eq` and `starts_with`:
 
   ```
-  (http.request.uri.path matches "^/(en|id)(/(services|themes|privacy|terms)(/.*)?)?$")
+  (http.request.uri.path eq "/en") or (http.request.uri.path eq "/id") or (starts_with(http.request.uri.path, "/en/services")) or (starts_with(http.request.uri.path, "/id/services")) or (starts_with(http.request.uri.path, "/en/themes")) or (starts_with(http.request.uri.path, "/id/themes")) or (starts_with(http.request.uri.path, "/en/privacy")) or (starts_with(http.request.uri.path, "/id/privacy")) or (starts_with(http.request.uri.path, "/en/terms")) or (starts_with(http.request.uri.path, "/id/terms"))
   ```
 
-  Matches `/en`, `/id`, and under them `services` (including `/services/<slug>`), `themes`,
-  `privacy`, `terms`. It can never match `dashboard`, `project`, `portal`, `sign-in`, `invite` or
-  `/api`, because none of those appear in the list.
+  `starts_with(path, "/en/services")` covers both `/en/services` and `/en/services/<slug>`, so one
+  clause handles the list page and every detail page. None of these prefixes can match `dashboard`,
+  `project`, `portal`, `sign-in`, `invite` or `/api`. Because `starts_with` is looser than an
+  anchored regex, the "Private — never cache" rule (next section) MUST sit above this one.
 - Then:
   - Cache eligibility = **Eligible for cache**.
   - Edge TTL = **Use cache-control header if present, bypass cache if not**. The app sends
