@@ -305,9 +305,16 @@ Caching > Cache Rules > Create rule.
   Matches `/en`, `/id`, and under them `services` (including `/services/<slug>`), `themes`,
   `privacy`, `terms`. It can never match `dashboard`, `project`, `portal`, `sign-in`, `invite` or
   `/api`, because none of those appear in the list.
-- Then: Cache eligibility = **Eligible for cache**; Edge TTL = **Respect origin TTL**; Browser TTL =
-  **Respect origin**. The app owns the TTL (`s-maxage=3600`), so there is one source of truth —
-  change it in `next.config.ts`, not here.
+- Then:
+  - Cache eligibility = **Eligible for cache**.
+  - Edge TTL = **Use cache-control header if present, bypass cache if not**. The app sends
+    `s-maxage=3600`, so Cloudflare honors it; a response with no cache header is not meant to be
+    cached and is bypassed. Do not pick "Ignore cache-control header and use this TTL" (that moves
+    the TTL out of the code) or the "default TTL" option (that caches header-less responses on a
+    guess).
+  - Browser TTL = **Respect origin** (use the cache-control header if present).
+- The app owns the TTL (`s-maxage=3600`), so there is one source of truth — change it in
+  `next.config.ts`, not here.
 - Deploy.
 
 ### 2. Cache Rule: private routes never cache
