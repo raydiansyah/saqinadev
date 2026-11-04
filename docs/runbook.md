@@ -340,24 +340,35 @@ Auth cookies only appear on private routes. Keep it this way: do not add a cooki
 
 ### 4. Verify
 
-A public page misses on the first request and hits on the second:
+`www.saqina.dev` redirects to the apex `saqina.dev`, so verify against the apex. First confirm
+Cloudflare is actually in the path — a `cf-ray` header must be present and `server` must say
+`cloudflare`. If instead you see `server: Vercel` and no `cf-ray`, the record is still grey (DNS
+only) and no cache rule runs; fix step 0 first.
 
 ```bash
-curl -sI https://www.saqina.dev/en/services | grep -i 'cf-cache-status\|cache-control'
-curl -sI https://www.saqina.dev/en/services | grep -i 'cf-cache-status'
+curl -sI https://saqina.dev/en/services | grep -i 'server:\|cf-ray'
+```
+
+Then a public page misses on the first request and hits on the second:
+
+```bash
+curl -sI https://saqina.dev/en/services | grep -i 'cf-cache-status\|cache-control'
+curl -sI https://saqina.dev/en/services | grep -i 'cf-cache-status'
 ```
 
 The second must show `cf-cache-status: HIT`. A private page must never hit:
 
 ```bash
-curl -sI https://www.saqina.dev/en/dashboard | grep -i 'cf-cache-status'
+curl -sI https://saqina.dev/en/dashboard | grep -i 'cf-cache-status'
 ```
 
 Expect `DYNAMIC` or `BYPASS`, never `HIT`. If a public page still bypasses on the second request:
 
-- `curl -sI <url> | grep -i set-cookie` — if a cookie is present, that is the cause.
+- No `cf-ray` / `server: Vercel` — the apex record is grey; make it orange (step 0). This is the
+  most common cause.
+- `curl -sI https://saqina.dev/en/services | grep -i set-cookie` — if a cookie is present, that is
+  the cause.
 - Confirm `Cache-Control` shows `s-maxage=3600`; if absent, the `next.config.ts` header is not
   deployed yet.
-- Confirm the record is orange (step 0); a grey cloud yields no `cf-cache-status` at all.
 
 Then watch the Fast Origin Transfer and Fluid Active CPU graphs in Vercel over a few days.
