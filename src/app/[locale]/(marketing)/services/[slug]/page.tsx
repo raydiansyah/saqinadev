@@ -9,7 +9,8 @@ import { isLocale } from "@/i18n/locales";
 import { pageMetadata } from "@/i18n/metadata";
 import { getPublicService, resolveServiceRedirect } from "@/lib/services/queries";
 
-export const dynamic = "force-dynamic";
+// Cached and rebuilt hourly per slug; a published change shows up within the hour.
+export const revalidate = 3600;
 
 export async function generateMetadata({
   params,

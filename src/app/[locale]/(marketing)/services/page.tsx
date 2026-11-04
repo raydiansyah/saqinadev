@@ -29,8 +29,8 @@ export async function generateMetadata({
   });
 }
 
-// The catalog is read per request so published changes show up immediately.
-export const dynamic = "force-dynamic";
+// The catalog is cached and rebuilt hourly; a published change shows up within the hour.
+export const revalidate = 3600;
 
 export default async function ServicesPage({ params }: PageProps<"/[locale]/services">) {
   const { locale } = await params;
