@@ -21,13 +21,45 @@ pnpm smoke https://www.saqina.dev
 
 ## File storage (S3) for chat attachments
 
-1. Create a private bucket (block all public access). Any S3-compatible store works (Cloudflare R2,
-   MinIO); set `S3_ENDPOINT` for those.
+The store is S3-compatible (`src/lib/attachments/storage.ts`, via `aws4fetch`). AWS S3, Cloudflare
+R2 and MinIO all work with the same five `S3_*` variables; no code change. The bucket must stay
+private — files are served only through Saqina after an access check.
+
+### AWS S3
+
+1. Create a private bucket (block all public access).
 2. Create an access key whose policy allows only `s3:PutObject`, `s3:GetObject` and
    `s3:DeleteObject` on `arn:aws:s3:::<bucket>/projects/*`.
-3. Set `S3_BUCKET`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` (and `S3_ENDPOINT` if
-   needed) in Vercel for Production and Preview, then redeploy.
-4. Check `/api/health` shows `"fileStorage":true`, then attach a small image in a project's chat.
+3. Set `S3_BUCKET`, `S3_REGION` (the bucket's region, e.g. `ap-southeast-1`), `S3_ACCESS_KEY_ID`
+   and `S3_SECRET_ACCESS_KEY` in Vercel for Production and Preview. Leave `S3_ENDPOINT` empty.
+4. Redeploy, then verify (below).
+
+### Cloudflare R2 (free egress)
+
+R2 charges nothing for egress, so moving attachments here keeps their transfer off the Vercel bill.
+Setup is configuration only.
+
+1. **Bucket.** Cloudflare dashboard > R2 > Create bucket (e.g. `saqina-attachments`). Do NOT enable
+   public access.
+2. **Token.** R2 > Manage R2 API Tokens > Create API token. This is an **Account API token** (R2's
+   own token UI), not a User API token — only the R2 token mints the S3 Access Key ID / Secret pair.
+   Permission: **Object Read & Write** (covers Put, Get and Delete). Scope it to the one bucket, not
+   all buckets. Copy the Access Key ID, Secret Access Key and the S3 endpoint; the secret is shown
+   once.
+3. **Variables.** Set in Vercel for Production and Preview, then redeploy:
+   - `S3_BUCKET=saqina-attachments`
+   - `S3_REGION=auto` — R2 ignores the region but the request signer still needs a value; `auto` is
+     the one R2 documents.
+   - `S3_ENDPOINT=https://<ACCOUNT_ID>.r2.cloudflarestorage.com` — the account endpoint WITHOUT the
+     bucket name; the code appends the bucket and uses path-style URLs when `S3_ENDPOINT` is set.
+   - `S3_ACCESS_KEY_ID` and `S3_SECRET_ACCESS_KEY` from step 2.
+
+### Verify (either store)
+
+1. `/api/health` shows `"fileStorage":true` (`storageDriver()` returns `"s3"` once the four core
+   variables are set). Locally, fill `.env.local` and run `pnpm smoke` or upload an attachment.
+2. Attach a small image in a project's chat, then confirm an object appears under the
+   `projects/<project id>/attachments/` prefix (S3 console or the R2 bucket view).
 
 Objects are stored as `projects/<project id>/attachments/<uuid>`, never under the file name.
 Uploads that were never sent are deleted by the daily maintenance cron after a day. Rotate the key
