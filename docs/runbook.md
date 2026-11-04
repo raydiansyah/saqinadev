@@ -238,3 +238,20 @@ writes made after it was taken, so prefer fixing forward with a new migration.
 ## Restore a document or memory
 
 Documents keep every version (`document_versions`); restore by saving the old content as a new version.
+
+## Cloudflare (free) caching for public pages
+
+Cloudflare free does not cache HTML by default; it must be told to, and it must respect the
+origin's `Cache-Control`. The app sends `public, s-maxage=3600, stale-while-revalidate=86400`
+on the public marketing and legal paths (see `next.config.ts`).
+
+1. In the Cloudflare dashboard, add a Cache Rule matching the public paths
+   (`/en`, `/id`, `/*/services*`, `/*/themes`, `/*/privacy`, `/*/terms`):
+   set "Cache eligibility" to "Eligible for cache" and enable "Respect origin Cache-Control".
+2. Do NOT add a cache rule for `/*/dashboard*`, `/*/project*`, `/*/portal*`, `/*/sign-in*`,
+   `/*/sign-up*`, `/*/invite*`, or `/api/*`. These stay uncached.
+3. Confirm the session cookie is not present on public requests (it triggers a cache bypass).
+   Marketing and legal pages do not set or require it.
+
+Verify after deploy: a second request to a public page returns `cf-cache-status: HIT`. Watch the
+Fast Origin Transfer and Fluid Active CPU graphs in Vercel over a few days.
