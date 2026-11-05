@@ -23,6 +23,43 @@ client follows progress. Live at [saqina.dev](https://saqina.dev). Built by Abat
 Next.js 16 (App Router), React 19, TypeScript, PostgreSQL with Drizzle ORM, Better Auth, next-intl
 (English and Indonesian), Tailwind CSS 4, Vitest, Biome. Deployed on Vercel with Neon.
 
+## Design theme and landing pages
+
+Full detail: [design and landing pages](docs/design-and-landing.md).
+
+- **Saqina's own look.** A dark scheme with warm graphite surfaces and one coral accent (`#FF6A55`)
+  for the main action and focus, set as CSS variables in `src/app/globals.css`. Geist and Geist Mono
+  are the fonts. Green, blue, amber and red are kept for status, never decoration.
+- **The public landing page** has five sections: hero, a nine-step lifecycle (idea to maintenance),
+  three pillars (one project, client portal, Ask Saqina), an interactive demo that reads a project idea in
+  the browser with no AI call, and a closing call to action. Text is in English and Indonesian
+  (`src/content/site`).
+- **21 UI themes** the interview can recommend for a client's project, in five groups (SaaS, minimal,
+  media, organic, creative) and three tiers: *recommended*, *available* and *concept*. A concept theme is
+  never suggested automatically. The gallery is at `/themes`.
+- **18 landing page concepts** in six groups (story, interaction, spatial, system, conversion,
+  foundation). A project gets one primary and at most two supporting concepts, chosen by project type
+  and always changeable.
+
+## AI orchestrator
+
+Full detail: [AI orchestrator](docs/ai-orchestrator.md).
+
+The orchestration is our own code on PostgreSQL and the Next.js app, with no agent framework or queue
+service:
+
+- **Models** are reached through a gateway and one adapter per protocol (Anthropic, OpenAI and
+  compatible endpoints, Gemini, Vercel AI Gateway, or a CLI logged in on the server). The gateway
+  picks a model per call from the person's choice, the agent's mapping, the project and the platform
+  default, and falls back when one fails.
+- **Plan and Build** run as an execution: a planner makes a task graph, tasks start when what they
+  depend on has succeeded, agents commit to a work branch and review each other, and a person merges.
+  State, queue and event log are PostgreSQL tables claimed with `FOR UPDATE SKIP LOCKED`.
+- **Worker and realtime**: work after the response (`after()`) plus a cron route, and server-sent events
+  read from the stored log. No Redis, BullMQ, WebSockets, LangChain or Vercel AI SDK.
+- **Control** stays with people: only the platform Owner manages agents and providers, agents use only
+  the tools in their definition, and nothing is merged or deployed by an agent.
+
 ## Architecture
 
 Saqina is a **modular monolith**: one Next.js app, one PostgreSQL database, no separate API server,
@@ -124,6 +161,8 @@ pnpm dev
 - [Engineering standards](docs/standards/README.md): architecture, security, testing, delivery,
   observability, compliance, governance
 - [Installation guide](docs/installation.md): local setup, agents, deploy
+- [Design and landing pages](docs/design-and-landing.md): Saqina's theme, the 21 UI themes, the 18 landing concepts
+- [AI orchestrator](docs/ai-orchestrator.md): models, agents, executions and what they run on
 - [Runbook](docs/runbook.md): deploy, migrate, roll back, incidents
 - [Architecture decisions](docs/adr/), including [imported projects follow GitHub](docs/adr/0005-imported-projects-follow-github.md) and
   [two-party document signing](docs/adr/0006-two-party-document-signing.md)
