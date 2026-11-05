@@ -12,6 +12,9 @@ How to run Saqina Dev on your machine, how to deploy it, and how to switch on th
 | PostgreSQL | 14+ | A local database for development. Never point `.env.local` at production. |
 | Git | any recent | Needed by the local-git test adapter and by agents. |
 
+If the database is not on your machine, every query costs a round trip and pages feel slow: use a local
+PostgreSQL for development, or set `DATABASE_POOL_MAX=20` in `.env.local`.
+
 Three databases keep work apart. Create them once:
 
 ```bash

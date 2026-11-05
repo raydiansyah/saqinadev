@@ -1,5 +1,6 @@
 import "server-only";
-import { count, eq } from "drizzle-orm";
+import { count, eq, sql } from "drizzle-orm";
+import { cache } from "react";
 import type { Actor } from "@/lib/auth/actor";
 import { db } from "@/lib/db/client";
 import { users } from "@/lib/db/schema";
@@ -16,18 +17,23 @@ const envOwners = () =>
  * Platform Owner = `users.platformRole = owner`. While nobody holds that role yet, the
  * emails in PLATFORM_OWNER_EMAILS act as owners so a fresh install can be set up.
  */
+/** One round trip: the person's role and whether anyone holds the role yet. */
+const ownerFacts = cache(async (id: string) => {
+  const [row] = await db
+    .select({
+      role: users.platformRole,
+      owners: sql<number>`(select count(*)::int from ${users} where ${users.platformRole} = 'owner')`,
+    })
+    .from(users)
+    .where(eq(users.id, id));
+  return { role: row?.role, owners: row?.owners ?? 0 };
+});
+
 export async function isPlatformOwner(actor: Actor | null): Promise<boolean> {
   if (!actor) return false;
-  const [me] = await db
-    .select({ role: users.platformRole })
-    .from(users)
-    .where(eq(users.id, actor.id));
-  if (me?.role === "owner") return true;
-  const [{ n }] = await db
-    .select({ n: count() })
-    .from(users)
-    .where(eq(users.platformRole, "owner"));
-  return n === 0 && envOwners().includes(actor.email.toLowerCase());
+  const { role, owners } = await ownerFacts(actor.id);
+  if (role === "owner") return true;
+  return owners === 0 && envOwners().includes(actor.email.toLowerCase());
 }
 
 export async function requirePlatformOwner(actor: Actor): Promise<void> {

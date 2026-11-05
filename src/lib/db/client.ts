@@ -11,10 +11,21 @@ export type Executor = Database | Tx;
 
 const globalForDb = globalThis as unknown as { saqinaPool?: Pool };
 
+/**
+ * Connections one server process may hold. A project page asks for 15 or more things at once, so
+ * with a database that is far away (a laptop talking to a hosted one) the ones over the limit wait for
+ * a connection and add a whole round trip. Raise it there; keep it small on a serverless host, where
+ * every instance holds its own.
+ */
+function poolMax(): number {
+  const n = Number(process.env.DATABASE_POOL_MAX);
+  return Number.isInteger(n) && n >= 2 && n <= 50 ? n : 10;
+}
+
 function createPool(): Pool {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) throw new Error("DATABASE_URL is not set");
-  return new Pool({ connectionString: withVerifiedSsl(connectionString), max: 10 });
+  return new Pool({ connectionString: withVerifiedSsl(connectionString), max: poolMax() });
 }
 
 // One pool per process; dev hot reload would otherwise open a new pool on every edit.

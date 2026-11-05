@@ -46,51 +46,54 @@ export async function loadSnapshots(
   const result = new Map<string, ProjectSnapshot>();
   if (ids.length === 0) return result;
 
-  const [interviewRows, reqRows, prdRows, taskRows, proposalRows, runRows] = await Promise.all([
-    executor
-      .selectDistinctOn([interviews.projectId], {
-        projectId: interviews.projectId,
-        status: interviews.status,
-      })
-      .from(interviews)
-      .where(inArray(interviews.projectId, ids))
-      .orderBy(interviews.projectId, desc(interviews.startedAt)),
-    executor
-      .select({ projectId: requirements.projectId, status: requirements.status, n: count() })
-      .from(requirements)
-      .where(
-        and(
-          inArray(requirements.projectId, ids),
-          inArray(requirements.status, ["unknown", "conflicting"]),
-        ),
-      )
-      .groupBy(requirements.projectId, requirements.status),
-    executor
-      .select({ projectId: documents.projectId, status: documents.status })
-      .from(documents)
-      .where(and(inArray(documents.projectId, ids), eq(documents.type, "prd"))),
-    executor
-      .select({ projectId: tasks.projectId, status: tasks.status, n: count() })
-      .from(tasks)
-      .where(inArray(tasks.projectId, ids))
-      .groupBy(tasks.projectId, tasks.status),
-    executor
-      .select({ projectId: proposals.projectId, n: count() })
-      .from(proposals)
-      .where(and(inArray(proposals.projectId, ids), eq(proposals.status, "pending")))
-      .groupBy(proposals.projectId),
-    executor
-      .select({ projectId: agentRuns.projectId, status: agentRuns.status, n: count() })
-      .from(agentRuns)
-      .where(
-        and(
-          inArray(agentRuns.projectId, ids),
-          // Failed runs count only until someone retries or cancels them.
-          inArray(agentRuns.status, ["queued", "running", "waiting", "paused", "failed"]),
-        ),
-      )
-      .groupBy(agentRuns.projectId, agentRuns.status),
-  ]);
+  // The delivery summary is asked in the same round as the rest: it does not depend on them.
+  const [interviewRows, reqRows, prdRows, taskRows, proposalRows, runRows, deliveries] =
+    await Promise.all([
+      executor
+        .selectDistinctOn([interviews.projectId], {
+          projectId: interviews.projectId,
+          status: interviews.status,
+        })
+        .from(interviews)
+        .where(inArray(interviews.projectId, ids))
+        .orderBy(interviews.projectId, desc(interviews.startedAt)),
+      executor
+        .select({ projectId: requirements.projectId, status: requirements.status, n: count() })
+        .from(requirements)
+        .where(
+          and(
+            inArray(requirements.projectId, ids),
+            inArray(requirements.status, ["unknown", "conflicting"]),
+          ),
+        )
+        .groupBy(requirements.projectId, requirements.status),
+      executor
+        .select({ projectId: documents.projectId, status: documents.status })
+        .from(documents)
+        .where(and(inArray(documents.projectId, ids), eq(documents.type, "prd"))),
+      executor
+        .select({ projectId: tasks.projectId, status: tasks.status, n: count() })
+        .from(tasks)
+        .where(inArray(tasks.projectId, ids))
+        .groupBy(tasks.projectId, tasks.status),
+      executor
+        .select({ projectId: proposals.projectId, n: count() })
+        .from(proposals)
+        .where(and(inArray(proposals.projectId, ids), eq(proposals.status, "pending")))
+        .groupBy(proposals.projectId),
+      executor
+        .select({ projectId: agentRuns.projectId, status: agentRuns.status, n: count() })
+        .from(agentRuns)
+        .where(
+          and(
+            inArray(agentRuns.projectId, ids),
+            // Failed runs count only until someone retries or cancels them.
+            inArray(agentRuns.status, ["queued", "running", "waiting", "paused", "failed"]),
+          ),
+        )
+        .groupBy(agentRuns.projectId, agentRuns.status),
+      loadDeliverySummaries(executor, ids),
+    ]);
 
   for (const p of list) {
     result.set(p.id, {
@@ -133,7 +136,7 @@ export async function loadSnapshots(
     const s = result.get(r.projectId);
     if (s) s.tasks[r.status as TaskStatus] = r.n;
   }
-  for (const [id, delivery] of await loadDeliverySummaries(executor, ids)) {
+  for (const [id, delivery] of deliveries) {
     const s = result.get(id);
     if (s) s.delivery = delivery;
   }

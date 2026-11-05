@@ -30,16 +30,17 @@ export default async function ProjectOverviewPage({
   const { slug } = await params;
   const access = await projectPageAccess(slug);
   const { project, actor } = access;
-  const snapshot = await projectSnapshot(slug);
-  const [counts, recs, activity, runs] = await Promise.all([
+  // Everything the page shows is asked for together; each separate await is a round trip.
+  const [snapshot, counts, recs, activity, runs, mismatches, t, docs] = await Promise.all([
+    projectSnapshot(slug),
     contextCounts(db, project.id),
     listRecommendations(access),
     listActivity(project.id, { limit: 5 }),
     listRuns(access, { limit: 5 }),
+    projectStackMismatches(access),
+    getTranslations("project"),
+    getTranslations("documents.statuses"),
   ]);
-  const mismatches = await projectStackMismatches(access);
-  const t = await getTranslations("project");
-  const docs = await getTranslations("documents.statuses");
   const next = getNextProjectAction(snapshot);
   const base = `/project/${slug}`;
   const interviewDone = snapshot.interviewStatus === "completed";

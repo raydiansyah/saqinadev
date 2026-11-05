@@ -8,6 +8,7 @@ import { ProjectMain } from "@/components/project/project-main";
 import { ProjectSidebarNav } from "@/components/project/project-sidebar";
 import type { Locale } from "@/i18n/locales";
 import { can } from "@/lib/auth/permissions";
+import { isPlatformOwner } from "@/lib/platform/roles";
 import { projectPageAccess, projectSnapshot } from "@/lib/projects/page";
 import { getNextProjectAction } from "@/lib/projects/progress";
 import { getUiMode } from "@/lib/users/preferences";
@@ -18,14 +19,20 @@ export default async function ProjectLayout({
 }: LayoutProps<"/[locale]/project/[slug]">) {
   const { slug, locale } = (await params) as { slug: string; locale: Locale };
   const { project, actor, role } = await projectPageAccess(slug);
-  const snapshot = await projectSnapshot(slug);
-  const t = await getTranslations("project.statuses");
+  // Independent reads go out together: each one waits a round trip to the database. The header's
+  // role lookup is started now so it is already answered when the header renders.
+  void isPlatformOwner(actor);
+  const [snapshot, t, mode] = await Promise.all([
+    projectSnapshot(slug),
+    getTranslations("project.statuses"),
+    getUiMode(actor),
+  ]);
   const sidebarProject = {
     slug,
     name: project.name,
     statusLabel: t(project.status),
     pendingApprovals: snapshot.attention?.pendingProposals ?? 0,
-    mode: await getUiMode(actor),
+    mode,
   };
 
   return (

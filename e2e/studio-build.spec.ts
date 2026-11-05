@@ -223,11 +223,12 @@ test("the composer + menu: browse, press Add, and the skill is in the menu and o
   await signIn(page);
   await openStudio(page);
   // A click before the page is interactive does nothing; retry until the menu is open.
+  const first = page.getByRole("menuitem", { name: "Add files or photos" });
   await expect(async () => {
-    await page.getByRole("button", { name: "Add to message" }).click();
-    await expect(page.getByRole("menuitem", { name: "Add files or photos" })).toBeVisible({
-      timeout: 1_000,
-    });
+    // The button toggles the menu, so click only while it is closed.
+    if (!(await first.isVisible()))
+      await page.getByRole("button", { name: "Add to message" }).click();
+    await expect(first).toBeVisible({ timeout: 1_500 });
   }).toPass({ timeout: 20_000 });
   await page.getByRole("menuitem", { name: "Skills" }).click();
   await expect(page.getByText("Nothing added yet. Use Browse to add some.")).toBeVisible();
