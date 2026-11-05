@@ -1105,7 +1105,8 @@
         "too_many_tasks": "tugas lebih banyak dari batas",
         "too_deep": "tugas saling menunggu dalam rantai yang terlalu panjang",
         "unknown_role": "sebuah tugas menyebut peran yang tidak dipegang agen mana pun (mungkin ada agen yang dimatikan)"
-      }
+      },
+      "waitingOn": "Menunggu: {tasks}"
     }
   }
 }

@@ -22,7 +22,23 @@ export function ExecutionAgents({ canWrite }: { canWrite: boolean }) {
 
   const name = (id: string | null) =>
     execution.agents.find((a) => a.id === id)?.name ?? t("orchestrator");
-  const blocked = execution.tasks.filter((x) => x.status === "blocked" || x.status === "failed");
+  // Failed tasks are the root causes, so they come first; blocked ones are what waits behind them.
+  const blocked = execution.tasks
+    .filter((x) => x.status === "blocked" || x.status === "failed")
+    .sort((a, b) => Number(b.status === "failed") - Number(a.status === "failed"));
+  const sayReason = (reason: string | null) => {
+    const r = parseReason(reason);
+    return r && t.has(`reasons.${r.key}` as never)
+      ? t(`reasons.${r.key}` as never, r.values as never)
+      : (reason ?? "");
+  };
+  /** Titles of the failed tasks a blocked task waits behind, so the chain can be followed. */
+  const waitingOn = (task: (typeof execution.tasks)[number]) =>
+    task.dependsOn
+      .map((id) => execution.tasks.find((x) => x.id === id))
+      .filter((d) => d && (d.status === "failed" || d.status === "blocked"))
+      .map((d) => d?.title)
+      .join(", ");
   const handoffs = execution.messages.filter(
     (m) => m.type !== "completion" && m.type !== "assignment",
   );
@@ -63,6 +79,21 @@ export function ExecutionAgents({ canWrite }: { canWrite: boolean }) {
                   {agent.taskTitle ??
                     (agent.status === "idle" ? t("agentIdle") : (waitingTask?.title ?? ""))}
                 </p>
+                {agent.status === "failed" || agent.status === "blocked" ? (
+                  <p
+                    className={
+                      agent.status === "failed"
+                        ? "mt-1.5 text-xs text-error text-pretty"
+                        : "mt-1.5 text-xs text-warning text-pretty"
+                    }
+                  >
+                    {sayReason(
+                      execution.tasks.find((x) => x.id === agent.taskId)?.blockedReason ??
+                        waitingTask?.blockedReason ??
+                        null,
+                    )}
+                  </p>
+                ) : null}
               </li>
             );
           })}
@@ -79,15 +110,26 @@ export function ExecutionAgents({ canWrite }: { canWrite: boolean }) {
           </h3>
           <ul className="space-y-2">
             {blocked.map((task) => {
-              const reason = parseReason(task.blockedReason);
+              const failed = task.status === "failed";
+              const behind = failed ? "" : waitingOn(task);
               return (
-                <li key={task.id} className="rounded-md border border-warning/40 p-3 text-sm">
+                <li
+                  key={task.id}
+                  className={
+                    failed
+                      ? "rounded-md border border-error/40 p-3 text-sm"
+                      : "rounded-md border border-warning/40 p-3 text-sm"
+                  }
+                >
                   <p className="font-medium">{task.title}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {reason && t.has(`reasons.${reason.key}` as never)
-                      ? t(`reasons.${reason.key}` as never, reason.values as never)
-                      : (task.blockedReason ?? "")}
+                    {sayReason(task.blockedReason)}
                   </p>
+                  {behind ? (
+                    <p className="mt-1 text-xs text-subtle-foreground">
+                      {t("waitingOn", { tasks: behind })}
+                    </p>
+                  ) : null}
                 </li>
               );
             })}

@@ -1105,7 +1105,8 @@
         "too_many_tasks": "more tasks than the limit",
         "too_deep": "tasks wait on each other in too long a chain",
         "unknown_role": "a task names a role that no agent covers (an agent may be switched off)"
-      }
+      },
+      "waitingOn": "Waiting on: {tasks}"
     }
   }
 }
