@@ -82,10 +82,20 @@ export interface Resolution {
 
 const USABLE_PROVIDER: ConnectionStatus[] = ["connected", "untested"];
 
+const providerReady = (m: CatalogModel) =>
+  m.status === "available" && m.providerEnabled && USABLE_PROVIDER.includes(m.providerStatus);
+
+/** A model that only embeds cannot answer a chat, so it never enters a chat chain or becomes a default. */
+const embeddingOnly = (m: CatalogModel) =>
+  m.capabilities.includes("embeddings") && !m.capabilities.includes("text");
+
 export function modelUsable(m: CatalogModel): boolean {
-  return (
-    m.status === "available" && m.providerEnabled && USABLE_PROVIDER.includes(m.providerStatus)
-  );
+  return providerReady(m) && !embeddingOnly(m);
+}
+
+/** May be chosen as the platform's embedder. */
+export function embedderUsable(m: CatalogModel): boolean {
+  return providerReady(m) && m.capabilities.includes("embeddings");
 }
 
 export function policyAllows(m: CatalogModel, p: Policy): boolean {
@@ -96,6 +106,14 @@ export function policyAllows(m: CatalogModel, p: Policy): boolean {
   if (p.allowedModelIds && !p.allowedModelIds.includes(m.id)) return false;
   if (!p.allowExternalProviders && m.providerType === "custom") return false;
   return true;
+}
+
+/**
+ * The one decision on whether a model may embed project text: selection and every call use it.
+ * A person's own gateway never qualifies, and the Owner's provider policy applies as for chat.
+ */
+export function embedderAllowed(m: CatalogModel, p: Policy): boolean {
+  return !m.ownerUserId && embedderUsable(m) && policyAllows(m, p);
 }
 
 export function missingCapabilities(

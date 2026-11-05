@@ -6,6 +6,7 @@ export * from "./brain";
 export * from "./code";
 export * from "./delivery";
 export * from "./docsync";
+export * from "./embeddings";
 export * from "./engagement";
 export * from "./executions";
 export * from "./memory";

@@ -1,7 +1,7 @@
 import * as z from "zod";
 import type { ProviderAdapterId } from "@/lib/domain/enums";
 import { DATA_BOUNDARY_RULES, renderUserTurn } from "../prompt";
-import type { AiProvider, AiRequest, AiUsage } from "../provider";
+import type { AiEmbedOptions, AiProvider, AiRequest, AiUsage } from "../provider";
 import { AiProviderError, request, sseData, trimSlash } from "./http";
 import type { AdapterConfig, ProviderAdapter } from "./types";
 
@@ -127,6 +127,34 @@ class OpenAiClient implements AiProvider {
     const parsed = schema.safeParse(args);
     if (!parsed.success) throw new AiProviderError("bad_response");
     return parsed.data;
+  }
+
+  async embed(texts: readonly string[], options: AiEmbedOptions): Promise<number[][]> {
+    const response = await request(`${this.base}/embeddings`, {
+      method: "POST",
+      adapter: this.config.adapter,
+      headers: { "content-type": "application/json", authorization: `Bearer ${this.apiKey}` },
+      body: JSON.stringify({
+        model: this.config.model,
+        input: texts,
+        dimensions: options.dimensions,
+        encoding_format: "float",
+      }),
+      signal: options.signal,
+    });
+    const json = (await response.json()) as {
+      data?: { index: number; embedding: number[] }[];
+      usage?: { prompt_tokens?: number };
+    };
+    const rows = json.data;
+    if (!Array.isArray(rows) || rows.length !== texts.length)
+      throw new AiProviderError("bad_response");
+    const vectors = [...rows].sort((a, b) => a.index - b.index).map((r) => r.embedding);
+    // A server that ignores `dimensions` would corrupt the column: refuse instead of storing it.
+    if (vectors.some((v) => !Array.isArray(v) || v.length !== options.dimensions))
+      throw new AiProviderError("bad_response");
+    if (json.usage) this.usage = { input: json.usage.prompt_tokens ?? null, output: null };
+    return vectors;
   }
 }
 

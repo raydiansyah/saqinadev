@@ -120,6 +120,13 @@
       "fallback": "Model fallback",
       "noneOption": "Tidak ada",
       "saveDefaults": "Simpan default",
+      "embedding": {
+        "title": "Model embedding",
+        "body": "Mengubah teks menjadi vektor untuk pencarian semantik. Teks proyek yang disetujui untuk dibagikan dikirim ke penyedia ini, dan setiap panggilan tercatat di pemakaian. Anthropic tidak punya model embedding; pakai yang kompatibel OpenAI atau Gemini.",
+        "label": "Model embedding",
+        "save": "Simpan model embedding",
+        "unusable": "Model embedding yang dipilih tidak bisa dipakai lagi: {model}. Pilih yang lain, atau tidak ada."
+      },
       "unavailable": "Model yang tidak tersedia tidak bisa dipilih.",
       "capabilityNames": {
         "text": "Teks",
@@ -129,7 +136,8 @@
         "tool_calling": "Pemanggilan tool",
         "streaming": "Streaming",
         "coding": "Coding",
-        "long_context": "Konteks panjang"
+        "long_context": "Konteks panjang",
+        "embeddings": "Embedding"
       },
       "statuses": {
         "available": "Tersedia",

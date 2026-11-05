@@ -21,7 +21,25 @@
       "wiki": "Wiki pages",
       "skills": "Skills"
     },
-    "semanticOff": "Off. Memory is searched by words and exact matches until an embedding model is set up.",
+    "semanticSearch": {
+      "on": "On. Memory and wiki are also searched by meaning.",
+      "indexing": "On, indexing: {done} of {total} items are ready. Until then words and exact matches carry the search.",
+      "off": "Off. Memory is searched by words and exact matches.",
+      "noModel": "Off. The platform owner has not chosen an embedding model yet.",
+      "hint": "Searched by words and exact matches, and by meaning when the project turned that on.",
+      "enable": "Turn on semantic search",
+      "disable": "Turn off semantic search",
+      "consentTitle": "Send project text to an embedding provider?",
+      "consentBody": "Approved memories and wiki passages that the whole project can read are sent to the platform's embedding provider so they can be searched by meaning. Private items are not included. You can turn this off at any time; the stored vectors are then deleted.",
+      "consentBodyNamed": "Approved memories and wiki passages that the whole project can read, and each question you search with, are sent to {provider}, the platform's embedding provider, so they can be searched by meaning. Private items are not included. If the platform owner later switches to another provider, your text goes to that one without asking again. You can turn this off at any time; the stored vectors are then deleted.",
+      "consentConfirm": "Turn on",
+      "disableTitle": "Turn off semantic search?",
+      "disableBody": "The stored vectors of this project are deleted and search goes back to words and exact matches.",
+      "errors": {
+        "noModel": "The platform owner has not chosen an embedding model.",
+        "consent": "Confirm the consent to turn it on."
+      }
+    },
     "levels": {
       "title": "By level",
       "L1": "Facts",
@@ -128,6 +146,7 @@
       "attempts": "Attempts",
       "kind": {
         "extract_chat": "Read a chat",
+        "embed_project": "Index for semantic search",
         "consolidate": "Summarise facts",
         "index_wiki": "Read documents",
         "extract_skill": "Propose a skill",
@@ -195,7 +214,6 @@
         "document": "Project document",
         "repo_file": "Repository file"
       },
-      "semantic": "Searched by words and exact matches. Semantic search is off.",
       "truncated": "shortened",
       "draft": "Draft document"
     },

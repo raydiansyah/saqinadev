@@ -65,9 +65,9 @@ export interface AiCall<T> {
 
 const label = (m: CatalogModel) => `${m.providerName} / ${m.displayName}`;
 
-async function recordUsage(input: {
+export async function recordUsage(input: {
   projectId: string | null;
-  model: CatalogModel | null;
+  model: Pick<CatalogModel, "id" | "providerId"> | null;
   requestedId: string | null;
   fallbackUsed: boolean;
   operation: AiOperation;

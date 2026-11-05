@@ -13,6 +13,12 @@ const NOT_CHAT =
 
 export const isChatModel = (modelId: string) => !NOT_CHAT.test(modelId);
 
+/**
+ * Ids of models that turn text into vectors. They are not chat models, but the owner may pick one as the embedder.
+ * Keep this pattern in step with the `embed` entry of NOT_CHAT above: two places decide what an embedding model is.
+ */
+export const isEmbeddingModel = (modelId: string) => /embed/i.test(modelId);
+
 const FAMILY = {
   claude: /^claude/i,
   gpt: /^(gpt-|chatgpt|o\d)/i,
@@ -21,6 +27,7 @@ const FAMILY = {
 
 export function inferCapabilities(adapter: ProviderAdapterId, modelId: string): ModelCapability[] {
   const id = modelId.replace(/^.*\//, ""); // gateways prefix the vendor: anthropic/claude-…
+  if (isEmbeddingModel(id)) return ["embeddings"];
   const out = new Set<ModelCapability>(["text", "streaming"]);
   const known = FAMILY.claude.test(id) || FAMILY.gpt.test(id) || FAMILY.gemini.test(id);
   // Compatible endpoints host anything, so they only get the structured abilities when the id

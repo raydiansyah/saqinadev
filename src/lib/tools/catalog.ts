@@ -102,7 +102,7 @@ export const STATIC_TOOLS: StaticTool[] = [
     source: "internal",
     name: "search_memory",
     description:
-      "Approved project memory matching a query: ranked, with confidence and sources. Full text search only; no semantic matching.",
+      "Approved project memory matching a query: ranked, with confidence and sources. Full text and exact match, plus search by meaning when the project turned it on; the result says `semantic`: on, off or degraded.",
     inputSchema: {
       type: "object",
       properties: { query: str(120) },

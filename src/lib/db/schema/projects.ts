@@ -128,6 +128,8 @@ export const projectSettings = pgTable("project_settings", {
     .$type<ApprovalPolicy>()
     .notNull()
     .default("auto_low_risk"),
+  /** The project agreed that approved memory and wiki text may be sent to the embedding provider. */
+  semanticSearchEnabled: boolean("semantic_search_enabled").notNull().default(false),
   updatedAt: updatedAt(),
 });
 

@@ -21,7 +21,25 @@
       "wiki": "Halaman wiki",
       "skills": "Skill"
     },
-    "semanticOff": "Mati. Memory dicari lewat kata dan pencocokan persis sampai model embedding disiapkan.",
+    "semanticSearch": {
+      "on": "Aktif. Memory dan wiki juga dicari berdasarkan makna.",
+      "indexing": "Aktif, sedang diindeks: {done} dari {total} item siap. Sampai selesai, kata dan pencocokan persis yang menjalankan pencarian.",
+      "off": "Mati. Memory dicari lewat kata dan pencocokan persis.",
+      "noModel": "Mati. Pemilik platform belum memilih model embedding.",
+      "hint": "Dicari lewat kata dan pencocokan persis, dan berdasarkan makna bila proyek mengaktifkannya.",
+      "enable": "Aktifkan pencarian semantik",
+      "disable": "Matikan pencarian semantik",
+      "consentTitle": "Kirim teks proyek ke penyedia embedding?",
+      "consentBody": "Memory dan potongan wiki yang disetujui dan bisa dibaca seluruh proyek dikirim ke penyedia embedding platform agar bisa dicari berdasarkan makna. Item privat tidak disertakan. Anda bisa mematikannya kapan saja; vektor yang tersimpan lalu dihapus.",
+      "consentBodyNamed": "Memory dan potongan wiki yang disetujui dan bisa dibaca seluruh proyek, juga setiap pertanyaan yang Anda cari, dikirim ke {provider}, penyedia embedding platform, agar bisa dicari berdasarkan makna. Item privat tidak disertakan. Bila pemilik platform kelak berganti ke penyedia lain, teks Anda dikirim ke penyedia itu tanpa meminta persetujuan lagi. Anda bisa mematikannya kapan saja; vektor yang tersimpan lalu dihapus.",
+      "consentConfirm": "Aktifkan",
+      "disableTitle": "Matikan pencarian semantik?",
+      "disableBody": "Vektor proyek ini dihapus dan pencarian kembali ke kata dan pencocokan persis.",
+      "errors": {
+        "noModel": "Pemilik platform belum memilih model embedding.",
+        "consent": "Konfirmasi persetujuan untuk mengaktifkannya."
+      }
+    },
     "levels": {
       "title": "Menurut tingkat",
       "L1": "Fakta",
@@ -128,6 +146,7 @@
       "attempts": "Percobaan",
       "kind": {
         "extract_chat": "Membaca chat",
+        "embed_project": "Indeks untuk pencarian semantik",
         "consolidate": "Meringkas fakta",
         "index_wiki": "Membaca dokumen",
         "extract_skill": "Mengusulkan skill",
@@ -195,7 +214,6 @@
         "document": "Dokumen proyek",
         "repo_file": "File repositori"
       },
-      "semantic": "Dicari lewat kata dan pencocokan persis. Pencarian semantik mati.",
       "truncated": "dipersingkat",
       "draft": "Dokumen masih draf"
     },

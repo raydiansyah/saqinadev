@@ -1,5 +1,5 @@
 import { and, eq, sql } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess } from "@/lib/auth/permissions";
 import { processProjectChanges } from "@/lib/brain/process";
@@ -16,12 +16,15 @@ import {
 import { indexDocs } from "@/lib/docmap/index-docs";
 import { saveDocument } from "@/lib/documents/service";
 import { AppError } from "@/lib/errors";
+import { CONSENT_VERSION, setSemanticSearch } from "@/lib/memory/embed/settings";
 import { processMemoryJobs } from "@/lib/memory/jobs";
 import type { Principal } from "@/lib/memory/policy";
 import { syncWikiFromDocuments } from "@/lib/memory/wiki";
 import { getWikiPage, listWikiSources } from "@/lib/memory/wiki/queries";
 import { retrieveWiki } from "@/lib/memory/wiki/retrieve";
 import { createUser, resetDatabase } from "../helpers/db";
+import { installEmbeddingModel, removeEmbeddingModel } from "../helpers/embedding-model";
+import { fakeEmbedder } from "../helpers/fake-embedder";
 import { project } from "../helpers/project";
 
 let alice: Actor;
@@ -369,5 +372,49 @@ describe("review hardening", () => {
     expect((await find("quokka policy")).passages[0].draft).toBe(true);
     await db.update(documents).set({ status: "approved" }).where(eq(documents.id, doc.id));
     expect((await find("quokka policy")).passages[0].draft).toBe(false);
+  });
+});
+
+describe("wiki by meaning", () => {
+  afterEach(removeEmbeddingModel);
+
+  it("finds a passage by meaning for a project that opted in, and not for one that did not", async () => {
+    await addDoc(
+      "billing",
+      "# Billing\n\n## Refunds\n\nRefunds return to the original method within 7 days.\n",
+    );
+    await syncWikiFromDocuments(projectA);
+    const modelId = await installEmbeddingModel();
+    const embedder = fakeEmbedder(modelId, { concepts: { reimbursement: 3, "refunds return": 3 } });
+    const before = await retrieveWiki(asUser(alice), projectA, {
+      query: "how fast is a reimbursement",
+      embedder,
+    });
+    expect(before.semantic).toBe("off");
+    await setSemanticSearch(alice, slugA, { enabled: true, consent: CONSENT_VERSION });
+    await processMemoryJobs({ embedder });
+    const result = await retrieveWiki(asUser(alice), projectA, {
+      query: "how fast is a reimbursement",
+      embedder,
+    });
+    expect(result.semantic).toBe("on");
+    expect(result.passages[0]?.heading).toBe("Billing › Refunds");
+  });
+
+  it("applies the wiki access filter to the vector list: an agent without memory access gets nothing", async () => {
+    await addDoc(
+      "billing",
+      "# Billing\n\n## Refunds\n\nRefunds return to the original method within 7 days.\n",
+    );
+    await syncWikiFromDocuments(projectA);
+    const modelId = await installEmbeddingModel();
+    const embedder = fakeEmbedder(modelId, { concepts: { reimbursement: 3, "refunds return": 3 } });
+    await setSemanticSearch(alice, slugA, { enabled: true, consent: CONSENT_VERSION });
+    await processMemoryJobs({ embedder });
+    const result = await retrieveWiki(agent(false), projectA, {
+      query: "how fast is a reimbursement",
+      embedder,
+    });
+    expect(result.passages).toEqual([]);
   });
 });

@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { SemanticSwitch } from "@/components/memory/semantic-switch";
 import { Link } from "@/i18n/navigation";
 import type { Overview } from "@/lib/memory/queries";
 
@@ -58,9 +59,28 @@ export async function MemoryOverview({
         </div>
         <div className="flex gap-2">
           <dt className="text-muted-foreground">{t("stats.semantic")}</dt>
-          <dd>{t("semanticOff")}</dd>
+          <dd>
+            {overview.semantic.state === "indexing"
+              ? t("semanticSearch.indexing", {
+                  done: overview.semantic.indexed,
+                  total: overview.semantic.total,
+                })
+              : overview.semantic.state === "on"
+                ? t("semanticSearch.on")
+                : overview.semantic.modelConfigured
+                  ? t("semanticSearch.off")
+                  : t("semanticSearch.noModel")}
+          </dd>
         </div>
       </dl>
+      {admin ? (
+        <SemanticSwitch
+          slug={slug}
+          enabled={overview.semantic.enabled}
+          modelConfigured={overview.semantic.modelConfigured}
+          provider={overview.semantic.provider}
+        />
+      ) : null}
       {overview.mostUsed.length > 0 ? (
         <div>
           <h2 className="mb-2 text-sm font-medium text-muted-foreground">{t("mostUsed")}</h2>

@@ -16,6 +16,7 @@ import {
   fetchProviderModels,
   importModels,
   setDefaults,
+  setEmbeddingModel,
   setPolicy,
   setProviderEnabled,
   setRoleMapping,
@@ -32,6 +33,8 @@ import {
   setConnectorEnabled,
   setConnectorTool,
 } from "@/lib/connectors/service";
+import { requeueAllEmbeddings } from "@/lib/memory/embed/enqueue";
+import { scheduleMemoryJobs } from "@/lib/memory/schedule";
 import { setPlatformRole } from "@/lib/platform/roles";
 import {
   installSkillFromGithub,
@@ -68,6 +71,15 @@ export const importModelsAction = wrap("model.import", importModels);
 export const createModelAction = wrap("model.create", createModel);
 export const updateModelAction = wrap("model.update", updateModel);
 export const setDefaultsAction = wrap("model.defaults", setDefaults);
+/** Projects whose first re-embed run starts right after the response; the cron takes the rest. */
+const SCHEDULE_AFTER_MODEL_CHANGE = 10;
+export const setEmbeddingModelAction = wrap("model.embedding", async (actor, input) => {
+  await setEmbeddingModel(actor, input);
+  let scheduled = 0;
+  await requeueAllEmbeddings(undefined, (projectId) => {
+    if (scheduled++ < SCHEDULE_AFTER_MODEL_CHANGE) scheduleMemoryJobs(projectId);
+  });
+});
 export const setRoleMappingAction = wrap("mapping.set", setRoleMapping);
 export const setPolicyAction = wrap("policy.set", setPolicy);
 export const installSkillTextAction = wrap("skill.install", installSkillFromText);

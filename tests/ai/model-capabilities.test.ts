@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { explainNoModel } from "@/lib/ai/diagnostics";
-import { inferCapabilities, isChatModel } from "@/lib/ai/model-capabilities";
+import { inferCapabilities, isChatModel, isEmbeddingModel } from "@/lib/ai/model-capabilities";
 
 describe("isChatModel", () => {
   it("keeps chat models and drops embeddings, speech, images and moderation", () => {
@@ -87,5 +87,15 @@ describe("explainNoModel", () => {
         failed: [{ label: "Y / n", code: "auth_failed" }],
       }),
     ).toEqual({ reason: "provider_failed", model: "Y / n", code: "auth_failed" });
+  });
+});
+
+describe("embedding models", () => {
+  it("are recognised and get only the embeddings capability", () => {
+    expect(isEmbeddingModel("text-embedding-3-small")).toBe(true);
+    expect(isEmbeddingModel("gemini-embedding-001")).toBe(true);
+    expect(isEmbeddingModel("gpt-4o")).toBe(false);
+    expect(inferCapabilities("openai", "text-embedding-3-small")).toEqual(["embeddings"]);
+    expect(inferCapabilities("gemini", "gemini-embedding-001")).toEqual(["embeddings"]);
   });
 });

@@ -1,6 +1,6 @@
 import type * as z from "zod";
 import { DATA_BOUNDARY_RULES, renderUserTurn } from "../prompt";
-import type { AiProvider, AiRequest, AiUsage } from "../provider";
+import type { AiEmbedOptions, AiProvider, AiRequest, AiUsage } from "../provider";
 import { AiProviderError, request, sseData, trimSlash } from "./http";
 import type { AdapterConfig, ProviderAdapter } from "./types";
 
@@ -107,6 +107,34 @@ class GeminiClient implements AiProvider {
     const parsed = schema.safeParse(value);
     if (!parsed.success) throw new AiProviderError("bad_response");
     return parsed.data;
+  }
+
+  async embed(texts: readonly string[], options: AiEmbedOptions): Promise<number[][]> {
+    const model = this.config.model;
+    const response = await request(
+      `${this.base}/v1beta/models/${encodeURIComponent(model)}:batchEmbedContents`,
+      {
+        method: "POST",
+        adapter: "gemini",
+        headers: { "content-type": "application/json", "x-goog-api-key": this.apiKey },
+        body: JSON.stringify({
+          requests: texts.map((text) => ({
+            model: `models/${model}`,
+            content: { parts: [{ text }] },
+            outputDimensionality: options.dimensions,
+          })),
+        }),
+        signal: options.signal,
+      },
+    );
+    const json = (await response.json()) as { embeddings?: { values?: number[] }[] };
+    const rows = json.embeddings;
+    if (!Array.isArray(rows) || rows.length !== texts.length)
+      throw new AiProviderError("bad_response");
+    const vectors = rows.map((r) => r.values ?? []);
+    if (vectors.some((v) => v.length !== options.dimensions))
+      throw new AiProviderError("bad_response");
+    return vectors;
   }
 }
 

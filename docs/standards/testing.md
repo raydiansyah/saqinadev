@@ -3,6 +3,7 @@
 Tests run with Vitest. Integration tests use a real PostgreSQL database (`DATABASE_URL_TEST`, the name
 must contain `_test`); there is no database mock. Layout: `tests/<domain>/*.test.ts` for pure logic,
 `tests/integration/*.test.ts` for services against the database.
+The test database needs the `vector` extension available (Homebrew `pgvector`; CI uses the `pgvector/pgvector` image).
 
 ## Layers and minimums
 

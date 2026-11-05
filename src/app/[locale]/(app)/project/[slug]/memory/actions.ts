@@ -7,6 +7,7 @@ import { requireActor } from "@/lib/auth/server";
 import { AppError } from "@/lib/errors";
 import { createBinding, revokeBinding } from "@/lib/memory/bindings";
 import { requestCodeReindex } from "@/lib/memory/code/schedule";
+import { setSemanticSearch } from "@/lib/memory/embed/settings";
 import { retryJob } from "@/lib/memory/jobs";
 import {
   approveMemory,
@@ -219,6 +220,21 @@ export async function importMemoryAction(slug: string, text: string) {
       throw new AppError("VALIDATION_ERROR", "invalid_json", { package: "invalid" });
     }
     const result = await importMemoryPackage(await requireActor(), slug, raw);
+    refresh();
+    return result;
+  });
+}
+
+/**
+ * Turns semantic search on or off. The vectors are deleted when it goes off. `consent` is the version
+ * of the text the dialog showed; the service accepts only the current one.
+ */
+export async function setSemanticSearchAction(slug: string, enabled: boolean, consent?: string) {
+  return runAction("memory.semantic", { slug }, async () => {
+    const result = await setSemanticSearch(await requireActor(), slug, {
+      enabled,
+      consent: enabled ? consent : undefined,
+    });
     refresh();
     return result;
   });

@@ -207,9 +207,7 @@ needed; this is not an implementation of that project and claims no compatibilit
 
 ## Not done
 
-- Semantic search (phase F): no pgvector and no embedding operation in the AI gateway (only some
-  providers offer embeddings, and it needs a configured model and an API cost). `EmbeddingProvider` is a slot
-  and the UI says "Semantic search: off".
+- Semantic search was added in [ADR 0024](0024-semantic-search.md).
 - Parsers for languages other than TypeScript and JavaScript.
 - Client-facing memory: the client portal has no access at all.
 - Organization-wide assets, and sharing with named people from the UI (the service and the access lists

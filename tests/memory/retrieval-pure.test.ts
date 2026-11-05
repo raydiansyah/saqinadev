@@ -75,4 +75,10 @@ describe("context budget", () => {
       maxChars: DEFAULT_BUDGET.maxChars,
     });
   });
+
+  it("fuses a vector list with the text lists: an item found only by meaning still ranks", () => {
+    const fused = rrf([["a", "b"], [], ["z", "a"]]);
+    expect(fused.get("z")).toBeGreaterThan(0);
+    expect([...fused].sort((x, y) => y[1] - x[1])[0][0]).toBe("a");
+  });
 });

@@ -447,6 +447,7 @@ export const MODEL_CAPABILITIES = [
   "streaming",
   "coding",
   "long_context",
+  "embeddings",
 ] as const;
 export type ModelCapability = (typeof MODEL_CAPABILITIES)[number];
 
@@ -468,6 +469,7 @@ export const AI_OPERATIONS = [
   "tool_call",
   "context_generation",
   "connection_test",
+  "embedding",
 ] as const;
 export type AiOperation = (typeof AI_OPERATIONS)[number];
 

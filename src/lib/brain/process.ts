@@ -2,6 +2,8 @@ import "server-only";
 import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { projectChanges } from "@/lib/db/schema";
+import { enqueueEmbedProject } from "@/lib/memory/embed/enqueue";
+import { scheduleMemoryJobs } from "@/lib/memory/schedule";
 import { enqueueWikiSync } from "@/lib/memory/wiki/schedule";
 import { writeJournalEntry } from "./journal";
 import { type ChangeRow, planJournal } from "./journal-plan";
@@ -24,7 +26,8 @@ const PRD_INPUTS = new Set(["document", "requirement", "task", "scope", "intervi
  * cannot both take the same rows (`skip locked`), so a change is never journaled twice.
  */
 export async function processProjectChanges(projectId: string): Promise<ProcessResult> {
-  return db.transaction(async (tx) => {
+  let embedQueued = false;
+  const out = await db.transaction(async (tx) => {
     const pending = await tx
       .select()
       .from(projectChanges)
@@ -57,6 +60,8 @@ export async function processProjectChanges(projectId: string): Promise<ProcessR
       const last = Math.max(...pending.map((c) => c.revision));
       await enqueueWikiSync(tx, projectId, `rev:${last}`);
     }
+    // Memory or wiki text may have changed: keep the vectors in step (only if the project opted in).
+    embedQueued = await enqueueEmbedProject(tx, projectId);
     await tx
       .update(projectChanges)
       .set({ processedAt: new Date() })
@@ -68,6 +73,9 @@ export async function processProjectChanges(projectId: string): Promise<ProcessR
       );
     return result;
   });
+  // After the commit, so the run finds the job.
+  if (embedQueued) scheduleMemoryJobs(projectId);
+  return out;
 }
 
 /** Cron safety net: projects whose changes were never consumed (a request ended early). */

@@ -120,6 +120,13 @@
       "fallback": "Fallback model",
       "noneOption": "None",
       "saveDefaults": "Save defaults",
+      "embedding": {
+        "title": "Embedding model",
+        "body": "Turns text into vectors for semantic search. Project text that a project agreed to share is sent to this provider, and every call is counted in usage. Anthropic has no embedding model; use an OpenAI-compatible or Gemini one.",
+        "label": "Embedding model",
+        "save": "Save embedding model",
+        "unusable": "The chosen embedding model can no longer be used: {model}. Choose another one, or none."
+      },
       "unavailable": "Unavailable models cannot be selected.",
       "capabilityNames": {
         "text": "Text",
@@ -129,7 +136,8 @@
         "tool_calling": "Tool calling",
         "streaming": "Streaming",
         "coding": "Coding",
-        "long_context": "Long context"
+        "long_context": "Long context",
+        "embeddings": "Embeddings"
       },
       "statuses": {
         "available": "Available",

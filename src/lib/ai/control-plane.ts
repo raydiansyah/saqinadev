@@ -30,8 +30,13 @@ import { parse } from "@/lib/validation";
 import { ADAPTERS } from "./adapters";
 import { loadCatalog, platformSettings } from "./catalog";
 import { cliEnabled } from "./cli/run";
-import { displayNameFor, inferCapabilities, isChatModel } from "./model-capabilities";
-import { DEFAULT_POLICY, modelUsable, validateMapping } from "./model-resolver";
+import {
+  displayNameFor,
+  inferCapabilities,
+  isChatModel,
+  isEmbeddingModel,
+} from "./model-capabilities";
+import { DEFAULT_POLICY, embedderAllowed, modelUsable, validateMapping } from "./model-resolver";
 import { usesNoKey, withProviderSecret } from "./provider-secret";
 
 /**
@@ -371,6 +376,31 @@ export async function setDefaults(actor: Actor, input: unknown) {
   });
 }
 
+/** The one model that turns text into vectors. Only a model that declares `embeddings` and is usable. */
+export async function setEmbeddingModel(actor: Actor, input: unknown) {
+  await requirePlatformOwner(actor);
+  const { modelId } = parse(z.object({ modelId: z.uuid().nullable() }), input);
+  if (modelId) {
+    const [catalog, settings] = await Promise.all([loadCatalog(), platformSettings()]);
+    if (!catalog.some((m) => m.id === modelId && embedderAllowed(m, settings.policy)))
+      throw new AppError("VALIDATION_ERROR", "Model unavailable", { modelId: "unavailable" });
+  }
+  await db.transaction(async (tx) => {
+    await platformSettings(tx);
+    await tx
+      .update(platformAiSettings)
+      .set({ embeddingModelId: modelId, updatedBy: actor.id })
+      .where(eq(platformAiSettings.id, 1));
+    await recordAudit(tx, {
+      actorId: actor.id,
+      scope: "platform",
+      type: "model.embedding_changed",
+      entityType: "platform",
+      metadata: { embeddingModelId: modelId },
+    });
+  });
+}
+
 const policyInput = z.object({
   allowedProviderIds: z.array(z.uuid()).nullable(),
   allowedModelIds: z.array(z.uuid()).nullable(),
@@ -542,7 +572,7 @@ export async function fetchProviderModels(actor: Actor, input: unknown) {
     ).map((m) => m.modelId),
   );
   const models: FetchedModel[] = [...new Set(result.models ?? [])]
-    .filter(isChatModel)
+    .filter((id) => isChatModel(id) || isEmbeddingModel(id))
     .sort()
     .map((modelId) => ({
       modelId,

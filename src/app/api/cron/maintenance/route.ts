@@ -3,6 +3,8 @@ import { cronGuard } from "@/lib/cron/auth";
 import { runMaintenance } from "@/lib/housekeeping/service";
 import { log } from "@/lib/log";
 import { enqueueCodeSweep } from "@/lib/memory/code/schedule";
+import { requeueAllEmbeddings } from "@/lib/memory/embed/enqueue";
+import { sweepDisabledEmbeddings } from "@/lib/memory/embed/reconcile";
 import { processMemoryJobs } from "@/lib/memory/jobs";
 import { enqueueWikiBackfill } from "@/lib/memory/wiki/schedule";
 
@@ -17,6 +19,8 @@ export async function GET(request: Request) {
     journaled: await processPendingProjects(),
     wikiQueued: await enqueueWikiBackfill(),
     codeQueued: await enqueueCodeSweep(),
+    embedSwept: await sweepDisabledEmbeddings(),
+    embedRequeued: await requeueAllEmbeddings(),
     memoryJobs: await processMemoryJobs({ limit: 20 }),
   };
   log.info("maintenance.run", { ...summary });

@@ -66,6 +66,12 @@ export interface AiUsage {
   output: number | null;
 }
 
+export interface AiEmbedOptions {
+  /** Size of each returned vector. The provider is asked for exactly this many numbers. */
+  dimensions: number;
+  signal?: AbortSignal;
+}
+
 export interface AiProvider {
   readonly config: AiProviderConfig;
   /** Token usage of the most recent call, when the provider reports it. */
@@ -77,6 +83,8 @@ export interface AiProvider {
   stream(request: AiRequest): AsyncIterable<string>;
   /** Structured output, always validated against `schema` before it is returned. */
   generateObject<T>(request: AiRequest, schema: z.ZodType<T>, name: string): Promise<T>;
+  /** Vectors for `texts`, in the same order. Providers without embeddings leave this out. */
+  embed?(texts: readonly string[], options: AiEmbedOptions): Promise<number[][]>;
 }
 
 export class AiUnsupportedError extends Error {

@@ -1,5 +1,6 @@
 import "server-only";
 import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import type { EmbedderOverride } from "@/lib/ai/embeddings";
 import { db } from "@/lib/db/client";
 import {
   docIndex,
@@ -16,6 +17,7 @@ import type { Principal } from "../policy";
 import { applyBudget, type Budget, resolveBudget } from "../retrieval/budget";
 import { tsQuery } from "../retrieval/fts";
 import { exactTokens, rrf } from "../retrieval/rank";
+import { embedQuery, nearestChunks, queryEmbedMs, settle, unwrap } from "../retrieval/vector";
 import { notExpired, visibleWhere } from "../scope";
 
 export interface WikiPassage {
@@ -38,7 +40,8 @@ export interface WikiPassage {
 
 export interface WikiResult {
   passages: WikiPassage[];
-  semantic: "off";
+  /** off: words only; on: also by meaning; degraded: by meaning was wanted but failed. */
+  semantic: "on" | "off" | "degraded";
   degraded?: "unavailable" | "timeout";
 }
 
@@ -63,7 +66,7 @@ export const sourceExists = sql<boolean>`case when ${wikiSources.sourceType} = '
 export async function retrieveWiki(
   principal: Principal,
   projectId: string,
-  options: { query: string; budget?: Partial<Budget> },
+  options: { query: string; budget?: Partial<Budget>; embedder?: EmbedderOverride },
 ): Promise<WikiResult> {
   const budget = resolveBudget(options.budget);
   const query = options.query.trim().slice(0, 500);
@@ -74,10 +77,13 @@ export async function retrieveWiki(
     timer = setTimeout(() => resolve("timeout"), budget.timeoutMs);
   });
   try {
-    const out = await Promise.race([run(principal, projectId, query, budget), timeout]);
+    const out = await Promise.race([
+      run(principal, projectId, query, budget, options.embedder),
+      timeout,
+    ]);
     if (out === "timeout") return { passages: [], semantic: "off", degraded: "timeout" };
-    await telemetry(principal, projectId, query, out, Date.now() - started);
-    return { passages: out, semantic: "off" };
+    await telemetry(principal, projectId, query, out.passages, Date.now() - started);
+    return { passages: out.passages, semantic: out.semantic };
   } catch (error) {
     log.error("wiki.retrieval.failed", {
       projectId,
@@ -94,7 +100,9 @@ async function run(
   projectId: string,
   query: string,
   budget: Budget,
-): Promise<WikiPassage[]> {
+  embedder?: EmbedderOverride,
+): Promise<{ passages: WikiPassage[]; semantic: WikiResult["semantic"] }> {
+  let semantic: WikiResult["semantic"] = "off";
   const base = and(
     visibleWhere(principal, projectId, ["approved"]),
     eq(memoryAssets.assetType, "wiki"),
@@ -108,6 +116,10 @@ async function run(
       .innerJoin(wikiSources, eq(wikiSources.id, wikiChunks.sourceId))
       .innerJoin(memoryAssets, eq(memoryAssets.id, wikiSources.assetId));
 
+  // Started before the text lists, under its own share of the budget (see retrieveMemory).
+  const semanticQuery = settle(
+    embedQuery(projectId, query, embedder, queryEmbedMs(budget.timeoutMs)),
+  );
   const tsq = tsQuery(query);
   const fts = await from()
     .where(and(base, sql`${wikiChunks.search} @@ ${tsq}`))
@@ -131,8 +143,22 @@ async function run(
       .limit(20);
     lists.push(exact.map((r) => r.id));
   }
+  // The vector list. Same access filter as the lists above; a failure never fails retrieval.
+  try {
+    const embedded = await unwrap(semanticQuery);
+    if (embedded) {
+      lists.push(await nearestChunks(base, projectId, embedded.modelId, embedded.vector));
+      semantic = "on";
+    }
+  } catch (error) {
+    log.warn("wiki.semantic.degraded", {
+      projectId,
+      error: error instanceof Error ? error.name : "error",
+    });
+    semantic = "degraded";
+  }
   const ids = [...new Set(lists.flat())];
-  if (ids.length === 0) return [];
+  if (ids.length === 0) return { passages: [], semantic };
 
   // Read again under the same access filter before any text leaves.
   const rows = await db
@@ -175,7 +201,7 @@ async function run(
     seen.add(key);
     return true;
   });
-  return applyBudget(distinct, budget).map(({ r, score, content, truncated }) => ({
+  const passages = applyBudget(distinct, budget).map(({ r, score, content, truncated }) => ({
     sourceId: r.source.id,
     assetId: r.source.assetId,
     sourceType: r.source.sourceType,
@@ -190,6 +216,7 @@ async function run(
     draft: Boolean(r.draft),
     score,
   }));
+  return { passages, semantic };
 }
 
 async function telemetry(

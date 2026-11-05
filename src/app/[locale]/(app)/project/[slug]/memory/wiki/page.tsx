@@ -28,11 +28,12 @@ export default async function WikiPage({
   const q = typeof query.q === "string" ? query.q.trim().slice(0, 200) : "";
   const access = await projectPageAccess(slug);
   const admin = access.role === "owner" || access.role === "admin";
-  const [sources, overview, found, t] = await Promise.all([
+  const [sources, overview, found, t, hub] = await Promise.all([
     listWikiSources(access),
     getOverview(access),
     q ? retrieveWiki(principalOf(access), access.project.id, { query: q }) : null,
     getTranslations("memoryHub.wiki"),
+    getTranslations("memoryHub"),
   ]);
   const base = `/project/${slug}/memory`;
 
@@ -72,7 +73,7 @@ export default async function WikiPage({
             <p className="text-sm text-muted-foreground">{t("noResults")}</p>
           ) : (
             <>
-              <p className="text-xs text-subtle-foreground">{t("semantic")}</p>
+              <p className="text-xs text-subtle-foreground">{hub("semanticSearch.hint")}</p>
               {found.passages.map((p) => (
                 <WikiPassageCard key={`${p.sourceId}:${p.startLine}`} passage={p} />
               ))}

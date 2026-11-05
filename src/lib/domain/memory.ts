@@ -76,6 +76,7 @@ export const JOB_KINDS = [
   "index_wiki",
   "extract_skill",
   "index_code",
+  "embed_project",
 ] as const;
 export type JobKind = (typeof JOB_KINDS)[number];
 export const JOB_STATUSES = [
@@ -100,3 +101,16 @@ export type SkillOrigin = (typeof SKILL_ORIGINS)[number];
 /** How a use of a skill turned out. Empty until someone (or the run's result) says. */
 export const SKILL_OUTCOMES = ["success", "partial", "failure"] as const;
 export type SkillOutcome = (typeof SKILL_OUTCOMES)[number];
+
+/** Every vector has this many numbers: providers are asked for this size, so one column fits all models. */
+export const EMBEDDING_DIMENSIONS = 1536;
+
+/**
+ * The version of the semantic search consent text the dialog shows. Change it when the wording
+ * changes: the dialog sends it, and the server accepts only the current one.
+ */
+export const SEMANTIC_CONSENT_VERSION = "2026-11-05";
+
+/** What a retrieval or the overview says about semantic search. */
+export const SEMANTIC_STATES = ["on", "off", "indexing", "degraded"] as const;
+export type SemanticState = (typeof SEMANTIC_STATES)[number];

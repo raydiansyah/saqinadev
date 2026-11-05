@@ -52,7 +52,7 @@ beforeEach(async () => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("fetching a provider's models", () => {
-  it("lists chat models with likely abilities, drops the rest, and flags those already added", async () => {
+  it("lists chat and embedding models with likely abilities, drops the rest, and flags those already added", async () => {
     await createModel(owner, {
       providerId,
       modelId: "gpt-4o",
@@ -62,7 +62,16 @@ describe("fetching a provider's models", () => {
     listing(["gpt-4o", "gpt-4o-mini", "text-embedding-3-large", "whisper-1", "o3-mini"]);
     const result = await fetchProviderModels(owner, { providerId });
     expect(result.ok).toBe(true);
-    expect(result.models.map((m) => m.modelId)).toEqual(["gpt-4o", "gpt-4o-mini", "o3-mini"]);
+    // Speech models are dropped; an embedding model is kept, as the only thing it can be: an embedder.
+    expect(result.models.map((m) => m.modelId)).toEqual([
+      "gpt-4o",
+      "gpt-4o-mini",
+      "o3-mini",
+      "text-embedding-3-large",
+    ]);
+    expect(result.models.find((m) => m.modelId === "text-embedding-3-large")?.capabilities).toEqual(
+      ["embeddings"],
+    );
     expect(result.models.find((m) => m.modelId === "gpt-4o")?.added).toBe(true);
     const mini = result.models.find((m) => m.modelId === "gpt-4o-mini");
     expect(mini?.added).toBe(false);

@@ -1,5 +1,6 @@
 import "server-only";
 import { and, asc, count, eq, inArray, isNull, lt, or, sql } from "drizzle-orm";
+import type { EmbedderOverride } from "@/lib/ai/embeddings";
 import { runAi } from "@/lib/ai/gateway";
 import type { AiProvider } from "@/lib/ai/provider";
 import type { Actor } from "@/lib/auth/actor";
@@ -22,6 +23,8 @@ import { log } from "@/lib/log";
 import { principalOf } from "./access";
 import { runCodeIndex } from "./code/indexer";
 import { CATEGORY_FOR, CONSOLIDATE_AFTER, runConsolidation, uncitedFacts } from "./consolidate";
+import { enqueueEmbedProject } from "./embed/enqueue";
+import { reconcileProject } from "./embed/reconcile";
 import { lastExtractedMessageId } from "./enqueue";
 import { extractCandidates } from "./extract/extractor";
 import {
@@ -41,14 +44,45 @@ import { syncWikiFromDocuments } from "./wiki/index";
 
 // Longer than any model call, so a slow job is not taken over while it still runs.
 const LOCK_MS = 10 * 60_000;
+const EMBED_TIMEOUT_MS = 8 * 60_000;
 type Job = typeof memoryJobs.$inferSelect;
 
 // ---- run --------------------------------------------------------------------------------------
 
+interface RunOptions {
+  limit?: number;
+  provider?: AiProvider;
+  codeAdapter?: SyncAdapter;
+  embedder?: EmbedderOverride;
+  /** Smaller batches for a test. */
+  embedLimits?: { batch?: number; perRun?: number };
+}
+
+/**
+ * Rounds per call. A job that queues an embed run (the follow-up of a large project, the end of a
+ * wiki index) gets it taken by the same call instead of waiting for the cron; the bound keeps one
+ * call short.
+ */
+const MAX_ROUNDS = 3;
+
 /** Claims due jobs (or ones whose worker died) and runs them. Safe to call from many places. */
 export async function processMemoryJobs(
-  options: { limit?: number; provider?: AiProvider; codeAdapter?: SyncAdapter } = {},
+  options: RunOptions = {},
 ): Promise<{ ready: number; failed: number }> {
+  let ready = 0;
+  let failed = 0;
+  for (let round = 0; round < MAX_ROUNDS; round++) {
+    const out = await runRound(options);
+    ready += out.ready;
+    failed += out.failed;
+    if (!out.embedQueued) break;
+  }
+  return { ready, failed };
+}
+
+async function runRound(
+  options: RunOptions,
+): Promise<{ ready: number; failed: number; embedQueued: boolean }> {
   // A job whose worker died too many times is finished, not retried for ever.
   await db
     .update(memoryJobs)
@@ -73,6 +107,7 @@ export async function processMemoryJobs(
 
   let ready = 0;
   let failed = 0;
+  let embedQueued = false;
   for (const job of claimed.rows) {
     try {
       const outcome =
@@ -82,9 +117,22 @@ export async function processMemoryJobs(
         // A document that could not be read is retried (bounded), not forgotten in a log line.
         const sync = await syncWikiFromDocuments(job.projectId);
         if (sync.failed > 0) throw new AppError("INTERNAL_ERROR");
+        // New wiki passages need vectors.
+        if (await enqueueEmbedProject(db, job.projectId)) embedQueued = true;
       }
       if (job.kind === "extract_skill") await runSkillExtraction(job, options.provider);
       if (job.kind === "index_code") await runCodeIndex(job, { adapter: options.codeAdapter });
+      if (job.kind === "embed_project") {
+        // A hung provider must not outlive the job lock.
+        const result = await reconcileProject(job.projectId, {
+          override: options.embedder,
+          limits: options.embedLimits,
+          signal: AbortSignal.timeout(EMBED_TIMEOUT_MS),
+        });
+        // A large project is finished by a follow-up job instead of one long run.
+        if (result.remaining > 0 && (await enqueueEmbedProject(db, job.projectId)))
+          embedQueued = true;
+      }
       await db
         .update(memoryJobs)
         .set(
@@ -118,7 +166,7 @@ export async function processMemoryJobs(
         .where(eq(memoryJobs.id, job.id));
     }
   }
-  return { ready, failed };
+  return { ready, failed, embedQueued };
 }
 
 async function runExtraction(job: Job, provider?: AiProvider): Promise<"done" | "skipped"> {

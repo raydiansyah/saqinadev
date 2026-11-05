@@ -5,13 +5,14 @@ import { useId, useState } from "react";
 import {
   createModelAction,
   setDefaultsAction,
+  setEmbeddingModelAction,
   updateModelAction,
 } from "@/app/[locale]/(app)/dashboard/ai/actions";
 import { Dialog } from "@/components/app/dialog";
 import { EmptyState } from "@/components/app/states";
 import { Button } from "@/components/ui/button";
 import { Field, Notice, Select } from "@/components/ui/form";
-import type { CatalogModel } from "@/lib/ai/model-resolver";
+import { type CatalogModel, embedderUsable } from "@/lib/ai/model-resolver";
 import { MODEL_CAPABILITIES, type ModelCapability } from "@/lib/domain/enums";
 import { FetchModelsDialog } from "./fetch-models-dialog";
 import { FormError } from "./form-error";
@@ -51,11 +52,13 @@ export function ModelManager({
   providers,
   defaultModelId,
   fallbackModelId,
+  embeddingModelId,
 }: {
   models: CatalogModel[];
   providers: { id: string; name: string }[];
   defaultModelId: string | null;
   fallbackModelId: string | null;
+  embeddingModelId: string | null;
 }) {
   const t = useTranslations("platform.models");
   const caps = useTranslations("platform.models.capabilityNames");
@@ -69,6 +72,11 @@ export function ModelManager({
     const m = models.find((x) => x.id === id);
     return m && !usable(m) ? [m] : [];
   });
+
+  const storedEmbedder = embeddingModelId ? models.find((m) => m.id === embeddingModelId) : null;
+  // Without this, a stored model that can no longer be used would show as "None" and Save would clear it.
+  const unusableEmbedder =
+    storedEmbedder && !embedderUsable(storedEmbedder) ? storedEmbedder : null;
 
   return (
     <div className="space-y-8">
@@ -220,6 +228,49 @@ export function ModelManager({
           <div className="sm:col-span-2">
             <Button type="submit" disabled={pending}>
               {t("saveDefaults")}
+            </Button>
+          </div>
+        </form>
+      </section>
+
+      <section aria-labelledby={`${id}-embedding`} className="rounded-lg border border-border p-5">
+        <h2 id={`${id}-embedding`} className="font-semibold">
+          {t("embedding.title")}
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">{t("embedding.body")}</p>
+        {unusableEmbedder ? (
+          <Notice tone="warning" className="mt-3">
+            {t("embedding.unusable", {
+              model: `${unusableEmbedder.providerName} / ${unusableEmbedder.displayName}`,
+            })}
+          </Notice>
+        ) : null}
+        <form
+          // Remount after a save so the select shows the stored value.
+          key={embeddingModelId ?? "none"}
+          className="mt-4 grid gap-4 sm:grid-cols-2"
+          action={(form) =>
+            run(() =>
+              setEmbeddingModelAction({ modelId: String(form.get("embedding") ?? "") || null }),
+            )
+          }
+        >
+          <Select
+            id={`${id}-embedding-select`}
+            name="embedding"
+            label={t("embedding.label")}
+            defaultValue={embeddingModelId ?? ""}
+          >
+            <option value="">{t("noneOption")}</option>
+            {models.filter(embedderUsable).map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.providerName} / {m.displayName}
+              </option>
+            ))}
+          </Select>
+          <div className="sm:col-span-2">
+            <Button type="submit" disabled={pending}>
+              {t("embedding.save")}
             </Button>
           </div>
         </form>

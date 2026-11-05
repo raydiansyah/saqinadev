@@ -111,9 +111,9 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 | A3 | Actions that change project data (tasks, documents, requirements, decisions) are rule-validated and need approval; a model never merges, opens a pull request or deploys alone. The one write without approval is an agent's commit to its own execution's work branch, inside its task's files ([ADR 0021](adr/0021-agents-commit-to-a-work-branch.md)) | Built |
 | A4 | Project brain: every change goes to an outbox and is distilled into memory and PRD findings ([ADR 0003](adr/0003-project-brain.md)) | Built |
 | A5 | Governed project memory: owner, visibility, lifecycle, versions, citations; chat suggestions wait for review; access is checked before search ([ADR 0004](adr/0004-project-memory.md)) | Built |
-| A6 | Retrieval is full-text plus exact match, with a budget; the UI states that semantic search is off | Built |
+| A6 | Retrieval is full-text plus exact match, with a budget; the UI states whether semantic search is on, indexing or off (A19) | Built |
 | A7 | MCP tools for agents (`search_memory`, `read_memory`, `write_memory`); agent writes are candidates, never straight into memory; every call audited | Built |
-| A8 | Semantic (vector) search, wiki, skills and code-graph assets | Partial: platform skills (A14) are built; semantic search is planned |
+| A8 | Semantic (vector) search, wiki, skills and code-graph assets | Partial: semantic search is Built (A19) and platform skills (A14) are Built; the other assets stay Planned |
 | A9 | Every chat message shows its time in the reader's timezone, can be copied, and shows who has read it: Saqina, and any connected agent that read up to it | Built |
 | A10 | Pin a message as a named chapter; a chapter list jumps to it, loading older pages when needed | Built |
 | A11 | Fork from a message: a copy of the thread up to it, in a new thread; proposals and agent runs are not copied and the original is not touched | Built |
@@ -124,6 +124,7 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 | A16 | Agent settings pick the model from the models already set up, or Automatic (the project and platform defaults); a pin for Saqina's agents is what their runs use, within the platform policy | Built |
 | A17 | Own AI gateway in the Studio chat: a person adds their own OpenAI, Anthropic or Gemini API key (or an OpenAI-compatible endpoint) and picks, per chat, the platform default or one of their own models. It belongs to that person only, the key is encrypted and never shown, it follows the owner's external-providers switch, and if their model cannot answer nothing goes to another provider ([ADR 0017](adr/0017-own-ai-gateway.md)). Subscription logins (ChatGPT, Claude) are not offered | Built (API key); ChatGPT sign-in open |
 | A18 | Local CLI provider: the platform Owner can connect Claude Code, Codex or OpenCode that is logged in on the server as an AI provider, with no API key. Off by default, with an on/off switch for the Owner; Owner-only and audited; the CLI runs in an empty temporary folder with no tools and none of Saqina's secrets ([ADR 0023](adr/0023-local-cli-provider.md)) | Built (Claude Code run end to end; Codex and OpenCode not run here) |
+| A19 | A project opts in to semantic search (an admin, consent recorded, default off); approved memory and wiki text that the whole project can read is embedded by the platform's embedding model and searched by meaning together with words and exact matches; private items are never sent; the result says on, off or degraded ([ADR 0024](adr/0024-semantic-search.md)) | Built |
 
 ### 5.7 White label
 
@@ -213,7 +214,6 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 
 - Which plans include white label, and at what price (needed before W5).
 - Whether clients pay inside the portal or only see invoices (today: they see and track).
-- When semantic search becomes worth the pgvector and embedding cost (A8).
 - Whether to run the execution cron every minute on Vercel Pro or from an outside scheduler (E12).
 - Whether Build should require an approved PRD on the server; today the Studio only warns (S1).
 

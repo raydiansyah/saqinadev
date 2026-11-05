@@ -17,6 +17,7 @@ import { type AssetStatus, REVIEW_STATUSES } from "@/lib/domain/memory";
 import { AppError } from "@/lib/errors";
 import { loadAsset, principalOf } from "./access";
 import { canManage } from "./policy";
+import { getSemanticOverview } from "./retrieval/vector";
 import { visibleWhere } from "./scope";
 
 export type AssetRow = {
@@ -84,8 +85,8 @@ export interface Overview {
   wikiPages: number;
   /** Approved skills the viewer may use. */
   skills: number;
-  /** Semantic search needs an embedding model; none is configured yet. */
-  semantic: "off";
+  /** State of semantic search for this project. */
+  semantic: Awaited<ReturnType<typeof getSemanticOverview>>;
 }
 
 /** Counts only what the requester may read, so the numbers never reveal hidden assets. */
@@ -178,7 +179,7 @@ export async function getOverview(access: ProjectAccess): Promise<Overview> {
     boundAgents: Number(bound[0]?.n ?? 0),
     wikiPages: wiki[0]?.n ?? 0,
     skills: skillCount[0]?.n ?? 0,
-    semantic: "off",
+    semantic: await getSemanticOverview(access.project.id),
   };
 }
 

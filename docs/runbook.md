@@ -235,6 +235,44 @@ The script asks for `yes`. It needs `NEON_PROJECT_ID` and `NEON_DATABASE` in `.e
 
 3. Check `/api/health` and run the smoke test.
 
+Migration 0039 runs `CREATE EXTENSION IF NOT EXISTS vector`. On Neon the project owner role may
+create it. After the migration, check:
+
+```sql
+select * from pg_extension where extname = 'vector';
+```
+
+Expected: one row. No row means the migration failed or ran on another database: do not promote.
+
+## Semantic search
+
+What it is and why: [ADR 0024](adr/0024-semantic-search.md). Project text goes to the platform's embedding
+provider only for a project whose admin turned the switch on.
+
+**Switch the platform model off.** Sign in as platform owner, open AI & Models, set Embedding model to
+None, and press Save embedding model. Opted-in projects keep their switch but answer by words and exact
+matches (`semantic` is `off`), and no embedding call is made. Saving queues a reconcile for every
+opted-in project, and that run deletes the project's vectors because no model can read them; the daily
+cron does the same for any project it missed.
+
+**Switch a project off.** An admin opens the project's Memory page and presses Turn off semantic search.
+That deletes the project's vectors in the same transaction. There is no other bulk delete: to clear a
+project by hand, switch it off.
+
+**Daily cron.** `GET /api/cron/maintenance` (Bearer `CRON_SECRET`, like the other cron routes) deletes the vectors of every project that is not opted in
+and queues a reconcile (`embed_project`) for every project that is. It is the safety net for a missed
+trigger. Its JSON result has `embedSwept` (vectors deleted) and `embedRequeued` (projects queued).
+
+**A project stays at "indexing".** Open the project's Memory page, then Processing. Jobs of kind "Index
+for semantic search" show the attempts and the state ("Will retry" or "Failed"); retry one there. A
+failing provider (wrong key, quota, model removed) is the usual cause. Check AI & Models first, then the
+rows of the `ai_usage_records` table with operation `embedding` for the error code. A model change makes every opted-in project
+re-embed, so "indexing" for a while after one is expected.
+
+**Rollback by redeploy.** A build from before semantic search marks queued `embed_project` jobs `ready`
+without doing anything. That is harmless: the next trigger or the daily cron after the fix is live
+queues a new reconcile.
+
 ## Roll back the application
 
 ```bash

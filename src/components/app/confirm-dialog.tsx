@@ -16,6 +16,7 @@ export function ConfirmDialog({
   confirmLabel,
   confirmText,
   confirmTextLabel,
+  confirmVariant = "danger",
   pending,
   error,
   onConfirm,
@@ -27,6 +28,7 @@ export function ConfirmDialog({
   confirmLabel: string;
   confirmText?: string;
   confirmTextLabel?: string;
+  confirmVariant?: "danger" | "primary";
   pending?: boolean;
   error?: string | null;
   onConfirm: () => void;
@@ -71,7 +73,7 @@ export function ConfirmDialog({
           <Button variant="ghost" onClick={onClose}>
             {t("cancel")}
           </Button>
-          <Button variant="danger" disabled={blocked || pending} onClick={onConfirm}>
+          <Button variant={confirmVariant} disabled={blocked || pending} onClick={onConfirm}>
             {confirmLabel}
           </Button>
         </div>

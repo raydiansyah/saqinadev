@@ -1,5 +1,6 @@
 import "server-only";
 import { and, desc, eq, gt, ilike, inArray, isNull, or, sql } from "drizzle-orm";
+import type { EmbedderOverride } from "@/lib/ai/embeddings";
 import { db } from "@/lib/db/client";
 import { memories, memoryAssets, memoryRetrievals, memorySources } from "@/lib/db/schema";
 import type { MemorySource } from "@/lib/domain/enums";
@@ -8,6 +9,7 @@ import {
   type MemoryConfidence,
   type MemoryKind,
   type MemoryLevel,
+  type SemanticState,
   type SourceType,
 } from "@/lib/domain/memory";
 import { log } from "@/lib/log";
@@ -17,6 +19,7 @@ import { notExpired, visibleWhere } from "../scope";
 import { applyBudget, type Budget, resolveBudget } from "./budget";
 import { tsQuery } from "./fts";
 import { exactTokens, rankCandidates, rrf } from "./rank";
+import { embedQuery, nearestAssets, queryEmbedMs, settle, unwrap } from "./vector";
 
 export interface RetrieveOptions {
   /** What the requester is asking about. Empty means "what do we know about this project". */
@@ -24,6 +27,8 @@ export interface RetrieveOptions {
   levels?: readonly MemoryLevel[];
   assetTypes?: readonly AssetType[];
   budget?: Partial<Budget>;
+  /** Tests inject an embedder; production uses the platform's model. */
+  embedder?: EmbedderOverride;
 }
 
 export interface RetrievedSource {
@@ -50,8 +55,8 @@ export interface RetrievedItem {
 
 export interface RetrievalResult {
   items: RetrievedItem[];
-  /** Semantic search is not available yet; results are lexical (full-text and exact match). */
-  semantic: "off";
+  /** off: full text and exact match only; on: also by meaning; degraded: by meaning was wanted but failed. */
+  semantic: Exclude<SemanticState, "indexing">;
   /** Set when memory could not be read. The caller must say so instead of guessing. */
   degraded?: "unavailable" | "timeout";
 }
@@ -88,8 +93,8 @@ export async function retrieveMemory(
       log.warn("memory.retrieval.timeout", { projectId, ms: budget.timeoutMs });
       return { items: [], semantic: "off", degraded: "timeout" };
     }
-    await recordTelemetry(principal, projectId, query, outcome, Date.now() - started);
-    return { items: outcome, semantic: "off" };
+    await recordTelemetry(principal, projectId, query, outcome.items, Date.now() - started);
+    return { items: outcome.items, semantic: outcome.semantic };
   } catch (error) {
     // Not the error itself: a database error message can quote the query.
     log.error("memory.retrieval.failed", {
@@ -108,10 +113,17 @@ async function run(
   query: string,
   options: RetrieveOptions,
   budget: Budget,
-): Promise<RetrievedItem[]> {
+): Promise<{ items: RetrievedItem[]; semantic: Exclude<SemanticState, "indexing"> }> {
+  let semantic: Exclude<SemanticState, "indexing"> = "off";
   // Chat memory only: wiki pages are read by passage through `retrieveWiki`, not by this function.
   const types = [...(options.assetTypes ?? ["chat"])].filter((t) => t === "chat");
-  if (types.length === 0) return [];
+  if (types.length === 0) return { items: [], semantic };
+
+  // The question is embedded while the text lists run, under its own share of the budget: a slow
+  // provider costs the vector list only, never the whole answer.
+  const semanticQuery = query
+    ? settle(embedQuery(projectId, query, options.embedder, queryEmbedMs(budget.timeoutMs)))
+    : null;
 
   const levels = options.levels?.length ? [...options.levels] : undefined;
   // 1-2: scope and access, applied to every query below.
@@ -156,15 +168,28 @@ async function run(
         .limit(20);
       lists.push(exact.map((r) => r.id));
     }
-    // Slot for the vector list: empty while semantic search is off, so it adds nothing.
-    lists.push([]);
+    // The vector list. Same access filter as the lists above; a failure never fails retrieval.
+    try {
+      const embedded = await unwrap(semanticQuery);
+      if (embedded) {
+        lists.push(await nearestAssets(base, projectId, embedded.modelId, embedded.vector));
+        semantic = "on";
+      }
+    } catch (error) {
+      // Not the error itself: it can quote the query. The text lists above still answer.
+      log.warn("memory.semantic.degraded", {
+        projectId,
+        error: error instanceof Error ? error.name : "error",
+      });
+      semantic = "degraded";
+    }
   } else {
     const recent = await joined().where(base).orderBy(desc(memoryAssets.updatedAt)).limit(10);
     lists.push(recent.map((r) => r.id));
   }
 
   const ids = [...new Set(lists.flat())];
-  if (ids.length === 0) return [];
+  if (ids.length === 0) return { items: [], semantic };
 
   // Second access check: the rows are read again under the same filter before content leaves.
   const rows = await db
@@ -193,7 +218,7 @@ async function run(
     })),
     budget,
   );
-  if (fitted.length === 0) return [];
+  if (fitted.length === 0) return { items: [], semantic };
   const sources = await db
     .select()
     .from(memorySources)
@@ -204,7 +229,7 @@ async function run(
       ),
     );
 
-  return fitted.map((f) => ({
+  const items = fitted.map((f) => ({
     assetId: f.id,
     memoryId: f.row.memory.id,
     level: f.row.memory.level,
@@ -220,6 +245,7 @@ async function run(
       .filter((s) => s.assetId === f.id)
       .map((s) => ({ sourceType: s.sourceType, sourceId: s.sourceId, locator: s.locator })),
   }));
+  return { items, semantic };
 }
 
 /** Best effort: telemetry must never break a retrieval. No query text is stored, only its hash. */

@@ -140,6 +140,10 @@ export const platformAiSettings = pgTable("platform_ai_settings", {
   }),
   /** Owner switch for using CLIs logged in on the server as providers. Off by default. */
   localCliEnabled: boolean("local_cli_enabled").notNull().default(false),
+  /** The model that turns text into vectors for semantic search. Null: semantic search is off everywhere. */
+  embeddingModelId: uuid("embedding_model_id").references(() => aiModels.id, {
+    onDelete: "set null",
+  }),
   policy: jsonb("policy").$type<ModelPolicy>().notNull(),
   updatedBy: userRef("updated_by"),
   updatedAt: updatedAt(),

@@ -274,6 +274,13 @@
       "when": 1793414983812,
       "tag": "0038_local_cli_switch",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1793834509918,
+      "tag": "0039_semantic_search",
+      "breakpoints": true
     }
   ]
 }

@@ -17,5 +17,8 @@
       "path": "/api/cron/executions",
       "schedule": "15 2 * * *"
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": false
+  }
 }
