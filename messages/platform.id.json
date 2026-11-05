@@ -239,7 +239,8 @@
       "taken": "Kunci itu sudah dipakai.",
       "unknown": "Nilai tidak dikenal.",
       "cliOff": "CLI lokal sedang mati. Nyalakan dulu di atas.",
-      "cliNotInstalled": "CLI itu tidak terpasang di server ini."
+      "cliNotInstalled": "CLI itu tidak terpasang di server ini.",
+      "cliHosted": "CLI lokal tidak bisa dipakai di platform terhosting."
     },
     "skills": {
       "title": "Skill",
@@ -406,8 +407,14 @@
       "rescan": "Muat ulang halaman ini setelah memasang atau login ke CLI untuk melihat perubahan.",
       "switchOn": "CLI lokal menyala",
       "switchOff": "CLI lokal mati",
-      "switchHint": "Mati secara default. Selama mati, tidak ada CLI yang dijalankan dan CLI yang sudah terhubung berhenti menjawab. Menyalakannya mengizinkan Saqina menjalankan CLI di bawah ini di server ini, sebagai user yang menjalankan Saqina.",
-      "detectOff": "Tidak diperiksa selama CLI lokal mati"
+      "switchHint": "Mati secara default dan hanya untuk mesin yang Anda jalankan sendiri. Selama mati, tidak ada CLI yang dijalankan dan CLI yang terhubung berhenti menjawab. Menyalakannya mengharuskan Anda menerima risiko di bawah.",
+      "detectOff": "Tidak diperiksa selama CLI lokal mati",
+      "riskTitle": "Sebelum Anda menyalakan ini",
+      "riskBody": "CLI ini masuk dengan akun siapa pun yang login di server ini, sering kali langganan ChatGPT atau Claude. Memakai langganan dengan cara ini bisa melanggar ketentuan penyedia dan akunnya bisa ditangguhkan atau diblokir. Pakai hanya di mesin yang Anda jalankan sendiri, dengan akun yang siap Anda relakan, dan jangan untuk pekerjaan orang lain.",
+      "riskCheck": "Saya paham risikonya dan menerimanya",
+      "riskConfirm": "Nyalakan",
+      "hosted": "Ini platform terhosting, jadi CLI lokal tidak bisa dipakai di sini. Jalankan Saqina di mesin Anda sendiri untuk memakainya.",
+      "cancelRisk": "Batal"
     }
   },
   "integrations": {

@@ -314,6 +314,12 @@ test.describe("local CLI as an AI provider", () => {
     const card = page.getByRole("listitem").filter({ hasText: "Claude Code" }).first();
     await expect(card.getByRole("button", { name: "Connect and test" })).toBeDisabled();
     await toggle.click();
+    // Turning it on shows the risk first, and only goes ahead once it is accepted.
+    const risk = page.getByRole("dialog", { name: "Before you turn this on" });
+    await expect(risk).toContainText("suspended or banned");
+    await expect(risk.getByRole("button", { name: "Turn on" })).toBeDisabled();
+    await risk.getByRole("checkbox", { name: /I understand the risk/ }).check();
+    await risk.getByRole("button", { name: "Turn on" }).click();
     await expect(page.getByRole("switch", { name: "Local CLIs are on" })).toHaveAttribute(
       "aria-checked",
       "true",

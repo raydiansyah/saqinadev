@@ -7,6 +7,7 @@ import {
   setCliEnabledAction,
   testProviderAction,
 } from "@/app/[locale]/(app)/dashboard/ai/actions";
+import { Dialog } from "@/components/app/dialog";
 import { Button } from "@/components/ui/button";
 import { Notice } from "@/components/ui/form";
 import { useRouter } from "@/i18n/navigation";
@@ -26,6 +27,8 @@ export function CliManager({ overview }: { overview: CliOverview }) {
   const { pending, error, run } = useRun();
   const [busy, setBusy] = useState<string | null>(null);
   const [switching, setSwitching] = useState(false);
+  const [asking, setAsking] = useState(false);
+  const [accepted, setAccepted] = useState(false);
   const [tests, setTests] = useState<Record<string, { ok: boolean; code: string }>>({});
 
   // A refused connection never reaches the test, so the button is freed here.
@@ -60,6 +63,11 @@ export function CliManager({ overview }: { overview: CliOverview }) {
         {t("title")}
       </h2>
       <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{t("intro")}</p>
+      {overview.hosted ? (
+        <Notice tone="info" className="mt-3">
+          {t("hosted")}
+        </Notice>
+      ) : null}
       <div className="mt-3 flex items-start gap-3 rounded-lg border border-border bg-surface p-4">
         <button
           type="button"
@@ -67,11 +75,12 @@ export function CliManager({ overview }: { overview: CliOverview }) {
           aria-checked={overview.enabled}
           aria-labelledby="cli-switch-label"
           aria-describedby="cli-switch-hint"
-          disabled={switching}
+          disabled={switching || (overview.hosted && !overview.enabled)}
           onClick={() => {
+            if (!overview.enabled) return setAsking(true);
             setSwitching(true);
             run(
-              () => setCliEnabledAction({ enabled: !overview.enabled }),
+              () => setCliEnabledAction({ enabled: false }),
               () => setSwitching(false),
             );
           }}
@@ -97,6 +106,44 @@ export function CliManager({ overview }: { overview: CliOverview }) {
           </p>
         </div>
       </div>
+      <Dialog
+        open={asking}
+        onClose={() => setAsking(false)}
+        title={t("riskTitle")}
+        description={t("riskBody")}
+      >
+        <label className="flex min-h-11 items-start gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={accepted}
+            onChange={(e) => setAccepted(e.target.checked)}
+            className="mt-1"
+          />
+          {t("riskCheck")}
+        </label>
+        <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button variant="ghost" className="min-h-11 sm:min-h-9" onClick={() => setAsking(false)}>
+            {t("cancelRisk")}
+          </Button>
+          <Button
+            className="min-h-11 sm:min-h-9"
+            disabled={!accepted || switching}
+            onClick={() => {
+              setSwitching(true);
+              run(
+                () => setCliEnabledAction({ enabled: true, acknowledge: true }),
+                () => {
+                  setSwitching(false);
+                  setAsking(false);
+                  setAccepted(false);
+                },
+              );
+            }}
+          >
+            {t("riskConfirm")}
+          </Button>
+        </div>
+      </Dialog>
       <FormError error={error} />
       <ul className="mt-4 space-y-3">
         {overview.clis.map((c) => {

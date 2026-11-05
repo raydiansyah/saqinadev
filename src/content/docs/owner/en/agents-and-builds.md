@@ -99,6 +99,12 @@ Agents write code to a **work branch** of your repository, named `saqina/exec-` 
 
 If the project's repository is empty, Saqina first commits a small Next.js starter to the work branch, so the app builds and starts before any agent writes a line. Every agent is told it may only write the files of its task, that the app must start with no environment variables and no account, and that a feature that needs a key must show a clear message when the key is missing. An agent may write an `.env.example` listing variable names; real `.env` files are refused. A repository that already has code is left as it is.
 
+## When the build fails after the agents finish
+
+The agents cannot run the build themselves; Vercel builds the preview and CI runs its checks. If the preview build or a check on an execution's work branch fails after the work finished, the same agents get one more go on that same branch. They are told what failed (the last error lines of the build log, with secrets removed). The Activity list says **The agents are fixing it**, and the next preview builds the fixed code.
+
+It is limited: at most two tries per build, one at a time. If it cannot start or the limit is reached, the Activity list says **No automatic fix** and why, and the next step is yours. Failures while agents are still working, on other branches, or from a person who lost access start nothing.
+
 ## What the agents may not do
 
 - They write only the files their task lists, never secrets files, never a file with a secret in it, and never outside the work branch.

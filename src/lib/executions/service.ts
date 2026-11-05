@@ -86,6 +86,8 @@ export async function startExecution(
   actor: Actor,
   slug: string,
   input: unknown,
+  /** Set by the server for an automatic repair; never read from the input. */
+  internal: { parentExecutionId?: string; branch?: string } = {},
 ): Promise<ExecutionRow> {
   const data = parse(startInput, input);
   const access = await loadProjectAccess(actor, { slug }, "content:write");
@@ -125,6 +127,8 @@ export async function startExecution(
         messageId: data.messageId ?? null,
         mode: data.mode,
         request: data.request,
+        parentExecutionId: internal.parentExecutionId ?? null,
+        branch: internal.branch ?? null,
         budget: DEFAULT_EXECUTION_BUDGET,
         agentSnapshot: {
           definitions: Object.fromEntries(definitions.map((d) => [d.id, toDefinitionSnapshot(d)])),

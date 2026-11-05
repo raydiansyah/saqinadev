@@ -239,7 +239,8 @@
       "taken": "That key is already in use.",
       "unknown": "Unknown value.",
       "cliOff": "Local CLIs are switched off. Turn them on above first.",
-      "cliNotInstalled": "That CLI is not installed on this server."
+      "cliNotInstalled": "That CLI is not installed on this server.",
+      "cliHosted": "Local CLIs cannot be used on a hosted platform."
     },
     "skills": {
       "title": "Skills",
@@ -406,8 +407,14 @@
       "rescan": "Reload this page after installing or logging in to a CLI to see the change.",
       "switchOn": "Local CLIs are on",
       "switchOff": "Local CLIs are off",
-      "switchHint": "Off by default. While it is off, no CLI is started and any connected CLI stops answering. Turning it on lets Saqina run the CLIs below on this server, as the user that runs Saqina.",
-      "detectOff": "Not checked while local CLIs are off"
+      "switchHint": "Off by default and only for a machine you run yourself. While it is off, no CLI is started and any connected CLI stops answering. Turning it on needs you to accept the risk below.",
+      "detectOff": "Not checked while local CLIs are off",
+      "riskTitle": "Before you turn this on",
+      "riskBody": "These CLIs sign in with the account of whoever logged them in on this server, often a ChatGPT or Claude subscription. Using a subscription this way can go against the provider's terms and the account can be suspended or banned. Use it only on a machine you run yourself, with an account you can afford to lose, and never for other people's work.",
+      "riskCheck": "I understand the risk and accept it",
+      "riskConfirm": "Turn on",
+      "hosted": "This is a hosted platform, so local CLIs cannot be used here. Run Saqina on a machine of your own to use them.",
+      "cancelRisk": "Cancel"
     }
   },
   "integrations": {

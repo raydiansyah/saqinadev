@@ -145,6 +145,16 @@ async function contextFor(
       label: "limits",
       content: `At most ${execution.budget.maxTasks - 1} tasks, a chain of at most ${execution.budget.maxDepth} dependent tasks.`,
     },
+    ...(execution.parentExecutionId
+      ? [
+          {
+            kind: "instruction" as const,
+            label: "repair",
+            content:
+              "This is an automatic repair: a build or check failed on the work branch, whose code is already in the repository. Plan the smallest change that fixes the failure, one or two tasks, no new features, and do not rebuild what exists.",
+          },
+        ]
+      : []),
     { kind: "project_data", label: "request", content: execution.request },
     {
       kind: "project_data",
@@ -349,7 +359,8 @@ async function persist(
     const next = await moveExecution(tx, locked, build ? "running" : "planned", {
       patch: {
         plan: { goal: plan.goal, risks: plan.risks },
-        ...(build ? { branch: `saqina/exec-${locked.id.slice(0, 8)}` } : {}),
+        // A repair keeps the branch it was started with, so the fix lands where the failed build is.
+        ...(build && !locked.branch ? { branch: `saqina/exec-${locked.id.slice(0, 8)}` } : {}),
       },
     });
     if (build) await enqueueDispatch(tx, scopeOf(next));

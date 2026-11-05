@@ -4,6 +4,7 @@ import { safeError } from "./conclude";
 import { runDispatchJob } from "./dispatcher";
 import { claimJobs, failJob, finishJob, type JobRow } from "./jobs";
 import { runPlanJob } from "./planner";
+import { runRepairJob } from "./repair";
 import { runTaskJob } from "./runner";
 import type { EngineOptions } from "./task-executor";
 
@@ -14,6 +15,7 @@ async function handle(job: JobRow, options: EngineOptions): Promise<void> {
   try {
     if (job.kind === "plan") await runPlanJob(job.executionId, options);
     else if (job.kind === "dispatch") await runDispatchJob(job.executionId);
+    else if (job.kind === "repair") await runRepairJob(job);
     else await runTaskJob(job, options);
     await finishJob(job.id);
   } catch (error) {

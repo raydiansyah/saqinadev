@@ -99,6 +99,12 @@ Agen menulis kode ke **branch kerja** di repositori Anda, bernama `saqina/exec-`
 
 Jika repositori proyek masih kosong, Saqina lebih dulu meng-commit starter Next.js kecil ke branch kerja, sehingga aplikasi bisa di-build dan dijalankan sebelum agen menulis satu baris pun. Setiap agen diberi tahu bahwa ia hanya boleh menulis berkas tugasnya, bahwa aplikasi harus berjalan tanpa variabel lingkungan dan tanpa akun, dan bahwa fitur yang butuh kunci harus menampilkan pesan yang jelas saat kunci tidak ada. Agen boleh menulis `.env.example` berisi nama variabel; berkas `.env` asli ditolak. Repositori yang sudah berisi kode dibiarkan apa adanya.
 
+## Ketika build gagal setelah agen selesai
+
+Agen tidak bisa menjalankan build sendiri; Vercel membangun preview dan CI menjalankan pemeriksaannya. Jika build preview atau sebuah pemeriksaan pada branch kerja gagal setelah pekerjaan selesai, agen yang sama mendapat satu kesempatan lagi di branch yang sama. Mereka diberi tahu apa yang gagal (baris galat terakhir dari log build, rahasia dihapus). Daftar Aktivitas menyatakan **Agen memperbaikinya**, dan preview berikutnya membangun kode yang sudah diperbaiki.
+
+Ini dibatasi: paling banyak dua kali per build, satu per satu. Jika tidak bisa dimulai atau batasnya tercapai, daftar Aktivitas menyatakan **Tidak ada perbaikan otomatis** beserta sebabnya, dan langkah berikutnya ada pada Anda. Kegagalan saat agen masih bekerja, di branch lain, atau dari orang yang kehilangan akses tidak memulai apa pun.
+
 ## Yang tidak boleh dilakukan agen
 
 - Mereka hanya menulis berkas yang tercantum di tugasnya, tidak pernah berkas rahasia, tidak pernah berkas yang berisi rahasia, dan tidak pernah di luar branch kerja.

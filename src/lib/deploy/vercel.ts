@@ -150,6 +150,37 @@ export async function removeEnv(ctx: VercelContext, projectId: string, keys: str
       );
 }
 
+/**
+ * The lines of a deployment's build log that say why it failed: error lines near the end, at most
+ * `max` of them. Vercel returns events newest first when asked backwards; a line may hold its text
+ * at the top or under `payload`.
+ */
+export async function getBuildErrors(
+  ctx: VercelContext,
+  deploymentId: string,
+  max = 30,
+): Promise<string[]> {
+  const out = await call<
+    Array<{ type?: string; text?: string; payload?: { text?: string } }> | { events?: unknown }
+  >(
+    ctx,
+    `/v3/deployments/${encodeURIComponent(deploymentId)}/events?builds=1&direction=backward&limit=200`,
+  );
+  const events = Array.isArray(out) ? out : [];
+  const lines = events
+    .map((e) => ({ type: e.type ?? "", text: String(e.text ?? e.payload?.text ?? "").trim() }))
+    .filter((e) => e.text.length > 0);
+  const bad = lines.filter(
+    (e) =>
+      e.type === "stderr" || /\b(error|failed|cannot find|not found|unexpected)\b/i.test(e.text),
+  );
+  // Oldest first, so the log reads in order.
+  return bad
+    .slice(0, max)
+    .reverse()
+    .map((e) => e.text.slice(0, 300));
+}
+
 export interface VercelDeployment {
   id: string;
   url: string | null;

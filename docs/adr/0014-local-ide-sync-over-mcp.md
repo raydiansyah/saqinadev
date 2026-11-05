@@ -27,3 +27,11 @@ in Saqina, and the agent should have the same skills and connectors as Saqina's 
 
 - An agent with a stale token loses access when its creator leaves the project (unchanged).
 - Skills are text the agent follows as a method; nothing in them runs in Saqina.
+
+## Addendum (2026-11-06): each task is reported when it finishes
+
+Waiting for a push left the project stale between commits. `AGENTS.md` now tells the IDE agent to call
+`report_task_result` as soon as each task is finished, and the tool takes the commits (sha and message,
+well-formed shas only) and the changed file names (never content). Saqina shows the task in review with
+its commits at once; the push and the pull request link and update it later, as before. The agent cannot
+mark a task done.

@@ -27,6 +27,8 @@ const SHOWN = new Set([
   "preview.build_started",
   "preview.updated",
   "preview.failed",
+  "repair.started",
+  "repair.skipped",
   "approval.required",
   "approval.completed",
 ]);
@@ -59,7 +61,10 @@ export function ActivityList({
       title: String(p.title ?? ""),
       path: String(p.path ?? ""),
       sha: String(p.commitSha ?? "").slice(0, 7),
-      reason: String(p.reason ?? ""),
+      reason: t.has(`repairReasons.${String(p.reason)}` as never)
+        ? (t as unknown as (k: string) => string)(`repairReasons.${String(p.reason)}`)
+        : String(p.reason ?? ""),
+      name: String(p.name ?? ""),
       kind: String(p.messageType ?? p.type ?? ""),
     };
     // The event name is a path into the messages (`task.started` is `events.task.started`).

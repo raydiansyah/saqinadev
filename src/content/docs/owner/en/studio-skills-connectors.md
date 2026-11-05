@@ -79,6 +79,7 @@ Instead of an API key you can use Claude Code, Codex or OpenCode that is already
 Good to know:
 
 - Only platform owners see and manage this, and every change is in the audit log.
+- **Read the warning.** A CLI signed in with a ChatGPT or Claude subscription can go against the provider's terms, and the account can be suspended or banned. Turning the switch on asks you to accept that. Use it only on a machine you run yourself, with an account you can afford to lose. It cannot be turned on on a hosted platform.
 - It is **off by default**. The **Local CLIs** switch at the top of the section turns it on or off. While it is off nothing is started, and turning it off stops a connected CLI at its next answer without removing it.
 - It only works with a CLI installed on the same machine as the server. On Vercel the CLIs show as not installed.
 - Saqina starts the CLI in an empty temporary folder, with no tools, and without its own keys or database address. The CLI answers; it cannot read or change files.
@@ -180,7 +181,7 @@ flowchart LR
 
 ![Publish: the five stages from code to published, then the address, the deployments and the choice of Vercel account](/api/docs/assets/owner/studio-07-publish.png)
 
-**Your own IDE.** Under **Settings > Agent access**, create a token, choose its permissions (add *Claim tasks and report their result* and *Use the project's connector tools* for full sync), copy the snippet for Claude Code, Cursor, Codex or Kiro, and download **AGENTS.md** into your repository. The agent then lists tasks, claims one, works on a branch with the task reference, opens a pull request and reports `review` or `blocked`. It uses your own model, and gets the same skills and connectors as Saqina's agents. Only you mark a task done, by merging.
+**Your own IDE.** Under **Settings > Agent access**, create a token, choose its permissions (add *Claim tasks and report their result* and *Use the project's connector tools* for full sync), copy the snippet for Claude Code, Cursor, Codex or Kiro, and download **AGENTS.md** into your repository. The agent then lists tasks, claims one, works on a branch with the task reference and **reports each task as soon as it is finished** (`review` or `blocked`, with its commits and changed files), before it pushes, so the project shows it at once. The push and the pull request then link and update it. It uses your own model, and gets the same skills and connectors as Saqina's agents. Only you mark a task done, by merging.
 
 ![Connect an IDE agent: snippets and the AGENTS.md download](/api/docs/assets/owner/studio-08-mcp.png)
 

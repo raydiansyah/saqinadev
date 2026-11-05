@@ -121,6 +121,8 @@ export const executions = pgTable(
     budget: jsonb("budget").$type<ExecutionBudget>().notNull(),
     /** Last event number given out; the next event is seq + 1. */
     seq: integer("seq").notNull().default(0),
+    /** Set on an automatic repair: the execution whose failed build or check it fixes. No foreign key, like other back-references. */
+    parentExecutionId: uuid("parent_execution_id"),
     cancelRequestedAt: timestamp("cancel_requested_at", { withTimezone: true }),
     errorSummary: text("error_summary"),
     startedAt: timestamp("started_at", { withTimezone: true }),
@@ -132,6 +134,7 @@ export const executions = pgTable(
   (t) => [
     index("executions_project_idx").on(t.projectId, t.createdAt.desc()),
     index("executions_status_idx").on(t.status),
+    index("executions_parent_idx").on(t.parentExecutionId),
   ],
 );
 

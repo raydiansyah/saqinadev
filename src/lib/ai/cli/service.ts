@@ -28,6 +28,8 @@ export interface CliProviderView extends CliStatus {
 export interface CliOverview {
   /** The Owner's switch. Off until they turn it on. */
   enabled: boolean;
+  /** True on a hosted platform, where the switch cannot be turned on. */
+  hosted: boolean;
   clis: CliProviderView[];
 }
 
@@ -46,9 +48,21 @@ const cliRows = () =>
  * The Owner's switch for local CLIs. Off by default. Turning it off stops every CLI provider at the
  * next call (they fail and the gateway moves on), without deleting anything.
  */
+/** A hosted platform (Vercel) has no CLI to use and is not "a machine you run yourself". */
+export const hostedServer = () => Boolean(process.env.VERCEL);
+
 export async function setCliEnabled(actor: Actor, input: unknown): Promise<{ enabled: boolean }> {
   await requirePlatformOwner(actor);
-  const { enabled } = parse(z.object({ enabled: z.boolean() }), input);
+  const { enabled, acknowledge } = parse(
+    z.object({ enabled: z.boolean(), acknowledge: z.boolean().default(false) }),
+    input,
+  );
+  // Signing in a CLI with a ChatGPT or Claude subscription can break the provider's terms and get the
+  // account suspended. It is only offered on a machine the owner runs, and only after they accept that.
+  if (enabled && hostedServer())
+    throw new AppError("VALIDATION_ERROR", "Hosted server", { cli: "cliHosted" });
+  if (enabled && !acknowledge)
+    throw new AppError("VALIDATION_ERROR", "Risk not accepted", { acknowledge: "required" });
   await db.transaction(async (tx) => {
     await platformSettings(tx);
     await tx
@@ -61,7 +75,7 @@ export async function setCliEnabled(actor: Actor, input: unknown): Promise<{ ena
       type: enabled ? "provider.cli_enabled" : "provider.cli_disabled",
       entityType: "platform_ai_settings",
       entityId: "1",
-      metadata: {},
+      metadata: enabled ? { riskAccepted: true } : {},
     });
   });
   return { enabled };
@@ -79,6 +93,7 @@ export async function listClis(
   ]);
   return {
     enabled,
+    hosted: hostedServer(),
     clis: CLI_IDS.map((id) => {
       const def = CLI_DEFINITIONS[id];
       const status = found?.find((c) => c.id === id) ?? {

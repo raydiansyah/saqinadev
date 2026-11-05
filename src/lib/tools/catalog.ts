@@ -256,7 +256,7 @@ export const STATIC_TOOLS: StaticTool[] = [
     source: "internal",
     name: "report_task_result",
     description:
-      "Report where a task stands: review (ready for a person to check) or blocked. Add a summary and the branch or pull request. Only a person marks a task done, by merging the pull request or approving it in Saqina.",
+      "Report where a task stands: review (ready for a person to check) or blocked. Call it as soon as you finish each task, before you push: Saqina updates at once. Add a summary, the branch, the commits (sha and message) and the files you changed; add the pull request later if there is one. Only a person marks a task done, by merging the pull request or approving it in Saqina.",
     inputSchema: {
       type: "object",
       properties: {
@@ -266,6 +266,17 @@ export const STATIC_TOOLS: StaticTool[] = [
         branch: { type: "string", maxLength: 200 },
         pullRequestUrl: { type: "string", maxLength: 300 },
         issues: { type: "array", items: str(300), maxItems: 10 },
+        commits: {
+          type: "array",
+          maxItems: 20,
+          items: {
+            type: "object",
+            properties: { sha: str(64), message: { type: "string", maxLength: 200 } },
+            required: ["sha"],
+            additionalProperties: false,
+          },
+        },
+        files: { type: "array", items: str(300), maxItems: 50 },
       },
       required: ["task", "status", "summary"],
       additionalProperties: false,

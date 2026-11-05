@@ -969,6 +969,10 @@
         "approval": {
           "required": "Approval needed",
           "completed": "Approval given"
+        },
+        "repair": {
+          "started": "The agents are fixing it: {name}",
+          "skipped": "No automatic fix: {reason}"
         }
       },
       "startedElsewhere": "A plan or build was started here. Open the Studio to follow it.",
@@ -1109,7 +1113,16 @@
         "too_deep": "tasks wait on each other in too long a chain",
         "unknown_role": "a task names a role that no agent covers (an agent may be switched off)"
       },
-      "waitingOn": "Waiting on: {tasks}"
+      "waitingOn": "Waiting on: {tasks}",
+      "repairReasons": {
+        "budget": "it was tried twice already",
+        "running": "a fix is already running",
+        "no_owner": "the person who started this is no longer here",
+        "conflict": "too many executions are open",
+        "validation_error": "no agent is on",
+        "not_found": "the person who started this lost access",
+        "rate_limit": "too many starts in a short time"
+      }
     },
     "env": {
       "title": "Environment variables",

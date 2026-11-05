@@ -37,13 +37,15 @@ export function renderAgentsMd(input: AgentsMdInput): string {
     "2. `claim_task`. It moves the task to in progress and returns the branch name to use.",
     `3. Work on a branch named \`${prefix}T-xxxxxxxx-short-title\` (the task reference from \`list_tasks\`).`,
     `   Never commit to \`${base}\` directly.`,
-    "4. Open a pull request into " +
+    "4. **As soon as a task is finished, call `report_task_result`**: do not wait for a push or a pull",
+    "   request. Use status `review` (ready for a person to check) or `blocked`, a short summary, the",
+    "   branch, the commits (sha and message) and the files you changed. Saqina updates the project at",
+    "   once, so the team sees each task as it completes. Do this for every task, one at a time.",
+    "5. Push the branch and open a pull request into " +
       `\`${base}\`` +
-      " and put `Saqina-Task: T-xxxxxxxx` in its description. Saqina then links the branch, the pull",
-    "   request and its checks to the task by itself.",
-    "5. `report_task_result` with status `review` (ready for a person to check) or `blocked`, a short",
-    "   summary and the pull request link. Only a person marks a task done: by merging the pull request",
-    "   or approving it in Saqina.",
+      ", with `Saqina-Task: T-xxxxxxxx` in its description. Saqina then links the pull request and its",
+    "   checks to the task by itself; add the pull request link by reporting again if you like. Only a",
+    "   person marks a task done: by merging the pull request or approving it in Saqina.",
     "",
     "## Rules",
     "",

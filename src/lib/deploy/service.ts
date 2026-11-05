@@ -21,6 +21,7 @@ import {
   createDeployment,
   ensureDomain,
   ensureProject,
+  getBuildErrors,
   listDeployments,
   removeEnv,
   upsertEnv,
@@ -381,6 +382,30 @@ export async function syncServiceEnv(projectId: string, deps: DeployDeps = {}): 
   } catch (error) {
     await recordServicesSynced(projectId, errorKey(error));
     await recordEnvSynced(projectId, errorKey(error));
+  }
+}
+
+/**
+ * Why a Vercel build failed, as a few log lines, for an automatic repair. Best effort: a project
+ * without a Vercel target, a deployment that is not Vercel's, or a call that fails gives no lines.
+ */
+export async function buildErrorsFor(
+  projectId: string,
+  deploymentId: string,
+  deps: DeployDeps = {},
+): Promise<string[]> {
+  if (!deploymentId.startsWith("vercel:")) return [];
+  const [target] = await db
+    .select()
+    .from(deployTargets)
+    .where(eq(deployTargets.projectId, projectId));
+  if (!target) return [];
+  try {
+    return await withVercel(target, deps, (ctx) =>
+      getBuildErrors(ctx, deploymentId.slice("vercel:".length)),
+    );
+  } catch {
+    return [];
   }
 }
 

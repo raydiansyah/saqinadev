@@ -4,6 +4,7 @@ import type { Executor } from "@/lib/db/client";
 import { executionEvents, executions } from "@/lib/db/schema";
 import type { DeploymentState } from "@/lib/domain/enums";
 import { appendEvent } from "./events";
+import { requestRepair } from "./repair";
 
 const EVENT = {
   pending: "preview.build_started",
@@ -37,6 +38,7 @@ export async function recordPreviewState(
     .limit(1);
   if (!execution) return;
   const type = EVENT[input.state];
+  const failedBuild = input.state === "failure";
   const seen = await tx
     .select({ payload: executionEvents.payload })
     .from(executionEvents)
@@ -64,4 +66,11 @@ export async function recordPreviewState(
     url: input.url,
     ref: input.ref,
   });
+  // A broken preview of finished work is worth one more try by the same agents.
+  if (failedBuild)
+    await requestRepair(tx, {
+      projectId: input.projectId,
+      branch: input.ref,
+      failed: { source: "build", key: input.deploymentId, name: "Preview build", url: input.url },
+    });
 }

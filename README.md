@@ -79,6 +79,28 @@ flowchart LR
   W --> S
 ```
 
+### How the pieces fit
+
+```mermaid
+flowchart TB
+  subgraph Saqina[Saqina Dev]
+    P[Project: tasks, PRD, env, memory, audit]
+  end
+  subgraph Studio[Build in Saqina: Studio]
+    SA[Saqina agents] --- SK1[skills] --- CO1[connectors]
+    GW1[AI gateway: platform providers, own key, local CLI]
+  end
+  subgraph IDE[Local IDE: your own model]
+    IA[IDE agent] --- SK2[skills over MCP] --- CO2[connectors over MCP]
+  end
+  Studio -->|each task as it completes| P
+  IDE -->|report_task_result per task, then push| P
+  P -->|work branch| G[Git]
+  G -->|CI/CD| V[Vercel]
+  V -->|project.saqina.dev, status, build log| P
+  V -.->|failed build: one more try, at most twice| Studio
+```
+
 - **Layers.** A page or action parses input and calls one service. The service checks permission
   (it takes an `Actor`, never trusts a hidden button), applies the rules, runs the transaction and
   writes the audit event. Queries only read and write. Components hold presentation and never import

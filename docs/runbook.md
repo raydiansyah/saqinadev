@@ -184,6 +184,16 @@ update executions set cancel_requested_at = now() where id::text like '<id>%' an
 
 The next dispatch round cancels the tasks nobody is running and ends the execution once the running ones return.
 
+### A build or check failed after the agents finished
+
+Vercel's preview build or a CI run on an execution's work branch failed. The same agents get one more go
+(at most two rounds, one at a time), on the same branch, told what failed ([ADR 0026](adr/0026-repair-failed-builds.md)).
+The Activity list says "The agents are fixing it" or "No automatic fix: <reason>".
+
+- *"it was tried twice already"*: change the plan or fix it by hand on the branch, or start a new Build.
+- *"no automatic fix" for a person who left*: start a Build from someone who has access.
+- The request says "No log is available": the project has no Vercel target or the log call failed; check the connection under Publish.
+
 ### Common reasons an execution fails
 
 | Reason shown | Cause | Fix |
@@ -225,7 +235,9 @@ An alternative to an API key, for a self-hosted server or a development machine.
 2. As a platform Owner open **AI & Models > Providers > Local CLI** and turn the **Local CLIs** switch
    on. It is off by default; while it is off nothing is detected or started. Turning it off again stops
    every CLI provider at its next call, without deleting it.
-3. In the same section press **Connect and test** on a CLI.
+3. Turning the switch on shows a warning: a CLI signed in with a ChatGPT or Claude subscription can break
+   the provider's terms and get the account banned. Accept it, or leave it off. It is refused on a hosted
+   platform. Then press **Connect and test** on a CLI.
    The CLI becomes a provider with its models; set it as the default or map it to an agent role as usual.
 4. To stop using it: **Disconnect** or **Disable** the provider. Every change is in the audit log.
 

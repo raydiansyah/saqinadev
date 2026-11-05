@@ -79,6 +79,7 @@ Sebagai pengganti API key, Anda bisa memakai Claude Code, Codex, atau OpenCode y
 Perlu diketahui:
 
 - Hanya owner platform yang melihat dan mengelola ini, dan setiap perubahan tercatat di log audit.
+- **Baca peringatannya.** CLI yang masuk dengan langganan ChatGPT atau Claude bisa melanggar ketentuan penyedia, dan akunnya bisa ditangguhkan atau diblokir. Menyalakan sakelar meminta Anda menerima risiko itu. Pakai hanya di mesin yang Anda jalankan sendiri, dengan akun yang siap Anda relakan. Tidak bisa dinyalakan di platform terhosting.
 - Fitur ini **mati secara default**. Sakelar **CLI lokal** di bagian atas menyalakan atau mematikannya. Selama mati, tidak ada yang dijalankan, dan mematikannya menghentikan CLI yang terhubung pada jawaban berikutnya tanpa menghapusnya.
 - Hanya bekerja dengan CLI yang terpasang di mesin yang sama dengan server. Di Vercel, CLI tampil tidak terpasang.
 - Saqina menjalankan CLI di folder sementara yang kosong, tanpa tool, dan tanpa key atau alamat database miliknya. CLI menjawab; ia tidak bisa membaca atau mengubah berkas.
@@ -180,7 +181,7 @@ flowchart LR
 
 ![Publish: lima tahap dari kode sampai tayang, lalu alamat, daftar deployment dan pilihan akun Vercel](/api/docs/assets/owner/studio-07-publish.png)
 
-**IDE Anda sendiri.** Di **Pengaturan > Akses agen**, buat token, pilih izinnya (tambahkan *Mengambil task dan melaporkan hasilnya* dan *Memakai tool konektor project* untuk sinkron penuh), salin snippet untuk Claude Code, Cursor, Codex atau Kiro, dan unduh **AGENTS.md** ke repository Anda. Agen kemudian melihat daftar task, mengambil satu, bekerja di branch dengan referensi task, membuka pull request dan melapor `review` atau `blocked`. Agen memakai model Anda sendiri, dan mendapat skill dan konektor yang sama dengan agen Saqina. Hanya Anda yang menandai task selesai, dengan menggabungkan.
+**IDE Anda sendiri.** Di **Pengaturan > Akses agen**, buat token, pilih izinnya (tambahkan *Mengambil task dan melaporkan hasilnya* dan *Memakai tool konektor project* untuk sinkron penuh), salin snippet untuk Claude Code, Cursor, Codex atau Kiro, dan unduh **AGENTS.md** ke repository Anda. Agen kemudian melihat daftar task, mengambil satu, bekerja di branch dengan referensi task dan **melapor setiap task begitu selesai** (`review` atau `blocked`, beserta commit dan berkas yang diubah), sebelum push, sehingga project langsung menampilkannya. Push dan pull request kemudian menautkan dan memperbarui. Agen memakai model Anda sendiri, dan mendapat skill dan konektor yang sama dengan agen Saqina. Hanya Anda yang menandai task selesai, dengan menggabungkan.
 
 ![Hubungkan agen IDE: snippet dan unduhan AGENTS.md](/api/docs/assets/owner/studio-08-mcp.png)
 

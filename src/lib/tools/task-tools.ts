@@ -115,6 +115,10 @@ export interface TaskReport {
   branch?: string;
   pullRequestUrl?: string;
   issues?: string[];
+  /** Commits made for the task, so Saqina shows them before anything is pushed. */
+  commits?: Array<{ sha: string; message?: string }>;
+  /** Paths changed. Names only, never content. */
+  files?: string[];
 }
 
 /** An agent says where the task stands. `done` is not an option: merging or approving is a person's. */
@@ -143,6 +147,19 @@ export async function reportTaskResultTool(
           ref: report.branch.slice(0, 200),
         })
         .onConflictDoNothing();
+    for (const c of (report.commits ?? []).slice(0, 20)) {
+      if (!/^[0-9a-f]{7,64}$/i.test(c.sha)) continue;
+      await tx
+        .insert(taskLinks)
+        .values({
+          projectId: access.project.id,
+          taskId: t.id,
+          kind: "commit",
+          ref: c.sha.slice(0, 12).toLowerCase(),
+          title: (c.message ?? "").split("\n")[0].slice(0, 300),
+        })
+        .onConflictDoNothing();
+    }
     const pr = /^https:\/\/[^\s]+\/pull\/(\d+)\/?$/.exec(report.pullRequestUrl ?? "");
     if (pr && report.pullRequestUrl)
       await tx
@@ -169,6 +186,10 @@ export async function reportTaskResultTool(
         toStatus: report.status,
         summary: report.summary.slice(0, 500),
         ...(report.issues?.length ? { issues: report.issues.join(" | ").slice(0, 500) } : {}),
+        ...(report.commits?.length ? { commits: report.commits.length } : {}),
+        ...(report.files?.length
+          ? { files: report.files.slice(0, 20).join(", ").slice(0, 500) }
+          : {}),
         ...via(agentName),
       },
     });

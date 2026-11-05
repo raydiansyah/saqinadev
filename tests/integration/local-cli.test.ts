@@ -78,7 +78,7 @@ beforeEach(async () => {
   await db.update(users).set({ platformRole: "owner" }).where(eq(users.id, owner.id));
   stranger = await createUser("Stranger");
   // Off is the default; most tests need it on.
-  await setCliEnabled(owner, { enabled: true });
+  await setCliEnabled(owner, { enabled: true, acknowledge: true });
 });
 
 describe("local CLI: only the platform Owner manages it", () => {
@@ -102,11 +102,23 @@ describe("local CLI: only the platform Owner manages it", () => {
     expect(await code(connectCli(owner, { cli: "claude" }))).toBe("VALIDATION_ERROR:cliOff");
     await expect(runCli("claude", "hi", "default")).rejects.toMatchObject({ code: "disabled" });
 
-    expect(await code(setCliEnabled(stranger, { enabled: true }))).toBe("AUTHORIZATION_ERROR");
+    expect(await code(setCliEnabled(stranger, { enabled: true, acknowledge: true }))).toBe(
+      "AUTHORIZATION_ERROR",
+    );
     expect((await listClis(owner)).enabled).toBe(false);
     expect(await code(setCliEnabled(owner, { enabled: "yes" }))).toBe("VALIDATION_ERROR:invalid");
 
-    await setCliEnabled(owner, { enabled: true });
+    // It cannot be turned on without accepting the risk, nor on a hosted platform.
+    expect(await code(setCliEnabled(owner, { enabled: true }))).toBe("VALIDATION_ERROR:required");
+    process.env.VERCEL = "1";
+    expect((await listClis(owner)).hosted).toBe(true);
+    expect(await code(setCliEnabled(owner, { enabled: true, acknowledge: true }))).toBe(
+      "VALIDATION_ERROR:cliHosted",
+    );
+    delete process.env.VERCEL;
+    expect((await listClis(owner)).enabled).toBe(false);
+
+    await setCliEnabled(owner, { enabled: true, acknowledge: true });
     expect((await listClis(owner)).enabled).toBe(true);
     expect((await listClis(owner)).clis.find((c) => c.id === "claude")?.installed).toBe(true);
     const audit = await db.select().from(auditEvents);
@@ -136,7 +148,7 @@ describe("local CLI: only the platform Owner manages it", () => {
     const audit = await db.select().from(auditEvents);
     expect(audit.map((a) => a.type)).toContain("provider.cli_disabled");
 
-    await setCliEnabled(owner, { enabled: true });
+    await setCliEnabled(owner, { enabled: true, acknowledge: true });
     expect((await ask()).value).toBe("Answer from the CLI");
   });
 });

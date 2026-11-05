@@ -969,6 +969,10 @@
         "approval": {
           "required": "Perlu persetujuan",
           "completed": "Persetujuan diberikan"
+        },
+        "repair": {
+          "started": "Agen memperbaikinya: {name}",
+          "skipped": "Tidak ada perbaikan otomatis: {reason}"
         }
       },
       "startedElsewhere": "Rencana atau build dimulai di sini. Buka Studio untuk mengikutinya.",
@@ -1109,7 +1113,16 @@
         "too_deep": "tugas saling menunggu dalam rantai yang terlalu panjang",
         "unknown_role": "sebuah tugas menyebut peran yang tidak dipegang agen mana pun (mungkin ada agen yang dimatikan)"
       },
-      "waitingOn": "Menunggu: {tasks}"
+      "waitingOn": "Menunggu: {tasks}",
+      "repairReasons": {
+        "budget": "sudah dicoba dua kali",
+        "running": "perbaikan sedang berjalan",
+        "no_owner": "orang yang memulai ini sudah tidak ada",
+        "conflict": "terlalu banyak eksekusi terbuka",
+        "validation_error": "tidak ada agen yang aktif",
+        "not_found": "orang yang memulai ini kehilangan akses",
+        "rate_limit": "terlalu banyak permulaan dalam waktu singkat"
+      }
     },
     "env": {
       "title": "Variabel lingkungan",

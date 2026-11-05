@@ -6,6 +6,7 @@ import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
 import {
+  activities,
   agents,
   ciRuns,
   credentials,
@@ -491,11 +492,33 @@ describe("a local IDE agent over MCP", () => {
       status: "review",
       summary: "Done, please check.",
       pullRequestUrl: "https://github.com/acme/shop/pull/21",
+      commits: [
+        { sha: "ABCDEF1234567890", message: "Add the shop page\n\nlong body" },
+        { sha: "not a sha!" },
+      ],
+      files: ["src/app/shop/page.tsx", "src/lib/shop.ts"],
     });
     expect(report.result?.structuredContent).toMatchObject({ status: "review" });
     expect((await taskNow(target.id)).status).toBe("review");
     const links = await db.select().from(taskLinks).where(eq(taskLinks.taskId, target.id));
     expect(links.some((l) => l.kind === "pr" && l.ref === "21")).toBe(true);
+    // The commits are on the task now, before any push or webhook: only well-formed shas, first line only.
+    const commits = links.filter((l) => l.kind === "commit");
+    expect(commits).toHaveLength(1);
+    expect(commits[0]).toMatchObject({ ref: "abcdef123456", title: "Add the shop page" });
+    const acts = await db.select().from(activities).where(eq(activities.entityId, target.id));
+    const last = acts.filter((a) => a.type === "task.updated").at(-1);
+    expect(last?.metadata).toMatchObject({
+      toStatus: "review",
+      commits: 2,
+      files: expect.stringContaining("src/lib/shop.ts"),
+    });
+  });
+
+  it("tells the IDE agent to report each task as it finishes, not at push time", async () => {
+    const md = String((await tool(token, "get_setup")).result?.structuredContent?.agentsMd);
+    expect(md).toContain("As soon as a task is finished");
+    expect(md).toContain("do not wait for a push");
   });
 
   it("can never mark a task done", async () => {

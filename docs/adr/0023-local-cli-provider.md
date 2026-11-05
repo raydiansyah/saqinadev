@@ -39,3 +39,10 @@ start a program on the machine that serves it, never on a visitor's laptop.
 - A CLI answers when it is done, so there is no token streaming; the whole text arrives at once.
 - Claude Code was run against this implementation. Codex and OpenCode follow their documented flags
   and have not been run here.
+
+## Addendum (2026-11-06): policy risk
+
+A CLI signed in with a ChatGPT or Claude subscription can go against the provider's terms and get the
+account suspended or banned. So the switch needs the Owner to accept that risk (recorded in the audit
+event, `riskAccepted`), is refused on a hosted platform (`VERCEL`), and the page says so before it turns on.
+Use it only on a machine you run yourself, with an account you can afford to lose.

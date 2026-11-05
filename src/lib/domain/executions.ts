@@ -78,7 +78,8 @@ export const EXECUTION_ARTIFACT_KINDS = [
 ] as const;
 export type ExecutionArtifactKind = (typeof EXECUTION_ARTIFACT_KINDS)[number];
 
-export const EXECUTION_JOB_KINDS = ["plan", "dispatch", "run_task"] as const;
+/** `repair` starts a follow-up execution to fix a failed build or check on a finished one. */
+export const EXECUTION_JOB_KINDS = ["plan", "dispatch", "run_task", "repair"] as const;
 export type ExecutionJobKind = (typeof EXECUTION_JOB_KINDS)[number];
 
 export const EXECUTION_JOB_STATUSES = ["pending", "running", "done", "failed"] as const;
@@ -112,6 +113,8 @@ export const EXECUTION_EVENT_TYPES = [
   "preview.failed",
   "approval.required",
   "approval.completed",
+  "repair.started",
+  "repair.skipped",
 ] as const;
 export type ExecutionEventType = (typeof EXECUTION_EVENT_TYPES)[number];
 

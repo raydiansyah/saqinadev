@@ -183,6 +183,24 @@ async function internal(tool: ToolRow, input: Input, { access, actor, batch }: H
           issues: Array.isArray(input.issues)
             ? input.issues.filter((i): i is string => typeof i === "string")
             : [],
+          commits: Array.isArray(input.commits)
+            ? input.commits.flatMap((c) =>
+                c && typeof c === "object" && typeof (c as { sha?: unknown }).sha === "string"
+                  ? [
+                      {
+                        sha: (c as { sha: string }).sha,
+                        message:
+                          typeof (c as { message?: unknown }).message === "string"
+                            ? (c as { message: string }).message
+                            : undefined,
+                      },
+                    ]
+                  : [],
+              )
+            : [],
+          files: Array.isArray(input.files)
+            ? input.files.filter((f): f is string => typeof f === "string")
+            : [],
         },
         agentName,
       );

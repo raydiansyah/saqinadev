@@ -5,6 +5,7 @@ import { db, type Tx } from "@/lib/db/client";
 import { ciRuns, deployments, repositoryConnections, taskLinks, tasks } from "@/lib/db/schema";
 import type { TaskLinkKind, TaskLinkState } from "@/lib/domain/enums";
 import { recordPreviewState } from "@/lib/executions/preview";
+import { requestRepair } from "@/lib/executions/repair";
 import { enqueueCodeIndex } from "@/lib/memory/code/schedule";
 import { findTaskRefs } from "../task-refs";
 import type { GitEvent } from "./parse";
@@ -183,6 +184,13 @@ export async function applyGitEvent(connection: Connection, event: GitEvent): Pr
           .onConflictDoUpdate({
             target: [ciRuns.projectId, ciRuns.externalId],
             set: { status: event.status, conclusion: event.conclusion, url: event.url },
+          });
+        // A failed check on an agent's finished work branch gets one more try by the same agents.
+        if (event.status === "completed" && event.conclusion === "failure")
+          await requestRepair(tx, {
+            projectId,
+            branch: event.branch,
+            failed: { source: "ci", key: event.externalId, name: event.name, url: event.url },
           });
         return result;
       }
