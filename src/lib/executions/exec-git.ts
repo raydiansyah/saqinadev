@@ -2,11 +2,12 @@ import "server-only";
 import { createHash } from "node:crypto";
 import { and, eq, like } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { executions, toolExecutions } from "@/lib/db/schema";
+import { executions, projects, toolExecutions } from "@/lib/db/schema";
 import type { AgentPermission } from "@/lib/domain/enums";
 import { AppError } from "@/lib/errors";
 import { getRepository } from "@/lib/git/service";
 import { executeTool, type ToolActor } from "@/lib/tools/executor";
+import { isEmptyRepo, scaffoldFiles } from "./scaffold";
 import type { TaskInput } from "./task-executor";
 
 /**
@@ -173,4 +174,35 @@ export async function commitFiles(
   if (typeof out.sha !== "string" || out.sha.length === 0)
     throw new RepoError("git_no_commit", true);
   return out.sha;
+}
+
+/**
+ * Puts the starting app on the work branch when the repository is empty, once per execution. Tasks
+ * run side by side, so more than one may arrive here at the same time: they share one idempotency
+ * key, and a task that loses the race looks again and carries on when the app is already there.
+ */
+export async function ensureScaffold(input: TaskInput, branch: string): Promise<void> {
+  const root = await listFiles(input, branch, "");
+  if (!isEmptyRepo(root)) return;
+  const [project] = await db
+    .select({ name: projects.name })
+    .from(projects)
+    .where(eq(projects.id, input.execution.projectId));
+  try {
+    await call(
+      input,
+      branch,
+      "commit_changes",
+      {
+        branch,
+        message: `Start the app [saqina ${input.execution.id.slice(0, 8)}]`,
+        files: scaffoldFiles(project?.name ?? "New project"),
+      },
+      `exec:${input.execution.id}:scaffold`,
+    );
+  } catch (error) {
+    if (!(error instanceof RepoError)) throw error;
+    const again = await listFiles(input, branch, "");
+    if (isEmptyRepo(again)) throw error;
+  }
 }

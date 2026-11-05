@@ -95,6 +95,10 @@ Agents write code to a **work branch** of your repository, named `saqina/exec-` 
 
 ![The Code tab: the files the agents changed and the diff of one of them](/api/docs/assets/owner/agents-06-code-diff.png)
 
+## A new project starts from a working app
+
+If the project's repository is empty, Saqina first commits a small Next.js starter to the work branch, so the app builds and starts before any agent writes a line. Every agent is told it may only write the files of its task, that the app must start with no environment variables and no account, and that a feature that needs a key must show a clear message when the key is missing. An agent may write an `.env.example` listing variable names; real `.env` files are refused. A repository that already has code is left as it is.
+
 ## What the agents may not do
 
 - They write only the files their task lists, never secrets files, never a file with a secret in it, and never outside the work branch.

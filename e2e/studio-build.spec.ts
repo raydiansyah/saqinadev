@@ -92,7 +92,9 @@ test("Build starts on its own and the Studio follows the work without a reload",
     /saqina\/exec-[0-9a-f]{8}/,
   )?.[0];
   expect(branch).toBeTruthy();
-  expect(git("rev-list", "--count", `main..${branch}`)).toBe("2");
+  // The seeded repository holds only a readme, so the platform's starter is the first commit.
+  expect(git("rev-list", "--count", `main..${branch}`)).toBe("3");
+  expect(git("show", `${branch}:package.json`)).toContain("next build");
   expect(git("rev-parse", "main")).toBe(mainBefore);
 
   await page.getByRole("tab", { name: "Git" }).click();

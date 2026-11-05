@@ -90,3 +90,41 @@ describe("checkWrites", () => {
     });
   });
 });
+
+describe("env templates and package.json", () => {
+  const targets = ["package.json", "tsconfig.json"];
+  const roots = [
+    ".env.example",
+    ".env.sample",
+    ".env.template",
+    ".env",
+    ".env.local",
+    ".env.production",
+    "app/.env",
+    ".env.example.bak",
+  ];
+
+  it("lets an agent write a template of variable names, and still refuses real env files", () => {
+    for (const ok of [".env.example", ".env.sample", ".env.template"])
+      expect(checkWrites([file(ok, "API_KEY=\n")], roots).ok, ok).toBe(true);
+    for (const bad of [".env", ".env.local", ".env.production", "app/.env", ".env.example.bak"]) {
+      const r = checkWrites([file(bad, "A=1\n")], roots);
+      expect(r.ok, bad).toBe(false);
+    }
+  });
+
+  it("scans a template for a real secret", () => {
+    const secret = ["sk", "live", "0123456789abcdefghij0123"].join("_");
+    expect(checkWrites([file(".env.example", `STRIPE=${secret}\n`)], roots).ok).toBe(false);
+  });
+
+  it("refuses a package.json that is not valid JSON, and accepts a valid one", () => {
+    expect(checkWrites([file("package.json", "{ not json")], targets)).toEqual({
+      ok: false,
+      problems: [{ code: "invalid_json", path: "package.json" }],
+    });
+    expect(checkWrites([file("package.json", '{"name":"a"}')], targets).ok).toBe(true);
+    // A tsconfig may hold comments, so it is not parsed as strict JSON.
+    expect(checkWrites([file("tsconfig.json", "{ // c\n}")], targets).ok).toBe(true);
+  });
+});

@@ -65,6 +65,8 @@ beforeAll(async () => {
   repo = mkdtempSync(join(tmpdir(), "saqina-provider-repo-"));
   execFileSync("git", ["init", "-q", "-b", "main", repo]);
   writeFileSync(join(repo, "README.md"), "# Shop\n");
+  // An app already exists, so the platform does not start one and only the agents' commits are counted.
+  writeFileSync(join(repo, "package.json"), '{"name":"shop"}\n');
   git("add", ".");
   git("-c", "user.name=T", "-c", "user.email=t@example.test", "commit", "-q", "-m", "init");
   slug = await project(owner, "An online shop selling handmade candles to local customers");

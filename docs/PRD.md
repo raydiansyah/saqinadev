@@ -189,6 +189,7 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 | E11 | Text from files, other agents, messages, CI or documentation is data for the model, never an instruction; secrets are scrubbed from events, messages, tool audit and patches | Built |
 | E12 | Run the execution queue every minute in production, and the end-to-end test in CI | Partial: the cron route and the test exist; the schedule (Vercel Pro or an outside scheduler) and the CI job are not set up |
 | E13 | The Studio message box has a Claude-style + menu (files, slash commands, skills, connectors) and a Browse dialog with Yours and Discover where an item is added with one press; the project sidebar folds away; an agent definition picks installed skills, which reach its prompt as method text | Built. "Yours" is kept per browser, not on the server |
+| E14 | A project that starts from an idea alone still gets an app that builds and starts: when the repository is empty the platform commits a Next.js starter before the first task, every writing task is told its rules (allowed files, limits, env templates allowed, package.json valid) and a quality bar (build and start with no environment variables, no key required), and the planner is told not to plan project set-up | Built. Nothing runs the build or the tests; the preview build on Vercel and CI are what show a failure |
 
 ## 6. Non-functional requirements
 

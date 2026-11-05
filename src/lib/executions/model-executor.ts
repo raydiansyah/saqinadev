@@ -10,6 +10,7 @@ import { skillSegments } from "@/lib/skills/prompt";
 import { platformSkillsBySlugs } from "@/lib/skills/service";
 import {
   commitFiles,
+  ensureScaffold,
   ensureWorkBranch,
   listFiles,
   RepoError,
@@ -17,7 +18,13 @@ import {
   repositoryReady,
 } from "./exec-git";
 import type { OutgoingMessage, TaskExecutor, TaskInput, TaskResult } from "./task-executor";
-import { checkWrites, describeProblems } from "./write-rules";
+import {
+  checkWrites,
+  describeProblems,
+  MAX_FILE_CHARS,
+  MAX_FILES,
+  MAX_TOTAL_CHARS,
+} from "./write-rules";
 
 /**
  * Does the work of one task with the model the agent is set to use. What it returns is only
@@ -63,9 +70,10 @@ const reviewOutput = z.object({
   targetTaskId: z.string().max(64).nullish(),
 });
 
+// A contract or a module layout is long: the limits leave room for it instead of failing the task.
 const reportOutput = z.object({
-  summary: z.string().trim().min(3).max(1200),
-  decisions: z.array(z.string().trim().min(3).max(600)).max(8).default([]),
+  summary: z.string().trim().min(3).max(4000),
+  decisions: z.array(z.string().trim().min(3).max(4000)).max(12).default([]),
 });
 
 const SYSTEM = [
@@ -226,17 +234,44 @@ const handoffs = (
   out: Array<{ to: string; type: OutgoingMessage["type"]; body: string }>,
 ): OutgoingMessage[] => out.map((m) => ({ to: m.to, type: m.type, body: m.body }));
 
+/** What the platform will refuse to write, told up front so a task is not lost to a rule it never saw. */
+const writeRules = (targets: readonly string[]): PromptSegment => ({
+  kind: "instruction",
+  label: "writing rules",
+  content: [
+    `You may write only under: ${targets.length ? targets.join(", ") : "(nothing: this task has no files)"}.`,
+    `At most ${MAX_FILES} files, ${MAX_FILE_CHARS} characters in a file, ${MAX_TOTAL_CHARS} in all. One refused file refuses the whole change.`,
+    "Never write .env or .env.local, keys, certificates, node_modules or .git.",
+    "A template named .env.example (or .env.sample) is allowed: list variable names with placeholder values, never a real value.",
+    "package.json must stay valid JSON. If you import a package, add it to package.json (include package.json in your files).",
+  ].join("\n"),
+});
+
+/** The bar every change has to meet, so an app made from an idea alone still starts. */
+const QUALITY_BAR: PromptSegment = {
+  kind: "instruction",
+  label: "quality bar",
+  content: [
+    "The app must build and start with no environment variables set and no account anywhere.",
+    "Read optional settings with a fallback. Prefer a service that needs no key. If one needs a key, show a clear message on screen when it is missing and keep the rest working: never throw at start.",
+    "Import only files that exist on the branch or that you write now, and only packages that are in package.json.",
+    "Handle loading, empty and error states in every screen that fetches data.",
+  ].join("\n"),
+};
+
 async function work(input: TaskInput): Promise<TaskResult> {
   const prefix = await repositoryReady(input);
   if (prefix === null) return fail("repository_not_connected", false);
   const branch = await ensureWorkBranch(input, prefix);
+  // An empty repository gets a starting app that builds, so nothing here depends on writing one.
+  await ensureScaffold(input, branch);
   const earlier = input.inputs.flatMap((i) =>
     i.artifacts.filter((a) => a.kind === "file_change" && a.path).map((a) => a.path as string),
   );
   const files = await readContext(input, branch, [...input.task.targetPaths, ...earlier]);
   const out = await ask(
     input,
-    [...(await baseSegments(input)), ...files],
+    [...(await baseSegments(input)), writeRules(input.task.targetPaths), QUALITY_BAR, ...files],
     "Do the task. Return the full new content of every file you write.",
     workOutput,
     "task_work",

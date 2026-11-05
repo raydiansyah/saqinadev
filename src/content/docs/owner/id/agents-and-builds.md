@@ -95,6 +95,10 @@ Agen menulis kode ke **branch kerja** di repositori Anda, bernama `saqina/exec-`
 
 ![Tab Kode: berkas yang diubah agen dan diff salah satunya](/api/docs/assets/owner/agents-06-code-diff.png)
 
+## Proyek baru mulai dari aplikasi yang berjalan
+
+Jika repositori proyek masih kosong, Saqina lebih dulu meng-commit starter Next.js kecil ke branch kerja, sehingga aplikasi bisa di-build dan dijalankan sebelum agen menulis satu baris pun. Setiap agen diberi tahu bahwa ia hanya boleh menulis berkas tugasnya, bahwa aplikasi harus berjalan tanpa variabel lingkungan dan tanpa akun, dan bahwa fitur yang butuh kunci harus menampilkan pesan yang jelas saat kunci tidak ada. Agen boleh menulis `.env.example` berisi nama variabel; berkas `.env` asli ditolak. Repositori yang sudah berisi kode dibiarkan apa adanya.
+
 ## Yang tidak boleh dilakukan agen
 
 - Mereka hanya menulis berkas yang tercantum di tugasnya, tidak pernah berkas rahasia, tidak pernah berkas yang berisi rahasia, dan tidak pernah di luar branch kerja.

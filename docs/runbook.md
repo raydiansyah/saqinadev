@@ -176,6 +176,8 @@ The next dispatch round cancels the tasks nobody is running and ends the executi
 | No agent is on for a role | An agent definition is switched off or archived | Switch it on under AI & Models, Agents, then try again |
 | No repository is connected | The project has no repository connection | Connect one in the Git tab |
 | The repository refused the operation | Token expired, branch locked, host down | Check the connection (Git tab), then try again |
+| A change was refused before it was written (`write_refused`) | The task wrote a file outside its scope, more than 12 files, a real `.env`, a secret or an invalid `package.json`; the reason names the file | Try again (the agent sees the reason); if the plan gave the task too few paths, change the plan |
+| The agent did not answer / the model did not answer (`model_failed`) | The model returned nothing usable (not JSON, too long) or timed out; a local CLI is slower and runs a few at once | Try again; check AI & Models, or use an API provider for builds |
 | The worker stopped before the task finished | A function was cut at its time limit | Nothing; the task was retried. If it repeats, shorten the agent's time limit or the task |
 
 ### Locally and in tests

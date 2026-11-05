@@ -7,7 +7,8 @@ export const MAX_TOTAL_CHARS = 300_000;
 /** Never written by an agent, whatever the task says. */
 const DENIED = [
   /^\.git(\/|$)/,
-  /(^|\/)\.env($|\.)/,
+  // .env and .env.<anything>, except a template: those hold names, never values, and are scanned.
+  /(^|\/)\.env($|\.(?!(example|sample|template)$))/,
   /(^|\/)node_modules(\/|$)/,
   /(^|\/)(id_rsa|id_ed25519)($|\.)/,
   /\.(pem|p12|pfx|key)$/i,
@@ -15,7 +16,21 @@ const DENIED = [
 
 export type WriteProblem =
   | { code: "too_many_files" | "too_large" | "duplicate_path" | "no_write_scope" }
-  | { code: "bad_path" | "denied_path" | "out_of_scope" | "secret_in_content"; path: string };
+  | {
+      code: "bad_path" | "denied_path" | "out_of_scope" | "secret_in_content" | "invalid_json";
+      path: string;
+    };
+
+/** Files whose content must parse as JSON. tsconfig and friends allow comments, so they are not here. */
+const mustBeJson = (path: string) => /(^|\/)package\.json$/.test(path);
+const isJson = (text: string) => {
+  try {
+    JSON.parse(text);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 /** A repository path: relative, no `..`, no backslash, no NUL. Null when it is none of that. */
 export function normalizePath(raw: string): string | null {
@@ -61,6 +76,7 @@ export function checkWrites(
     else if (!inScope(path, targets)) problems.push({ code: "out_of_scope", path });
     if (file.content.length > MAX_FILE_CHARS) problems.push({ code: "too_large" });
     if (containsSecret(file.content)) problems.push({ code: "secret_in_content", path });
+    if (mustBeJson(path) && !isJson(file.content)) problems.push({ code: "invalid_json", path });
     if (seen.has(path)) problems.push({ code: "duplicate_path" });
     seen.add(path);
     clean.push({ path, content: file.content });

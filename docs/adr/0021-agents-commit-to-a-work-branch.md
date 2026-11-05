@@ -42,3 +42,21 @@ publishing stay with a person.
   the repository.
 - CI on the work branch (through repository events) is the only test result Saqina reports; it does not
   run tests itself.
+
+## Addendum (2026-11-06): a project that starts from an idea
+
+An empty repository used to leave the first task to write the whole skeleton in one model reply, and a
+single refused file (for example `.env.example`, which the rules treated as a secret file) lost the
+change. Now:
+
+- When the work branch is created on a repository that holds nothing but a readme, licence or ignore file,
+  the platform commits a fixed Next.js (App Router, TypeScript) starter, once, under one idempotency key so
+  parallel tasks do not both do it. A repository that already has code is never touched.
+- `.env.example`, `.env.sample` and `.env.template` may be written (and are scanned for secrets); `.env`
+  and every other `.env.*` stay refused. A `package.json` that is not valid JSON is refused.
+- A writing task is told the files it may write, the limits and these rules, and a quality bar: the app
+  starts with no environment variables and no key. The planner is told not to plan project set-up and to
+  prefer services that need no key.
+- Report-only roles (the Architect without a commit tool) have wider limits on what they may return, and
+  the Architect preset now carries the commit tool so the contract lands in the repository as types.
+  Definitions that already exist keep their tools until the Owner changes them.
