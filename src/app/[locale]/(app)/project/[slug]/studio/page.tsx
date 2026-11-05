@@ -7,6 +7,7 @@ import { can } from "@/lib/auth/permissions";
 import { listConversations, loadMessages } from "@/lib/conversations/service";
 import { getDeployState } from "@/lib/deploy/service";
 import { getDocument } from "@/lib/documents/service";
+import { getEnvState } from "@/lib/env-vars/service";
 import { listExecutions } from "@/lib/executions/service";
 import { projectPageAccess } from "@/lib/projects/page";
 import { envSync, getServicesState } from "@/lib/services/service";
@@ -25,7 +26,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function StudioPage({ params }: PageProps<"/[locale]/project/[slug]/studio">) {
   const { slug } = await params;
   const access = await projectPageAccess(slug);
-  const [conversations, milestones, tasks, runs, prd, git, deploy, services, gap, executions] =
+  const [conversations, milestones, tasks, runs, prd, git, deploy, services, gap, env, executions] =
     await Promise.all([
       listConversations(access),
       listMilestones(access),
@@ -36,6 +37,7 @@ export default async function StudioPage({ params }: PageProps<"/[locale]/projec
       getDeployState(access),
       getServicesState(access),
       envSync(access),
+      getEnvState(access),
       listExecutions(access.actor, slug, 20),
     ]);
   const latest = conversations[0] ?? null;
@@ -50,7 +52,7 @@ export default async function StudioPage({ params }: PageProps<"/[locale]/projec
       buildsInSaqina={access.project.buildStrategy === "saqina"}
       git={git}
       deploy={deploy}
-      services={{ ...services, gap }}
+      services={{ ...services, gap, env }}
       canManage={can(access.role, "project:update")}
       prdApproved={prd?.status === "approved" || prd?.status === "signed"}
       executions={executions.map((e) => ({

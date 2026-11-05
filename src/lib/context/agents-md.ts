@@ -5,6 +5,8 @@ export interface AgentsMdInput {
   skills: { slug: string; name: string; description: string }[];
   connectors: { name: string; tools: string[] }[];
   /** The app's own databases and sign-in services: names of environment variables only. */
+  /** Names of the variables a person set on the app (not by a service). Never a value. */
+  appEnv?: string[];
   services: { kind: "database" | "auth"; provider: string; envVars: string[] }[];
 }
 
@@ -72,7 +74,8 @@ export function renderAgentsMd(input: AgentsMdInput): string {
     for (const c of input.connectors) lines.push(`- ${c.name}: ${c.tools.join(", ")}`);
     lines.push("");
   }
-  if (input.services.length > 0) {
+  const appEnv = input.appEnv ?? [];
+  if (input.services.length > 0 || appEnv.length > 0) {
     lines.push(
       "## Database and sign-in",
       "",
@@ -90,6 +93,7 @@ export function renderAgentsMd(input: AgentsMdInput): string {
     );
     for (const s of input.services)
       lines.push(`- ${s.provider} (${s.kind}): ${s.envVars.join(", ")}`);
+    if (appEnv.length > 0) lines.push(`- set by the owner: ${appEnv.join(", ")}`);
     lines.push("");
   }
   if (input.repository)

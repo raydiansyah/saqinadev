@@ -85,6 +85,32 @@ Perlu diketahui:
 - CLI memakai login user server, jadi semua yang memakai provider ini berbagi login itu.
 - CLI mengirim jawabannya setelah selesai, jadi teks tidak muncul kata demi kata.
 
+## Variabel lingkungan
+
+Di **Publish**, bagian **Variabel lingkungan**, Anda mengelola apa yang dibaca aplikasi dari `process.env`, seperti di Vercel.
+
+![Daftar variabel lingkungan: tiap variabel dengan Rahasia atau Publik dan keadaan Production, Preview, dan Development](/api/docs/assets/owner/env-01-list.png)
+
+- **Tiga lingkungan.** Production adalah situs yang diterbitkan, Preview adalah preview Saqina, Development adalah mesin developer dan jatuh ke Preview. Production tidak pernah dipakai untuk Development.
+- **Tambah variabel** meminta nama (huruf kapital, angka, garis bawah), catatan opsional, dan nilai per lingkungan. Nama yang diawali `NEXT_PUBLIC_` masuk ke browser, jadi tidak bisa dijadikan rahasia.
+- **Nilai tidak pernah ditampilkan lagi.** Lingkungan yang terisi diberi tanda centang. Di **Ubah**, kosongkan kolom untuk mempertahankan nilainya, ketik nilai baru untuk menggantinya, atau centang **Hapus** untuk menghapusnya.
+- **Impor .env** menerima teks berkas `.env` yang ditempel dan mengisi tiap variabel di lingkungan yang Anda pilih. Variabel yang sudah bernilai di sana dibiarkan kecuali Anda mencentang **Ganti**. Hasilnya menyebut apa yang ditambahkan, diubah, dipertahankan, dan dilewati.
+
+![Impor berkas .env: tempel teks, pilih lingkungan](/api/docs/assets/owner/env-02-import.png)
+
+- **Dikirim ke Vercel.** Menyimpan mengirim variabel ke proyek Vercel; menghapus juga menghapusnya di sana. Jika pengiriman gagal, variabel menyatakannya; menyimpan lagi atau menerbitkan mencobanya ulang.
+- **Nama dari repositori.** Jika `.env.example` di repositori memuat nama yang belum diatur di sini, sebuah pemberitahuan menawarkan **Tambahkan nama ini**. Nama ditambahkan tanpa nilai; Anda yang mengisinya.
+- **Layanan Anda.** Variabel yang diatur layanan database atau masuk ditampilkan di bawah, hanya baca. Ubah di layanannya.
+- **Siapa.** Semua anggota proyek melihat nama. Admin proyek menambah, mengubah, dan menghapus. Setiap perubahan tercatat di log audit, hanya nama.
+
+![Mengubah variabel: kolom nilai tetap kosong dan menyatakan sudah terisi](/api/docs/assets/owner/env-03-edit.png)
+
+Di ponsel daftar bertumpuk dan tombol berukuran sentuh penuh.
+
+![Daftar di ponsel](/api/docs/assets/owner/env-04-mobile.png)
+
+Agen diberi tahu nama apa yang ada, tidak pernah nilainya, dan diminta menambahkan nama baru ke `.env.example` serta menangani kasus nilainya belum ada, sehingga aplikasi tetap berjalan saat sebuah nilai kosong.
+
 ## Database dan layanan masuk untuk aplikasi Anda
 
 Di Studio, tab **Publish**, tambahkan database atau layanan masuk yang dipakai aplikasi: Neon, Supabase, Clerk, Postgres, atau variabel Anda sendiri. Semuanya selalu akun milik Anda: Saqina tidak menyediakan database, hanya menyimpan kunci Anda terenkripsi untuk project ini dan mengirimkannya ke deployment.

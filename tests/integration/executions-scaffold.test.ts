@@ -114,6 +114,8 @@ describe("an app made from an idea alone", () => {
     const labels = call?.request.segments.map((s) => s.label) ?? [];
     expect(labels).toContain("writing rules");
     expect(labels).toContain("quality bar");
+    // The agent is told which variable names exist, never a value.
+    expect(labels).toContain("environment variables");
     const rules = call?.request.segments.find((s) => s.label === "writing rules")?.content ?? "";
     expect(rules).toContain("src/lib/search.ts");
     expect(rules).toContain(".env.example");

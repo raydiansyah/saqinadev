@@ -20,6 +20,7 @@ import type { ServicesState } from "@/lib/services/service";
 import type { CodeEntry } from "@/lib/studio/code";
 import type { GitState } from "@/lib/studio/git-state";
 import { cn } from "@/lib/utils";
+import { EnvironmentVariables } from "./environment-variables";
 import { ReadinessList, ServiceConnections } from "./service-connections";
 
 type Failure = { code: string; fields?: Record<string, string> };
@@ -466,6 +467,21 @@ export function PublishTab({
           router.refresh();
         }}
       />
+
+      {services.env ? (
+        <EnvironmentVariables
+          slug={slug}
+          env={services.env}
+          gap={services.gap ?? null}
+          canManage={canManage}
+          onResult={(r, done) => {
+            if (!r.ok) return setError(failure(r));
+            setError(null);
+            if (done) setNotice(done);
+            router.refresh();
+          }}
+        />
+      ) : null}
 
       <section aria-labelledby={`${id}-dep`}>
         <h3

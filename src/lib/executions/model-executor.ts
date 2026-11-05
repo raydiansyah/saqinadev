@@ -5,6 +5,7 @@ import { AiCallFailed, runAi } from "@/lib/ai/gateway";
 import type { AiProvider, PromptSegment } from "@/lib/ai/provider";
 import { db } from "@/lib/db/client";
 import { ciRuns, documents } from "@/lib/db/schema";
+import { allEnvNames } from "@/lib/env-vars/service";
 import { AppError } from "@/lib/errors";
 import { skillSegments } from "@/lib/skills/prompt";
 import { platformSkillsBySlugs } from "@/lib/skills/service";
@@ -165,6 +166,17 @@ async function baseSegments(input: TaskInput): Promise<PromptSegment[]> {
     },
   ];
   segments.push(...skillSegments(await platformSkillsBySlugs(d.skills ?? [])));
+  const names = await allEnvNames(input.execution.projectId);
+  segments.push({
+    kind: "instruction",
+    label: "environment variables",
+    content: [
+      names.length
+        ? `The deployed app is given these environment variables (names only, values are secret): ${names.join(", ")}.`
+        : "No environment variables are set for the app yet.",
+      "Read them from process.env with a fallback. If your change needs a new one, add its name to .env.example (no value) and handle the case where it is not set; the owner sets the value.",
+    ].join(" "),
+  });
   if (input.inputs.length)
     segments.push({
       kind: "external",

@@ -7,6 +7,8 @@ import { loadProjectAccess, type ProjectAccess } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
 import { deployments, deployTargets, repositoryConnections } from "@/lib/db/schema";
 import { DEPLOY_OWNERS } from "@/lib/domain/enums";
+import { deployVars } from "@/lib/env-vars/rules";
+import { loadEnvVarValues, recordEnvSynced } from "@/lib/env-vars/service";
 import { AppError } from "@/lib/errors";
 import { recordPreviewState } from "@/lib/executions/preview";
 import { allow } from "@/lib/rate-limit";
@@ -20,6 +22,7 @@ import {
   ensureDomain,
   ensureProject,
   listDeployments,
+  removeEnv,
   upsertEnv,
   type VercelContext,
   VercelError,
@@ -295,7 +298,10 @@ export async function publish(actor: Actor, slug: string, deps: DeployDeps = {})
       const project = await ensureProject(ctx, { name, repo: repo.fullName });
       if (target.domain) await ensureDomain(ctx, project.id, target.domain);
       // The user's own database and sign-in keys reach the deployment here and nowhere else.
-      await upsertEnv(ctx, project.id, envForDeploy(services));
+      await upsertEnv(ctx, project.id, [
+        ...envForDeploy(services),
+        ...deployVars(await loadEnvVarValues(projectId)),
+      ]);
       const deployment = await createDeployment(ctx, {
         name,
         projectId: project.id,
@@ -363,14 +369,39 @@ export async function syncServiceEnv(projectId: string, deps: DeployDeps = {}): 
     .where(eq(deployTargets.projectId, projectId));
   if (!target?.vercelProjectId) return;
   const services = await loadServiceValues(projectId);
-  if (previewIssues(services).length > 0) return;
+  // A service that is not ready is held back; the variables a person set are always sent.
+  const fromServices = previewIssues(services).length > 0 ? [] : envForDeploy(services);
   try {
+    const own = deployVars(await loadEnvVarValues(projectId));
     await withVercel(target, deps, (ctx) =>
-      upsertEnv(ctx, target.vercelProjectId as string, envForDeploy(services)),
+      upsertEnv(ctx, target.vercelProjectId as string, [...fromServices, ...own]),
     );
     await recordServicesSynced(projectId, null);
+    await recordEnvSynced(projectId, null);
   } catch (error) {
     await recordServicesSynced(projectId, errorKey(error));
+    await recordEnvSynced(projectId, errorKey(error));
+  }
+}
+
+/** After a variable is removed here: removes it from the Vercel project too. Best effort. */
+export async function removeEnvFromDeployment(
+  projectId: string,
+  names: string[],
+  deps: DeployDeps = {},
+): Promise<{ removed: boolean }> {
+  const [target] = await db
+    .select()
+    .from(deployTargets)
+    .where(eq(deployTargets.projectId, projectId));
+  if (!target?.vercelProjectId) return { removed: false };
+  try {
+    await withVercel(target, deps, (ctx) =>
+      removeEnv(ctx, target.vercelProjectId as string, names),
+    );
+    return { removed: true };
+  } catch {
+    return { removed: false };
   }
 }
 

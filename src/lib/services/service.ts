@@ -7,6 +7,8 @@ import { loadProjectAccess, type ProjectAccess } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
 import { projectServices, type ServiceVarConfig } from "@/lib/db/schema";
 import { SERVICE_KINDS, SERVICE_PROVIDERS, type ServiceProvider } from "@/lib/domain/enums";
+import { localValueOf } from "@/lib/env-vars/rules";
+import { addEnvNames, allEnvNames, type EnvState, loadEnvVarValues } from "@/lib/env-vars/service";
 import { AppError } from "@/lib/errors";
 import { getRepository, withRepo } from "@/lib/git/service";
 import { allow } from "@/lib/rate-limit";
@@ -44,6 +46,8 @@ export interface ServicesState {
   issues: ReadinessIssue[];
   /** The repository's `.env.example` against what is set up here; null when unknown. */
   gap?: EnvGap | null;
+  /** The variables a person set, with what is filled. Names only; filled in by the Studio page. */
+  env?: EnvState;
 }
 
 type Values = {
@@ -301,14 +305,7 @@ export async function envSync(access: ProjectAccess): Promise<EnvGap | null> {
     const text = await withRepo(repo, (adapter, ref, token) =>
       adapter.readFile(ref, token, { path: ".env.example", ref: repo.defaultBranch }),
     );
-    const rows = await db
-      .select({ vars: projectServices.vars })
-      .from(projectServices)
-      .where(eq(projectServices.projectId, access.project.id));
-    return compareEnv(
-      parseEnvNames(text),
-      rows.flatMap((r) => r.vars.map((v) => v.name)),
-    );
+    return compareEnv(parseEnvNames(text), await allEnvNames(access.project.id));
   } catch {
     return null;
   }
@@ -321,7 +318,19 @@ export async function envExampleFor(access: ProjectAccess): Promise<string> {
     .from(projectServices)
     .where(eq(projectServices.projectId, access.project.id))
     .orderBy(asc(projectServices.createdAt));
-  return renderEnvExample(rows);
+  const own = await loadEnvVarValues(access.project.id);
+  return renderEnvExample([
+    ...rows,
+    ...(own.length
+      ? [
+          {
+            provider: "app",
+            label: "Environment variables",
+            vars: own.map((v) => ({ name: v.name, secret: v.secret })),
+          },
+        ]
+      : []),
+  ]);
 }
 
 /**
@@ -332,6 +341,7 @@ export async function envLocalFor(actor: Actor, slug: string): Promise<string> {
   const access = await loadProjectAccess(actor, { slug }, "project:update");
   if (!(await allow(`env-local:${actor.id}`, 20, 60 * 60_000))) throw new AppError("RATE_LIMIT");
   const services = await loadServiceValues(access.project.id);
+  const own = await loadEnvVarValues(access.project.id);
   await recordAudit(db, {
     actorId: actor.id,
     scope: "project",
@@ -339,7 +349,39 @@ export async function envLocalFor(actor: Actor, slug: string): Promise<string> {
     type: "service.env_downloaded",
     entityType: "project",
     entityId: access.project.id,
-    metadata: { vars: services.flatMap((s) => s.vars.map((v) => v.name)).join(",") },
+    metadata: {
+      vars: [...services.flatMap((s) => s.vars.map((v) => v.name)), ...own.map((v) => v.name)].join(
+        ",",
+      ),
+    },
   });
-  return renderEnvLocal(services);
+  return renderEnvLocal([
+    ...services,
+    ...(own.length
+      ? [
+          {
+            provider: "custom" as const,
+            label: "Environment variables",
+            vars: own.map((v) => ({
+              name: v.name,
+              secret: v.secret,
+              production: Boolean(v.production),
+              preview: Boolean(v.preview),
+              development: Boolean(localValueOf(v)),
+            })),
+            production: Object.fromEntries(own.map((v) => [v.name, v.production])),
+            preview: Object.fromEntries(own.map((v) => [v.name, v.preview])),
+            development: Object.fromEntries(own.map((v) => [v.name, v.development])),
+          },
+        ]
+      : []),
+  ]);
+}
+
+/** Adds, with no value yet, the names the repository's `.env.example` lists and Saqina does not have. */
+export async function addMissingEnvNames(actor: Actor, slug: string) {
+  const access = await loadProjectAccess(actor, { slug }, "project:update");
+  const gap = await envSync(access);
+  if (!gap || gap.missingInSaqina.length === 0) return { added: [] as string[] };
+  return addEnvNames(actor, slug, { names: gap.missingInSaqina });
 }

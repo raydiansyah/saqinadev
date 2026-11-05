@@ -7,9 +7,11 @@ import {
   publish,
   refreshDeployments,
   removeDeployTarget,
+  removeEnvFromDeployment,
   setupDeployTarget,
   syncServiceEnv,
 } from "@/lib/deploy/service";
+import { addEnvNames, importEnv, removeEnvVar, saveEnvVar } from "@/lib/env-vars/service";
 import { getExecutionDelivery } from "@/lib/executions/delivery";
 import { getExecutionDiff } from "@/lib/executions/diff";
 import {
@@ -19,7 +21,7 @@ import {
   revisePlan,
   startExecution,
 } from "@/lib/executions/service";
-import { removeService, saveService } from "@/lib/services/service";
+import { addMissingEnvNames, removeService, saveService } from "@/lib/services/service";
 import { buildNow } from "@/lib/studio/build-now";
 import { listCode, readCode } from "@/lib/studio/code";
 
@@ -143,4 +145,58 @@ export async function getExecutionDeliveryAction(slug: string, executionId: stri
   return runAction("studio.execution.delivery", { slug }, async () =>
     getExecutionDelivery(await requireActor(), slug, executionId),
   );
+}
+
+/** After a variable changes: pushes it to the deployment (best effort) and refreshes the page. */
+const afterEnvChange = async (projectId: string) => {
+  await syncServiceEnv(projectId);
+  revalidatePath("/[locale]/project/[slug]", "layout");
+};
+
+/** Adds or changes one environment variable. Values are write-only. */
+export async function saveEnvVarAction(slug: string, input: unknown) {
+  return runAction("studio.env.save", { slug }, async () => {
+    const access = await requireProjectAccess(slug);
+    const result = await saveEnvVar(await requireActor(), slug, input);
+    await afterEnvChange(access.project.id);
+    return result;
+  });
+}
+
+/** Pasted `.env` text: sets each variable in the chosen environments. */
+export async function importEnvAction(slug: string, input: unknown) {
+  return runAction("studio.env.import", { slug }, async () => {
+    const access = await requireProjectAccess(slug);
+    const result = await importEnv(await requireActor(), slug, input);
+    await afterEnvChange(access.project.id);
+    return result;
+  });
+}
+
+/** Names the repository's `.env.example` lists that are not here yet, added with no value. */
+export async function addMissingEnvNamesAction(slug: string) {
+  return runAction("studio.env.addMissing", { slug }, async () => {
+    const result = await addMissingEnvNames(await requireActor(), slug);
+    revalidatePath("/[locale]/project/[slug]", "layout");
+    return result;
+  });
+}
+
+export async function addEnvNamesAction(slug: string, input: unknown) {
+  return runAction("studio.env.names", { slug }, async () => {
+    const result = await addEnvNames(await requireActor(), slug, input);
+    revalidatePath("/[locale]/project/[slug]", "layout");
+    return result;
+  });
+}
+
+/** Removes a variable here and from the Vercel project. */
+export async function removeEnvVarAction(slug: string, input: unknown) {
+  return runAction("studio.env.remove", { slug }, async () => {
+    const access = await requireProjectAccess(slug);
+    const { name } = await removeEnvVar(await requireActor(), slug, input);
+    const { removed } = await removeEnvFromDeployment(access.project.id, [name]);
+    revalidatePath("/[locale]/project/[slug]", "layout");
+    return { removedFromDeployment: removed };
+  });
 }

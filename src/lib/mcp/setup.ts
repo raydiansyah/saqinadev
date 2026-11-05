@@ -1,3 +1,4 @@
+import { getEnvState } from "@/lib/env-vars/service";
 import "server-only";
 import { availableTools } from "@/lib/assistant/tool-turn";
 import type { ProjectAccess } from "@/lib/auth/permissions";
@@ -31,6 +32,7 @@ export async function agentsMdFor(access: ProjectAccess): Promise<string> {
         }
       : null,
     skills,
+    appEnv: (await getEnvState(access)).vars.map((v) => v.name),
     services: servicesState.services.map((s) => ({
       kind: s.kind,
       provider: s.provider,

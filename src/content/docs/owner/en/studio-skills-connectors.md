@@ -85,6 +85,32 @@ Good to know:
 - The CLI uses the server user's login, so everything that uses this provider shares that login.
 - The CLI sends its answer when it is finished, so text does not appear word by word.
 
+## Environment variables
+
+On **Publish**, under **Environment variables**, you manage what the app reads from `process.env`, the way you would on Vercel.
+
+![The Environment variables list: each variable with Secret or Public and its Production, Preview and Development state](/api/docs/assets/owner/env-01-list.png)
+
+- **Three environments.** Production is the published site, Preview is Saqina's preview, Development is a developer's machine and falls back to Preview. Production is never used for Development.
+- **Add variable** takes a name (capital letters, digits and underscores), an optional note, and a value per environment. A name starting `NEXT_PUBLIC_` goes into the browser, so it can never be secret.
+- **Values are never shown again.** A filled environment shows a tick. In **Edit**, leave a field empty to keep its value, type a new one to replace it, or tick **Clear** to remove it.
+- **Import .env** takes the pasted text of a `.env` file and sets each variable in the environments you choose. A variable that already has a value there is left alone unless you tick **Replace**. It tells you what was added, changed, kept and skipped.
+
+![Import a .env file: paste the text, choose the environments](/api/docs/assets/owner/env-02-import.png)
+
+- **Sent to Vercel.** Saving sends the variable to the Vercel project; removing one removes it there too. If sending failed, the variable says so; saving again or publishing retries it.
+- **Names from the repository.** When the repository's `.env.example` lists names that are not set here, a notice offers **Add these names**. They are added with no value; you fill them in.
+- **Your services.** Variables set by a database or sign-in service are listed below, read only. Change them on the service.
+- **Who.** Everyone on the project sees the names. Project admins add, change and remove. Every change is in the audit log, with names only.
+
+![Editing a variable: the value fields stay empty and say they are set](/api/docs/assets/owner/env-03-edit.png)
+
+On a phone the list stacks and the buttons are full-size touch targets.
+
+![The list on a phone](/api/docs/assets/owner/env-04-mobile.png)
+
+Agents are told which names exist, never a value, and are asked to add a new name to `.env.example` and to handle its absence, so the app still starts when a value is missing.
+
 ## Databases and sign-in for your app
 
 In the Studio under **Publish**, add the database or sign-in your app uses: Neon, Supabase, Clerk, Postgres or your own variables. They are always your own accounts: Saqina provides no database, it only keeps your keys encrypted for this project and sends them to the deployment.

@@ -130,6 +130,26 @@ export async function upsertEnv(ctx: VercelContext, projectId: string, vars: Ver
   });
 }
 
+/**
+ * Removes every variable with one of these names, in every environment. Names Vercel does not have
+ * are fine: a variable that was never sent has nothing to remove.
+ */
+export async function removeEnv(ctx: VercelContext, projectId: string, keys: string[]) {
+  if (keys.length === 0) return;
+  const wanted = new Set(keys);
+  const list = await call<{ envs?: Array<{ id: string; key: string }> }>(
+    ctx,
+    `/v10/projects/${encodeURIComponent(projectId)}/env`,
+  );
+  for (const env of list.envs ?? [])
+    if (wanted.has(env.key))
+      await call(
+        ctx,
+        `/v9/projects/${encodeURIComponent(projectId)}/env/${encodeURIComponent(env.id)}`,
+        { method: "DELETE" },
+      );
+}
+
 export interface VercelDeployment {
   id: string;
   url: string | null;

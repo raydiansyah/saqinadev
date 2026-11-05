@@ -108,6 +108,22 @@ sign-in; each line names the variable and the reason. Fixes:
   uses them. Values are never shown again; to rotate, enter a new one.
 - Without `SAQINA_ENCRYPTION_KEY` keys cannot be stored (the form says so).
 
+## Environment variables of a client's app
+
+Managed by a project admin in the Studio, **Publish > Environment variables** (decision:
+[ADR 0025](adr/0025-environment-variables-of-the-app.md)). Values are encrypted in `credentials` (kind `env`)
+and sent to the project's Vercel project; they are never shown again.
+
+- **A variable is not on Vercel.** The row shows "Not sent to Vercel yet" when the last send failed. Save the
+  variable again or Publish; check the Vercel connection (token, team) first.
+- **A removed variable is still on Vercel.** Removal there is best effort; the Studio says so when it
+  failed. Delete it by hand in the Vercel project's settings.
+- **Rotate a value.** Open Edit, type the new value in that environment, Save. Leave a field empty to keep it.
+- **A build fails on a missing variable.** Compare the names with the repository's `.env.example` (the
+  Studio lists the ones Saqina lacks and offers "Add these names"), fill the values, publish again.
+- **Nothing to restore.** Removing a variable deletes its values; there is no undo.
+- **Rotating `SAQINA_ENCRYPTION_KEY`** makes every value unreadable, like every other stored credential.
+
 ## Executions: Plan and Build with agents
 
 An execution (a plan or a build started from the Studio) is worked by a queue in the database

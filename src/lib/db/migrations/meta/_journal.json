@@ -281,6 +281,13 @@
       "when": 1793834509918,
       "tag": "0039_semantic_search",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1793869246415,
+      "tag": "0040_project_env_vars",
+      "breakpoints": true
     }
   ]
 }

@@ -140,12 +140,7 @@ export function ServiceConnections({
         </>
       )}
 
-      {gap && gap.missingInSaqina.length > 0 ? (
-        <Notice tone="warning">
-          <p className="mb-1 font-medium">{t("gap.missingInSaqina")}</p>
-          <p className="break-all font-mono text-xs">{gap.missingInSaqina.join(", ")}</p>
-        </Notice>
-      ) : null}
+      {/* Names the repository lists and Saqina lacks are shown, with an Add button, under Environment variables. */}
       {gap && gap.missingInRepo.length > 0 ? (
         <p className="text-xs text-muted-foreground">
           {t("gap.missingInRepo", { names: gap.missingInRepo.join(", ") })}

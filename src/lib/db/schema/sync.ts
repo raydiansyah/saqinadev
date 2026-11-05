@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  boolean,
   check,
   index,
   integer,
@@ -16,6 +17,7 @@ import type {
   DeploymentState,
   DeployOwner,
   DeployTargetStatus,
+  EnvVarSource,
   ServiceKind,
   ServiceProvider,
   ServiceStatus,
@@ -168,5 +170,43 @@ export const projectServices = pgTable(
     uniqueIndex("project_services_label_idx").on(t.projectId, t.provider, t.label),
     index("project_services_project_idx").on(t.projectId),
     check("project_services_kind_check", sql`${t.kind} in ('database','auth')`),
+  ],
+);
+
+/** Which environments of a variable have a value. The values themselves are only in `credentials`. */
+export interface EnvVarFilled {
+  production: boolean;
+  preview: boolean;
+  development: boolean;
+}
+
+/**
+ * One environment variable of the project's app, set by a person (not by a service). The row holds
+ * the name and what is filled; the three values live encrypted in one credential (kind "env").
+ */
+export const projectEnvVars = pgTable(
+  "project_env_vars",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: projectRef(),
+    name: text("name").notNull(),
+    /** A secret goes to the deployment as a sensitive variable. Names starting NEXT_PUBLIC_ never are. */
+    secret: boolean("secret").notNull().default(true),
+    comment: text("comment").notNull().default(""),
+    source: text("source").$type<EnvVarSource>().notNull().default("manual"),
+    filled: jsonb("filled")
+      .$type<EnvVarFilled>()
+      .notNull()
+      .default({ production: false, preview: false, development: false }),
+    credentialId: uuid("credential_id").references(() => credentials.id, { onDelete: "set null" }),
+    lastSyncedAt: timestamp("last_synced_at", { withTimezone: true }),
+    lastError: text("last_error"),
+    createdBy: text("created_by"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    uniqueIndex("project_env_vars_name_idx").on(t.projectId, t.name),
+    index("project_env_vars_project_idx").on(t.projectId),
   ],
 );

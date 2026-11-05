@@ -399,6 +399,8 @@ export const CREDENTIAL_KINDS = [
   "agent",
   "deploy",
   "service",
+  /** The values of one environment variable of a project's app. */
+  "env",
 ] as const;
 export type CredentialKind = (typeof CREDENTIAL_KINDS)[number];
 
@@ -586,6 +588,10 @@ export const SERVICE_KINDS = ["database", "auth"] as const;
 export type ServiceKind = (typeof SERVICE_KINDS)[number];
 export const SERVICE_PROVIDERS = ["neon", "supabase", "clerk", "postgres", "custom"] as const;
 export type ServiceProvider = (typeof SERVICE_PROVIDERS)[number];
+/** Where an environment variable came from. */
+export const ENV_VAR_SOURCES = ["manual", "import", "repository"] as const;
+export type EnvVarSource = (typeof ENV_VAR_SOURCES)[number];
+
 export const SERVICE_STATUSES = ["incomplete", "ready"] as const;
 export type ServiceStatus = (typeof SERVICE_STATUSES)[number];
 

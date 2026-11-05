@@ -222,8 +222,13 @@ test("the composer + menu: browse, press Add, and the skill is in the menu and o
   await page.setViewportSize({ width: 1280, height: 800 });
   await signIn(page);
   await openStudio(page);
-  await page.getByRole("button", { name: "Add to message" }).click();
-  await expect(page.getByRole("menuitem", { name: "Add files or photos" })).toBeVisible();
+  // A click before the page is interactive does nothing; retry until the menu is open.
+  await expect(async () => {
+    await page.getByRole("button", { name: "Add to message" }).click();
+    await expect(page.getByRole("menuitem", { name: "Add files or photos" })).toBeVisible({
+      timeout: 1_000,
+    });
+  }).toPass({ timeout: 20_000 });
   await page.getByRole("menuitem", { name: "Skills" }).click();
   await expect(page.getByText("Nothing added yet. Use Browse to add some.")).toBeVisible();
   await page.getByRole("menuitem", { name: "Browse skills" }).click();
@@ -377,5 +382,76 @@ test("the AI review of the interview fits a phone: no sideways scroll, big targe
   ]);
   expect(a && a.y + a.height <= 700).toBe(true);
   expect(a && ask && ask.y >= a.y + a.height - 1).toBe(true);
+  await context.close();
+});
+
+test("the Owner manages environment variables on the Publish tab, with no value ever shown, also on a phone", async ({
+  browser,
+}) => {
+  const context = await browser.newContext({ viewport: { width: 320, height: 800 } });
+  const page = await context.newPage();
+  await signIn(page);
+  await openStudio(page);
+  await page.getByRole("button", { name: "Work area" }).click();
+  await page.getByRole("tab", { name: "Publish" }).click();
+  const section = page.getByRole("region", { name: "Environment variables" });
+  await expect(section).toBeVisible();
+
+  await section.getByRole("button", { name: "Add variable" }).click();
+  const dialog = page.getByRole("dialog", { name: "Add a variable" });
+  await dialog.getByLabel("Name", { exact: true }).fill("geocoder_api_key");
+  await dialog.getByLabel("Production value").fill("live-secret-value-123");
+  await dialog.getByLabel("Preview value").fill("test-secret-value-456");
+  await dialog.getByRole("button", { name: "Save" }).click();
+  const row = section.getByRole("listitem").filter({ hasText: "GEOCODER_API_KEY" });
+  await expect(row).toContainText("Secret");
+  await expect(row).toContainText("Production");
+  // The page never contains a value, and nothing scrolls sideways.
+  expect(await page.content()).not.toContain("live-secret-value-123");
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    ),
+  ).toBe(false);
+
+  // A public name cannot be secret.
+  await section.getByRole("button", { name: "Add variable" }).click();
+  const second = page.getByRole("dialog", { name: "Add a variable" });
+  await second.getByLabel("Name", { exact: true }).fill("NEXT_PUBLIC_MAP_STYLE");
+  await expect(second.getByRole("checkbox", { name: /Secret/ })).toBeDisabled();
+  await second.getByLabel("Production value").fill("dark");
+  await second.getByRole("button", { name: "Save" }).click();
+  await expect(
+    section.getByRole("listitem").filter({ hasText: "NEXT_PUBLIC_MAP_STYLE" }),
+  ).toContainText("Public");
+
+  // A reserved name is refused with a reason.
+  await section.getByRole("button", { name: "Add variable" }).click();
+  const third = page.getByRole("dialog", { name: "Add a variable" });
+  await third.getByLabel("Name", { exact: true }).fill("NODE_ENV");
+  await third.getByLabel("Production value").fill("x");
+  await third.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText("The platform sets this name itself.")).toBeVisible();
+  await third.getByRole("button", { name: "Cancel" }).click();
+
+  // Import a .env.
+  await section.getByRole("button", { name: "Import .env" }).click();
+  const imp = page.getByRole("dialog", { name: "Import a .env file" });
+  await imp
+    .getByLabel("Text of the .env file")
+    .fill("CACHE_TTL=60\nMAP_TILE_URL=https://tiles.example/x\nbad line");
+  await imp.getByRole("button", { name: "Import" }).click();
+  await expect(imp.getByText(/2 new variables/)).toBeVisible();
+  await imp.getByRole("button", { name: "Cancel" }).click();
+  await expect(section.getByRole("listitem").filter({ hasText: "CACHE_TTL" })).toBeVisible();
+
+  // Remove.
+  await section
+    .getByRole("listitem")
+    .filter({ hasText: "CACHE_TTL" })
+    .getByRole("button", { name: "Remove" })
+    .click();
+  await page.getByRole("dialog").getByRole("button", { name: "Remove" }).click();
+  await expect(section.getByRole("listitem").filter({ hasText: "CACHE_TTL" })).toHaveCount(0);
   await context.close();
 });
