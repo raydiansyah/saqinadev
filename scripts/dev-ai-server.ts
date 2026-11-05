@@ -140,6 +140,45 @@ function structured(name: string, prompt: string): Record<string, unknown> {
       findings: "",
     };
   }
+  if (name === "interview_review") {
+    return {
+      summary:
+        "Dev mock: the project is a small shop for local customers. Most answers look right. The objective is short, and the database choice is worth confirming because sign-in and payments need stored records.",
+      notes: [
+        {
+          key: "projectType",
+          level: "missing",
+          note: "No project type is set; the idea reads like an online shop.",
+        },
+        {
+          key: "objective",
+          level: "check",
+          note: "The objective is still general: say whether customers only browse or also pay online.",
+        },
+        {
+          key: "features",
+          level: "check",
+          note: "Payments are listed without a payment provider, and sign-in without a method. Name both so the plan can be exact.",
+        },
+        {
+          key: "audience",
+          level: "ok",
+          note: "Customers are a consistent audience for this kind of project.",
+        },
+        {
+          key: "databaseNeed",
+          level: "check",
+          note: "Marked as needed, which fits orders and accounts. Confirm which database you want.",
+        },
+      ],
+      suggestions: {
+        objective:
+          "Sell handmade candles online to local customers, with checkout and order tracking.",
+        features: ["auth", "payment"],
+        databaseNeed: "yes",
+      },
+    };
+  }
   if (name === "task_report") {
     return {
       summary: "Dev mock report.",

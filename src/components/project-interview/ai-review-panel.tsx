@@ -69,15 +69,21 @@ export function AiReviewPanel({
   return (
     <section
       aria-labelledby="ai-review-heading"
-      className="rounded-lg border border-border bg-surface p-5"
+      className="rounded-lg border border-border bg-surface p-4 pb-20 sm:p-5 sm:pb-5"
     >
-      <h2 id="ai-review-heading" className="font-semibold">
+      <h2 id="ai-review-heading" className="flex flex-wrap items-center gap-2 font-semibold">
         {t("ai.title")} <AiLabel />
       </h2>
       <p className="mt-1 text-sm text-muted-foreground">{t("ai.body")}</p>
       <p className="mt-1 text-xs text-subtle-foreground">{t("ai.privacy")}</p>
       <div className="mt-4">
-        <Button type="button" variant="outline" onClick={run} disabled={pending}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={run}
+          disabled={pending}
+          className="min-h-11 w-full sm:min-h-9 sm:w-auto"
+        >
           {pending ? t("ai.pending") : review ? t("ai.again") : t("ai.button")}
         </Button>
       </div>
@@ -95,24 +101,29 @@ export function AiReviewPanel({
         ) : null}
         {review?.available ? (
           <>
-            <p className="text-xs text-muted-foreground">
+            <p className="break-words text-xs text-muted-foreground">
               {t("ai.reviewedBy", { model: review.model })}
             </p>
-            <p>{review.summary}</p>
+            <p className="text-sm leading-relaxed break-words sm:text-base">{review.summary}</p>
             {review.notes.length > 0 ? (
               <ul className="space-y-2">
                 {review.notes.map((n) => (
                   <li
                     key={`${n.key}-${n.note}`}
-                    className="flex flex-wrap items-start gap-2 text-sm"
+                    className="rounded-md border border-border p-3 text-sm"
                   >
-                    <span
-                      className={cn("rounded-full border px-2 py-0.5 text-xs", LEVEL_TONE[n.level])}
-                    >
-                      {t(`ai.levels.${n.level}`)}
-                    </span>
-                    <span className="font-medium">{t(`ai.fields.${n.key}`)}</span>
-                    <span className="text-muted-foreground">{n.note}</span>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <span
+                        className={cn(
+                          "shrink-0 rounded-full border px-2 py-0.5 text-xs",
+                          LEVEL_TONE[n.level],
+                        )}
+                      >
+                        {t(`ai.levels.${n.level}`)}
+                      </span>
+                      <span className="font-medium">{t(`ai.fields.${n.key}`)}</span>
+                    </div>
+                    <p className="mt-1.5 break-words text-muted-foreground">{n.note}</p>
                   </li>
                 ))}
               </ul>
@@ -127,16 +138,17 @@ export function AiReviewPanel({
                     {suggestions.map((key) => (
                       <li
                         key={key}
-                        className="flex flex-wrap items-center gap-3 rounded-md border border-border p-3 text-sm"
+                        className="flex flex-col gap-2 rounded-md border border-border p-3 text-sm sm:flex-row sm:items-center sm:gap-3"
                       >
-                        <span className="font-medium">{t(`ai.fields.${key}`)}</span>
-                        <span className="min-w-0 flex-1 break-words text-muted-foreground">
+                        <span className="font-medium sm:shrink-0">{t(`ai.fields.${key}`)}</span>
+                        <span className="min-w-0 break-words text-muted-foreground sm:flex-1">
                           {show(review.suggestions[key])}
                         </span>
                         <Button
                           type="button"
                           size="sm"
                           variant="outline"
+                          className="min-h-11 w-full sm:min-h-9 sm:w-auto"
                           disabled={applied.has(key)}
                           onClick={() => apply([key])}
                         >
@@ -146,7 +158,12 @@ export function AiReviewPanel({
                     ))}
                   </ul>
                   {open.length > 1 ? (
-                    <Button type="button" size="sm" className="mt-3" onClick={() => apply(open)}>
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="mt-3 min-h-11 w-full sm:min-h-9 sm:w-auto"
+                      onClick={() => apply(open)}
+                    >
                       {t("ai.applyAll")}
                     </Button>
                   ) : null}

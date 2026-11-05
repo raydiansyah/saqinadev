@@ -93,6 +93,24 @@ export function InterviewReview({
     items: analysis.requirements.filter((r) => r.group === group),
   })).filter((g) => g.items.length > 0 && g.group !== "open_questions");
 
+  const secondary = (
+    <>
+      <Button size="lg" variant="outline" onClick={() => onEdit("features")}>
+        {t("editRequirements")}
+      </Button>
+      <Button
+        size="lg"
+        variant="ghost"
+        onClick={() => {
+          recommendationsRef.current?.scrollIntoView({ block: "start" });
+          recommendationsRef.current?.focus();
+        }}
+      >
+        {t("changeRecommendation")}
+      </Button>
+    </>
+  );
+
   return (
     <div className="mt-8 space-y-10">
       <div>
@@ -312,7 +330,11 @@ export function InterviewReview({
         />
       </section>
 
-      <div className="sticky bottom-0 -mx-4 border-t border-border bg-background/95 px-4 py-4 backdrop-blur-sm sm:static sm:mx-0 sm:bg-transparent sm:px-0 sm:backdrop-blur-none">
+      {/* On a phone only the main action sticks, so it does not cover the page; the others sit above it. */}
+      <div className="flex flex-col gap-3 sm:hidden">{secondary}</div>
+
+      {/* The bottom padding keeps the floating "Ask Saqina" button below the main action. */}
+      <div className="sticky bottom-0 -mx-4 border-t border-border bg-background/95 px-4 pt-3 pb-[4.75rem] backdrop-blur-sm sm:static sm:mx-0 sm:bg-transparent sm:px-0 sm:py-4 lg:pb-4">
         {error ? (
           <Notice tone="error" className="mb-4">
             {error}
@@ -322,22 +344,15 @@ export function InterviewReview({
           <p className="mb-3 text-sm text-warning">{t("resolveFirst")}</p>
         ) : null}
         <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <Button size="lg" onClick={create} disabled={conflicts.length > 0}>
-            {t("accept")}
-          </Button>
-          <Button size="lg" variant="outline" onClick={() => onEdit("features")}>
-            {t("editRequirements")}
-          </Button>
           <Button
             size="lg"
-            variant="ghost"
-            onClick={() => {
-              recommendationsRef.current?.scrollIntoView({ block: "start" });
-              recommendationsRef.current?.focus();
-            }}
+            className="w-full sm:w-auto"
+            onClick={create}
+            disabled={conflicts.length > 0}
           >
-            {t("changeRecommendation")}
+            {t("accept")}
           </Button>
+          <div className="hidden gap-3 sm:contents">{secondary}</div>
         </div>
       </div>
     </div>

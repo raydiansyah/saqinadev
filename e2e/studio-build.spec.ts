@@ -335,3 +335,45 @@ test.describe("local CLI as an AI provider", () => {
     await expect(page.getByRole("heading", { name: "Local CLI" })).toHaveCount(0);
   });
 });
+
+test("the AI review of the interview fits a phone: no sideways scroll, big targets, main action in reach", async ({
+  browser,
+}) => {
+  const out = execFileSync("pnpm", ["tsx", "e2e/interview-draft.ts"], {
+    env: {
+      ...process.env,
+      DATABASE_URL: process.env.DATABASE_URL_E2E,
+      NODE_OPTIONS: "--conditions=react-server",
+    },
+    encoding: "utf8",
+  });
+  const slug = /SLUG=(\S+)/.exec(out)?.[1];
+  const context = await browser.newContext({ viewport: { width: 320, height: 700 } });
+  const page = await context.newPage();
+  await signIn(page);
+  await page.goto(`/en/project/${slug}/interview`);
+  await page.getByRole("button", { name: "Review with AI" }).click();
+  await expect(page.getByText(/Dev mock: the project/)).toBeVisible({ timeout: 60_000 });
+
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+    ),
+  ).toBe(false);
+  // Every Apply button is a full-width, 44 px target.
+  const apply = page.getByRole("button", { name: "Apply", exact: true });
+  await expect(apply.first()).toBeVisible();
+  for (const box of await Promise.all((await apply.all()).map((b) => b.boundingBox()))) {
+    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+  }
+  // The main action stays on screen while scrolling, and the floating assistant does not cover it.
+  await page.evaluate(() => window.scrollTo(0, 600));
+  const accept = page.getByRole("button", { name: /Accept & Create Project/ });
+  const [a, ask] = await Promise.all([
+    accept.boundingBox(),
+    page.getByRole("button", { name: /Ask Saqina/ }).boundingBox(),
+  ]);
+  expect(a && a.y + a.height <= 700).toBe(true);
+  expect(a && ask && ask.y >= a.y + a.height - 1).toBe(true);
+  await context.close();
+});
