@@ -1,6 +1,8 @@
 import { Skeleton } from "@/components/app/states";
 
 const COLUMNS = [0, 1, 2, 3, 4, 5];
+// One filter chip per column plus "all": seven distinct keys.
+const FILTERS = [...COLUMNS, COLUMNS.length];
 
 export default function TasksLoading() {
   return (
@@ -13,7 +15,7 @@ export default function TasksLoading() {
         <Skeleton className="h-11 w-28" />
       </div>
       <div className="mb-6 flex flex-wrap gap-2">
-        {[0, ...COLUMNS].map((i) => (
+        {FILTERS.map((i) => (
           <Skeleton key={i} className="h-9 w-20" />
         ))}
       </div>
