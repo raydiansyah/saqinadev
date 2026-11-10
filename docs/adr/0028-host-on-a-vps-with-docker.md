@@ -44,9 +44,12 @@ Design: [agent harness spec](../superpowers/specs/2026-11-10-agent-harness-desig
   this, the local CLI provider would become available on the VPS.
 - **Backups:** nightly `pg_dump` to object storage (R2 or S3), kept 14 days. The runbook records a restore
   test after each change to the backup.
-- **Move off Neon.** `pg_dump` from Neon, restore on the VPS, test, then switch `DATABASE_URL`. Neon stays
-  for two weeks as the way back, then it is shut down. Neon's point-in-time restore and branching are
-  lost; nightly backups and the restore test replace them.
+- **The database stays on Neon for now** (owner, 2026-11-10: it is 54 MB). The `postgres` service is
+  ready in Compose behind the `localdb` profile, and the move (dump, restore, compare exact row counts,
+  switch `DATABASE_URL`, keep Neon two weeks) is Task 7 of the
+  [plan](../superpowers/plans/2026-11-10-vps-hosting.md). Move when the Neon bill shows the compute
+  kept awake by the per-minute scheduler, or when the runner needs `LISTEN/NOTIFY` (phase 2).
+  Backups to R2 run against Neon's direct URL meanwhile.
 - **Vercel stays** for what it does for clients: preview and publish of client projects
   ([ADR 0013](0013-publishing-to-vercel.md)), using `VERCEL_TOKEN`.
 - **Deploys:** an image is built in CI and tagged by commit, then pulled on the VPS. Rollback means

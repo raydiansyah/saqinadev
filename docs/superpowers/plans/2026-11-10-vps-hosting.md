@@ -213,6 +213,9 @@
 
 ### Task 7: Move the database off Neon and cut over
 
+> Deferred (owner, 2026-11-10): the database stays on Neon for now (54 MB). The cutover of production to
+> the VPS (DNS, smoke test, removing `vercel.json` crons) happens with the owner on the server.
+
 **Files:**
 - Create: `deploy/move-from-neon.sh`, `deploy/row-counts.sql`
 - Modify: `vercel.json` (remove `crons` after the cutover, so Vercel and the VPS do not both run jobs), `docs/runbook.md` (cutover log), `docs/adr/0028-host-on-a-vps-with-docker.md` (status: accepted, with the date), `docs/PRD.md` (H1 Built; E12 schedule part Built), `README.md` (where it says the app is hosted on Vercel)

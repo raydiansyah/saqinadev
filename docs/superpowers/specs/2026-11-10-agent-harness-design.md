@@ -84,7 +84,9 @@ flowchart LR
   dengan `vercel.json`. Satu job tidak pernah jalan dua kali bersamaan. `after()` tetap jalur cepat, dan
   karena proses `web` hidup terus, drain dari `after()` tidak terpotong.
 - Backup `pg_dump` tiap malam ke object storage (R2 atau S3), dengan uji restore tercatat di runbook.
-- **Database pindah dari Neon ke Postgres di VPS.** Alasannya:
+- **Database pindah dari Neon ke Postgres di VPS, nanti.** Pemilik memutuskan (2026-11-10) Neon tetap
+  dipakai dulu karena ukurannya 54 MB. Service `postgres` sudah siap di Compose (profile `localdb`).
+  Alasan untuk pindah nanti:
   - Worker yang mengecek antrean tiap menit dan heartbeat runner tiap 30 detik membuat compute Neon tidak
     pernah tidur, jadi jam compute terpakai penuh.
   - `LISTEN/NOTIFY` untuk long-poll butuh koneksi langsung, tidak lewat pooler.
