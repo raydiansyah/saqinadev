@@ -258,11 +258,9 @@ export function Chat({
         fork={(id) => chat.fork(id, t("tools.forkTitle", { title: chat.info?.title ?? "" }))}
       />
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          submit();
-        }}
+      {/* A div, not a form: the model picker and the composer menu hold forms of their own,
+          and a form cannot sit inside another form. Enter is handled by the textarea. */}
+      <div
         onDragOver={(e) => {
           if (canWrite && e.dataTransfer.types.includes("Files")) e.preventDefault();
         }}
@@ -318,7 +316,8 @@ export function Chat({
           ) : (
             <Button
               size="sm"
-              type="submit"
+              type="button"
+              onClick={() => submit()}
               disabled={!draft.trim() || attachments.uploading || starting}
             >
               {t("send")}
@@ -334,7 +333,7 @@ export function Chat({
         >
           {t("composerHint")}
         </p>
-      </form>
+      </div>
     </div>
   );
 }

@@ -17,7 +17,9 @@
       "password": "Password",
       "confirmPassword": "Confirm password",
       "newPassword": "New password",
-      "passwordHint": "At least 8 characters, with numbers and symbols."
+      "passwordHint": "At least 8 characters, with numbers and symbols.",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
     },
     "signIn": {
       "metaTitle": "Sign in",

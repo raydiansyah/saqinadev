@@ -17,7 +17,9 @@
       "password": "Kata sandi",
       "confirmPassword": "Konfirmasi kata sandi",
       "newPassword": "Kata sandi baru",
-      "passwordHint": "Minimal 8 karakter, dengan kombinasi angka dan simbol."
+      "passwordHint": "Minimal 8 karakter, dengan kombinasi angka dan simbol.",
+      "showPassword": "Tampilkan kata sandi",
+      "hidePassword": "Sembunyikan kata sandi"
     },
     "signIn": {
       "metaTitle": "Masuk",
