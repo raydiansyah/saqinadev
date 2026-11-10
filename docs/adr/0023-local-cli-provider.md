@@ -4,7 +4,7 @@ Status: accepted (2026-10-31). Risk lane: Red (runs a process, provider credenti
 
 ## Context
 
-The Owner wants to use Claude Code, Codex or OpenCode as a model without an API key, on the CLI's own
+The Owner wants to use Claude Code, Codex, OpenCode or Kiro CLI as a model without an API key, on the CLI's own
 login, the way desktop tools list "Local CLI" next to "API providers". Saqina is a web app: it can only
 start a program on the machine that serves it, never on a visitor's laptop.
 
@@ -19,7 +19,7 @@ start a program on the machine that serves it, never on a visitor's laptop.
 - Only the platform Owner can see, connect, test, switch off or disconnect one (`requirePlatformOwner`
   in every call); each change is audited (`provider.cli_connected`, and the usual provider events).
   The generic provider form cannot create a `local_cli` provider.
-- Only three binaries are ever started (`claude`, `codex`, `opencode`), by a fixed command built in
+- Only four binaries are ever started (`claude`, `codex`, `opencode`, `kiro-cli`), by a fixed command built in
   `ai/cli/definitions.ts`. Nothing a person or project wrote becomes part of the command line; the
   prompt goes in through stdin or a file.
 - Every run: a new empty temporary directory (removed afterwards), no shell, an environment cut down
@@ -39,6 +39,9 @@ start a program on the machine that serves it, never on a visitor's laptop.
 - A CLI answers when it is done, so there is no token streaming; the whole text arrives at once.
 - Claude Code was run against this implementation. Codex and OpenCode follow their documented flags
   and have not been run here.
+- Kiro CLI was added on 2026-11-05 at the Owner's request: `kiro-cli chat --no-interactive --trust-tools=
+  --trust-workspace`, prompt on stdin, plain text as the answer. `--trust-tools=` with no names gives it no
+  tools. It was run end to end on a development machine. Its login lives in the server user's home.
 
 ## Addendum (2026-11-06): policy risk
 

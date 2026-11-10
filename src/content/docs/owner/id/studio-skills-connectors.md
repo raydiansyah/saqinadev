@@ -66,9 +66,9 @@ Di **AI & Model**:
 
 ## Pakai CLI yang sudah login di server (owner platform)
 
-Sebagai pengganti API key, Anda bisa memakai Claude Code, Codex, atau OpenCode yang sudah login di mesin yang menjalankan Saqina. Di **AI & Model**, **Provider**, bagian **CLI lokal** memuat ketiganya, apakah masing-masing terpasang di server ini, dan versinya.
+Sebagai pengganti API key, Anda bisa memakai Claude Code, Codex, OpenCode, atau Kiro CLI yang sudah login di mesin yang menjalankan Saqina. Di **AI & Model**, **Provider**, bagian **CLI lokal** memuat keempatnya, apakah masing-masing terpasang di server ini, dan versinya.
 
-![Bagian CLI lokal: Claude Code terpasang dan terhubung, Codex dan OpenCode tidak terpasang](/api/docs/assets/owner/providers-01-local-cli.png)
+![Bagian CLI lokal: Claude Code terpasang dan terhubung, yang lain tidak terpasang](/api/docs/assets/owner/providers-01-local-cli.png)
 
 ![CLI lokal mati secara default: sakelar mati dan tidak ada yang diperiksa](/api/docs/assets/owner/providers-02-local-cli-off.png)
 

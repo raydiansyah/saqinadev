@@ -10,6 +10,7 @@ import { authClient, signIn } from "@/lib/auth/client";
 import { safeNext } from "@/lib/auth/redirect";
 import { type AuthErrorKey, authErrorKey, isEmail } from "./auth-errors";
 import { Divider, GoogleButton } from "./google-button";
+import { PasswordField } from "./password-field";
 
 type Status = "idle" | "loading" | "error";
 
@@ -121,10 +122,9 @@ export function SignInForm({
           error={fields.email}
           required
         />
-        <Field
+        <PasswordField
           id={`${id}-password`}
           name="password"
-          type="password"
           autoComplete="current-password"
           label={t("fields.password")}
           placeholder={t("placeholders.password")}

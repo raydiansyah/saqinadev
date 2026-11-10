@@ -393,7 +393,7 @@
     },
     "cli": {
       "title": "CLI lokal",
-      "intro": "Pakai CLI yang sudah login di mesin yang menjalankan Saqina, seperti Claude Code, Codex, atau OpenCode, sebagai pengganti API key. Saqina hanya menjalankan program ini di folder sementara yang kosong, tanpa tool dan tanpa rahasia miliknya. Hanya owner platform yang melihat ini.",
+      "intro": "Pakai CLI yang sudah login di mesin yang menjalankan Saqina, seperti Claude Code, Codex, OpenCode, atau Kiro CLI, sebagai pengganti API key. Saqina hanya menjalankan program ini di folder sementara yang kosong, tanpa tool dan tanpa rahasia miliknya. Hanya owner platform yang melihat ini.",
       "installed": "Terpasang",
       "notInstalled": "Tidak terpasang di server ini",
       "login": "Login di server dengan",

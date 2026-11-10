@@ -66,9 +66,9 @@ Under **AI & Models**:
 
 ## Use a CLI that is logged in on the server (platform owner)
 
-Instead of an API key you can use Claude Code, Codex or OpenCode that is already logged in on the machine that runs Saqina. Under **AI & Models**, **Providers**, the **Local CLI** section lists the three, whether each is installed on this server, and its version.
+Instead of an API key you can use Claude Code, Codex, OpenCode or Kiro CLI that is already logged in on the machine that runs Saqina. Under **AI & Models**, **Providers**, the **Local CLI** section lists the four, whether each is installed on this server, and its version.
 
-![The Local CLI section: Claude Code installed and connected, Codex and OpenCode not installed](/api/docs/assets/owner/providers-01-local-cli.png)
+![The Local CLI section: Claude Code installed and connected, the others not installed](/api/docs/assets/owner/providers-01-local-cli.png)
 
 ![Local CLIs are off by default: the switch is off and nothing is checked](/api/docs/assets/owner/providers-02-local-cli-off.png)
 
