@@ -5,7 +5,13 @@ name: Post-deploy smoke test
 # behind Vercel deployment protection, which the smoke test cannot pass.
 
 on:
-  deployment_status
+  deployment_status:
+  # The VPS has no deployment events: run this by hand after deploy.sh, with the domain.
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Site to test, e.g. https://saqina.dev"
+        required: true
 
 permissions:
   contents: read
@@ -14,8 +20,9 @@ permissions:
 jobs:
   smoke:
     if: >-
+      github.event_name == 'workflow_dispatch' || (
       github.event.deployment_status.state == 'success' &&
-      github.event.deployment.environment == 'Production'
+      github.event.deployment.environment == 'Production')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -28,5 +35,5 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Smoke test the deployment
         env:
-          TARGET_URL: ${{ github.event.deployment_status.environment_url || github.event.deployment_status.target_url }}
+          TARGET_URL: ${{ inputs.url || github.event.deployment_status.environment_url || github.event.deployment_status.target_url }}
         run: pnpm smoke "$TARGET_URL"

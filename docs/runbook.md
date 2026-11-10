@@ -334,9 +334,31 @@ Expected: the laptop's public address, not `1.2.3.4`.
 
 ## Deploy
 
-1. Merge the pull request into `main` (no direct pushes).
-2. If it contains a migration, apply it **before** promoting (the previous deployment must keep working,
-   so migrations only add):
+On the VPS:
+
+1. Merge into `main`. The Image workflow publishes `ghcr.io/raydiansyah/saqinadev:<commit>`; wait for it.
+2. If the change has a migration, take a backup first:
+
+```bash
+cd /opt/saqina && ./backup.sh
+```
+
+3. Deploy the commit:
+
+```bash
+cd /opt/saqina && ./deploy.sh <full commit id>
+```
+
+The script refuses with less than 3 GB free, pulls the image, applies migrations (with
+`MIGRATE_DATABASE_URL` from `.env` when set, which must be Neon's **direct** URL; otherwise `DATABASE_URL`),
+starts it, and waits up to 90 s for `/api/health` to report that commit. If it does not, it starts the
+previous tag again and exits 1. On success it keeps only this tag and the previous one.
+
+4. Run the smoke test against the domain (Actions > Post-deploy smoke test > Run workflow, with the URL).
+
+### Before the move (Vercel)
+
+While production was on Vercel, a migration was applied before promoting:
 
 ```bash
 neonctl auth
@@ -391,16 +413,19 @@ queues a new reconcile.
 
 ## Roll back the application
 
+On the VPS:
+
 ```bash
-vercel rollback
+cd /opt/saqina && ./deploy.sh "$(cat PREVIOUS)"
 ```
 
-or promote the previous deployment in the Vercel dashboard. Then check `/api/health`. Because migrations
-only add, the previous build runs against the new schema. Rehearse this on a preview before first needing it.
+Then check `/api/health`. Because migrations only add, the previous image runs against the new schema.
+On Vercel (before the move): `vercel rollback`, or promote the previous deployment in the dashboard.
 
 ## Roll back the database
 
-Only on the owner's decision. The `pre-migrate-…` Neon branch is the restore point. Restoring loses
+Only on the owner's decision. Restore points: the nightly backups in R2 (`restore.sh`, see Backups) and,
+while the database is on Neon, its own restore and the `pre-migrate-…` branches. Restoring loses
 writes made after it was taken, so prefer fixing forward with a new migration.
 
 ## Incident response
