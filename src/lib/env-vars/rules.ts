@@ -7,7 +7,7 @@ import { ENV_NAME } from "@/lib/services/presets";
  */
 
 /** Set by the platform the app runs on, so a person never needs to (or may) set them. */
-const PROVIDED = /^(NODE_ENV|VERCEL|VERCEL_.*|NEXT_RUNTIME|PORT|CI)$/;
+const PROVIDED = /^(NODE_ENV|VERCEL|VERCEL_.*|NEXT_RUNTIME|PORT|CI|SAQINA_HOSTED|GIT_COMMIT_SHA)$/;
 
 export const ENVIRONMENTS = ["production", "preview", "development"] as const;
 export type Environment = (typeof ENVIRONMENTS)[number];

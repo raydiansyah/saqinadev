@@ -28,7 +28,8 @@ export async function GET() {
       database,
       /** Whether chat attachments can be stored (S3, or the database outside production). */
       fileStorage: storageDriver() !== "none",
-      commit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? null,
+      commit:
+        (process.env.GIT_COMMIT_SHA ?? process.env.VERCEL_GIT_COMMIT_SHA)?.slice(0, 7) ?? null,
       latencyMs: Date.now() - started,
     },
     { status: database ? 200 : 503, headers: { "Cache-Control": "no-store" } },

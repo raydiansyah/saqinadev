@@ -116,6 +116,13 @@ describe("local CLI: only the platform Owner manages it", () => {
       "VALIDATION_ERROR:cliHosted",
     );
     delete process.env.VERCEL;
+    // The VPS is hosted too: it says so with SAQINA_HOSTED, since Vercel's variable is not there.
+    process.env.SAQINA_HOSTED = "1";
+    expect((await listClis(owner)).hosted).toBe(true);
+    expect(await code(setCliEnabled(owner, { enabled: true, acknowledge: true }))).toBe(
+      "VALIDATION_ERROR:cliHosted",
+    );
+    delete process.env.SAQINA_HOSTED;
     expect((await listClis(owner)).enabled).toBe(false);
 
     await setCliEnabled(owner, { enabled: true, acknowledge: true });

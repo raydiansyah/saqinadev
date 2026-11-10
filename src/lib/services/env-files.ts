@@ -79,7 +79,7 @@ export interface EnvGap {
 }
 
 /** Platform variables a Next.js app on Vercel gets by itself; never asked of the person. */
-const PROVIDED = /^(NODE_ENV|VERCEL|VERCEL_.*|NEXT_RUNTIME|PORT|CI)$/;
+const PROVIDED = /^(NODE_ENV|VERCEL|VERCEL_.*|NEXT_RUNTIME|PORT|CI|SAQINA_HOSTED|GIT_COMMIT_SHA)$/;
 
 export function compareEnv(repoNames: string[], saqinaNames: string[]): EnvGap {
   const saqina = new Set(saqinaNames);

@@ -48,8 +48,11 @@ const cliRows = () =>
  * The Owner's switch for local CLIs. Off by default. Turning it off stops every CLI provider at the
  * next call (they fail and the gateway moves on), without deleting anything.
  */
-/** A hosted platform (Vercel) has no CLI to use and is not "a machine you run yourself". */
-export const hostedServer = () => Boolean(process.env.VERCEL);
+/**
+ * A server Saqina is hosted on has no CLI to use and is not "a machine you run yourself". The VPS
+ * says so with `SAQINA_HOSTED=1`; Vercel sets `VERCEL`.
+ */
+export const hostedServer = () => process.env.SAQINA_HOSTED === "1" || Boolean(process.env.VERCEL);
 
 export async function setCliEnabled(actor: Actor, input: unknown): Promise<{ enabled: boolean }> {
   await requirePlatformOwner(actor);
