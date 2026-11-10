@@ -44,3 +44,17 @@ jobs:
             ghcr.io/${{ github.repository }}:main
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      # Easypanel pulls the freshly pushed GHCR image; the URL is stored as an Actions secret.
+      # Configure EASYPANEL_DEPLOY_URL only after switching the Easypanel service source to GHCR.
+      - name: Trigger Easypanel deployment
+        if: ${{ success() && github.ref == 'refs/heads/main' }}
+        env:
+          EASYPANEL_DEPLOY_URL: ${{ secrets.EASYPANEL_DEPLOY_URL }}
+        run: |
+          if [ -z "$EASYPANEL_DEPLOY_URL" ]; then
+            echo "::notice::EASYPANEL_DEPLOY_URL is not configured; skipping deployment."
+            exit 0
+          fi
+          curl --fail --silent --show-error --retry 3 --retry-delay 5 \
+            --request POST "$EASYPANEL_DEPLOY_URL"
