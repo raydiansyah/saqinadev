@@ -1,0 +1,26 @@
+# Cloudflare proxies the domain (orange cloud, SSL mode Full (strict)). Caddy serves a Cloudflare
+# Origin CA certificate and trusts forwarded addresses only from Cloudflare, so the first address the
+# app reads in X-Forwarded-For is the visitor's, not one a client made up.
+{
+	servers {
+		import /etc/caddy/cloudflare-ips.caddy
+		client_ip_headers CF-Connecting-IP X-Forwarded-For
+	}
+}
+
+{$SAQINA_DOMAIN} {
+	tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin-key.pem
+	log {
+		format json
+	}
+	header -Server
+	# Chat attachments: up to 5 files of 5 MB per message.
+	request_body {
+		max_size 30MB
+	}
+	encode zstd gzip
+	reverse_proxy web:3000 {
+		# The app falls back to X-Real-IP; it must carry the same checked address, never a client's own.
+		header_up X-Real-IP {client_ip}
+	}
+}

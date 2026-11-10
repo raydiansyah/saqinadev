@@ -10,8 +10,14 @@ RUN pnpm install --frozen-lockfile
 
 FROM deps AS build
 COPY . .
+# Next writes NEXT_PUBLIC_ values into the bundles at build time; setting them on the server later
+# changes nothing. image.yml passes them from the repository's variables.
+ARG NEXT_PUBLIC_SITE_URL=""
+ARG NEXT_PUBLIC_TURNSTILE_SITE_KEY=""
 ENV NEXT_OUTPUT=standalone \
-    NEXT_TELEMETRY_DISABLED=1
+    NEXT_TELEMETRY_DISABLED=1 \
+    NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL \
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY=$NEXT_PUBLIC_TURNSTILE_SITE_KEY
 # The public /services pages are prerendered from the database, as on Vercel, so the build reads
 # DATABASE_URL from a build secret. It is not kept in any layer. A read-only role is enough.
 RUN --mount=type=secret,id=database_url,env=DATABASE_URL pnpm build

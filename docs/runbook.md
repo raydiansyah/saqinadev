@@ -246,6 +246,92 @@ its login has not expired, and that the server user's home is readable. Saqina p
 home, search path and proxy settings, so a login kept in a different variable must be set up as a
 file-based login. A run is stopped after 3 minutes.
 
+## VPS (Instabox)
+
+Saqina runs on one VPS with Docker Compose ([ADR 0028](adr/0028-host-on-a-vps-with-docker.md)): `web`,
+`scheduler` (calls the cron routes; executions every minute) and `caddy`. The `postgres` service is off
+(profile `localdb`) while the database stays on Neon. The VPS has 4 vCPU, 8 GB RAM and 20 GB disk; the disk
+is the limit, so logs rotate (10 MB × 3 per service) and a deploy keeps only two image tags.
+
+### First-time setup
+
+On GitHub (repository settings):
+
+- Variables: `NEXT_PUBLIC_SITE_URL` (for example `https://saqina.dev`) and `NEXT_PUBLIC_TURNSTILE_SITE_KEY`.
+  They are fixed into the image at build time.
+- Secret `BUILD_DATABASE_URL`: a read-only role on the production database. The build prerenders the
+  public `/services` pages from it, as Vercel's build does.
+- Push to `main` (or run the Image workflow by hand): `image.yml` publishes
+  `ghcr.io/raydiansyah/saqinadev:<commit>` and `:main`.
+
+In Cloudflare: the DNS record for the domain is proxied (orange cloud), SSL/TLS mode is **Full (strict)**,
+and an **Origin Certificate** (SSL/TLS > Origin Server, 15 years) is created for the domain. Keep the
+certificate and its key for the step below; Cloudflare shows the key once.
+
+On the VPS, as root:
+
+```bash
+adduser --disabled-password --gecos "" saqina && usermod -aG sudo saqina
+```
+
+```bash
+curl -fsSL https://get.docker.com | sh && usermod -aG docker saqina
+```
+
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh && tailscale up --ssh
+```
+
+After `tailscale up`, check that `ssh saqina@<tailscale name>` works from the laptop. Then close SSH on
+the public address:
+
+```bash
+sed -i 's/^#\?PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/sshd_config && systemctl reload ssh
+```
+
+Copy `deploy/` to `/opt/saqina` (owned by `saqina`), then in `/opt/saqina`:
+
+```bash
+./cloudflare-ips.sh --ufw
+```
+
+It writes `cloudflare-ips.caddy` and prints one `ufw allow` line per Cloudflare range. Run those lines,
+then:
+
+```bash
+ufw allow in on tailscale0 && ufw default deny incoming && ufw enable
+```
+
+Put the origin certificate in `/opt/saqina/certs/origin.pem` and its key in `origin-key.pem` (mode 600).
+Create `/opt/saqina/.env` from `env.example` (mode 600) with the production values, `SAQINA_DOMAIN`, and
+`DATABASE_URL` set to Neon's pooled connection string. Let the VPS pull the private image:
+
+```bash
+docker login ghcr.io -u <github user>
+```
+
+Use a token with only `read:packages`. Then deploy (below).
+
+### Check
+
+```bash
+curl -s https://<domain>/api/health
+```
+
+Expected: `"status":"ok"` and the deployed commit. Within a minute the scheduler logs a call:
+
+```bash
+docker compose logs --since 2m scheduler
+```
+
+Expected: `{"job":"executions","status":200,…}` lines. A forged address must not reach the app:
+
+```bash
+curl -s -H "X-Forwarded-For: 1.2.3.4" https://<domain>/api/health && docker compose logs --since 1m caddy | grep -o '"client_ip":"[^"]*"' | tail -1
+```
+
+Expected: the laptop's public address, not `1.2.3.4`.
+
 ## Deploy
 
 1. Merge the pull request into `main` (no direct pushes).

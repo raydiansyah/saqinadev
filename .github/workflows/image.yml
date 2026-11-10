@@ -32,7 +32,11 @@ jobs:
         with:
           context: .
           push: true
-          build-args: GIT_COMMIT_SHA=${{ github.sha }}
+          # NEXT_PUBLIC_ values are fixed into the bundles at build time (repository variables).
+          build-args: |
+            GIT_COMMIT_SHA=${{ github.sha }}
+            NEXT_PUBLIC_SITE_URL=${{ vars.NEXT_PUBLIC_SITE_URL }}
+            NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
           # The public pages are prerendered from the database (a read-only role, docs/runbook.md).
           secrets: database_url=${{ secrets.BUILD_DATABASE_URL }}
           tags: |
