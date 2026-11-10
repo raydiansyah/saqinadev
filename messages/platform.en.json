@@ -393,7 +393,7 @@
     },
     "cli": {
       "title": "Local CLI",
-      "intro": "Use a CLI that is already logged in on the machine that serves Saqina, such as Claude Code, Codex or OpenCode, instead of an API key. Saqina only starts these programs, in an empty temporary folder, with no tools and none of its own secrets. Only platform owners see this.",
+      "intro": "Use a CLI that is already logged in on the machine that serves Saqina, such as Claude Code, Codex, OpenCode or Kiro CLI, instead of an API key. Saqina only starts these programs, in an empty temporary folder, with no tools and none of its own secrets. Only platform owners see this.",
       "installed": "Installed",
       "notInstalled": "Not installed on this server",
       "login": "Log in on the server with",

@@ -316,3 +316,18 @@ describe("local CLI: what the process may see", () => {
     expect(findBinary("definitely-not-a-cli", bin)).toBeNull();
   });
 });
+
+describe("local CLI: Kiro", () => {
+  it("is started as kiro-cli with no tools, the prompt on stdin, and its text as the answer", () => {
+    const def = CLI_DEFINITIONS.kiro;
+    expect(def.binary).toBe("kiro-cli");
+    const run = def.build("the prompt", "default");
+    expect(run.args).toEqual(["chat", "--no-interactive", "--trust-tools=", "--trust-workspace"]);
+    expect(run.stdin).toBe("the prompt");
+    // Nothing the caller wrote reaches the command line.
+    expect(def.build("--trust-all-tools", "default").args).not.toContain("--trust-all-tools");
+    expect(def.build("p", "some-model").args.slice(-2)).toEqual(["--model", "some-model"]);
+    expect(run.parse({ stdout: "\u001b[32mpong\u001b[0m\n", files: {} }).text).toBe("pong");
+    expect(() => run.parse({ stdout: "  \n", files: {} })).toThrow("cli_error");
+  });
+});

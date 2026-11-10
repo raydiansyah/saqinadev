@@ -3,7 +3,7 @@
  * these binaries are ever started, with arguments built here; nothing from a person or a project
  * becomes part of the command line. The prompt goes in through stdin or a temporary file.
  */
-export const CLI_IDS = ["claude", "codex", "opencode"] as const;
+export const CLI_IDS = ["claude", "codex", "opencode", "kiro"] as const;
 export type CliId = (typeof CLI_IDS)[number];
 
 /** The model name that means "whatever the CLI is set to use". */
@@ -125,6 +125,32 @@ export const CLI_DEFINITIONS: Record<CliId, CliDefinition> = {
         "Follow the instructions in the attached file and answer with the answer only.",
       ],
       files: { "prompt.md": prompt },
+      parse: ({ stdout }) => {
+        const text = stripAnsi(stdout).trim();
+        if (!text) throw new Error("cli_error");
+        return { text };
+      },
+    }),
+  },
+  kiro: {
+    id: "kiro",
+    name: "Kiro CLI",
+    // The binary is `kiro-cli`; `kiro` is the desktop launcher and is never started.
+    binary: "kiro-cli",
+    versionArgs: ["--version"],
+    models: [CLI_DEFAULT_MODEL],
+    loginHint: "kiro-cli login",
+    build: (prompt, model) => ({
+      // No tools (`--trust-tools=` with nothing after it) and no questions: it answers and cannot
+      // read or change files or run commands. The run's folder is new and empty.
+      args: [
+        "chat",
+        "--no-interactive",
+        "--trust-tools=",
+        "--trust-workspace",
+        ...modelArgs("--model", model),
+      ],
+      stdin: prompt,
       parse: ({ stdout }) => {
         const text = stripAnsi(stdout).trim();
         if (!text) throw new Error("cli_error");
