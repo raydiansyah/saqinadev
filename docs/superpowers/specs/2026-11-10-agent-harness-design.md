@@ -1,0 +1,208 @@
+# Agent harness: Saqina mengendalikan agent coding di mesin sendiri
+
+Tanggal: 2026-11-10
+Status: rancangan, menunggu review pemilik. Belum ada kode.
+Risk lane: Red (infrastruktur, eksekusi shell di mesin pemilik, token perangkat, migrasi).
+Keputusan terkait: [ADR 0028](../../adr/0028-host-on-a-vps-with-docker.md) (hosting),
+[ADR 0029](../../adr/0029-agent-harness-with-runners.md) (harness dan runner).
+
+## Keputusan pemilik (2026-11-10)
+
+1. Saqina dipakai pribadi: satu operator, yaitu pemilik. Klien tetap memakai portal seperti sekarang
+   (invoice, request fitur, preview plan) dan tidak pernah melihat harness.
+2. Pemilik sering pindah model dan perangkat dan punya beberapa VM. Ia ingin mengendalikan sesi agent di
+   semua mesin itu dari satu layar, seperti contoh ZEVN/OS.
+3. Hosting pindah dari Vercel Hobby ke VPS dengan Docker.
+4. Orchestrator tetap milik Saqina. Tidak memakai LangChain atau LangGraph.
+5. Ruflo (`sparc-spec`, `goal-plan`) tidak terpasang di sesi ini; langkahnya diikuti manual atas izin
+   pemilik.
+
+## Masalah
+
+- Agent Saqina sekarang hanya mengembalikan edit file lewat API model. Mereka tidak bisa menjalankan
+  build atau tes, jadi kegagalan baru terlihat saat Vercel atau CI membangun ([ADR 0026](../../adr/0026-repair-failed-builds.md)).
+- Di Vercel Hobby, cron hanya boleh harian dan `after()` terbatas, sehingga pekerjaan agent yang terputus
+  menunggu sampai sehari (PRD E12).
+- Langganan Claude dan ChatGPT milik pemilik hanya aman dipakai lewat CLI resmi di mesinnya sendiri. Saqina
+  di server tidak boleh memakainya ([ADR 0023](../../adr/0023-local-cli-provider.md)).
+- Sesi Claude Code di Mac dan beberapa VM tidak terlihat dari satu tempat, dan tidak bisa dilanjutkan dari
+  HP.
+
+## Lingkup
+
+- Hosting Saqina di VPS: web, worker yang hidup terus, Postgres, backup.
+- `saqina-runner`: program kecil di Mac dan VM yang menjalankan CLI resmi (Claude Code dulu, lalu Codex dan
+  Kiro) di git worktree, dan melapor ke Saqina.
+- Cockpit khusus Owner: daftar mesin, daftar sesi lintas mesin, satu sesi dengan chat, langkah, file yang
+  berubah, diff, stop, pesan antre, mode izin, model, akun.
+- Executor `runner` di orchestrator, di samping executor model yang ada.
+- Sesi terikat ke proyek Saqina, sehingga hasilnya muncul di task, Code, Preview dan portal klien.
+
+## Bukan lingkup
+
+- Terminal di browser (tab TERM). Pakai SSH lewat Tailscale.
+- Menjalankan CLI atau kode agent di server Saqina.
+- Menyimpan, menyalin atau memakai token OAuth langganan di Saqina.
+- Animasi "Town" dan dekorasi lain di contoh.
+- Fitur multi-tenant baru (white-label, paket). Fitur yang ada tidak dihapus.
+
+## Arsitektur
+
+```mermaid
+flowchart LR
+  subgraph Publik
+    C[Klien: portal]
+  end
+  subgraph VPS["VPS, Docker Compose"]
+    W[web: Next.js standalone]
+    K[worker: antrean execution_jobs, jadwal tiap menit]
+    DB[(Postgres + pgvector)]
+    CD[caddy: TLS]
+  end
+  subgraph Tailnet["Tailscale (privat)"]
+    R1[runner @ Mac]
+    R2[runner @ VM-1..n]
+    P[HP / laptop pemilik]
+  end
+  C -->|HTTPS, Cloudflare DNS| CD --> W
+  P --> CD
+  R1 & R2 -->|HTTPS keluar: long-poll perintah, kirim event| W
+  W --- DB
+  K --- DB
+  R2 --> CLI[claude / codex / kiro di worktree, akun pemilik]
+  CLI -->|push work branch| GH[(GitHub)]
+  GH -->|webhook, CI, preview Vercel| W
+```
+
+### 1. Hosting (ADR 0028)
+
+- Docker Compose dengan layanan `web`, `worker`, `postgres` (dengan pgvector) dan `caddy`.
+- `worker` adalah proses Node yang menjalankan `drainExecutions` dalam loop dan jadwal tiap menit
+  (reminders, maintenance, doc-sync). Route cron tetap ada untuk dipanggil manual. `after()` tetap menjadi
+  jalur cepat.
+- Backup `pg_dump` tiap malam ke object storage (R2 atau S3), dengan uji restore tercatat di runbook.
+- Cloudflare hanya untuk DNS dan proxy domain publik. Aturan cache publik yang sudah ada tetap berlaku.
+- `hostedServer()` berganti dari cek `VERCEL` ke flag eksplisit `SAQINA_HOSTED=1`, supaya provider CLI
+  lokal tetap tertolak di server.
+
+### 2. Runner
+
+- Satu file yang dipasang sebagai service (systemd di Linux, launchd di macOS).
+- **Pairing:** pemilik membuat kode sekali pakai (berlaku 10 menit) di halaman Machines. Runner
+  menukarnya dengan token perangkat. Saqina hanya menyimpan hash token. Token bisa dicabut, dan setelah
+  dicabut runner berhenti menerima perintah.
+- **Koneksi:** hanya keluar, lewat HTTPS ke alamat Tailscale VPS. Perintah diambil dengan long-poll
+  (`GET /api/runner/commands`, dibangunkan `LISTEN/NOTIFY` Postgres). Event dikirim dalam batch
+  (`POST /api/runner/events`) dengan nomor urut, sehingga pengiriman ulang tidak menggandakan event.
+  WebSocket tidak dipakai di v1 karena route handler Next tidak menanganinya. Proses gateway terpisah bisa
+  ditambah kalau long-poll terbukti kurang.
+- **Inventaris** pada setiap heartbeat (30 detik): versi runner, OS, disk kosong, CLI yang terpasang dan
+  versinya, akun yang login (hanya label dan tipe paket kalau CLI menyebutnya), root repo yang diizinkan.
+- **Akun:** tiap akun CLI punya folder konfigurasinya sendiri di mesin. Runner memilih folder lewat
+  variabel lingkungan CLI (untuk Claude Code, `CLAUDE_CONFIG_DIR`; diverifikasi di fase 2). Saqina hanya
+  tahu label akun.
+- **Sesi:** runner membuat git worktree per sesi di bawah root repo yang diizinkan, lalu menjalankan CLI
+  dalam mode headless dengan output stream JSON, model dan mode izin yang diminta. Session id CLI disimpan
+  untuk dilanjutkan (`--resume`). Flag tepatnya diverifikasi di fase 3 pada versi CLI yang terpasang.
+- **Batas di mesin:**
+  - Runner menolak repo di luar root yang diizinkan.
+  - Runner memasang hook `pre-push` di worktree yang menolak push selain ke branch sesi.
+  - Branch protection di GitHub pada branch utama adalah jaminan sebenarnya. Runbook mewajibkannya.
+- Rahasia dan `.env` tetap di mesin. Event yang dikirim disaring dengan `scrubSecrets` di runner dan
+  sekali lagi di server.
+
+### 3. Sesi harness
+
+- Sesi selalu milik satu mesin, satu repo, satu worktree dan satu CLI. Statusnya: `starting`, `working`,
+  `needs_you` (menunggu izin atau jawaban), `idle`, `stopping`, `ended`, `failed`, `lost` (mesin hilang
+  lebih dari 5 menit).
+- Pesan yang dikirim saat agent bekerja masuk antrean dan diberikan pada giliran berikutnya.
+- **Stop:** perintah stop ke runner, yang mengirim sinyal ke proses CLI. Statusnya `stopping` sampai
+  runner melapor.
+- **Ganti model** dalam CLI yang sama: berlaku di giliran berikutnya.
+- **Ganti CLI** (Claude ke Codex): membuat sesi baru di branch yang sama dengan ringkasan, daftar file yang
+  berubah dan potongan transkrip. UI menyebutnya sebagai sesi baru.
+- **Pindah perangkat:** transkrip dan event ada di Postgres, jadi sesi dibuka dari perangkat mana pun.
+
+### 4. Executor `runner` di orchestrator
+
+- Executor baru yang memenuhi `TaskExecutor` (`src/lib/executions/task-executor.ts`), di samping
+  `modelTaskExecutor`.
+- Definisi agent mendapat field `executor`: `model` (bawaan) atau `runner`, ditambah preferensi CLI, model
+  dan mesin. Versi definisi dan audit tetap seperti [ADR 0022](../../adr/0022-owner-agent-registry.md).
+- **Pemilihan mesin:** mesin online, punya CLI yang diminta, akun belum melapor kuota habis, dan repo
+  proyek ada di root yang diizinkan. Kalau tidak ada yang cocok, coba akun atau model cadangan dari
+  definisi. Kalau tetap tidak ada, task `blocked` dengan alasan.
+- Executor membuat sesi dengan kunci idempoten `run:<runId>:<attempt>` lalu menunggu. Worker memperpanjang
+  `lockedUntil` job selama sesi mengirim heartbeat. Kalau worker mati, job diambil lagi dan executor
+  **menyambung ke sesi yang sama** lewat kunci itu, bukan membuat sesi baru.
+- **Aturan sukses tetap:** task sukses hanya kalau commit di work branch eksekusi terlihat di GitHub
+  (dicek ke host, bukan dari laporan runner). Hasil build dan tes yang dijalankan CLI disimpan sebagai
+  artefak `test_result` dengan label "dilaporkan runner", terpisah dari CI.
+- Prompt task (instruksi definisi, kriteria, input dependensi sebagai data) dikirim sebagai pesan pertama
+  sesi. Aturan segmen prompt [E11] tetap berlaku.
+
+### 5. Cockpit (khusus Owner)
+
+- `/dashboard/harness`: daftar sesi lintas mesin dengan filter Needs you, Working, Unread, Closed,
+  pengelompokan per proyek, dan pencarian.
+- Satu sesi: chat dan langkah (dilipat jadi "Bekerja 3m 12s · 21 langkah · 3 file"), panel kanan berisi
+  mesin, CLI, model, akun, kuota (hanya kalau dilaporkan), file yang berubah, Lihat diff, Stop, Tutup.
+- `/dashboard/machines`: status, inventaris, pairing, cabut token.
+- Live lewat SSE yang sama polanya dengan execution (`seq`, resume setelah putus).
+- Notifikasi web push ke HP untuk `needs_you`, `failed` dan `ended`. Ini fase 4 dan butuh kunci VAPID.
+- Bahasa Inggris dan Indonesia, 320/768/1280 px, keyboard, dan state loading, kosong dan error.
+
+## Data (migrasi 0042, hanya menambah)
+
+| Tabel | Isi |
+|---|---|
+| `machines` | id, nama, os, `tokenHash`, `pairedAt`, `revokedAt`, `lastSeenAt`, `inventory` jsonb, `allowedRoots` |
+| `machine_pairings` | hash kode, kedaluwarsa, dipakai kapan |
+| `cli_accounts` | mesin, CLI, label, status terakhir dan kuota yang dilaporkan. Tanpa token |
+| `harness_sessions` | mesin, proyek (opsional), repo, branch, worktree, CLI, model, akun, mode izin, status, `cliSessionId`, `idempotencyKey` unik, `executionId` dan `runId` (opsional), biaya yang dilaporkan, `seq` |
+| `harness_events` | sesi, `seq` unik per sesi, tipe, payload (sudah disaring), waktu |
+| `harness_inputs` | pesan antre: sesi, isi, status (`queued`, `delivered`) |
+
+Ditambah kolom `executor` dan `runnerPrefs` pada `agent_definitions`. Indeks: `(machineId, status)`,
+`(projectId, updatedAt)`, `(sessionId, seq)`.
+
+## Keamanan
+
+| Ancaman | Penangkal |
+|---|---|
+| Token runner bocor | Hanya hash di DB, satu token per mesin, bisa dicabut, terikat ke alamat Tailscale, rate limit |
+| Perintah dari orang lain | Semua route harness dan runner hanya untuk Owner platform. Orang lain mendapat NOT_FOUND (dites) |
+| Agent mendorong ke main | Hook `pre-push` di worktree dan branch protection di GitHub (wajib, runbook) |
+| Isi repo klien menyuruh agent (prompt injection) | Isi repo adalah data. Mode izin bawaan bukan "bypass". Root repo dibatasi. Mesin terpisah untuk repo klien disarankan |
+| Rahasia masuk transkrip | `scrubSecrets` di runner dan server. Nilai `.env` tidak pernah dikirim |
+| Akun langganan diblokir | CLI resmi di mesin pemilik, satu orang, tanpa berbagi akun. Peringatan ADR 0023 tetap tampil |
+| VPS mati | Runner menyimpan event di disk dan mengirim ulang. Sesi CLI tetap jalan. Backup DB tiap malam |
+
+## Fase
+
+| Fase | Isi | Selesai bila |
+|---|---|---|
+| 0 | Spec ini, ADR 0028, ADR 0029, perubahan PRD | Pemilik menyetujui |
+| 1 | Compose, worker, jadwal tiap menit, backup, `SAQINA_HOSTED`, pindah DB, Tailscale, runbook | Saqina jalan di VPS, job eksekusi diambil dalam satu menit, restore backup teruji |
+| 2 | Runner v0: pairing, heartbeat, inventaris, halaman Machines, cabut token | Semua mesin terlihat dari HP, token yang dicabut ditolak |
+| 3 | Sesi Claude Code: mulai, stream, stop, antre, worktree, file dan diff | Satu sesi nyata dari cockpit sampai commit di branch sesi |
+| 4 | Cockpit penuh: filter, panel kanan, mode izin, biaya, kuota yang dilaporkan, web push | Alur seperti contoh, di 320/768/1280 px |
+| 5 | Codex dan Kiro, ganti model, handover antar CLI | Pindah CLI tanpa kehilangan branch dan konteks |
+| 6 | Executor `runner` di orchestrator, sesi terikat proyek, hasil ke task dan portal | Build dari Studio dikerjakan di VM, task sukses dengan commit di GitHub |
+
+## Pengujian
+
+- Integrasi (Postgres asli): pairing, cabut token, NOT_FOUND untuk non-Owner, event idempoten dan urut,
+  antrean pesan, transisi status sesi, pemilihan mesin, sambung ulang setelah worker mati.
+- Runner: CLI palsu (skrip yang mengeluarkan stream JSON) dan repo git sementara. Tidak ada panggilan model
+  sungguhan di CI.
+- E2E Playwright: pairing dengan runner palsu, mulai sesi, lihat langkah dan diff, stop.
+- Uji manual di fase 3 dan 5 dengan Claude Code, Codex dan Kiro sungguhan. Hasilnya ditulis apa adanya di
+  PR.
+
+## Pertanyaan terbuka
+
+- Lokasi VPS. Singapura dekat dengan pengguna di Indonesia. Lokasi DB sekarang perlu dicek sebelum pindah.
+- Apakah repo klien dikerjakan di VM terpisah dari repo pribadi?
+- Kuota langganan: apakah CLI melaporkannya dalam mode headless? Kalau tidak, panel kuota tidak ada.

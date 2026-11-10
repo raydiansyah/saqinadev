@@ -1,6 +1,6 @@
 # Saqina Dev: product requirements
 
-Status of this page: written 2026-10-23 from the code, the ADRs and the standards; updated 2026-10-30 (agents and executions: Plan and Build, the Owner's agent registry, live Studio). It is the PRD that
+Status of this page: written 2026-10-23 from the code, the ADRs and the standards; updated 2026-10-30 (agents and executions: Plan and Build, the Owner's agent registry, live Studio); updated 2026-11-10 (personal operator, agent harness on the owner's machines, VPS hosting: proposed). It is the PRD that
 [`CLAUDE.md`](../CLAUDE.md) tells every tool to check before a feature is built or changed. Change the
 product and this page in the same pull request.
 
@@ -30,8 +30,13 @@ progress. Built by Abati Technology, live at saqina.dev, in English and Indonesi
 | **Client** (portal user) | Follow progress, read shared documents, approve and sign, pay; never see internal data |
 | **Platform owner** (Saqina staff) | Run the platform: plans, white-label grants, AI control plane |
 | **Agent** (Claude client over MCP) | Read a project and append memory inside the permission it was granted |
+| **Runner** (`saqina-runner` on the owner's machine) | Run the official coding-agent CLIs in a worktree and report to Saqina, within the limits of [ADR 0029](adr/0029-agent-harness-with-runners.md) |
 
 Roles are `owner`, `admin`, `editor`, `viewer` per project; portal users are a separate kind.
+
+Since 2026-11-10 the owner runs Saqina as a personal tool: one operator, who is also the platform owner.
+Clients keep the portal (progress, invoices, feature requests, the preview plan). The team roles stay in
+the product but get no new work. The agent harness (5.11) is the owner's alone.
 
 ## 4. Goals and non-goals
 
@@ -41,9 +46,10 @@ Goals:
 2. A client can follow a project and approve work without a call.
 3. Every change to money, scope or agreements leaves an audit trail.
 4. AI helps without ever acting alone: rules validate every write, a person approves. The one exception is code on an agent's own work branch, which a person reviews and merges ([ADR 0021](adr/0021-agents-commit-to-a-work-branch.md)).
+5. The owner sees and steers every coding-agent session on every machine from one screen, on any device, and switches model or machine without losing the work.
 
 Non-goals (this version): a general chat product, time tracking with payroll, accounting beyond
-invoices and payments, mobile apps, e-signature with a legal certificate authority, semantic search, a sandbox that runs the agents' code with hot reload, and agents that run tests themselves (CI results are shown instead).
+invoices and payments, mobile apps, e-signature with a legal certificate authority, semantic search, a sandbox on Saqina's own server that runs the agents' code with hot reload, and running any agent CLI or agent code on Saqina's server. Agents run builds and tests only on the owner's own machines through a runner (5.11); CI stays the record.
 
 ## 5. Requirements
 
@@ -188,11 +194,25 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 | E9 | Stop reports Cancelling until a running task has returned and tells the running agent to stop; a failed or blocked task can be tried again; transient failures retry with a pause up to the budget; a worker that dies is replaced and the task retried; a time limit and a deadline end work that runs too long | Built |
 | E10 | Agent status, plan, code, git, preview and publish read the same stored state; Code, Git, Preview and the Publish stages show what the repository host, CI and Vercel reported, and "not known" where nothing was | Built |
 | E11 | Text from files, other agents, messages, CI or documentation is data for the model, never an instruction; secrets are scrubbed from events, messages, tool audit and patches | Built |
-| E12 | Run the execution queue every minute in production, and the end-to-end test in CI | Partial: the cron route and the test exist; the schedule (Vercel Pro or an outside scheduler) and the CI job are not set up |
+| E12 | Run the execution queue every minute in production, and the end-to-end test in CI | Partial: the cron route and the test exist; the every-minute schedule comes with the worker on the VPS ([ADR 0028](adr/0028-host-on-a-vps-with-docker.md), Planned); the CI job is not set up |
 | E13 | The Studio message box has a Claude-style + menu (files, slash commands, skills, connectors) and a Browse dialog with Yours and Discover where an item is added with one press; the project sidebar folds away; an agent definition picks installed skills, which reach its prompt as method text | Built. "Yours" is kept per browser, not on the server |
 | E14 | A project that starts from an idea alone still gets an app that builds and starts: when the repository is empty the platform commits a Next.js starter before the first task, every writing task is told its rules (allowed files, limits, env templates allowed, package.json valid) and a quality bar (build and start with no environment variables, no key required), and the planner is told not to plan project set-up | Built. Nothing runs the build or the tests; the preview build on Vercel and CI are what show a failure |
 | E15 | A failed preview build or CI check on the work branch of a finished execution starts a follow-up execution on the same branch, told what failed (the build log lines, secrets scrubbed). At most two rounds per original execution and one at a time; failures while agents still work, on other branches, or for a person who lost access start nothing, and a limit reached is shown as "No automatic fix". Reported once per failed build or run ([ADR 0026](adr/0026-repair-failed-builds.md)) | Built. Agents still do not run the build or tests themselves; Vercel and CI report them |
 | E16 | A local IDE agent reports each finished task at once (`report_task_result` with the commits and files), before any push, so Saqina shows the task in review and its commits immediately; the push and the pull request add to it ([ADR 0014](adr/0014-local-ide-sync-over-mcp.md)) | Built. It depends on the agent following `AGENTS.md`; the push is the fallback |
+
+### 5.11 Agent harness (owner only)
+
+Design: [spec](superpowers/specs/2026-11-10-agent-harness-design.md), [ADR 0028](adr/0028-host-on-a-vps-with-docker.md), [ADR 0029](adr/0029-agent-harness-with-runners.md).
+
+| # | Requirement | Status |
+|---|---|---|
+| H1 | Saqina runs on one VPS with Docker Compose (web, worker, Postgres, TLS proxy); the worker runs the execution queue every minute; nightly database backup with a tested restore; the local CLI provider stays refused on the server (`SAQINA_HOSTED`) | Planned |
+| H2 | Machines: the owner pairs a machine with a one-time code; the runner reports CLIs, versions, account labels and disk every 30 s over Tailscale; a token is stored as a hash and can be revoked; a revoked machine gets nothing | Planned |
+| H3 | Sessions: start an official CLI (Claude Code first) on a chosen machine, repository and worktree; live steps, files changed and diff; stop; messages typed while it works are queued; permission mode and model per session; transcripts kept in Saqina so any device continues them | Planned |
+| H4 | Cockpit: every session on every machine in one list with Needs you, Working, Unread and Closed, grouped by project; a session view with chat, folded steps, machine, CLI, model, account, cost and quota only where the CLI reported them; web push for Needs you, failed and ended | Planned |
+| H5 | Codex and Kiro as session CLIs; switching model inside a CLI takes effect next turn; switching CLI starts a new session on the same branch with a handover (summary, changed files) and says so | Planned |
+| H6 | An agent definition can run on a runner (`executor: runner`, preferred CLI, model, machine, fallback); the dispatcher picks an online machine that fits or blocks the task with the reason; a restarted worker reattaches to the same session; a task still succeeds only on a commit visible at the repository host; builds and tests the CLI ran are stored as runner-reported, separate from CI | Planned |
+| H7 | Limits: Owner only (anyone else gets NOT_FOUND); repositories only under the machine's allowed roots; push only to the session branch (worktree hook plus required branch protection); secrets scrubbed on the runner and the server; subscription tokens never leave the machine; no browser terminal | Planned |
 
 ## 6. Non-functional requirements
 
@@ -218,7 +238,9 @@ invoices and payments, mobile apps, e-signature with a legal certificate authori
 
 - Which plans include white label, and at what price (needed before W5).
 - Whether clients pay inside the portal or only see invoices (today: they see and track).
-- Whether to run the execution cron every minute on Vercel Pro or from an outside scheduler (E12).
+- Where the VPS sits (Singapore is close to Indonesian users) and where the database lives today (H1).
+- Whether client repositories run on a machine separate from the owner's own projects (H7).
+- Whether the CLIs report subscription quota in headless mode; if not, the quota panel is left out (H4).
 - Whether Build should require an approved PRD on the server; today the Studio only warns (S1).
 
 ## 9. Where this is built
