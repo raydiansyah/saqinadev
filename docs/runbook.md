@@ -332,6 +332,43 @@ curl -s -H "X-Forwarded-For: 1.2.3.4" https://<domain>/api/health && docker comp
 
 Expected: the laptop's public address, not `1.2.3.4`.
 
+### Backups
+
+`backup.sh` dumps the database (`BACKUP_DATABASE_URL`, Neon's **direct** URL while the database is there)
+with a Postgres 17 client container and uploads it to R2 as `saqina-<date>.dump`. The dump passes through
+a temporary file that is always removed. In Cloudflare R2: create a bucket, an API token with Object
+Read & Write on that bucket only, and a lifecycle rule that deletes objects after 14 days. Put the
+endpoint (`https://<account>.r2.cloudflarestorage.com`), bucket, key and secret in `.env` as `BACKUP_R2_*`.
+
+Install the daily timer (18:00 UTC, 01:00 WIB) once:
+
+```bash
+cp /opt/saqina/saqina-backup.service /opt/saqina/saqina-backup.timer /etc/systemd/system/ && systemctl daemon-reload && systemctl enable --now saqina-backup.timer
+```
+
+```bash
+systemctl list-timers saqina-backup.timer
+```
+
+Expected: the next run at 18:00 UTC. After the first run, the drill restores the latest backup into a
+throwaway database and compares every table's row count with the live one:
+
+```bash
+cd /opt/saqina && ./restore.sh "$(date -u +%F)"
+```
+
+Expected: `vector`, then "Drill passed". Rows written since the backup show as a small difference; run it
+right after a backup. Record each drill here:
+
+| Date | Backup | Result |
+|---|---|---|
+
+A real restore goes into an empty database and asks first:
+
+```bash
+cd /opt/saqina && ./restore.sh <YYYY-MM-DD> --into <database url>
+```
+
 ## Deploy
 
 On the VPS:
