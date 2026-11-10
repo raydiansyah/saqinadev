@@ -265,8 +265,11 @@ On GitHub (repository settings):
   `ghcr.io/raydiansyah/saqinadev:<commit>` and `:main`.
 
 In Cloudflare: the DNS record for the domain is proxied (orange cloud), SSL/TLS mode is **Full (strict)**,
-and an **Origin Certificate** (SSL/TLS > Origin Server, 15 years) is created for the domain. Keep the
-certificate and its key for the step below; Cloudflare shows the key once.
+an **Origin Certificate** (SSL/TLS > Origin Server, 15 years) is created for the domain, and
+**Authenticated Origin Pulls** is on (same page). Keep the certificate and its key for the step below;
+Cloudflare shows the key once. With origin pulls, Caddy accepts a connection only when it carries
+Cloudflare's client certificate, so nobody can reach the server around Cloudflare. The firewall cannot do
+this alone: ports Docker publishes skip ufw's rules.
 
 On the VPS, as root:
 
@@ -292,17 +295,25 @@ sed -i 's/^#\?PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/ssh
 Copy `deploy/` to `/opt/saqina` (owned by `saqina`), then in `/opt/saqina`:
 
 ```bash
-./cloudflare-ips.sh --ufw
+./cloudflare-ips.sh
 ```
 
-It writes `cloudflare-ips.caddy` and prints one `ufw allow` line per Cloudflare range. Run those lines,
-then:
+It writes `cloudflare-ips.caddy`: the Cloudflare ranges Caddy takes the visitor's address from. Then keep
+SSH on Tailscale only (80 and 443 are guarded by origin pulls, above):
 
 ```bash
 ufw allow in on tailscale0 && ufw default deny incoming && ufw enable
 ```
 
-Put the origin certificate in `/opt/saqina/certs/origin.pem` and its key in `origin-key.pem` (mode 600).
+Put the origin certificate in `/opt/saqina/certs/origin.pem` and its key in `origin-key.pem` (mode 600),
+and Cloudflare's origin-pull CA next to them:
+
+```bash
+curl -fsS -o /opt/saqina/certs/cloudflare-origin-pull-ca.pem https://developers.cloudflare.com/ssl/static/authenticated_origin_pull_ca.pem
+```
+
+This is Cloudflare's shared certificate, so any Cloudflare zone could still send traffic to the server;
+a per-hostname certificate (uploaded in the same Cloudflare page) closes that too.
 Create `/opt/saqina/.env` from `env.example` (mode 600) with the production values, `SAQINA_DOMAIN`, and
 `DATABASE_URL` set to Neon's pooled connection string. Let the VPS pull the private image:
 
@@ -324,13 +335,21 @@ Expected: `"status":"ok"` and the deployed commit. Within a minute the scheduler
 docker compose logs --since 2m scheduler
 ```
 
-Expected: `{"job":"executions","status":200,…}` lines. A forged address must not reach the app:
+Expected: `{"job":"executions","status":200,…}` lines. Caddy replaces `X-Forwarded-For` and `X-Real-IP`
+with the address it checked, so what Caddy logs as `client_ip` is what the app reads. A forged one must
+not get through:
 
 ```bash
 curl -s -H "X-Forwarded-For: 1.2.3.4" https://<domain>/api/health && docker compose logs --since 1m caddy | grep -o '"client_ip":"[^"]*"' | tail -1
 ```
 
-Expected: the laptop's public address, not `1.2.3.4`.
+Expected: the laptop's public address, not `1.2.3.4`. The server must refuse anyone but Cloudflare:
+
+```bash
+curl -sk --resolve <domain>:443:<VPS public IP> https://<domain>/api/health
+```
+
+Expected: a TLS error, no JSON.
 
 ### Backups
 
@@ -388,8 +407,11 @@ cd /opt/saqina && ./deploy.sh <full commit id>
 
 The script refuses with less than 3 GB free, pulls the image, applies migrations (with
 `MIGRATE_DATABASE_URL` from `.env` when set, which must be Neon's **direct** URL; otherwise `DATABASE_URL`),
-starts it, and waits up to 90 s for `/api/health` to report that commit. If it does not, it starts the
-previous tag again and exits 1. On success it keeps only this tag and the previous one.
+starts it, and waits up to 90 s for `/api/health` to report that commit. If the new web never turns
+healthy, or reports another commit, it starts the previous tag again, waits for that to be healthy, and
+exits 1. On success it writes the tag into `.env` (`SAQINA_TAG`, so a hand-run `docker compose` command
+uses what is running) and keeps only this tag and the previous one. A Neon pooled URL (`-pooler`) is
+refused for migrations.
 
 4. Run the smoke test against the domain (Actions > Post-deploy smoke test > Run workflow, with the URL).
 

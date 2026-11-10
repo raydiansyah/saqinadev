@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2016 # "$PGURL" in pg_run scripts expands in the container, on purpose.
 # Nightly backup (saqina-backup.timer): pg_dump of the database to R2 as saqina-<date>.dump.
 # The dump passes through a temporary file, which is removed whatever happens; the disk is 20 GB.
 set -euo pipefail
@@ -18,6 +19,6 @@ file=$(mktemp "${TMPDIR:-/tmp}/saqina-dump.XXXXXX")
 trap 'rm -f "$file"' EXIT
 
 name="saqina-$(date -u +%F).dump"
-pg_client pg_dump -Fc --no-owner --no-acl "$url" > "$file"
+PGURL=$url pg_run 'pg_dump -Fc --no-owner --no-acl "$PGURL"' > "$file"
 r2_curl -T "$file" "$(r2_url "$name")"
 echo "Backed up $(du -h "$file" | cut -f1) to $name"

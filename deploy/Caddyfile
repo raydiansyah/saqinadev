@@ -1,6 +1,6 @@
 # Cloudflare proxies the domain (orange cloud, SSL mode Full (strict)). Caddy serves a Cloudflare
-# Origin CA certificate and trusts forwarded addresses only from Cloudflare, so the first address the
-# app reads in X-Forwarded-For is the visitor's, not one a client made up.
+# Origin CA certificate, takes the visitor's address from CF-Connecting-IP only when the request comes
+# from a Cloudflare range, and sends the app that one address, never a value a visitor wrote.
 {
 	servers {
 		import /etc/caddy/cloudflare-ips.caddy
@@ -9,7 +9,14 @@
 }
 
 {$SAQINA_DOMAIN} {
-	tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin-key.pem
+	# Authenticated Origin Pulls: only Cloudflare holds a client certificate this CA signed, so nobody can
+	# reach the origin around Cloudflare. (Docker publishes 80 and 443 past ufw; this check does not care.)
+	tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin-key.pem {
+		client_auth {
+			mode require_and_verify
+			trust_pool file /etc/caddy/certs/cloudflare-origin-pull-ca.pem
+		}
+	}
 	log {
 		format json
 	}
@@ -20,7 +27,9 @@
 	}
 	encode zstd gzip
 	reverse_proxy web:3000 {
-		# The app falls back to X-Real-IP; it must carry the same checked address, never a client's own.
+		# The app reads the first X-Forwarded-For entry, then X-Real-IP. Through a trusted proxy Caddy would
+		# keep what the visitor sent and append to it, so both are replaced by the checked address.
+		header_up X-Forwarded-For {client_ip}
 		header_up X-Real-IP {client_ip}
 	}
 }

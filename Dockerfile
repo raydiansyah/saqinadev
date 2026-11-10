@@ -20,6 +20,9 @@ ENV NEXT_OUTPUT=standalone \
     NEXT_PUBLIC_TURNSTILE_SITE_KEY=$NEXT_PUBLIC_TURNSTILE_SITE_KEY
 # The public /services pages are prerendered from the database, as on Vercel, so the build reads
 # DATABASE_URL from a build secret. It is not kept in any layer. A read-only role is enough.
+# Without the site URL, canonical links and the sitemap would point nowhere (an empty value is not
+# replaced by the code's default). The Turnstile key may be empty: captcha is then off.
+RUN test -n "$NEXT_PUBLIC_SITE_URL" || { echo "NEXT_PUBLIC_SITE_URL is empty: set the repository variable" >&2; exit 1; }
 RUN --mount=type=secret,id=database_url,env=DATABASE_URL pnpm build
 # One file with every dependency, so migrations run from the slim image.
 RUN node_modules/.bin/esbuild scripts/migrate.ts --bundle --platform=node --format=esm --target=node24 \
