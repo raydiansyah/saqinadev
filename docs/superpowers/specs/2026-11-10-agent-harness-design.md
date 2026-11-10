@@ -57,7 +57,7 @@ flowchart LR
   end
   subgraph VPS["VPS, Docker Compose"]
     W[web: Next.js standalone]
-    K[worker: antrean execution_jobs, jadwal tiap menit]
+    K[scheduler: memanggil route cron, executions tiap menit]
     DB[(Postgres + pgvector)]
     CD[caddy: TLS]
   end
@@ -78,10 +78,11 @@ flowchart LR
 
 ### 1. Hosting (ADR 0028)
 
-- Docker Compose dengan layanan `web`, `worker`, `postgres` (dengan pgvector) dan `caddy`.
-- `worker` adalah proses Node yang menjalankan `drainExecutions` dalam loop dan jadwal tiap menit
-  (reminders, maintenance, doc-sync). Route cron tetap ada untuk dipanggil manual. `after()` tetap menjadi
-  jalur cepat.
+- Docker Compose dengan layanan `web`, `scheduler`, `postgres` (dengan pgvector) dan `caddy`.
+- `scheduler` adalah loop Node tanpa dependensi, dari image yang sama, yang memanggil route cron yang sudah
+  ada dengan `CRON_SECRET`: executions tiap menit; reminders, maintenance dan doc-sync pada jam yang sama
+  dengan `vercel.json`. Satu job tidak pernah jalan dua kali bersamaan. `after()` tetap jalur cepat, dan
+  karena proses `web` hidup terus, drain dari `after()` tidak terpotong.
 - Backup `pg_dump` tiap malam ke object storage (R2 atau S3), dengan uji restore tercatat di runbook.
 - **Database pindah dari Neon ke Postgres di VPS.** Alasannya:
   - Worker yang mengecek antrean tiap menit dan heartbeat runner tiap 30 detik membuat compute Neon tidak

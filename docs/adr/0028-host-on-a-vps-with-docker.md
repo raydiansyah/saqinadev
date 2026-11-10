@@ -28,12 +28,14 @@ Design: [agent harness spec](../superpowers/specs/2026-11-10-agent-harness-desig
 
 - **One VPS on Instabox, Docker Compose**, with four services:
   - `web`: Next.js `output: "standalone"`;
-  - `worker`: a Node process that loops over `drainExecutions` and runs the reminder, maintenance and
-    doc-sync jobs on their schedules, with executions every minute;
+  - `scheduler`: a dependency-free Node loop in the same image that calls the existing cron routes
+    with `CRON_SECRET` (executions every minute; reminders, maintenance and doc-sync at their
+    `vercel.json` times), one run of a job at a time;
   - `postgres`: with pgvector;
   - `caddy`: for TLS.
 - The cron routes stay for manual runs and are guarded by `CRON_SECRET` as today. `after()` stays as the
-  fast path; the worker is what guarantees progress.
+  fast path; the scheduler is what guarantees progress. The `web` process keeps running, so a drain
+  started by `after()` is not cut short.
 - **Networking:**
   - Cloudflare provides DNS and the proxy for the public domain, with the existing cache rules.
   - The owner's routes and the runner API are also reachable on the Tailscale address.
