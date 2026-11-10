@@ -37,6 +37,17 @@ agent autonomy). Design: [agent harness spec](../superpowers/specs/2026-11-10-ag
     sequence-numbered events;
   - it reports its inventory: CLIs, versions, account labels and free disk;
   - it runs each session in its own git worktree under the allowed roots.
+- **Machine groups.** A machine is in `personal` or `clients`. A project with a client runs only on
+  `clients` machines and a personal project only on `personal` ones, unless the owner changes the
+  project's group.
+- **Quota is required for subscription accounts.**
+  - Claude Code 2.1.322 reports it in `stream-json` as `rate_limit_event`, with `unifiedWindows.five_hour`
+    and `seven_day`, each carrying `utilization` and `resetsAt`.
+  - The runner forwards it with the CLI version. The cockpit shows the last value and its age.
+  - The dispatcher skips an account that is `rejected` or below the owner's threshold until the reset.
+  - The field is marked internal in the CLI, so a contract test on recorded output catches a change.
+  - Saqina does not call the OAuth usage endpoint, because that needs the subscription token.
+  - A CLI that reports nothing is shown as "quota not reported" and is never estimated.
 - **Accounts stay on the machine.** Each CLI account has its own config folder on the machine. Saqina
   stores a label, never a token, and never extracts or proxies subscription credentials.
 - **Executor `runner`.**
@@ -66,4 +77,5 @@ agent autonomy). Design: [agent harness spec](../superpowers/specs/2026-11-10-ag
   are not portable between vendors.
 - The runner is new code that runs on the owner's machines with shell access. It needs its own tests, a
   release process and an update path.
-- Subscription quota appears only if the CLI reports it. Saqina does not estimate it.
+- Quota depends on what each CLI reports. It is confirmed for Claude Code. Codex and Kiro are checked in
+  phase 5, and an internal field can change with a CLI update.

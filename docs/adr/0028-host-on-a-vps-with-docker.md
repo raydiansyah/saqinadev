@@ -18,10 +18,15 @@ Design: [agent harness spec](../superpowers/specs/2026-11-10-agent-harness-desig
   - Postgres needs Hyperdrive.
 - The agent harness ([ADR 0029](0029-agent-harness-with-runners.md)) needs a process that keeps running and
   long-held requests from runners.
+- The database is on Neon today. A worker that checks the queue every minute and runner heartbeats every
+  30 seconds would keep Neon's compute from ever scaling to zero. `LISTEN/NOTIFY` needs a direct
+  connection, not the pooler. Pages were slow because of round trips to a distant database (measured
+  2026-11-05).
+- The owner chose Instabox for the VPS.
 
 ## Decision
 
-- **One VPS, Docker Compose**, with four services:
+- **One VPS on Instabox, Docker Compose**, with four services:
   - `web`: Next.js `output: "standalone"`;
   - `worker`: a Node process that loops over `drainExecutions` and runs the reminder, maintenance and
     doc-sync jobs on their schedules, with executions every minute;
@@ -37,6 +42,9 @@ Design: [agent harness spec](../superpowers/specs/2026-11-10-agent-harness-desig
   this, the local CLI provider would become available on the VPS.
 - **Backups:** nightly `pg_dump` to object storage (R2 or S3), kept 14 days. The runbook records a restore
   test after each change to the backup.
+- **Move off Neon.** `pg_dump` from Neon, restore on the VPS, test, then switch `DATABASE_URL`. Neon stays
+  for two weeks as the way back, then it is shut down. Neon's point-in-time restore and branching are
+  lost; nightly backups and the restore test replace them.
 - **Vercel stays** for what it does for clients: preview and publish of client projects
   ([ADR 0013](0013-publishing-to-vercel.md)), using `VERCEL_TOKEN`.
 - **Deploys:** an image is built in CI and tagged by commit, then pulled on the VPS. Rollback means

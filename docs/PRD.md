@@ -206,13 +206,13 @@ Design: [spec](superpowers/specs/2026-11-10-agent-harness-design.md), [ADR 0028]
 
 | # | Requirement | Status |
 |---|---|---|
-| H1 | Saqina runs on one VPS with Docker Compose (web, worker, Postgres, TLS proxy); the worker runs the execution queue every minute; nightly database backup with a tested restore; the local CLI provider stays refused on the server (`SAQINA_HOSTED`) | Planned |
+| H1 | Saqina runs on one VPS (Instabox) with Docker Compose (web, worker, Postgres, TLS proxy), and the database moves there from Neon; the worker runs the execution queue every minute; nightly database backup with a tested restore; the local CLI provider stays refused on the server (`SAQINA_HOSTED`) | Planned |
 | H2 | Machines: the owner pairs a machine with a one-time code; the runner reports CLIs, versions, account labels and disk every 30 s over Tailscale; a token is stored as a hash and can be revoked; a revoked machine gets nothing | Planned |
 | H3 | Sessions: start an official CLI (Claude Code first) on a chosen machine, repository and worktree; live steps, files changed and diff; stop; messages typed while it works are queued; permission mode and model per session; transcripts kept in Saqina so any device continues them | Planned |
-| H4 | Cockpit: every session on every machine in one list with Needs you, Working, Unread and Closed, grouped by project; a session view with chat, folded steps, machine, CLI, model, account, cost and quota only where the CLI reported them; web push for Needs you, failed and ended | Planned |
+| H4 | Cockpit: every session on every machine in one list with Needs you, Working, Unread and Closed, grouped by project; a session view with chat, folded steps, machine, CLI, model, account and cost; every subscription account shows its 5-hour and weekly quota left with the time it was reported (Claude Code reports it; a CLI that does not is marked "not reported", never estimated), and an exhausted account is not picked; web push for Needs you, failed and ended | Planned |
 | H5 | Codex and Kiro as session CLIs; switching model inside a CLI takes effect next turn; switching CLI starts a new session on the same branch with a handover (summary, changed files) and says so | Planned |
 | H6 | An agent definition can run on a runner (`executor: runner`, preferred CLI, model, machine, fallback); the dispatcher picks an online machine that fits or blocks the task with the reason; a restarted worker reattaches to the same session; a task still succeeds only on a commit visible at the repository host; builds and tests the CLI ran are stored as runner-reported, separate from CI | Planned |
-| H7 | Limits: Owner only (anyone else gets NOT_FOUND); repositories only under the machine's allowed roots; push only to the session branch (worktree hook plus required branch protection); secrets scrubbed on the runner and the server; subscription tokens never leave the machine; no browser terminal | Planned |
+| H7 | Limits: Owner only (anyone else gets NOT_FOUND); machines are grouped `personal` or `clients` and a client's project runs only on `clients` machines; repositories only under the machine's allowed roots; push only to the session branch (worktree hook plus required branch protection); secrets scrubbed on the runner and the server; subscription tokens never leave the machine; no browser terminal | Planned |
 
 ## 6. Non-functional requirements
 
@@ -238,9 +238,8 @@ Design: [spec](superpowers/specs/2026-11-10-agent-harness-design.md), [ADR 0028]
 
 - Which plans include white label, and at what price (needed before W5).
 - Whether clients pay inside the portal or only see invoices (today: they see and track).
-- Where the VPS sits (Singapore is close to Indonesian users) and where the database lives today (H1).
-- Whether client repositories run on a machine separate from the owner's own projects (H7).
-- Whether the CLIs report subscription quota in headless mode; if not, the quota panel is left out (H4).
+- The Instabox VPS size and region, and the Neon project's region, before the move (H1).
+- How Codex and Kiro report subscription quota (H4, H5).
 - Whether Build should require an approved PRD on the server; today the Studio only warns (S1).
 
 ## 9. Where this is built

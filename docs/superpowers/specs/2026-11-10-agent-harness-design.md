@@ -12,7 +12,9 @@ Keputusan terkait: [ADR 0028](../../adr/0028-host-on-a-vps-with-docker.md) (host
    (invoice, request fitur, preview plan) dan tidak pernah melihat harness.
 2. Pemilik sering pindah model dan perangkat dan punya beberapa VM. Ia ingin mengendalikan sesi agent di
    semua mesin itu dari satu layar, seperti contoh ZEVN/OS.
-3. Hosting pindah dari Vercel Hobby ke VPS dengan Docker.
+3. Hosting pindah dari Vercel Hobby ke VPS dengan Docker, di Instabox. Database sekarang di Neon.
+6. Repo klien kemungkinan besar dikerjakan di VM terpisah dari repo pribadi.
+7. Untuk akun langganan, sisa kuota wajib tampil seperti di contoh ZEVN/OS.
 4. Orchestrator tetap milik Saqina. Tidak memakai LangChain atau LangGraph.
 5. Ruflo (`sparc-spec`, `goal-plan`) tidak terpasang di sesi ini; langkahnya diikuti manual atas izin
    pemilik.
@@ -81,6 +83,16 @@ flowchart LR
   (reminders, maintenance, doc-sync). Route cron tetap ada untuk dipanggil manual. `after()` tetap menjadi
   jalur cepat.
 - Backup `pg_dump` tiap malam ke object storage (R2 atau S3), dengan uji restore tercatat di runbook.
+- **Database pindah dari Neon ke Postgres di VPS.** Alasannya:
+  - Worker yang mengecek antrean tiap menit dan heartbeat runner tiap 30 detik membuat compute Neon tidak
+    pernah tidur, jadi jam compute terpakai penuh.
+  - `LISTEN/NOTIFY` untuk long-poll butuh koneksi langsung, tidak lewat pooler.
+  - Jarak VPS ke DB menjadi nol. Waktu round trip ke DB jauh adalah penyebab halaman lambat yang diukur
+    pada 2026-11-05.
+
+  Caranya: `pg_dump` dari Neon, restore ke VPS, uji, lalu ganti `DATABASE_URL`. Neon dibiarkan hidup dua
+  minggu sebagai jalan mundur, baru dihentikan. Yang hilang adalah PITR dan branching Neon; backup malam
+  dan uji restore menggantikannya.
 - Cloudflare hanya untuk DNS dan proxy domain publik. Aturan cache publik yang sudah ada tetap berlaku.
 - `hostedServer()` berganti dari cek `VERCEL` ke flag eksplisit `SAQINA_HOSTED=1`, supaya provider CLI
   lokal tetap tertolak di server.
@@ -98,6 +110,10 @@ flowchart LR
   ditambah kalau long-poll terbukti kurang.
 - **Inventaris** pada setiap heartbeat (30 detik): versi runner, OS, disk kosong, CLI yang terpasang dan
   versinya, akun yang login (hanya label dan tipe paket kalau CLI menyebutnya), root repo yang diizinkan.
+- **Grup mesin:** tiap mesin punya grup, `personal` atau `clients`, ditambah label bebas. Proyek yang
+  punya klien hanya dikerjakan di mesin grup `clients`. Proyek pribadi hanya di grup `personal`. Owner bisa
+  mengganti grup tujuan per proyek. Repo klien tidak pernah berada di mesin yang sama dengan repo
+  pribadi, kecuali Owner sengaja mengaturnya.
 - **Akun:** tiap akun CLI punya folder konfigurasinya sendiri di mesin. Runner memilih folder lewat
   variabel lingkungan CLI (untuk Claude Code, `CLAUDE_CONFIG_DIR`; diverifikasi di fase 2). Saqina hanya
   tahu label akun.
@@ -124,14 +140,36 @@ flowchart LR
   berubah dan potongan transkrip. UI menyebutnya sebagai sesi baru.
 - **Pindah perangkat:** transkrip dan event ada di Postgres, jadi sesi dibuka dari perangkat mana pun.
 
+### Kuota langganan (wajib untuk akun langganan)
+
+- **Claude Code** (diperiksa pada versi 2.1.322 di sandbox ini): output `stream-json` mengirim event
+  `rate_limit_event` berisi `rate_limit_info`. Isinya status (`allowed`, `allowed_warning`, `rejected`),
+  `resetsAt`, `rateLimitType`, dan `unifiedWindows.five_hour` serta `unifiedWindows.seven_day`, masing-masing
+  dengan `utilization` dan `resetsAt`. Runner meneruskannya apa adanya.
+- Field `unifiedWindows` ditandai internal di CLI, jadi bisa berubah tanpa pemberitahuan. Runner menyimpan
+  versi CLI bersama setiap angka. Uji kontrak dengan rekaman output nyata gagal kalau bentuknya berubah.
+- Kuota hanya datang selama sesi berjalan. Cockpit menampilkan angka terakhir beserta waktunya ("94% sisa,
+  12 menit lalu"). Saat akun idle, runner boleh menjalankan sesi probe kecil sesuai jadwal Owner. Probe ini
+  mati secara default karena memakai kuota sendiri.
+- **Tidak dipakai:** endpoint usage berbasis token OAuth yang dipanggil CLI secara internal. Endpoint itu
+  butuh token langganan dibaca dari mesin, dan ADR 0023 serta 0029 melarangnya.
+- **Codex:** output JSON-nya diharapkan membawa batas pemakaian 5 jam dan mingguan. Ini diverifikasi di
+  fase 5 pada versi yang terpasang.
+- **Kiro:** belum diketahui apakah melaporkan kuota. Diverifikasi di fase 5.
+- Kalau sebuah CLI terbukti tidak melaporkan kuota, akunnya tetap bisa dipakai, tapi kartu akun menulis
+  "Kuota tidak dilaporkan oleh CLI ini" dengan warna peringatan. Saqina tidak menebak angka.
+- Akun dengan status `rejected` atau sisa kuota di bawah batas yang diatur Owner (bawaan 5%) tidak dipilih
+  dispatcher sampai `resetsAt` lewat.
+
 ### 4. Executor `runner` di orchestrator
 
 - Executor baru yang memenuhi `TaskExecutor` (`src/lib/executions/task-executor.ts`), di samping
   `modelTaskExecutor`.
 - Definisi agent mendapat field `executor`: `model` (bawaan) atau `runner`, ditambah preferensi CLI, model
   dan mesin. Versi definisi dan audit tetap seperti [ADR 0022](../../adr/0022-owner-agent-registry.md).
-- **Pemilihan mesin:** mesin online, punya CLI yang diminta, akun belum melapor kuota habis, dan repo
-  proyek ada di root yang diizinkan. Kalau tidak ada yang cocok, coba akun atau model cadangan dari
+- **Pemilihan mesin:** mesin online, grupnya cocok dengan proyek, punya CLI yang diminta, akun belum
+  melapor kuota habis, dan repo proyek ada di root yang diizinkan. Di antara akun yang cocok, yang sisa
+  kuota 5 jamnya paling besar dipilih lebih dulu. Kalau tidak ada yang cocok, coba akun atau model cadangan dari
   definisi. Kalau tetap tidak ada, task `blocked` dengan alasan.
 - Executor membuat sesi dengan kunci idempoten `run:<runId>:<attempt>` lalu menunggu. Worker memperpanjang
   `lockedUntil` job selama sesi mengirim heartbeat. Kalau worker mati, job diambil lagi dan executor
@@ -157,14 +195,15 @@ flowchart LR
 
 | Tabel | Isi |
 |---|---|
-| `machines` | id, nama, os, `tokenHash`, `pairedAt`, `revokedAt`, `lastSeenAt`, `inventory` jsonb, `allowedRoots` |
+| `machines` | id, nama, os, grup (`personal`, `clients`), label, `tokenHash`, `pairedAt`, `revokedAt`, `lastSeenAt`, `inventory` jsonb, `allowedRoots` |
 | `machine_pairings` | hash kode, kedaluwarsa, dipakai kapan |
-| `cli_accounts` | mesin, CLI, label, status terakhir dan kuota yang dilaporkan. Tanpa token |
+| `cli_accounts` | mesin, CLI, label, status terakhir, kuota 5 jam dan mingguan (`utilization`, `resetsAt`), versi CLI yang melapor, `quotaReportedAt`. Tanpa token |
 | `harness_sessions` | mesin, proyek (opsional), repo, branch, worktree, CLI, model, akun, mode izin, status, `cliSessionId`, `idempotencyKey` unik, `executionId` dan `runId` (opsional), biaya yang dilaporkan, `seq` |
 | `harness_events` | sesi, `seq` unik per sesi, tipe, payload (sudah disaring), waktu |
 | `harness_inputs` | pesan antre: sesi, isi, status (`queued`, `delivered`) |
 
-Ditambah kolom `executor` dan `runnerPrefs` pada `agent_definitions`. Indeks: `(machineId, status)`,
+Ditambah kolom `executor` dan `runnerPrefs` pada `agent_definitions`, dan `runnerGroup` pada `projects`
+(bawaan: `clients` kalau proyek punya klien, `personal` kalau tidak). Indeks: `(machineId, status)`,
 `(projectId, updatedAt)`, `(sessionId, seq)`.
 
 ## Keamanan
@@ -174,7 +213,7 @@ Ditambah kolom `executor` dan `runnerPrefs` pada `agent_definitions`. Indeks: `(
 | Token runner bocor | Hanya hash di DB, satu token per mesin, bisa dicabut, terikat ke alamat Tailscale, rate limit |
 | Perintah dari orang lain | Semua route harness dan runner hanya untuk Owner platform. Orang lain mendapat NOT_FOUND (dites) |
 | Agent mendorong ke main | Hook `pre-push` di worktree dan branch protection di GitHub (wajib, runbook) |
-| Isi repo klien menyuruh agent (prompt injection) | Isi repo adalah data. Mode izin bawaan bukan "bypass". Root repo dibatasi. Mesin terpisah untuk repo klien disarankan |
+| Isi repo klien menyuruh agent (prompt injection) | Isi repo adalah data. Mode izin bawaan bukan "bypass". Root repo dibatasi. Repo klien hanya di mesin grup `clients` |
 | Rahasia masuk transkrip | `scrubSecrets` di runner dan server. Nilai `.env` tidak pernah dikirim |
 | Akun langganan diblokir | CLI resmi di mesin pemilik, satu orang, tanpa berbagi akun. Peringatan ADR 0023 tetap tampil |
 | VPS mati | Runner menyimpan event di disk dan mengirim ulang. Sesi CLI tetap jalan. Backup DB tiap malam |
@@ -184,10 +223,10 @@ Ditambah kolom `executor` dan `runnerPrefs` pada `agent_definitions`. Indeks: `(
 | Fase | Isi | Selesai bila |
 |---|---|---|
 | 0 | Spec ini, ADR 0028, ADR 0029, perubahan PRD | Pemilik menyetujui |
-| 1 | Compose, worker, jadwal tiap menit, backup, `SAQINA_HOSTED`, pindah DB, Tailscale, runbook | Saqina jalan di VPS, job eksekusi diambil dalam satu menit, restore backup teruji |
-| 2 | Runner v0: pairing, heartbeat, inventaris, halaman Machines, cabut token | Semua mesin terlihat dari HP, token yang dicabut ditolak |
+| 1 | Compose di Instabox, worker, jadwal tiap menit, backup, `SAQINA_HOSTED`, pindah DB dari Neon, Tailscale, runbook | Saqina jalan di VPS, job eksekusi diambil dalam satu menit, restore backup teruji, Neon tidak lagi dipakai aplikasi |
+| 2 | Runner v0: pairing, heartbeat, inventaris, grup mesin, halaman Machines, cabut token | Semua mesin terlihat dari HP dengan grupnya, token yang dicabut ditolak |
 | 3 | Sesi Claude Code: mulai, stream, stop, antre, worktree, file dan diff | Satu sesi nyata dari cockpit sampai commit di branch sesi |
-| 4 | Cockpit penuh: filter, panel kanan, mode izin, biaya, kuota yang dilaporkan, web push | Alur seperti contoh, di 320/768/1280 px |
+| 4 | Cockpit penuh: filter, panel kanan, mode izin, biaya, kuota 5 jam dan mingguan per akun, web push | Alur seperti contoh, di 320/768/1280 px; kuota Claude Code tampil dari event nyata |
 | 5 | Codex dan Kiro, ganti model, handover antar CLI | Pindah CLI tanpa kehilangan branch dan konteks |
 | 6 | Executor `runner` di orchestrator, sesi terikat proyek, hasil ke task dan portal | Build dari Studio dikerjakan di VM, task sukses dengan commit di GitHub |
 
@@ -203,6 +242,7 @@ Ditambah kolom `executor` dan `runnerPrefs` pada `agent_definitions`. Indeks: `(
 
 ## Pertanyaan terbuka
 
-- Lokasi VPS. Singapura dekat dengan pengguna di Indonesia. Lokasi DB sekarang perlu dicek sebelum pindah.
-- Apakah repo klien dikerjakan di VM terpisah dari repo pribadi?
-- Kuota langganan: apakah CLI melaporkannya dalam mode headless? Kalau tidak, panel kuota tidak ada.
+- Spesifikasi dan lokasi VPS Instabox: RAM, disk, dukungan Docker, snapshot, dan region. Untuk Postgres,
+  web dan worker dibutuhkan minimal 4 GB RAM.
+- Region proyek Neon sekarang, untuk memperkirakan waktu pindah dan menguji `pg_dump` lebih dulu.
+- Format kuota Codex dan Kiro (fase 5).
