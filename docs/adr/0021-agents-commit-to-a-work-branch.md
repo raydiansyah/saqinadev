@@ -1,6 +1,6 @@
 # 21. Agents commit to their own work branch without approval; nothing else changes without one
 
-Status: accepted (2026-10-30). Risk lane: Red (tools, permissions, git). Superseded by [ADR 0027](0027-v1-billing-focus.md): the feature was removed in v1.
+Status: accepted (2026-10-30). Risk lane: Red (tools, permissions, git). Superseded by [ADR 0030](0030-v1-billing-focus.md): the feature was removed in v1.
 
 ## Context
 

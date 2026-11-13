@@ -18,11 +18,178 @@ Expect `{"status":"ok","database":true,...}`. `commit` is the deployed commit.
 pnpm smoke https://www.saqina.dev
 ```
 
+## VPS (Instabox)
+
+Saqina runs on one VPS with Docker Compose ([ADR 0028](adr/0028-host-on-a-vps-with-docker.md)): `web`,
+`scheduler` (calls the cron routes: reminders and maintenance) and `caddy`. The `postgres` service is off
+(profile `localdb`) while the database stays on Neon. The VPS has 4 vCPU, 8 GB RAM and 20 GB disk; the disk
+is the limit, so logs rotate (10 MB × 3 per service) and a deploy keeps only two image tags.
+
+### First-time setup
+
+On GitHub (repository settings):
+
+- Variables: `NEXT_PUBLIC_SITE_URL` (for example `https://saqina.dev`) and `NEXT_PUBLIC_TURNSTILE_SITE_KEY`.
+  They are fixed into the image at build time.
+- Secret `BUILD_DATABASE_URL`: a read-only role on the production database. The build prerenders the
+  public `/services` pages from it, as Vercel's build does.
+- Push to `main` (or run the Image workflow by hand): `image.yml` publishes
+  `ghcr.io/raydiansyah/saqinadev:<commit>` and `:main`.
+
+In Cloudflare: the DNS record for the domain is proxied (orange cloud), SSL/TLS mode is **Full (strict)**,
+an **Origin Certificate** (SSL/TLS > Origin Server, 15 years) is created for the domain, and
+**Authenticated Origin Pulls** is on (same page). Keep the certificate and its key for the step below;
+Cloudflare shows the key once. With origin pulls, Caddy accepts a connection only when it carries
+Cloudflare's client certificate, so nobody can reach the server around Cloudflare. The firewall cannot do
+this alone: ports Docker publishes skip ufw's rules.
+
+On the VPS, as root:
+
+```bash
+adduser --disabled-password --gecos "" saqina && usermod -aG sudo saqina
+```
+
+```bash
+curl -fsSL https://get.docker.com | sh && usermod -aG docker saqina
+```
+
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh && tailscale up --ssh
+```
+
+After `tailscale up`, check that `ssh saqina@<tailscale name>` works from the laptop. Then close SSH on
+the public address:
+
+```bash
+sed -i 's/^#\?PasswordAuthentication .*/PasswordAuthentication no/' /etc/ssh/sshd_config && systemctl reload ssh
+```
+
+Copy `deploy/` to `/opt/saqina` (owned by `saqina`), then in `/opt/saqina`:
+
+```bash
+./cloudflare-ips.sh
+```
+
+It writes `cloudflare-ips.caddy`: the Cloudflare ranges Caddy takes the visitor's address from. Then keep
+SSH on Tailscale only (80 and 443 are guarded by origin pulls, above):
+
+```bash
+ufw allow in on tailscale0 && ufw default deny incoming && ufw enable
+```
+
+Put the origin certificate in `/opt/saqina/certs/origin.pem` and its key in `origin-key.pem` (mode 600),
+and Cloudflare's origin-pull CA next to them:
+
+```bash
+curl -fsS -o /opt/saqina/certs/cloudflare-origin-pull-ca.pem https://developers.cloudflare.com/ssl/static/authenticated_origin_pull_ca.pem
+```
+
+This is Cloudflare's shared certificate, so any Cloudflare zone could still send traffic to the server;
+a per-hostname certificate (uploaded in the same Cloudflare page) closes that too.
+Create `/opt/saqina/.env` from `env.example` (mode 600) with the production values, `SAQINA_DOMAIN`, and
+`DATABASE_URL` set to Neon's pooled connection string. Let the VPS pull the private image:
+
+```bash
+docker login ghcr.io -u <github user>
+```
+
+Use a token with only `read:packages`. Then deploy (below).
+
+### Check
+
+```bash
+curl -s https://<domain>/api/health
+```
+
+Expected: `"status":"ok"` and the deployed commit. Within a minute the scheduler logs a call:
+
+```bash
+docker compose logs --since 2m scheduler
+```
+
+Expected: `{"job":"executions","status":200,…}` lines. Caddy replaces `X-Forwarded-For` and `X-Real-IP`
+with the address it checked, so what Caddy logs as `client_ip` is what the app reads. A forged one must
+not get through:
+
+```bash
+curl -s -H "X-Forwarded-For: 1.2.3.4" https://<domain>/api/health && docker compose logs --since 1m caddy | grep -o '"client_ip":"[^"]*"' | tail -1
+```
+
+Expected: the laptop's public address, not `1.2.3.4`. The server must refuse anyone but Cloudflare:
+
+```bash
+curl -sk --resolve <domain>:443:<VPS public IP> https://<domain>/api/health
+```
+
+Expected: a TLS error, no JSON.
+
+### Backups
+
+`backup.sh` dumps the database (`BACKUP_DATABASE_URL`, Neon's **direct** URL while the database is there)
+with a Postgres 17 client container and uploads it to R2 as `saqina-<date>.dump`. The dump passes through
+a temporary file that is always removed. In Cloudflare R2: create a bucket, an API token with Object
+Read & Write on that bucket only, and a lifecycle rule that deletes objects after 14 days. Put the
+endpoint (`https://<account>.r2.cloudflarestorage.com`), bucket, key and secret in `.env` as `BACKUP_R2_*`.
+
+Install the daily timer (18:00 UTC, 01:00 WIB) once:
+
+```bash
+cp /opt/saqina/saqina-backup.service /opt/saqina/saqina-backup.timer /etc/systemd/system/ && systemctl daemon-reload && systemctl enable --now saqina-backup.timer
+```
+
+```bash
+systemctl list-timers saqina-backup.timer
+```
+
+Expected: the next run at 18:00 UTC. After the first run, the drill restores the latest backup into a
+throwaway database and compares every table's row count with the live one:
+
+```bash
+cd /opt/saqina && ./restore.sh "$(date -u +%F)"
+```
+
+Expected: `vector`, then "Drill passed". Rows written since the backup show as a small difference; run it
+right after a backup. Record each drill here:
+
+| Date | Backup | Result |
+|---|---|---|
+
+A real restore goes into an empty database and asks first:
+
+```bash
+cd /opt/saqina && ./restore.sh <YYYY-MM-DD> --into <database url>
+```
+
 ## Deploy
 
-1. Merge the pull request into `main` (no direct pushes).
-2. If it contains a migration, apply it **before** promoting (the previous deployment must keep working,
-   so migrations only add):
+On the VPS:
+
+1. Merge into `main`. The Image workflow publishes `ghcr.io/raydiansyah/saqinadev:<commit>`; wait for it.
+2. If the change has a migration, take a backup first:
+
+```bash
+cd /opt/saqina && ./backup.sh
+```
+
+3. Deploy the commit:
+
+```bash
+cd /opt/saqina && ./deploy.sh <full commit id>
+```
+
+The script refuses with less than 3 GB free, pulls the image, applies migrations (with
+`MIGRATE_DATABASE_URL` from `.env` when set, which must be Neon's **direct** URL; otherwise `DATABASE_URL`),
+starts it, and waits up to 90 s for `/api/health` to report that commit. If the new web never turns
+healthy, or reports another commit, it starts the previous tag again, waits for that to be healthy, and
+exits 1. On success it writes the tag into `.env` (`SAQINA_TAG`, so a hand-run `docker compose` command
+uses what is running) and keeps only this tag and the previous one. A Neon pooled URL (`-pooler`) is
+refused for migrations.
+
+4. Run the smoke test against the domain (Actions > Post-deploy smoke test > Run workflow, with the URL).
+
+### Before the move (Vercel)
+
+While production was on Vercel, a migration was applied before promoting:
 
 ```bash
 neonctl auth
@@ -82,7 +249,7 @@ and deletes nothing. The organization's owner or admin sets the brand once it is
 ## Tables of removed features
 
 v1 removed the AI, Studio, agents, memory and planning features and their tables
-([ADR 0027](adr/0027-v1-billing-focus.md)). Migration `0045_drop_removed_features.sql` drops them, along
+([ADR 0030](adr/0030-v1-billing-focus.md)). Migration `0045_drop_removed_features.sql` drops them, along
 with the document sync trigger that would otherwise break every document write. The owner decided the
 data of those features does not need to be kept or migrated. Apply `0045` to production like any other
 migration, after `0042` to `0044`:
@@ -95,16 +262,19 @@ The `--backup` snapshot branch still makes a restore point. Nothing in the appli
 
 ## Roll back the application
 
+On the VPS:
+
 ```bash
-vercel rollback
+cd /opt/saqina && ./deploy.sh "$(cat PREVIOUS)"
 ```
 
-or promote the previous deployment in the Vercel dashboard. Then check `/api/health`. Because migrations
-only add, the previous build runs against the new schema. Rehearse this on a preview before first needing it.
+Then check `/api/health`. Because migrations only add, the previous image runs against the new schema.
+On Vercel (before the move): `vercel rollback`, or promote the previous deployment in the dashboard.
 
 ## Roll back the database
 
-Only on the owner's decision. The `pre-migrate-...` Neon branch is the restore point. Restoring loses
+Only on the owner's decision. Restore points: the nightly backups in R2 (`restore.sh`, see Backups) and,
+while the database is on Neon, its own restore and the `pre-migrate-…` branches. Restoring loses
 writes made after it was taken, so prefer fixing forward with a new migration.
 
 ## Incident response

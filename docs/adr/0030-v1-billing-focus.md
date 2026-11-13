@@ -1,4 +1,4 @@
-# 27. v1 covers invoices, receipts, contract signing, reminders and white label only
+# 30. v1 covers invoices, receipts, contract signing, reminders and white label only
 
 Status: accepted (2026-11-12). Risk lane: Red (removes data-bearing features, changes numbering and client access).
 

@@ -7,7 +7,9 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const nextConfig: NextConfig = {
   // app/[locale]/layout.tsx is the root layout, so unmatched URLs need a global 404 page.
   experimental: { globalNotFound: true },
-  // The app is served by Vercel: do not advertise the framework.
+  // The Docker image (docs/runbook.md, VPS) runs the standalone server; Vercel builds without it.
+  output: process.env.NEXT_OUTPUT === "standalone" ? "standalone" : undefined,
+  // Do not advertise the framework.
   poweredByHeader: false,
   // The guide screenshots are read from disk at request time, so they must ship with the route.
   outputFileTracingIncludes: {

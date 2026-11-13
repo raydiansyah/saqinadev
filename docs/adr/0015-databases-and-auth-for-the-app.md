@@ -1,6 +1,6 @@
 # 15. Databases and sign-in for the app: the user's own, with a preview of their own
 
-Status: accepted (2026-10-29). Risk lane: Red (secrets, data access, deploy). Superseded by [ADR 0027](0027-v1-billing-focus.md): the feature was removed in v1.
+Status: accepted (2026-10-29). Risk lane: Red (secrets, data access, deploy). Superseded by [ADR 0030](0030-v1-billing-focus.md): the feature was removed in v1.
 
 ## Context
 

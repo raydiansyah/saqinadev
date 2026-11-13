@@ -1,4 +1,4 @@
-# 28. Brand settings live in one row, the logo in the database, and the agency leads the letterhead
+# 31. Brand settings live in one row, the logo in the database, and the agency leads the letterhead
 
 Status: accepted (2026-11-12). Risk lane: Red (identity, client-facing documents, email sender).
 

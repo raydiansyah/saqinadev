@@ -1,0 +1,74 @@
+# Saqina on the VPS (docs/adr/0028-host-on-a-vps-with-docker.md, docs/runbook.md "VPS (Instabox)").
+# Lives in /opt/saqina with .env (mode 600). The disk is 20 GB: logs rotate, images are pruned on deploy.
+name: saqina
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "10m", max-file: "3" }
+
+x-app: &app
+  image: ghcr.io/raydiansyah/saqinadev:${SAQINA_TAG:?SAQINA_TAG is not set}
+  env_file: .env
+  restart: unless-stopped
+  logging: *logging
+
+services:
+  web:
+    <<: *app
+    environment:
+      DATABASE_POOL_MAX: "20"
+    mem_limit: 2g
+
+  scheduler:
+    <<: *app
+    command: ["node", "scripts/scheduler.mjs"]
+    environment:
+      SCHEDULER_TARGET: http://web:3000
+    healthcheck: { disable: true }
+    depends_on:
+      web: { condition: service_healthy }
+    mem_limit: 256m
+
+  caddy:
+    image: caddy:2.10-alpine
+    restart: unless-stopped
+    logging: *logging
+    ports: ["80:80", "443:443"]
+    environment:
+      SAQINA_DOMAIN: ${SAQINA_DOMAIN:?SAQINA_DOMAIN is not set}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./cloudflare-ips.caddy:/etc/caddy/cloudflare-ips.caddy:ro
+      - ./certs:/etc/caddy/certs:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      web: { condition: service_healthy }
+    mem_limit: 256m
+
+  # Off until the database moves from Neon (start with --profile localdb). DATABASE_URL in .env decides
+  # which database the app uses.
+  postgres:
+    profiles: ["localdb"]
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      POSTGRES_USER: saqina
+      POSTGRES_DB: saqina
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgres.conf"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres.conf:/etc/postgresql/postgres.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U saqina -d saqina"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    mem_limit: 3g
+
+volumes:
+  pgdata:
+  caddy_data:
+  caddy_config:

@@ -1,7 +1,7 @@
 name: CI
 
-# lint -> typecheck -> test + coverage -> build, then security scans. Nothing here deploys:
-# Vercel builds previews for pull requests and production from main (see docs/standards/delivery.md).
+# lint -> typecheck -> test + coverage -> build, then security scans. Nothing here deploys: the
+# production image for the VPS is built by image.yml and deployed by hand (docs/runbook.md).
 
 on:
   pull_request:

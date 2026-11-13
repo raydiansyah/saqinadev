@@ -5,7 +5,7 @@ reminders, and a client portal that can carry the agency's own name. English and
 Technology, live at saqina.dev.
 
 Product requirements and status: [docs/PRD.md](docs/PRD.md). What v1 removed and why:
-[ADR 0027](docs/adr/0027-v1-billing-focus.md).
+[ADR 0030](docs/adr/0030-v1-billing-focus.md).
 
 ## What it does
 
@@ -23,7 +23,7 @@ Product requirements and status: [docs/PRD.md](docs/PRD.md). What v1 removed and
 - **Client portal.** Clients sign in separately and see only their own projects.
 - **White label.** Locked until a plan or agreement opens it; then the agency's name, logo, accent colour,
   mail sender and issuer details replace Saqina's on the portal, mail, documents and PDF files
-  ([standard](docs/standards/white-label.md), [ADR 0028](docs/adr/0028-brand-in-the-database-and-the-letterhead.md)).
+  ([standard](docs/standards/white-label.md), [ADR 0031](docs/adr/0031-brand-in-the-database-and-the-letterhead.md)).
 
 ## How it is built
 

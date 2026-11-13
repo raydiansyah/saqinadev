@@ -1,0 +1,16 @@
+.git
+.github
+.next
+node_modules
+coverage
+tests
+e2e
+docs
+deploy
+.superpowers
+.claude
+.kiro
+*.md
+!src/content/**/*.md
+.env*
+!.env.example

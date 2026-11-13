@@ -1,6 +1,6 @@
 # 5. Imported projects follow GitHub
 
-Status: accepted (2026-10-23). Risk lane: Red (documents shown to clients, access to a repository). Superseded by [ADR 0027](0027-v1-billing-focus.md): the feature was removed in v1.
+Status: accepted (2026-10-23). Risk lane: Red (documents shown to clients, access to a repository). Superseded by [ADR 0030](0030-v1-billing-focus.md): the feature was removed in v1.
 
 ## Context
 

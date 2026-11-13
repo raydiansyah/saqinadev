@@ -1,7 +1,7 @@
 # Saqina Dev: product requirements
 
 Status of this page: rewritten 2026-11-12 for v1, which narrows the product to invoices, receipts,
-contract signing, payment reminders and white label ([ADR 0027](adr/0027-v1-billing-focus.md)). It is
+contract signing, payment reminders and white label ([ADR 0030](adr/0030-v1-billing-focus.md)). It is
 the PRD that [`CLAUDE.md`](../CLAUDE.md) tells every tool to check before a feature is built or changed.
 Change the product and this page in the same pull request.
 
@@ -146,6 +146,17 @@ generation, AI assistants and agents; project planning (requirements, tasks, PRD
 | O6 | End-to-end journey test at 320, 768 and 1280 px | Planned |
 | O7 | Account export and deletion | Built |
 
+### 5.9 Hosting
+
+Design: [ADR 0028](adr/0028-host-on-a-vps-with-docker.md).
+
+| # | Requirement | Status |
+|---|---|---|
+| H1 | Saqina runs on one VPS (Instabox) with Docker Compose (web, scheduler, TLS proxy; Postgres ready for when the database moves from Neon); the scheduler calls the cron routes every minute; nightly database backup to R2 with a restore drill; deploy and rollback by image tag | Partial: image, scheduler, Compose, deploy, rollback and backup are built and tested locally; not yet running on the VPS; the database stays on Neon (54 MB) by the owner's choice |
+
+The agent harness (runners on the owner's machines, [ADR 0029](adr/0029-agent-harness-with-runners.md), requirements H2 to H7) was
+planned on top of the execution engine and is dropped with it in v1 (section 9).
+
 ## 6. Non-functional requirements
 
 | Area | Requirement |
@@ -172,13 +183,14 @@ generation, AI assistants and agents; project planning (requirements, tasks, PRD
 - Which WhatsApp provider to connect (Meta's Cloud API needs approved message templates and a verified business number; a local gateway is quicker but unofficial).
 - Whether clients pay inside the portal or only see invoices (today: they see and track).
 - Whether to back-fill receipts for payments recorded before v1 in one step, instead of on request.
+- The Instabox VPS size and region, and the Neon project's region, before the move (H1).
 
 ## 9. Removed in v1
 
-The AI assistant, project brain and memory, MCP server, the Studio, agents and executions, local CLI
+The AI assistant, project brain and memory, MCP server, the Studio, agents and executions, the agent harness and runners, local CLI
 providers, imports from GitHub, the requirements, PRD, plan and task tools, the interview, the services
 catalogue and the UI theme catalogue. Client requests, messages, approvals and change requests were also
-removed; meetings and maintenance plans stay. The code is gone from the main branch and stays in git history. Migration `0045` drops their tables; their data is not kept ([ADR 0027](adr/0027-v1-billing-focus.md)).
+removed; meetings and maintenance plans stay. The code is gone from the main branch and stays in git history. Migration `0045` drops their tables; their data is not kept ([ADR 0030](adr/0030-v1-billing-focus.md)).
 
 ## 10. Where this is built
 

@@ -1,6 +1,6 @@
 # 0003. Project brain: change outbox, memory journal, PRD check, document map
 
-Status: superseded by [ADR 0027](0027-v1-billing-focus.md): the feature was removed in v1.
+Status: superseded by [ADR 0030](0030-v1-billing-focus.md): the feature was removed in v1.
 - Status: accepted
 - Date: 2026-10-16
 

@@ -1,6 +1,6 @@
 # 19. antislop as the default anti-slop rules, in the repository and in the product
 
-Status: accepted (2026-10-29). Risk lane: Yellow (prompt content and size; no data or permission change). Superseded by [ADR 0027](0027-v1-billing-focus.md): the feature was removed in v1.
+Status: accepted (2026-10-29). Risk lane: Yellow (prompt content and size; no data or permission change). Superseded by [ADR 0030](0030-v1-billing-focus.md): the feature was removed in v1.
 
 ## Context
 

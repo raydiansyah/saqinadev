@@ -1,6 +1,6 @@
 # 14. Local IDE agents stay in step over MCP
 
-Status: accepted (2026-10-29). Risk lane: Red (agent access to tasks and tools). Superseded by [ADR 0027](0027-v1-billing-focus.md): the feature was removed in v1.
+Status: accepted (2026-10-29). Risk lane: Red (agent access to tasks and tools). Superseded by [ADR 0030](0030-v1-billing-focus.md): the feature was removed in v1.
 
 ## Context
 

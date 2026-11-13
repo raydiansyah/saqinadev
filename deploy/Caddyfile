@@ -1,0 +1,35 @@
+# Cloudflare proxies the domain (orange cloud, SSL mode Full (strict)). Caddy serves a Cloudflare
+# Origin CA certificate, takes the visitor's address from CF-Connecting-IP only when the request comes
+# from a Cloudflare range, and sends the app that one address, never a value a visitor wrote.
+{
+	servers {
+		import /etc/caddy/cloudflare-ips.caddy
+		client_ip_headers CF-Connecting-IP X-Forwarded-For
+	}
+}
+
+{$SAQINA_DOMAIN} {
+	# Authenticated Origin Pulls: only Cloudflare holds a client certificate this CA signed, so nobody can
+	# reach the origin around Cloudflare. (Docker publishes 80 and 443 past ufw; this check does not care.)
+	tls /etc/caddy/certs/origin.pem /etc/caddy/certs/origin-key.pem {
+		client_auth {
+			mode require_and_verify
+			trust_pool file /etc/caddy/certs/cloudflare-origin-pull-ca.pem
+		}
+	}
+	log {
+		format json
+	}
+	header -Server
+	# Chat attachments: up to 5 files of 5 MB per message.
+	request_body {
+		max_size 30MB
+	}
+	encode zstd gzip
+	reverse_proxy web:3000 {
+		# The app reads the first X-Forwarded-For entry, then X-Real-IP. Through a trusted proxy Caddy would
+		# keep what the visitor sent and append to it, so both are replaced by the checked address.
+		header_up X-Forwarded-For {client_ip}
+		header_up X-Real-IP {client_ip}
+	}
+}

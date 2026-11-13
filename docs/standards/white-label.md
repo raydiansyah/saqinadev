@@ -5,7 +5,7 @@ This is an engineering standard, not legal advice. The company's lawyer approves
 White label means an agency or studio that uses Saqina presents the **client portal** under its own
 name, logo and colours. It never changes who is responsible for the data, and it never hides what a
 client needs to trust the portal. Status: **Built** for the brand name, logo, accent colour, email sender
-and issuer details ([ADR 0028](../adr/0028-brand-in-the-database-and-the-letterhead.md)); a custom domain
+and issuer details ([ADR 0031](../adr/0031-brand-in-the-database-and-the-letterhead.md)); a custom domain
 and the abuse contact are **Planned**. The rules below bind every change to portal-facing screens.
 
 ## The lock

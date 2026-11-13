@@ -1,6 +1,6 @@
 # 25. Environment variables of the app are a list the team manages, values write-only
 
-Status: accepted (2026-11-06). Risk lane: Red (secrets, a new credential kind, a migration, values leave Saqina for Vercel and a developer's machine). Superseded by [ADR 0027](0027-v1-billing-focus.md): the feature was removed in v1.
+Status: accepted (2026-11-06). Risk lane: Red (secrets, a new credential kind, a migration, values leave Saqina for Vercel and a developer's machine). Superseded by [ADR 0030](0030-v1-billing-focus.md): the feature was removed in v1.
 
 ## Context
 
