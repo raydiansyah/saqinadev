@@ -1,8 +1,6 @@
+import { Features } from "@/components/landing/features";
 import { FinalCta } from "@/components/landing/final-cta";
 import { Hero } from "@/components/landing/hero";
-import { InteractiveDemo } from "@/components/landing/interactive-demo";
-import { Lifecycle } from "@/components/landing/lifecycle";
-import { Pillars } from "@/components/landing/pillars";
 import { Footer } from "@/components/layout/footer";
 import { Navbar } from "@/components/layout/navbar";
 import { RevealObserver } from "@/components/primitives/reveal-observer";
@@ -44,9 +42,7 @@ export default async function LandingPage({ params }: PageProps<"/[locale]">) {
       <Navbar />
       <main id="main" className="flex-1">
         <Hero content={c.hero} />
-        <Lifecycle content={c.lifecycle} />
-        <Pillars content={c.pillars} />
-        <InteractiveDemo content={c.demo} />
+        <Features content={c.features} />
         <FinalCta content={c.finalCta} />
       </main>
       <Footer />

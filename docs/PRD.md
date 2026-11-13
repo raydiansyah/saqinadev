@@ -1,228 +1,188 @@
 # Saqina Dev: product requirements
 
-Status of this page: written 2026-10-23 from the code, the ADRs and the standards; updated 2026-10-30 (agents and executions: Plan and Build, the Owner's agent registry, live Studio). It is the PRD that
-[`CLAUDE.md`](../CLAUDE.md) tells every tool to check before a feature is built or changed. Change the
-product and this page in the same pull request.
+Status of this page: rewritten 2026-11-12 for v1, which narrows the product to invoices, receipts,
+contract signing, payment reminders and white label ([ADR 0027](adr/0027-v1-billing-focus.md)). It is
+the PRD that [`CLAUDE.md`](../CLAUDE.md) tells every tool to check before a feature is built or changed.
+Change the product and this page in the same pull request.
 
 Each requirement carries a status: **Built** (in the product and tested), **Partial** (some of it works;
 the gap is named), **Planned** (agreed, not built).
 
 ## 1. Problem
 
-An agency or studio that builds software for clients keeps scope in documents, agreements in email,
-invoices in a spreadsheet, tasks in a tracker and progress in chat. Nobody can answer "where is this
-project, what was agreed, and what is owed" without asking five people. Clients cannot follow progress
-without asking. AI assistants that could help have no reliable record to read, so they guess.
+An agency or studio that sells project work to clients sends invoices from a spreadsheet, confirms
+payments in chat, keeps agreements in email and chases late payers by hand. A client cannot see what is
+owed, what was paid, or what was signed without asking. Receipts are written on request, and nobody
+remembers whether the agreement in the thread is the version both sides agreed to.
 
 ## 2. Product
 
-One workspace per client project: scope, agreements, invoices, payments, development and maintenance,
-with an AI assistant that answers from the whole project record and a portal where the client follows
-progress. Built by Abati Technology, live at saqina.dev, in English and Indonesian.
+A workspace for the paperwork between an agency and its clients. Each client project holds its
+invoices, the receipts for the payments received, the contracts both sides sign, and the reminders that
+chase what is unpaid or unsigned. The client follows all of it in a portal that can carry the agency's own
+name. Built by Abati Technology, live at saqina.dev, in English and Indonesian.
+
+Saqina does not write code, host projects or run AI assistants. Those parts were removed in v1 (section 9).
 
 ## 3. Users
 
 | User | Needs |
 |---|---|
-| **Owner / admin** (agency lead) | One view of every project: scope, money, risk; control over who sees what |
-| **Editor** (developer, PM) | Requirements, tasks, documents, decisions kept current with little typing |
-| **Viewer** | Read-only access to a project |
-| **Client** (portal user) | Follow progress, read shared documents, approve and sign, pay; never see internal data |
-| **Platform owner** (Saqina staff) | Run the platform: plans, white-label grants, AI control plane |
-| **Agent** (Claude client over MCP) | Read a project and append memory inside the permission it was granted |
+| Owner or admin (agency lead) | Issue invoices and receipts, send contracts for signature, see what is overdue, set the brand |
+| Editor | Draft and edit documents and meeting notes |
+| Viewer | Read a project |
+| Client (portal user) | Read and download invoices and receipts, sign agreements, see what is due; never see internal data |
+| Platform owner (Saqina staff) | Open and close white label for an organization |
 
-Roles are `owner`, `admin`, `editor`, `viewer` per project; portal users are a separate kind.
+Roles are `owner`, `admin`, `editor`, `viewer` per project. Portal users are a separate kind and are never
+project members.
 
 ## 4. Goals and non-goals
 
 Goals:
 
-1. The project record is the single source of truth; the assistant, the portal and the documents all read it.
-2. A client can follow a project and approve work without a call.
-3. Every change to money, scope or agreements leaves an audit trail.
-4. AI helps without ever acting alone: rules validate every write, a person approves. The one exception is code on an agent's own work branch, which a person reviews and merges ([ADR 0021](adr/0021-agents-commit-to-a-work-branch.md)).
+1. Every amount a client owes or has paid comes from stored invoices and payments, never from a typed total.
+2. A payment produces a numbered receipt in the same step, so the two cannot disagree.
+3. A contract is issued only after both sides signed the same text.
+4. A late payment or a missing signature is chased without anyone remembering to do it.
+5. The client sees the agency's brand, not Saqina's, once white label is open.
+6. Every change to money or agreements leaves an audit trail.
 
-Non-goals (this version): a general chat product, time tracking with payroll, accounting beyond
-invoices and payments, mobile apps, e-signature with a legal certificate authority, semantic search, a sandbox that runs the agents' code with hot reload, and agents that run tests themselves (CI results are shown instead).
+Non-goals for v1: accounting beyond invoices, payments and receipts; payment gateways (payments are
+recorded by hand); e-signature with a legal certificate authority; a custom domain for the portal; code
+generation, AI assistants and agents; project planning (requirements, tasks, PRD); a WhatsApp provider
+(the channel exists, see R6).
 
 ## 5. Requirements
 
-### 5.1 Projects and onboarding
+### 5.1 Projects and clients
 
 | # | Requirement | Status |
 |---|---|---|
-| P1 | Create a project from a brief; an interview captures objective, features, stack, delivery. Nobody types a title: the name comes from the plan (the preview plan at creation, then a model-suggested title after the interview) until a person renames it; the URL never changes ([ADR 0010](adr/0010-ai-refinement-arrives-as-proposals.md)) | Built |
-| P2 | Import an existing project from GitHub; it asks how far the system is (build, review, deploy) and the answers drive the stage, progress and tasks. Each answer is independent; answers that disagree are flagged, not corrected ([ADR 0008](adr/0008-delivery-answers-are-independent.md)) | Built |
-| P3 | Imported projects follow GitHub: documents are pulled one way, the newest edit wins, the PRD is found by name or asked for ([ADR 0005](adr/0005-imported-projects-follow-github.md)) | Built |
-| P4 | Project settings: name, build strategy, repository, deployment, domain; a failed save keeps what was typed | Built |
-| P5 | Archive, restore and delete a project (delete needs the typed name) | Built |
-| P6 | The interview recommends a UI theme from 21 (3 tiers: recommended, available, concept), the user can change it, and the choice feeds the PRD, plan and memory. A public `/themes` page shows all 21 with live previews, including a dashboard preview; every theme defines status and chart colours that pass contrast checks, and a concept theme on a project with data screens gets an extra warning | Built |
-| P7 | The GitHub account connected for importing is also used on a project's Integrations page: with it, connecting a repository needs no pasted token, and the picker lists the account's repositories. Without it, the token field stays. Only GitHub has this; the token stays on the server, encrypted | Built |
+| P1 | A project is a plain container: name, optional description, optional client. Created from a form, no interview | Built |
+| P2 | Clients with contact details, an optional phone number and portal invitations; an invitation works once, for the invited email, and can be revoked or expire | Built |
+| P3 | Archive, restore and delete a project (delete needs the typed name) | Built |
+| P4 | Project and client belong to an organization; people of another organization get NOT_FOUND | Built |
 
-### 5.2 Requirements, plan and delivery
+### 5.2 Invoices and payments
 
 | # | Requirement | Status |
 |---|---|---|
-| R1 | Requirements with priority and status, with bulk actions | Built |
-| R2 | PRD document per project, with a check that finds gaps against requirements (PRD findings) | Built |
-| R3 | Plan with milestones and tasks; tasks follow the delivery stage | Built |
-| R4 | Features, decisions, change requests and client approvals, each recorded and linked | Built |
-| R5 | Progress and stepper derived from real records, not typed by hand | Built |
-| R6 | Meetings and requests feed the same record | Built |
-| R7 | Generate PRD: a form with one field per section, filled from the current PRD or the interview; Enhance improves a section (a model when set up, rules otherwise); saving writes a new version that is approved again | Built |
-| R8 | After the interview a model refines the PRD and plan document following the Superpowers `brainstorming` and `writing-plans` skills; the result is a proposal from the planner agent ([ADR 0010](adr/0010-ai-refinement-arrives-as-proposals.md)) | Built |
+| I1 | Payment terms (percent or fixed, with due dates) per project; an invoice drafted from a term takes its amount from the schedule | Built |
+| I2 | Custom invoices with free lines; a draft is internal until issued | Built |
+| I3 | Issuing assigns `INV-YEAR-NNN` per organization and year, atomically, once; a number is never reused | Built |
+| I4 | Payments are recorded by a person; overpaying is refused; a mistaken payment is voided with a reason and stays visible | Built |
+| I5 | Totals, balance and status (issued, sent, partially paid, paid, overdue, cancelled) are computed from invoices and payments | Built |
+| I6 | The currency of a project locks once an invoice exists | Built |
+| I7 | Invoice as a PDF file (team and client), also attached to the mail that announces it, with the issuer's legal name, tax number and address | Built |
 
-### 5.3 Documents and agreements
-
-| # | Requirement | Status |
-|---|---|---|
-| D1 | Markdown documents, versioned, editable, Mermaid diagrams rendered | Built |
-| D2 | Proposal, agreement, handover and maintenance agreement drafted from project data | Built |
-| D3 | Drafts are editable and approved before signing; editing or regenerating clears signatures | Built |
-| D4 | Signed by both the team and the client; signatures bind to one version by SHA-256; only then issued with a reference number (`PRP`, `AGR`, `HND`, `MNT` + year + sequence) ([ADR 0006](adr/0006-two-party-document-signing.md)) | Built |
-| D5 | Every document carries the default Saqina logo as letterhead, the issuer name and the reference | Built |
-| D6 | Dates are written in full ("27 Februari 2027") in every document and screen | Built |
-| D7 | Documents the team shares appear in the client portal | Built |
-
-### 5.4 Money
+### 5.3 Receipts (kwitansi)
 
 | # | Requirement | Status |
 |---|---|---|
-| M1 | Payment terms, invoices, payments and balances per project | Built |
-| M2 | Maintenance plans with cycle, fee, response time, scope and exclusions | Built |
-| M3 | Reminders for due items | Built |
-| M4 | Billing and finance views in the team area and the portal, with clear action labels | Built |
+| K1 | Recording a payment issues its receipt in the same transaction, numbered `KWT-YEAR-NNN` per organization and year; one receipt per payment | Built |
+| K2 | The receipt copies amount, date, method and reference from the payment, writes the amount in words (Indonesian or English), and names client, invoice and issuer | Built |
+| K3 | Voiding a payment voids its receipt; the number stays used. A payment recorded before v1 gets its receipt on request | Built |
+| K4 | The client is notified and reads the receipt on the portal; a voided receipt is hidden from the client | Built |
+| K5 | Receipt as a printable page and as a PDF file attached to the notification mail | Built |
 
-### 5.5 Client portal
-
-| # | Requirement | Status |
-|---|---|---|
-| C1 | Clients are invited, sign in separately from the team and see only their projects | Built |
-| C2 | Client sees progress, shared documents, messages, invoices; can approve and sign | Built |
-| C3 | A stranger asking for another project's data gets NOT_FOUND, never "forbidden" | Built |
-| C4 | Client guide in the portal, signed-in only | Built |
-
-### 5.6 AI assistant, memory and agents
+### 5.4 Contracts and signing
 
 | # | Requirement | Status |
 |---|---|---|
-| A1 | Assistant answers from the project record; read-only answers and intent detection use Claude | Built |
-| A2 | Without `ANTHROPIC_API_KEY` Saqina answers from deterministic rules and sends nothing out; customer documents go to a model only with recorded consent | Built |
-| A3 | Actions that change project data (tasks, documents, requirements, decisions) are rule-validated and need approval; a model never merges, opens a pull request or deploys alone. The one write without approval is an agent's commit to its own execution's work branch, inside its task's files ([ADR 0021](adr/0021-agents-commit-to-a-work-branch.md)) | Built |
-| A4 | Project brain: every change goes to an outbox and is distilled into memory and PRD findings ([ADR 0003](adr/0003-project-brain.md)) | Built |
-| A5 | Governed project memory: owner, visibility, lifecycle, versions, citations; chat suggestions wait for review; access is checked before search ([ADR 0004](adr/0004-project-memory.md)) | Built |
-| A6 | Retrieval is full-text plus exact match, with a budget; the UI states whether semantic search is on, indexing or off (A19) | Built |
-| A7 | MCP tools for agents (`search_memory`, `read_memory`, `write_memory`); agent writes are candidates, never straight into memory; every call audited | Built |
-| A8 | Semantic (vector) search, wiki, skills and code-graph assets | Partial: semantic search is Built (A19) and platform skills (A14) are Built; the other assets stay Planned |
-| A9 | Every chat message shows its time in the reader's timezone, can be copied, and shows who has read it: Saqina, and any connected agent that read up to it | Built |
-| A10 | Pin a message as a named chapter; a chapter list jumps to it, loading older pages when needed | Built |
-| A11 | Fork from a message: a copy of the thread up to it, in a new thread; proposals and agent runs are not copied and the original is not touched | Built |
-| A12 | Rewind to a message: later messages are hidden and the project changes the assistant made after it (tasks, requirements, the PRD and other documents) are put back. All or nothing: it refuses when a later change cannot be reversed or a record was edited since ([ADR 0007](adr/0007-chat-rewind-is-all-or-nothing.md)) | Built |
-| A13 | Chat threads stay private; the owner can open one to connected agents (MCP `list_conversations`, `read_conversation`), and every read is recorded and shown as "read by" | Built |
-| A14 | Platform skills: the platform owner installs SKILL.md skills (pasted or from GitHub) for every project, chooses where each is used, and can switch them off; Superpowers and antislop ship built in (antislop in DURING mode, [ADR 0019](adr/0019-antislop-built-in.md)). Skill text is never executed ([ADR 0009](adr/0009-platform-skills-and-connectors.md)) | Built |
-| A15 | Platform connectors: the owner connects MCP servers once (Firecrawl, Exa, Context7 presets, or a custom server over streamable HTTP) with encrypted keys; their tools reach every project under the same policy, audit and approval; agents read through enabled low-risk tools | Built |
-| A16 | Agent settings pick the model from the models already set up, or Automatic (the project and platform defaults); a pin for Saqina's agents is what their runs use, within the platform policy | Built |
-| A17 | Own AI gateway in the Studio chat: a person adds their own OpenAI, Anthropic or Gemini API key (or an OpenAI-compatible endpoint) and picks, per chat, the platform default or one of their own models. It belongs to that person only, the key is encrypted and never shown, it follows the owner's external-providers switch, and if their model cannot answer nothing goes to another provider ([ADR 0017](adr/0017-own-ai-gateway.md)). Subscription logins (ChatGPT, Claude) are not offered | Built (API key); ChatGPT sign-in open |
-| A18 | Local CLI provider: the platform Owner can connect Claude Code, Codex, OpenCode or Kiro CLI that is logged in on the server as an AI provider, with no API key. Off by default, with an on/off switch for the Owner that needs the risk accepted (signing a CLI in with a ChatGPT or Claude subscription can break the provider's terms and get the account banned) and is refused on a hosted platform; Owner-only and audited; the CLI runs in an empty temporary folder with no tools and none of Saqina's secrets ([ADR 0023](adr/0023-local-cli-provider.md)) | Built (Claude Code and Kiro CLI run end to end; Codex and OpenCode not run here) |
-| A19 | A project opts in to semantic search (an admin, consent recorded, default off); approved memory and wiki text that the whole project can read is embedded by the platform's embedding model and searched by meaning together with words and exact matches; private items are never sent; the result says on, off or degraded ([ADR 0024](adr/0024-semantic-search.md)) | Built |
+| D1 | Proposal, agreement, handover and maintenance agreement drafted from project data (client, payment terms, maintenance plan); scope and milestones are written into the draft by hand | Built |
+| D2 | Drafts are edited and approved before signing; editing or regenerating clears signatures | Built |
+| D3 | Signed by the team and by the client; each signature binds to one version by SHA-256; only then is the document issued with a reference (`PRP`, `AGR`, `HND`, `MNT` plus year and sequence) and locked ([ADR 0006](adr/0006-two-party-document-signing.md)) | Built |
+| D4 | The client signs only what the team approved and shared; asking for changes sends the document back and removes signatures | Built |
+| D5 | Contract as a PDF file with the signatures and their dates | Built |
+| D6 | Free-form Markdown documents, versioned, with the same share and approval flow | Built |
+| D7 | Meeting notes: written by the team or the client, shared on request, reviewed by the team | Built |
+| D8 | Maintenance plans with cycle, fee, response time, scope and exclusions; renewal reminders; warranty end date | Built |
+
+### 5.5 Reminders
+
+| # | Requirement | Status |
+|---|---|---|
+| R1 | Rules per organization in days before or after an anchor date: invoice due, invoice overdue, agreement waiting for the client's signature, maintenance renewal | Built |
+| R2 | A daily job sends the latest reached rule once per item; re-running sends nothing new | Built |
+| R3 | Audience per rule: the team, the client or both; clients only receive them while the portal is open for the project | Built |
+| R4 | Channels: in-app and email, with the invoice or receipt PDF attached to the mail that announces it | Built |
+| R5 | The team can run the job for its own organization and send a manual reminder for an open invoice or an unsigned agreement (a button on each), once per day | Built |
+| R6 | WhatsApp: a rule can also send its client reminder to the client's phone number. The channel is an interface with a console sender; no provider is connected, so in production the delivery is recorded as skipped | Partial: provider open |
+
+### 5.6 Client portal
+
+| # | Requirement | Status |
+|---|---|---|
+| C1 | Clients sign in separately from the team and see only the projects shared with them | Built |
+| C2 | The client reads invoices, payments, receipts, shared documents, maintenance and meeting notes, and signs agreements | Built |
+| C3 | "Needs your attention" lists agreements waiting for the client's signature and overdue invoices | Built |
+| C4 | A stranger asking for another project's data gets NOT_FOUND, never "forbidden" | Built |
+| C5 | A client guide in the portal, signed-in only | Built |
 
 ### 5.7 White label
 
 | # | Requirement | Status |
 |---|---|---|
-| W1 | White label is **locked by default**; it opens only with a paid plan that includes it or a written agreement signed by both parties, recorded with a reference | Built |
+| W1 | Locked by default; it opens only with a paid plan that includes it or a written agreement, recorded with a reference | Built |
 | W2 | Only the platform owner grants or revokes; every change is an audit event; one open grant per organization | Built |
 | W3 | It locks again on revoke or the day after the end date; nothing is deleted | Built |
-| W4 | The organization sees the status, the reason and the policy under Settings > White label ([standard](standards/white-label.md)) | Built |
-| W5 | Brand settings themselves (name, logo, colour, domain, sender) behind that gate | Planned |
-| W6 | What is never hidden: sign-in and security, privacy and terms links, the AI marker, the abuse contact, the team area | Built (policy and gate); brand settings use it when built |
+| W4 | Brand settings behind that gate: brand name, logo (PNG or JPEG, up to 200 KB), accent colour with contrast checks, email sender name and reply-to, legal name, tax number and address | Built |
+| W5 | The brand shows on the portal (name, logo, accent), on mail to the client, on invoice, receipt and contract letterheads and PDF files. The legal name, tax number and address print as the issuer | Built |
+| W6 | A document keeps a small "powered by Saqina" line; the portal footer keeps the privacy and terms links; the brand name cannot imitate the platform | Built |
+| W7 | The team area is never branded | Built |
+| W8 | A custom domain for the portal | Planned (outside v1) |
+| W9 | An abuse and security contact visible in the branded portal | Planned |
 
 ### 5.8 Platform and operations
 
 | # | Requirement | Status |
 |---|---|---|
 | O1 | English and Indonesian for every screen, error and email | Built |
-| O2 | Signed-in user guides, split into owner and client, with real screenshots | Built |
+| O2 | Signed-in user guides, split into owner and client | Built (screenshots to be refreshed) |
 | O3 | Every failure shows a reference code (`REQ-XXXX`) that is also in the log | Built |
 | O4 | Audit log for sensitive changes; no secrets or personal data in logs | Built |
-| O5 | Health endpoint, cron jobs (reminders, maintenance, doc sync), post-deploy smoke test | Built |
-| O6 | End-to-end journey test at 320, 768 and 1280 px | Planned (needs Playwright and a CI job) |
-| O7 | API documentation for the outside routes (`docs/api/openapi.yaml`) | Planned |
-
-### 5.9 Studio
-
-| # | Requirement | Status |
-|---|---|---|
-| S1 | "Start building" on an approved PRD or plan, or on a document both parties signed, opens the Studio | Built |
-| S2 | Studio: the chat beside a work area. A reply that makes a plan or starts agents turns the work area to the Plan or Agents tab; a change-making request the assistant is unsure about is confirmed in the chat first | Built |
-| S3 | Build in Saqina: Start building starts a Build execution (E1, E3), the same one the composer's Build mode starts, and opens the Studio on it. A project built elsewhere only opens the Studio | Built |
-| S8 | Attach files in the chat: text (into the prompt), images and PDF (to a model that can read them); stored in a private S3 bucket, served only after an access check; 5 MB and 5 files per message ([ADR 0011](adr/0011-chat-attachments-and-tools.md)) | Built |
-| S9 | Add context in the chat: pick switched-on skills (always in the prompt) and connectors; a picked or named connector's tool runs from the chat through the same policy (high risk waits for approval) and its result is shown; owners and project admins reach "Manage connectors" from the menu | Built |
-| G1 | Repository events: Saqina installs the webhook itself (a token without admin rights falls back to a manual URL and secret) and records push, pull request, check suite, workflow run and deployment status | Built |
-| G2 | A branch, pull request or commit that carries a task reference (`T-xxxxxxxx`) is linked to the task. An opened pull request puts the task in review; a merged one completes it (the merge is the person's decision) ([ADR 0012](adr/0012-git-ci-and-deploys-flow-back.md)) | Built |
-| G3 | CI results and deployments are shown, and the delivery page suggests build, review and deploy answers from them; a person confirms each one | Built |
-| G4 | A push to the default branch refreshes the head and queues a code reindex | Built |
-| L1 | Local IDE over MCP: read tasks, claim a task, report review or blocked (never done), read skills, use the project's connector tools under the same policy, read AGENTS.md and context files as resources ([ADR 0014](adr/0014-local-ide-sync-over-mcp.md)) | Built |
-| L2 | A project AGENTS.md (workflow, branch naming, reporting, skills and connectors) from live data, by MCP and as a download | Built |
-| L3 | Setup snippets for Claude Code, Cursor, Codex and Kiro, and every token scope selectable | Built |
-| S4 | Code: the files an execution's work branch changed against the base branch, with line counts and a diff per file, from the repository host (secrets masked); below it, a read-only view of the connected repository. Before the first commit, or when the host cannot say, it says so | Built |
-| S5 | Preview: the preview of an execution's work branch (the host's own deployment of that branch, matched by branch or commit) and the published project, in one sandboxed frame that is not recreated for each update; with no preview or a failed one it says which. A build sandbox with hot reload is not part of this version; for an app with a database or sign-in the preview waits for S10 | Built (the work-branch preview needs a repository connected to Vercel) |
-| S6 | Git: the execution's work branch, its commits and CI on it (and says when a repository is local-only); branches, pull requests and CI checks linked to tasks, and the switch that turns repository events on; Saqina never merges | Built |
-| S7 | Publish shows five separate stages for an execution (code written, build passed, preview ready, ready to deploy, published), each from what was reported and "not known" when nothing was; Publish to `<project>.saqina.dev` on Saqina's Vercel team by default, or to the client's own Vercel account (own token, optional custom domain); a person presses Publish ([ADR 0013](adr/0013-publishing-to-vercel.md)) | Built (needs `VERCEL_TOKEN` and the wildcard domain, see the runbook) |
-| S10 | Databases and sign-in for the app (Neon, Supabase, Clerk, Postgres or a custom service), always on the user's own accounts: keys are kept encrypted per project, each with a separate Live and Preview value, and sent to the Vercel deployment. An app that uses one is published and previewed only when the preview has its own database (not the live one; test keys for Clerk); until then Publish and Preview explain what is missing ([ADR 0015](adr/0015-databases-and-auth-for-the-app.md)) | Built (needs the encryption key) |
-| S12 | A list of environment variables on the Publish tab, like a hosting dashboard: name, secret or public, a value for Production, Preview and Development (Development falls back to Preview, never Production), add, edit, import a pasted `.env`, remove, search. Values are write-only and encrypted; names are visible to members; project admins change them (audited, names only); they are sent to Vercel and removed from it when removed here; `NEXT_PUBLIC_` names are never secret; the names reach `.env.example`, `.env.local`, `AGENTS.md` and the agents' prompts, never a value ([ADR 0025](adr/0025-environment-variables-of-the-app.md)) | Built. Variables the code reads are not detected; the repository's `.env.example` is the source |
-| S11 | The same env in Saqina and in a local IDE: each service variable has Live, Preview and an optional Local value (falls back to Preview, never live); Saqina sends them to Vercel (production, preview, development), offers `.env.example` (names) and `.env.local` (Local values, admins only, audited) for download, and warns when the repository's `.env.example` names a variable Saqina does not have ([ADR 0018](adr/0018-env-in-saqina-and-local-ide.md)) | Built |
-
-### 5.10 Agents and executions
-
-| # | Requirement | Status |
-|---|---|---|
-| E1 | The Studio composer has Chat, Plan and Build. Chat answers and changes nothing; Plan makes a plan and builds nothing until "Build this plan"; Build starts the agents at once, with no click on any agent. The instruction and a live card of the execution stay in the conversation | Built |
-| E2 | The platform Owner manages agent definitions (identity, instructions, scope, definition of done, model, tool list, permissions, handoff targets, attempts, time limit, priority, status), with nine presets, a version and an audit event for every change, and counts of how each agent has done. Nobody else can read or change them; hard limits (merge, deploy, delete) cannot be configured ([ADR 0022](adr/0022-owner-agent-registry.md)) | Built |
-| E3 | An execution is stored: request, mode, status, versioned plan, task graph with dependencies, acceptance criteria and target paths, runs, messages, artifacts, an ordered event log and a budget (25 tasks, a chain of 6, 2 retries, 3 at once, 60 minutes, 400 messages; 3 open per project). It survives reload and reconnection ([ADR 0020](adr/0020-execution-engine.md)) | Built |
-| E4 | The planner turns the request into tasks with an owner role, dependencies and criteria; a plan with a cycle, an unknown role or too many tasks is refused, once re-asked, and otherwise fails with the reason. With no AI model set up nothing is planned and the execution says so; nothing is simulated | Built |
-| E5 | A task starts only when every task it depends on has succeeded; independent tasks run side by side up to the limit; tasks that write the same files run one after the other; a task goes to an agent whose definition is on and was part of the execution | Built |
-| E6 | Agents message and hand work to each other through stored messages, only to agents their definition lists, with a bounded number of messages and revisions; a failed review sends the findings back as a revision task and the review runs again | Built |
-| E7 | An agent's work is real: it reads files from the work branch, writes within its task's files and commits through the audited tool pipeline; a task succeeds only after the host returned a commit id; reviewers give a verdict with evidence per criterion ([ADR 0021](adr/0021-agents-commit-to-a-work-branch.md)) | Built |
-| E8 | Every screen shows one copy of the execution: agent status is worked out from task status, progress counts finished tasks, and the copy follows the server by a server-sent event stream that resumes after a drop, ignores repeats and older copies, and falls back to polling | Built |
-| E9 | Stop reports Cancelling until a running task has returned and tells the running agent to stop; a failed or blocked task can be tried again; transient failures retry with a pause up to the budget; a worker that dies is replaced and the task retried; a time limit and a deadline end work that runs too long | Built |
-| E10 | Agent status, plan, code, git, preview and publish read the same stored state; Code, Git, Preview and the Publish stages show what the repository host, CI and Vercel reported, and "not known" where nothing was | Built |
-| E11 | Text from files, other agents, messages, CI or documentation is data for the model, never an instruction; secrets are scrubbed from events, messages, tool audit and patches | Built |
-| E12 | Run the execution queue every minute in production, and the end-to-end test in CI | Partial: the cron route and the test exist; the schedule (Vercel Pro or an outside scheduler) and the CI job are not set up |
-| E13 | The Studio message box has a Claude-style + menu (files, slash commands, skills, connectors) and a Browse dialog with Yours and Discover where an item is added with one press; the project sidebar folds away; an agent definition picks installed skills, which reach its prompt as method text | Built. "Yours" is kept per browser, not on the server |
-| E14 | A project that starts from an idea alone still gets an app that builds and starts: when the repository is empty the platform commits a Next.js starter before the first task, every writing task is told its rules (allowed files, limits, env templates allowed, package.json valid) and a quality bar (build and start with no environment variables, no key required), and the planner is told not to plan project set-up | Built. Nothing runs the build or the tests; the preview build on Vercel and CI are what show a failure |
-| E15 | A failed preview build or CI check on the work branch of a finished execution starts a follow-up execution on the same branch, told what failed (the build log lines, secrets scrubbed). At most two rounds per original execution and one at a time; failures while agents still work, on other branches, or for a person who lost access start nothing, and a limit reached is shown as "No automatic fix". Reported once per failed build or run ([ADR 0026](adr/0026-repair-failed-builds.md)) | Built. Agents still do not run the build or tests themselves; Vercel and CI report them |
-| E16 | A local IDE agent reports each finished task at once (`report_task_result` with the commits and files), before any push, so Saqina shows the task in review and its commits immediately; the push and the pull request add to it ([ADR 0014](adr/0014-local-ide-sync-over-mcp.md)) | Built. It depends on the agent following `AGENTS.md`; the push is the fallback |
+| O5 | Health endpoint, two cron jobs (reminders, housekeeping), post-deploy smoke test | Built |
+| O6 | End-to-end journey test at 320, 768 and 1280 px | Planned |
+| O7 | Account export and deletion | Built |
 
 ## 6. Non-functional requirements
 
 | Area | Requirement |
 |---|---|
-| Security | Authorization on the server for every id; input validated with zod; user text never rendered as HTML; secrets encrypted ([security](standards/security.md)) |
-| Privacy | Retention and AI disclosure follow [compliance](standards/compliance.md) |
+| Security | Authorization on the server for every id; input validated with zod; user text never rendered as HTML; a logo is accepted only as a PNG or JPEG read from its bytes ([security](standards/security.md)) |
+| Privacy | Retention follows [compliance](standards/compliance.md); a client's phone number is used only for reminders the team switched on |
 | Accessibility | WCAG 2.1 AA, keyboard and screen-reader usable, 44 px touch targets |
 | Responsive | No horizontal scroll at 320, 768, 1280 px |
-| Live work | An execution's state is stored, ordered and resumable; the screen never shows a status the server did not say |
 | States | Loading, empty and error state for every async screen, in both languages |
-| Performance | No query inside a loop; new queries are indexed ([performance](standards/performance.md)) |
-| Delivery | `pnpm lint`, `typecheck`, `test`, `build` pass before merge; migrations are expand-only and reversible by redeploy ([delivery](standards/delivery.md)) |
+| Performance | No query inside a loop; new queries are indexed; PDF files are built on request, with a rate limit ([performance](standards/performance.md)) |
+| Delivery | `pnpm lint`, `typecheck`, `test`, `build` pass before merge; migrations are expand-only ([delivery](standards/delivery.md)) |
 
 ## 7. Success measures
 
-- A client can find the current state of a project and its open invoices without asking the team.
-- Every issued document has two signatures and a reference number; none issued by one click.
+- A client can find what is owed, what was paid and what is waiting for a signature without asking the team.
+- Every payment has exactly one receipt; every issued document has two signatures and a reference.
 - No cross-project or cross-client data in any response (covered by the security tests).
-- Zero unreferenced errors: each failure a user reports can be found in the log by its reference code.
+- A reminder is sent once per item and rule, however often the job runs.
+- Each failure a user reports can be found in the log by its reference code.
 
 ## 8. Open questions
 
-- Which plans include white label, and at what price (needed before W5).
+- Which plans include white label, and at what price.
+- Which WhatsApp provider to connect (Meta's Cloud API needs approved message templates and a verified business number; a local gateway is quicker but unofficial).
 - Whether clients pay inside the portal or only see invoices (today: they see and track).
-- Whether to run the execution cron every minute on Vercel Pro or from an outside scheduler (E12).
-- Whether Build should require an approved PRD on the server; today the Studio only warns (S1).
+- Whether to back-fill receipts for payments recorded before v1 in one step, instead of on request.
 
-## 9. Where this is built
+## 9. Removed in v1
+
+The AI assistant, project brain and memory, MCP server, the Studio, agents and executions, local CLI
+providers, imports from GitHub, the requirements, PRD, plan and task tools, the interview, the services
+catalogue and the UI theme catalogue. Client requests, messages, approvals and change requests were also
+removed; meetings and maintenance plans stay. The code is gone from the main branch and stays in git history. Migration `0045` drops their tables; their data is not kept ([ADR 0027](adr/0027-v1-billing-focus.md)).
+
+## 10. Where this is built
 
 Standards: [docs/standards](standards/README.md). Decisions: [docs/adr](adr/). Operations:
-[runbook](runbook.md). Guides for people: `src/content/docs/`. Code map: `src/lib/<area>` holds the rules,
-`src/app` the pages and actions, `src/lib/db/schema` the tables.
+[runbook](runbook.md). Guides for people: `src/content/docs/`. Code map: `src/lib/<area>` holds the rules
+(`billing`, `documents`, `reminders`, `white-label`, `pdf`, `notifications`), `src/app` the pages and
+actions, `src/lib/db/schema` the tables.

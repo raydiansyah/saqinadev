@@ -20,20 +20,17 @@
     "db:create-owner": "tsx --conditions=react-server --env-file=.env.local scripts/create-owner.ts",
     "db:studio": "drizzle-kit studio",
     "smoke": "tsx scripts/smoke.ts",
-    "email:preview": "tsx scripts/email-preview.ts",
-    "e2e": "playwright test"
+    "email:preview": "tsx scripts/email-preview.ts"
   },
   "dependencies": {
     "@neon/config": "^1.9.5",
     "@neon/env": "^1.6.6",
-    "aws4fetch": "^1.0.20",
+    "@react-pdf/renderer": "^4.9.0",
     "better-auth": "^1.7.14",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.4",
-    "gsap": "^3.15.0",
     "lucide-react": "^1.62.0",
-    "mermaid": "^12.2.0",
     "next": "16.4.3",
     "next-intl": "^4.14.9",
     "pg": "^8.23.1",
@@ -48,7 +45,6 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.3",
-    "@playwright/test": "1.64.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^24.19.1",
     "@types/pg": "^8.23.1",

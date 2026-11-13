@@ -1,27 +1,54 @@
 import "server-only";
+import { and, count, eq, inArray, notExists } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { db } from "@/lib/db/client";
+import { documentSignatures, documents } from "@/lib/db/schema";
+import { SIGNABLE_KINDS } from "@/lib/documents/reference";
 import type { ClientProjectAccess } from "@/lib/portal/access";
-import { clientApprovalList, clientChangeRequestList } from "@/lib/portal/engagement-views";
+import { clientInvoices } from "@/lib/portal/views";
 
 export interface AttentionItem {
   slug: string;
   name: string;
-  approvals: number;
-  changes: number;
+  /** Shared agreements the client has not signed yet. */
+  unsigned: number;
+  /** Issued invoices past their due date. */
+  overdue: number;
 }
 
 /** Counts of what waits on the client for one project, from the whitelisted views only. */
 export async function loadAttention(access: ClientProjectAccess): Promise<AttentionItem> {
-  const [approvals, changes] = await Promise.all([
-    clientApprovalList(access),
-    clientChangeRequestList(access),
+  const [[unsigned], invoices] = await Promise.all([
+    db
+      .select({ n: count() })
+      .from(documents)
+      .where(
+        and(
+          eq(documents.projectId, access.project.id),
+          eq(documents.clientVisible, true),
+          eq(documents.status, "approved"),
+          inArray(documents.type, [...SIGNABLE_KINDS]),
+          notExists(
+            db
+              .select({ id: documentSignatures.id })
+              .from(documentSignatures)
+              .where(
+                and(
+                  eq(documentSignatures.documentId, documents.id),
+                  eq(documentSignatures.party, "client"),
+                ),
+              ),
+          ),
+        ),
+      ),
+    clientInvoices(access),
   ]);
   return {
     slug: access.project.slug,
     name: access.project.name,
-    approvals: approvals.filter((a) => a.status === "pending").length,
-    changes: changes.filter((c) => c.status === "sent").length,
+    unsigned: unsigned?.n ?? 0,
+    overdue: invoices.filter((i) => i.status === "overdue").length,
   };
 }
 
@@ -40,17 +67,17 @@ export async function NeedsAttention({
   const lines = items.flatMap((item) => {
     const base = `/portal/projects/${item.slug}`;
     const out: { key: string; href: string; text: string }[] = [];
-    if (item.approvals > 0)
+    if (item.unsigned > 0)
       out.push({
-        key: `${item.slug}-approvals`,
-        href: `${base}/approvals`,
-        text: t("approvals", { count: item.approvals }),
+        key: `${item.slug}-unsigned`,
+        href: `${base}/documents`,
+        text: t("unsigned", { count: item.unsigned }),
       });
-    if (item.changes > 0)
+    if (item.overdue > 0)
       out.push({
-        key: `${item.slug}-changes`,
-        href: `${base}/changes`,
-        text: t("changes", { count: item.changes }),
+        key: `${item.slug}-overdue`,
+        href: `${base}/invoices`,
+        text: t("overdue", { count: item.overdue }),
       });
     return showProject
       ? out.map((line) => ({

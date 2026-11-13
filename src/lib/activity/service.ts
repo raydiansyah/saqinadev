@@ -1,8 +1,7 @@
 import "server-only";
-import { and, desc, eq, lt, or, sql } from "drizzle-orm";
-import { scheduleProjectBrain } from "@/lib/brain/schedule";
+import { and, desc, eq, lt, or } from "drizzle-orm";
 import { db, type Executor } from "@/lib/db/client";
-import { activities, projectChanges, projectMembers, projects, users } from "@/lib/db/schema";
+import { activities, projectMembers, projects, users } from "@/lib/db/schema";
 import type { ActivityType } from "@/lib/domain/enums";
 
 export type ActivityMetadata = Record<string, string | number | boolean | null>;
@@ -15,22 +14,6 @@ export interface ActivityInput {
   entityId?: string | null;
   metadata?: ActivityMetadata;
 }
-
-const CONTEXT_TYPES = [
-  "project",
-  "interview",
-  "requirement",
-  "recommendation",
-  "document",
-  "task",
-  "milestone",
-  "memory",
-  "decision",
-  "stack",
-  "scope",
-  "billing",
-];
-const changesContext = (type: string) => CONTEXT_TYPES.includes(type.split(".")[0]);
 
 let lastTick = 0;
 const tick = () => {
@@ -53,29 +36,10 @@ export async function recordActivity(executor: Executor, input: ActivityInput): 
     // now() is fixed for a whole transaction; a strictly increasing clock keeps events in order.
     createdAt: tick(),
   });
-  const moves = changesContext(input.type);
-  const [row] = await executor
+  await executor
     .update(projects)
-    .set({
-      updatedAt: new Date(),
-      // Only changes to what agents read move the context version (not runs, tools, handoffs).
-      ...(moves ? { contextRevision: sql`${projects.contextRevision} + 1` } : {}),
-    })
-    .where(eq(projects.id, input.projectId))
-    .returning({ revision: projects.contextRevision });
-  // The outbox row shares the transaction: a change and its record commit or roll back together.
-  if (moves && row)
-    await executor.insert(projectChanges).values({
-      projectId: input.projectId,
-      revision: row.revision,
-      type: input.type,
-      entityType: input.entityType,
-      entityId: input.entityId ?? null,
-      actorId: input.actorId,
-      origin: typeof input.metadata?.origin === "string" ? input.metadata.origin : null,
-      detail: input.metadata ?? null,
-    });
-  if (moves && row) scheduleProjectBrain(input.projectId);
+    .set({ updatedAt: new Date() })
+    .where(eq(projects.id, input.projectId));
 }
 
 export interface ActivityView {

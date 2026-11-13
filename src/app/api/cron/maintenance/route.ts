@@ -1,28 +1,12 @@
-import { processPendingProjects } from "@/lib/brain/process";
 import { cronGuard } from "@/lib/cron/auth";
 import { runMaintenance } from "@/lib/housekeeping/service";
 import { log } from "@/lib/log";
-import { enqueueCodeSweep } from "@/lib/memory/code/schedule";
-import { requeueAllEmbeddings } from "@/lib/memory/embed/enqueue";
-import { sweepDisabledEmbeddings } from "@/lib/memory/embed/reconcile";
-import { processMemoryJobs } from "@/lib/memory/jobs";
-import { enqueueWikiBackfill } from "@/lib/memory/wiki/schedule";
 
-export const maxDuration = 300;
-
-/** Daily housekeeping (expired auth rows, rate-limit counters, optional inquiry retention). */
+/** Daily housekeeping: expired auth rows, rate-limit counters, old notifications and audit events. */
 export async function GET(request: Request) {
   const refused = cronGuard(request);
   if (refused) return refused;
-  const summary = {
-    ...(await runMaintenance()),
-    journaled: await processPendingProjects(),
-    wikiQueued: await enqueueWikiBackfill(),
-    codeQueued: await enqueueCodeSweep(),
-    embedSwept: await sweepDisabledEmbeddings(),
-    embedRequeued: await requeueAllEmbeddings(),
-    memoryJobs: await processMemoryJobs({ limit: 20 }),
-  };
+  const summary = await runMaintenance();
   log.info("maintenance.run", { ...summary });
   return Response.json(summary);
 }

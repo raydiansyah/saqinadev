@@ -3,7 +3,6 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { loadAttention, NeedsAttention } from "@/components/portal/engagement/attention";
 import { formatDate } from "@/components/portal/format";
 import { BillingTotalsList } from "@/components/portal/money";
-import { ProgressBar, StagePointers } from "@/components/portal/progress";
 import { clientActivity } from "@/lib/portal/views";
 import { portalPageAccess, portalProjectView } from "../../access";
 
@@ -35,11 +34,6 @@ export default async function PortalOverviewPage({
         <p className="max-w-prose break-words whitespace-pre-line text-muted-foreground">
           {view.description.trim() || t("noDescription")}
         </p>
-      </section>
-
-      <section className="space-y-4 rounded-lg border border-border bg-surface p-5">
-        <ProgressBar percent={view.progress.percent} />
-        <StagePointers progress={view.progress} />
       </section>
 
       <section aria-labelledby="billing-heading">

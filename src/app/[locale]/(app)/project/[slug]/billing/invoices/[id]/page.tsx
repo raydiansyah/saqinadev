@@ -4,16 +4,19 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import * as z from "zod";
 import { formatDay } from "@/components/billing/format";
+import { PdfLink } from "@/components/billing/pdf-link";
 import { PrintButton } from "@/components/billing/print-button";
 import { StatusChip } from "@/components/billing/status-chip";
+import { BrandMark } from "@/components/primitives/brand-mark";
 import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 import { getInvoiceItems } from "@/lib/billing/invoices";
 import { toInvoiceRow } from "@/lib/billing/summary";
 import { db } from "@/lib/db/client";
-import { clients, invoices, organizations } from "@/lib/db/schema";
+import { clients, invoices } from "@/lib/db/schema";
 import { formatMoney } from "@/lib/money";
 import { projectPageAccess } from "@/lib/projects/page";
+import { loadIssuer } from "@/lib/white-label/brand";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("billing.detail");
@@ -35,13 +38,9 @@ export default async function InvoiceDetailPage({
   if (!invoice) notFound();
 
   const clientId = invoice.clientId ?? project.clientId;
-  const [items, [org], client, t, locale] = await Promise.all([
+  const [items, issuer, client, t, locale] = await Promise.all([
     getInvoiceItems(invoice.id),
-    db
-      .select({ name: organizations.name })
-      .from(organizations)
-      .where(eq(organizations.id, invoice.organizationId))
-      .limit(1),
+    loadIssuer(invoice.organizationId),
     clientId
       ? db
           .select({ name: clients.name, company: clients.company, address: clients.address })
@@ -65,7 +64,10 @@ export default async function InvoiceDetailPage({
         >
           {t("back")}
         </Link>
-        <PrintButton label={t("print")} />
+        <div className="flex flex-wrap gap-2">
+          {invoice.number ? <PdfLink kind="invoice" id={invoice.id} /> : null}
+          <PrintButton label={t("print")} />
+        </div>
       </div>
 
       {row.status === "draft" ? (
@@ -91,7 +93,18 @@ export default async function InvoiceDetailPage({
         <dl className="grid gap-4 border-b border-border py-6 text-sm sm:grid-cols-2">
           <div>
             <dt className="text-xs text-muted-foreground print:text-black">{t("from")}</dt>
-            <dd className="mt-1 font-medium">{org?.name ?? "-"}</dd>
+            <dd className="mt-1">
+              {issuer.brand ? <BrandMark brand={issuer.brand} className="mb-1 block" /> : null}
+              <span className="block font-medium">{issuer.name || "-"}</span>
+              {issuer.taxNumber ? (
+                <span className="block">{t("taxNumber", { value: issuer.taxNumber })}</span>
+              ) : null}
+              {issuer.address ? (
+                <span className="block whitespace-pre-line text-muted-foreground print:text-black">
+                  {issuer.address}
+                </span>
+              ) : null}
+            </dd>
           </div>
           <div>
             <dt className="text-xs text-muted-foreground print:text-black">{t("billedTo")}</dt>

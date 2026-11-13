@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { StatusBadge } from "@/components/portal/engagement/status-badge";
 import { formatDay } from "@/components/portal/format";
-import { buttonVariants } from "@/components/ui/button";
-import { Link } from "@/i18n/navigation";
 import { formatMoney } from "@/lib/money";
 import { clientMaintenance } from "@/lib/portal/engagement-views";
 import { portalPageAccess } from "../../../access";
@@ -127,22 +125,6 @@ export default async function PortalMaintenancePage({
             })}
           </ul>
         )}
-      </section>
-
-      <section
-        aria-labelledby="maintenance-request-heading"
-        className="rounded-lg border border-dashed border-border-strong p-5"
-      >
-        <h3 id="maintenance-request-heading" className="font-medium">
-          {t("requestTitle")}
-        </h3>
-        <p className="mt-1 max-w-prose text-sm text-muted-foreground">{t("requestBody")}</p>
-        <Link
-          href={{ pathname: `/portal/projects/${slug}/requests`, query: { kind: "maintenance" } }}
-          className={buttonVariants({ className: "mt-4 w-full sm:w-auto" })}
-        >
-          {t("requestCta")}
-        </Link>
       </section>
     </div>
   );

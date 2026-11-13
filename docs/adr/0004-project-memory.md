@@ -1,5 +1,6 @@
 # 0004. Project memory: governed assets, review, scoped retrieval
 
+Status: superseded by [ADR 0027](0027-v1-billing-focus.md): the feature was removed in v1.
 - Status: accepted
 - Date: 2026-10-22
 

@@ -98,6 +98,8 @@ export const reminderRules = pgTable(
     offsetDays: integer("offset_days").notNull(),
     audience: text("audience").$type<ReminderAudience>().notNull(),
     enabled: boolean("enabled").notNull().default(true),
+    /** Also send this reminder to the client by WhatsApp (to the client's phone number). */
+    whatsapp: boolean("whatsapp").notNull().default(false),
     createdAt: createdAt(),
   },
   (t) => [uniqueIndex("reminder_rules_unique_idx").on(t.organizationId, t.kind, t.offsetDays)],
@@ -119,101 +121,6 @@ export const reminderLog = pgTable(
     createdAt: createdAt(),
   },
   (t) => [uniqueIndex("reminder_log_unique_idx").on(t.ruleId, t.entityId, t.windowKey)],
-);
-
-/** Something a client asked for: a question, a feature, a bug or a maintenance request. */
-export const clientRequests = pgTable(
-  "client_requests",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    projectId: projectRef(),
-    clientId: uuid("client_id").references(() => clients.id, { onDelete: "set null" }),
-    authorId: userRef("author_id"),
-    /** "client" when submitted on the portal, "team" when logged on the client's behalf. */
-    side: text("side").$type<"client" | "team">().notNull(),
-    kind: text("kind").$type<RequestKind>().notNull(),
-    title: text("title").notNull(),
-    body: text("body").notNull().default(""),
-    status: text("status").$type<RequestStatus>().notNull().default("open"),
-    scopeStatus: text("scope_status").$type<ScopeStatus>().notNull().default("unknown"),
-    /** Maintenance requests only. The team decides; Saqina may suggest. */
-    classification: text("classification")
-      .$type<MaintenanceClass>()
-      .notNull()
-      .default("unclassified"),
-    suggestedClassification: text("suggested_classification").$type<MaintenanceClass>(),
-    changeRequestId: uuid("change_request_id"),
-    resolvedAt: timestamp("resolved_at", { withTimezone: true }),
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
-  },
-  (t) => [index("client_requests_project_idx").on(t.projectId, t.status, t.createdAt.desc())],
-);
-
-/** The client-facing message thread of a project. Internal notes never go here. */
-export const projectMessages = pgTable(
-  "project_messages",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    projectId: projectRef(),
-    authorId: userRef("author_id"),
-    side: text("side").$type<"client" | "team">().notNull(),
-    body: text("body").notNull(),
-    createdAt: createdAt(),
-  },
-  (t) => [index("project_messages_project_idx").on(t.projectId, t.createdAt)],
-);
-
-/** Something the team asks the client to approve (a design, a document, a milestone). */
-export const clientApprovals = pgTable(
-  "client_approvals",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    projectId: projectRef(),
-    title: text("title").notNull(),
-    description: text("description").notNull().default(""),
-    documentId: uuid("document_id").references(() => documents.id, { onDelete: "set null" }),
-    link: text("link"),
-    status: text("status").$type<ApprovalStatus>().notNull().default("pending"),
-    requestedBy: userRef("requested_by"),
-    respondedBy: userRef("responded_by"),
-    responseNote: text("response_note"),
-    respondedAt: timestamp("responded_at", { withTimezone: true }),
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
-  },
-  (t) => [index("client_approvals_project_idx").on(t.projectId, t.status)],
-);
-
-/**
- * Work outside the agreed scope. Never charged or scheduled until the client approves it; on
- * approval it becomes scope, a task and a payment term.
- */
-export const changeRequests = pgTable(
-  "change_requests",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    projectId: projectRef(),
-    /** Sequential per project, shown as CR-001. */
-    number: integer("number").notNull(),
-    title: text("title").notNull(),
-    description: text("description").notNull().default(""),
-    requestId: uuid("request_id"),
-    scopeStatus: text("scope_status").$type<ScopeStatus>().notNull().default("unknown"),
-    impact: text("impact").notNull().default(""),
-    additionalCost: bigint("additional_cost", { mode: "number" }).notNull().default(0),
-    currency: text("currency").$type<Currency>().notNull(),
-    additionalDays: integer("additional_days").notNull().default(0),
-    status: text("status").$type<ChangeRequestStatus>().notNull().default("draft"),
-    createdBy: userRef("created_by"),
-    decidedBy: userRef("decided_by"),
-    decidedAt: timestamp("decided_at", { withTimezone: true }),
-    decisionNote: text("decision_note"),
-    sentAt: timestamp("sent_at", { withTimezone: true }),
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
-  },
-  (t) => [uniqueIndex("change_requests_project_number_idx").on(t.projectId, t.number)],
 );
 
 /** Paid support after delivery. Warranty is a separate date on the project. */
@@ -269,30 +176,4 @@ export const meetingNotes = pgTable(
     updatedAt: updatedAt(),
   },
   (t) => [index("meeting_notes_project_idx").on(t.projectId, t.status, t.createdAt.desc())],
-);
-
-/** One point the agent found in a note, with where it came from and how it was classified. */
-export const meetingNoteItems = pgTable(
-  "meeting_note_items",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    noteId: uuid("note_id")
-      .notNull()
-      .references(() => meetingNotes.id, { onDelete: "cascade" }),
-    position: integer("position").notNull(),
-    text: text("text").notNull(),
-    /** Verbatim excerpt of the note this item was taken from. */
-    quote: text("quote").notNull().default(""),
-    classification: text("classification").$type<MeetingItemClass>().notNull(),
-    /** 0 to 100. */
-    confidence: integer("confidence").notNull().default(0),
-    matchedType: text("matched_type").$type<MeetingMatchType>(),
-    matchedId: uuid("matched_id"),
-    rationale: text("rationale").notNull().default(""),
-    /** Set once the item is part of a proposal. */
-    proposalId: uuid("proposal_id"),
-    dismissedAt: timestamp("dismissed_at", { withTimezone: true }),
-    createdAt: createdAt(),
-  },
-  (t) => [index("meeting_note_items_note_idx").on(t.noteId, t.position)],
 );

@@ -13,8 +13,6 @@ type NavKey =
   | "reminders"
   | "activity"
   | "settings"
-  | "ai"
-  | "services"
   | "docs";
 
 const SIMPLE: { key: NavKey; href: string }[] = [
@@ -24,28 +22,15 @@ const SIMPLE: { key: NavKey; href: string }[] = [
   { key: "invoices", href: "/dashboard/invoices" },
   { key: "payments", href: "/dashboard/payments" },
   { key: "reminders", href: "/dashboard/reminders" },
+  { key: "activity", href: "/dashboard/activity" },
+  { key: "settings", href: "/dashboard/settings" },
+  { key: "docs", href: "/dashboard/docs" },
 ];
 
-export function DashboardNav({
-  isOwner = false,
-  mode = "simple",
-}: {
-  isOwner?: boolean;
-  mode?: "simple" | "advanced";
-}) {
+export function DashboardNav() {
   const t = useTranslations("app.nav");
   const pathname = usePathname();
-  const items: { key: NavKey; href: string }[] = [
-    ...SIMPLE,
-    ...(mode === "advanced" ? [{ key: "activity" as const, href: "/dashboard/activity" }] : []),
-    { key: "settings", href: "/dashboard/settings" },
-    { key: "docs", href: "/dashboard/docs" },
-    // The AI control plane (providers, models, policies) is owner-only in both modes: owners must
-    // be able to set up a provider even before they switch to advanced mode (pages check again).
-    ...(isOwner ? [{ key: "ai" as const, href: "/dashboard/ai" }] : []),
-    // The public AI Services catalog is owner-managed in both modes (pages check again).
-    ...(isOwner ? [{ key: "services" as const, href: "/dashboard/services" }] : []),
-  ];
+  const items = SIMPLE;
   return (
     <nav aria-label={t("label")} className="border-b border-border">
       <ul className="-mb-px flex gap-1 overflow-x-auto px-4 sm:px-6">

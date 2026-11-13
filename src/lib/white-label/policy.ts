@@ -48,7 +48,6 @@ export const WHITE_LABEL_MAY = [
   "name",
   "logo",
   "accent_colour",
-  "domain",
   "email_sender",
   "issuer_details",
 ] as const;

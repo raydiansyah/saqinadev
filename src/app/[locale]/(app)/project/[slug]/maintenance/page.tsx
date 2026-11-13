@@ -1,14 +1,10 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { PageHeading } from "@/components/app/states";
-import { Chip } from "@/components/engagement/chip";
 import { PlansPanel } from "@/components/engagement/plans-panel";
 import { WarrantyForm } from "@/components/engagement/warranty-form";
-import { buttonVariants } from "@/components/ui/button";
-import { Link } from "@/i18n/navigation";
 import { can } from "@/lib/auth/permissions";
 import { todayIso } from "@/lib/billing/rules";
-import { listRequests } from "@/lib/engagement/requests";
 import { daysUntil } from "@/lib/maintenance/classify";
 import { listPlans } from "@/lib/maintenance/service";
 import { projectPageAccess } from "@/lib/projects/page";
@@ -18,27 +14,17 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("metaTitle"), robots: { index: false } };
 }
 
-const CLASS_TONE = {
-  unclassified: "neutral",
-  warranty: "info",
-  included: "success",
-  paid: "warning",
-} as const;
-
 export default async function MaintenancePage({
   params,
 }: PageProps<"/[locale]/project/[slug]/maintenance">) {
   const { slug } = await params;
   const access = await projectPageAccess(slug);
   const { project } = access;
-  const [t, tr, plans, requests] = await Promise.all([
+  const [t, plans] = await Promise.all([
     getTranslations("engagement.maintenance"),
-    getTranslations("engagement.requests"),
     listPlans(project.id),
-    listRequests(project.id),
   ]);
   const today = todayIso();
-  const support = requests.filter((r) => r.kind === "maintenance" || r.kind === "bug");
 
   return (
     <>
@@ -68,35 +54,6 @@ export default async function MaintenancePage({
             daysLeft: daysUntil(p.endDate, today),
           }))}
         />
-        <section className="rounded-lg border border-border p-4 sm:p-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="font-semibold">{t("requestsTitle")}</h2>
-            <Link
-              href={`/project/${slug}/requests`}
-              className={buttonVariants({ size: "sm", variant: "outline" })}
-            >
-              {t("triage")}
-            </Link>
-          </div>
-          {support.length === 0 ? (
-            <p className="mt-4 text-sm text-muted-foreground">{t("requestsEmpty")}</p>
-          ) : (
-            <ul className="mt-4 divide-y divide-border rounded-md border border-border">
-              {support.map((r) => (
-                <li key={r.id} className="flex flex-wrap items-center gap-2 px-3 py-2">
-                  <Chip tone="neutral">{tr(`kinds.${r.kind}`)}</Chip>
-                  <span className="min-w-0 flex-1 truncate text-sm">{r.title}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {tr(`statuses.${r.status}`)}
-                  </span>
-                  <Chip tone={CLASS_TONE[r.classification]}>
-                    {tr(`classes.${r.classification}`)}
-                  </Chip>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
       </div>
     </>
   );

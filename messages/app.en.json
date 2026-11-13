@@ -74,81 +74,18 @@
       "startNew": "Start new project"
     },
     "newProject": {
-      "github": {
-        "tabs": "How to start",
-        "tabIdea": "From an idea",
-        "tabGithub": "Import from GitHub",
-        "title": "Import an existing project",
-        "body": "Saqina reads the README, PRD and docs in your repository and fills in the interview for you. You review the answers instead of starting from scratch.",
-        "repoLabel": "GitHub repository",
-        "repoPlaceholder": "acme/restaurant-pos or https://github.com/acme/restaurant-pos",
-        "docsLabel": "Documentation folder (optional)",
-        "docsHint": "Everything in this folder is read and shown in Saqina, and your client can read it. Leave empty for docs. It keeps following GitHub.",
-        "repoHint": "Public repositories need nothing else.",
-        "tokenLabel": "Access token (private repositories only)",
-        "tokenPlaceholder": "Paste a read-only token here",
-        "tokenHint": "A fine-grained token with read access to Contents. It is stored encrypted and connects the repository to the project.",
-        "aiLabel": "Let AI read the documents",
-        "aiHint": "The repository documents are sent to your configured AI model to fill in the answers more accurately. Without it, simple rules are used and nothing leaves this server.",
-        "submit": "Import and review",
-        "pending": "Reading the repository…",
-        "errors": {
-          "docsPath": "Use a folder name inside the repository, like docs or documentation/product.",
-          "invalid": "Enter a repository as owner/name or a GitHub URL.",
-          "auth_failed": "GitHub refused access. Check the token and its permissions.",
-          "not_found": "Repository not found. For a private repository, add a token.",
-          "rate_limited": "GitHub is limiting requests. Try again in a few minutes.",
-          "network": "Could not reach GitHub. Try again.",
-          "provider_error": "GitHub returned an error. Try again later.",
-          "too_large": "A file in this repository is too large to read.",
-          "unsupported": "This repository host is not supported yet.",
-          "github_not_connected": "Connect your GitHub account again, or paste a token."
-        },
-        "connectTitle": "GitHub account",
-        "connect": "Connect with GitHub",
-        "connectHint": "Connect your GitHub account to pick a repository from your list, including private ones. No token to copy. You can disconnect at any time.",
-        "connectedAs": "Connected as @{login}",
-        "disconnect": "Disconnect",
-        "flags": {
-          "connected": "GitHub connected as @{login}.",
-          "denied": "GitHub access was not granted. Connect again if you want to pick from your repositories.",
-          "invalid_state": "The connection attempt expired or did not match this browser. Try connecting again.",
-          "exchange_failed": "GitHub did not complete the connection. Try again.",
-          "profile_failed": "Connected, but GitHub did not return your account. Try again.",
-          "not_configured": "Connecting to GitHub is not set up on this server.",
-          "rate_limited": "Too many attempts. Try again in a while."
-        },
-        "picker": {
-          "label": "Your repositories",
-          "search": "Search by name",
-          "loading": "Loading your repositories…",
-          "empty": "No repositories found for this account.",
-          "noMatch": "No repository matches your search.",
-          "private": "private",
-          "public": "public",
-          "load_failed": "Could not load your repositories. Try again.",
-          "rate_limited": "Too many requests. Try again in a few minutes."
-        }
-      },
       "metaTitle": "New project",
-      "title": "What do you want to build?",
-      "body": "Describe it in your own words. You can refine everything in the interview.",
-      "label": "Your idea",
-      "placeholder": "I want a POS for my small restaurant with table orders and daily sales reports.",
-      "examples": "Examples",
-      "exampleList": [
-        "A POS for a small restaurant with table orders",
-        "A marketplace where local craftsmen sell to buyers",
-        "A booking system for a dental clinic",
-        "A portfolio site for an architecture studio"
-      ],
-      "submit": "Start interview",
+      "title": "New project",
+      "body": "A project holds one client's invoices, receipts, contracts and reminders.",
+      "nameLabel": "Project name",
+      "namePlaceholder": "Website for Warung Sari",
+      "descriptionLabel": "Description (optional)",
+      "descriptionHint": "A line for yourself. The client does not see it unless you share it.",
+      "clientLabel": "Client",
+      "clientNone": "No client yet",
+      "submit": "Create project",
       "pending": "Creating project…",
-      "tooShort": "Describe the idea in at least 10 characters.",
-      "importTitle": "Continue from the preview",
-      "importBody": "You started the interview on the public preview. Import those answers into this project?",
-      "import": "Import answers",
-      "skipImport": "Start fresh"
+      "tooShort": "Enter a name of at least 2 characters."
     },
     "activity": {
       "metaTitle": "Activity",
@@ -269,8 +206,7 @@
           "name": "Portal name",
           "logo": "Logo",
           "accent_colour": "Accent colour",
-          "domain": "Your own domain, once ownership is proven",
-          "email_sender": "Sender name and logo on email to clients",
+          "email_sender": "Sender and brand name on email to clients",
           "issuer_details": "Letterhead, legal name and tax number on invoices and documents"
         },
         "never": {
@@ -298,6 +234,44 @@
         "granted": "White label is open for this organization.",
         "closeTitle": "Close white label",
         "revoke": "Close"
+      },
+      "brand": {
+        "title": "Brand",
+        "intro": "Your name, logo and colour on the client portal, on emails to your clients, and on invoices, receipts and contracts. The staff area always stays Saqina.",
+        "locked": "Brand settings open when white label is open for your organization.",
+        "logo": "Logo file",
+        "uploadLogo": "Upload logo",
+        "removeLogo": "Remove logo",
+        "logoHint": "PNG or JPEG, at most {kb} KB, between 32 and 1600 px. It is shown on a light background.",
+        "brandName": "Brand name",
+        "brandNameHint": "Shown to clients in place of Saqina. It cannot imitate the platform.",
+        "legalName": "Legal name",
+        "legalNameHint": "Printed as the issuer on invoices, receipts and contracts. Leave empty to use the brand name.",
+        "taxNumber": "Tax number (NPWP)",
+        "address": "Address",
+        "accent": "Accent colour",
+        "accentPicker": "Pick an accent colour",
+        "accentHint": "Used for buttons and the focus ring on the portal. It must stand out from the dark page and carry readable button text.",
+        "emailFromName": "Email sender name",
+        "emailFromNameHint": "Clients see this as the sender. The address stays the verified Saqina one.",
+        "replyTo": "Reply-to address",
+        "save": "Save brand",
+        "saved": "Brand saved.",
+        "readOnly": "Only an owner or admin can change the brand.",
+        "errors": {
+          "generic": "The brand could not be saved. Check the fields and try again.",
+          "imitation": "The brand name cannot contain the platform name.",
+          "accent": {
+            "invalid": "Enter the colour as #rrggbb.",
+            "lowOnPage": "This colour is too dark to stand out on the portal. Pick a lighter one.",
+            "lowText": "No text colour reads well on this colour. Pick one that is lighter or darker."
+          },
+          "logo": {
+            "tooLarge": "The logo is larger than 200 KB.",
+            "type": "Use a PNG or JPEG file.",
+            "dimensions": "The logo must be between 32 and 1600 px on each side."
+          }
+        }
       }
     }
   }

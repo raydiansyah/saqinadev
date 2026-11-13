@@ -11,7 +11,7 @@ import { requireActorPage } from "@/lib/auth/server";
 import { REMINDER_KINDS, type ReminderAudience, type ReminderKind } from "@/lib/domain/business";
 import { canOrg } from "@/lib/organizations/service";
 import { orgRules, recentReminderLog } from "@/lib/reminders/service";
-import { runRemindersAction, setReminderRuleAction } from "./actions";
+import { runRemindersAction, setReminderRuleAction, setReminderWhatsappAction } from "./actions";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("reminders");
@@ -62,6 +62,7 @@ export default async function RemindersPage() {
           <li>{t("how.once")}</li>
           <li>{t("how.portal")}</li>
           <li>{t("how.email")}</li>
+          <li>{t("how.whatsapp")}</li>
         </ul>
       </section>
 
@@ -85,13 +86,26 @@ export default async function RemindersPage() {
                     return (
                       <li key={rule.id} className="flex items-center justify-between gap-3 py-2">
                         <span className="min-w-0 text-sm break-words">{text}</span>
-                        <ReminderRuleToggle
-                          id={rule.id}
-                          enabled={rule.enabled}
-                          label={t("rules.toggleLabel", { rule: text })}
-                          disabled={!canWrite}
-                          toggle={setReminderRuleAction}
-                        />
+                        <div className="flex shrink-0 flex-col items-end">
+                          <ReminderRuleToggle
+                            id={rule.id}
+                            enabled={rule.enabled}
+                            label={t("rules.toggleLabel", { rule: text })}
+                            disabled={!canWrite}
+                            toggle={setReminderRuleAction}
+                          />
+                          {rule.audience !== "team" ? (
+                            <ReminderRuleToggle
+                              id={rule.id}
+                              enabled={rule.whatsapp}
+                              label={t("rules.whatsappLabel", { rule: text })}
+                              disabled={!canWrite || !rule.enabled}
+                              toggle={setReminderWhatsappAction}
+                              onText={t("rules.whatsappOn")}
+                              offText={t("rules.whatsappOff")}
+                            />
+                          ) : null}
+                        </div>
                       </li>
                     );
                   })}

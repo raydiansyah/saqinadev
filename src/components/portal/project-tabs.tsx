@@ -4,16 +4,9 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
-const TABS = ["overview", "progress", "features", "documents", "invoices", "payments"] as const;
-/** Phase 6 engagement sections; labels live in the portalEngagement namespace. */
-const ENGAGEMENT_TABS = [
-  "requests",
-  "messages",
-  "meetings",
-  "approvals",
-  "changes",
-  "maintenance",
-] as const;
+const TABS = ["overview", "documents", "invoices", "payments"] as const;
+/** Meetings and maintenance; labels live in the portalEngagement namespace. */
+const ENGAGEMENT_TABS = ["meetings", "maintenance"] as const;
 
 type Tab = (typeof TABS)[number] | (typeof ENGAGEMENT_TABS)[number];
 

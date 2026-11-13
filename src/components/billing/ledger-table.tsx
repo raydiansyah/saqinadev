@@ -2,11 +2,15 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useId, useState } from "react";
-import { voidPaymentAction } from "@/app/[locale]/(app)/project/[slug]/billing/actions";
+import {
+  issueReceiptAction,
+  voidPaymentAction,
+} from "@/app/[locale]/(app)/project/[slug]/billing/actions";
 import { Dialog } from "@/components/app/dialog";
 import { useRun } from "@/components/platform/use-run";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/form";
+import { Link } from "@/i18n/navigation";
 import type { LedgerEntry } from "@/lib/billing/summary";
 import type { Currency } from "@/lib/domain/business";
 import { formatMoney } from "@/lib/money";
@@ -49,7 +53,7 @@ export function LedgerTable({
         <p className="mt-4 text-sm text-muted-foreground">{t("empty")}</p>
       ) : (
         <div className="relative mt-4 overflow-x-auto">
-          <table className="w-full min-w-[40rem] text-sm">
+          <table className="w-full min-w-[48rem] text-sm">
             <thead className="text-left text-xs text-muted-foreground">
               <tr>
                 <th scope="col" className="py-2 pr-3 font-medium">
@@ -57,6 +61,9 @@ export function LedgerTable({
                 </th>
                 <th scope="col" className="py-2 pr-3 font-medium">
                   {t("invoice")}
+                </th>
+                <th scope="col" className="py-2 pr-3 font-medium">
+                  {t("receipt")}
                 </th>
                 <th scope="col" className="py-2 pr-3 text-right font-medium">
                   {t("amount")}
@@ -86,6 +93,27 @@ export function LedgerTable({
                     <td className="py-2 pr-3">
                       <span className="font-mono text-xs">{p.invoiceNumber ?? draft("draft")}</span>
                       <span className="ml-2 text-muted-foreground">{p.invoiceTitle}</span>
+                    </td>
+                    <td className="py-2 pr-3 whitespace-nowrap">
+                      {p.receiptId ? (
+                        <Link
+                          href={`/project/${slug}/billing/receipts/${p.receiptId}`}
+                          className="font-mono text-xs underline-offset-4 hover:underline"
+                        >
+                          {p.receiptNumber}
+                        </Link>
+                      ) : canWrite && !voided ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          disabled={pending}
+                          onClick={() => run(() => issueReceiptAction(slug, p.id))}
+                        >
+                          {t("issueReceipt")}
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-subtle-foreground">-</span>
+                      )}
                     </td>
                     <td
                       className={cn(
@@ -127,6 +155,8 @@ export function LedgerTable({
           </table>
         </div>
       )}
+
+      {voiding ? null : <BillingError error={error} />}
 
       <Dialog open={voiding !== null} onClose={close} title={t("voidTitle")}>
         {voiding ? (

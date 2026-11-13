@@ -1,78 +1,36 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { type SubmitEvent, useEffect, useId, useState, useTransition } from "react";
-import { startProjectAction } from "@/app/[locale]/(app)/dashboard/actions";
+import { type SubmitEvent, useId, useState, useTransition } from "react";
+import { createProjectAction } from "@/app/[locale]/(app)/dashboard/actions";
 import { Button } from "@/components/ui/button";
-import { Notice, TextArea } from "@/components/ui/form";
+import { Field, Select, TextArea } from "@/components/ui/form";
 import { useRouter } from "@/i18n/navigation";
-import { clearState, loadState } from "@/lib/interview/storage";
-import type { Answers } from "@/lib/interview/types";
-import { type GithubState, ImportProjectForm } from "./import-project-form";
 
-/** Chooses how to start: describe an idea, or import an existing GitHub repository. */
-export function NewProjectForm({ github }: { github: GithubState }) {
-  const t = useTranslations("app");
-  // Coming back from GitHub lands on the import tab.
-  const [mode, setMode] = useState<"idea" | "github">(github.flag ? "github" : "idea");
-  return (
-    <div className="space-y-6">
-      <div
-        role="radiogroup"
-        aria-label={t("newProject.github.tabs")}
-        className="flex flex-wrap gap-2"
-      >
-        {(["idea", "github"] as const).map((value) => (
-          <button
-            key={value}
-            type="button"
-            role="radio"
-            aria-checked={mode === value}
-            onClick={() => setMode(value)}
-            className="min-h-11 rounded-md border border-border px-4 text-sm aria-checked:border-primary aria-checked:text-foreground"
-          >
-            {value === "idea" ? t("newProject.github.tabIdea") : t("newProject.github.tabGithub")}
-          </button>
-        ))}
-      </div>
-      {mode === "idea" ? <IdeaForm /> : <ImportProjectForm github={github} />}
-    </div>
-  );
-}
-
-/** Starts a project from a sentence; optionally carries over the anonymous /start answers. */
-function IdeaForm() {
+export function NewProjectForm({ clients }: { clients: { id: string; label: string }[] }) {
   const t = useTranslations("app");
   const locale = useLocale();
   const id = useId();
   const router = useRouter();
-  const [idea, setIdea] = useState("");
-  const [preview, setPreview] = useState<Answers | null>(null);
-  const [useImport, setUseImport] = useState(true);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [clientId, setClientId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  // The public preview keeps answers in sessionStorage; offer them once, never upload silently.
-  useEffect(() => {
-    const saved = loadState();
-    if (saved && (saved.answers.projectType || saved.answers.projectDescription.trim())) {
-      setPreview(saved.answers);
-      setIdea((current) => current || saved.answers.projectDescription);
-    }
-  }, []);
-
   function onSubmit(e: SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (idea.trim().length < 10) {
+    if (name.trim().length < 2) {
       setError(t("newProject.tooShort"));
       return;
     }
     setError(null);
     startTransition(async () => {
-      const result = await startProjectAction({
-        idea: idea.trim(),
+      const result = await createProjectAction({
+        name: name.trim(),
+        description: description.trim(),
+        clientId: clientId || null,
         locale,
-        imported: preview && useImport ? JSON.parse(JSON.stringify(preview)) : undefined,
       });
       if (!result.ok) {
         setError(
@@ -82,69 +40,45 @@ function IdeaForm() {
         );
         return;
       }
-      if (preview && useImport) clearState();
-      router.push(`/project/${result.data.slug}/interview`);
+      router.push(`/project/${result.data.slug}/billing`);
     });
   }
 
-  const examples = t.raw("newProject.exampleList") as string[];
-
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-6" aria-busy={pending}>
-      {preview ? (
-        <div className="rounded-lg border border-info/40 bg-surface p-4">
-          <p className="font-medium">{t("newProject.importTitle")}</p>
-          <p className="mt-1 text-sm text-muted-foreground">{t("newProject.importBody")}</p>
-          <div
-            className="mt-3 flex flex-wrap gap-2"
-            role="radiogroup"
-            aria-label={t("newProject.importTitle")}
-          >
-            {[true, false].map((value) => (
-              <button
-                key={String(value)}
-                type="button"
-                role="radio"
-                aria-checked={useImport === value}
-                onClick={() => setUseImport(value)}
-                className="min-h-11 rounded-md border border-border px-4 text-sm aria-checked:border-primary aria-checked:text-foreground"
-              >
-                {value ? t("newProject.import") : t("newProject.skipImport")}
-              </button>
-            ))}
-          </div>
-        </div>
-      ) : null}
-
-      <TextArea
-        id={`${id}-idea`}
-        label={t("newProject.label")}
-        placeholder={t("newProject.placeholder")}
-        value={idea}
-        onChange={(e) => setIdea(e.target.value)}
-        rows={4}
-        maxLength={2000}
+      <Field
+        id={`${id}-name`}
+        label={t("newProject.nameLabel")}
+        placeholder={t("newProject.namePlaceholder")}
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        maxLength={80}
         error={error ?? undefined}
         required
       />
-      <div>
-        <p className="mb-2 text-sm text-muted-foreground">{t("newProject.examples")}</p>
-        <ul className="flex flex-wrap gap-2">
-          {examples.map((example) => (
-            <li key={example}>
-              <button
-                type="button"
-                onClick={() => setIdea(example)}
-                className="min-h-11 rounded-md border border-border px-3 text-left text-sm text-muted-foreground transition-colors hover:border-border-strong hover:text-foreground"
-              >
-                {example}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-      {error && error !== t("newProject.tooShort") ? <Notice tone="error">{error}</Notice> : null}
-      <Button type="submit" size="lg" disabled={pending}>
+      <Select
+        id={`${id}-client`}
+        label={t("newProject.clientLabel")}
+        value={clientId}
+        onChange={(e) => setClientId(e.target.value)}
+      >
+        <option value="">{t("newProject.clientNone")}</option>
+        {clients.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.label}
+          </option>
+        ))}
+      </Select>
+      <TextArea
+        id={`${id}-description`}
+        label={t("newProject.descriptionLabel")}
+        hint={t("newProject.descriptionHint")}
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        rows={3}
+        maxLength={2000}
+      />
+      <Button type="submit" disabled={pending}>
         {pending ? t("newProject.pending") : t("newProject.submit")}
       </Button>
     </form>

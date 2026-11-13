@@ -2,21 +2,10 @@
 title: Membuat dokumen bisnis dan menandatanganinya
 description: Proposal, perjanjian, serah terima, dan perjanjian pemeliharaan: dibuat dari data project, diedit, disetujui, ditandatangani kedua pihak, lalu terbit dengan nomor referensi.
 order: 2
-updated: 2026-10-23
+updated: 2026-11-12
 ---
 
 Empat dokumen dibuat dari catatan project dan ditandatangani oleh **dua pihak**: **Proposal**, **Perjanjian**, **Serah terima**, dan **Perjanjian pemeliharaan**. Dokumen baru **terbit dengan nomor referensi hanya setelah tim dan klien sama-sama menandatangani versi yang sama**. Sebelum itu dokumen masih draf yang bisa diedit.
-
-```mermaid
-flowchart LR
-  A[Buat draf] --> B[Edit]
-  B --> C[Tim menyetujui teks]
-  C --> D[Bagikan ke klien]
-  D --> E{Klien setuju?}
-  E -- Minta perubahan --> B
-  E -- Tanda tangan --> F[Tim dan klien menandatangani]
-  F --> G[Terbit dengan nomor referensi]
-```
 
 ## Langkah 1. Buat draf
 
@@ -72,4 +61,5 @@ Nomor hanya dibuat saat kedua pihak sudah menandatangani. Dokumen yang masih dra
 - Dokumen yang sudah terbit **tidak bisa diedit atau dibuat ulang**. Untuk perubahan, buat dokumen baru atau arsipkan yang lama.
 - Tidak ada tombol "tandai ditandatangani" untuk keempat dokumen ini: tanda tangan selalu dari masing-masing pihak.
 - Setiap tanda tangan mencatat nama penanda tangan dan hash teks yang ditandatangani, sehingga bisa dicocokkan dengan versinya.
-- Dokumen lain (PRD, plan, dokumen biasa) tetap memakai status biasa tanpa tanda tangan dua pihak.
+- Dokumen lain (notulen, catatan) tetap memakai status biasa tanpa tanda tangan dua pihak.
+- Pakai **Unduh PDF** pada dokumen untuk mendapatkannya lengkap dengan tanda tangan dan tanggalnya.

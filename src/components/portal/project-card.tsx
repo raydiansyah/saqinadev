@@ -2,9 +2,8 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { formatMoney } from "@/lib/money";
 import type { ClientProjectSummary } from "@/lib/portal/views";
-import { ProgressBar, StageBadge, StagePointers } from "./progress";
 
-/** One shared project on the portal dashboard: progress, stage and what is still owed. */
+/** One shared project on the portal dashboard: what is still owed. */
 export async function PortalProjectCard({ project }: { project: ClientProjectSummary }) {
   const t = await getTranslations("portal");
   const locale = await getLocale();
@@ -21,10 +20,7 @@ export async function PortalProjectCard({ project }: { project: ClientProjectSum
             {project.name}
           </Link>
         </h3>
-        <StageBadge stage={project.stage} />
       </div>
-      <ProgressBar percent={project.progress.percent} />
-      <StagePointers progress={project.progress} />
       <dl className="flex flex-wrap gap-x-6 gap-y-2 border-t border-border pt-4 text-sm">
         <div>
           <dt className="text-muted-foreground">{t("money.outstanding")}</dt>

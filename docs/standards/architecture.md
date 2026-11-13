@@ -17,8 +17,9 @@ repository / query                      drizzle queries only, no rules
   `server-only` modules or the database, and they never decide who may do what.
 - A service takes an `Actor` (or `ProjectAccess`) and checks permission itself. A button being hidden
   is never the check.
-- An external system (AI provider, Git host, email, MCP) is reached through an adapter behind an
-  interface (`src/lib/ai/adapters`, `src/lib/git`), never from a component or an action directly.
+- An external system (email, WhatsApp, a PDF renderer) is reached through an adapter behind an
+  interface (`src/lib/auth/email.ts`, `src/lib/notifications/channels`, `src/lib/pdf`), never from a
+  component or an action directly.
 
 ## SOLID, applied here
 
@@ -33,8 +34,8 @@ repository / query                      drizzle queries only, no rules
 ## Size and shape
 
 - **One file under 400 lines** for new and changed files. Split by responsibility, not by line count.
-  Existing exceptions (data-heavy copy files, `ai/control-plane.ts`, `docsync/engine.ts`,
-  `assistant/planner.ts`) may not grow; split them when you next change them.
+  Existing exceptions (data-heavy copy files such as the contract templates) may not grow; split them
+  when you next change them.
 - No duplicated logic: a second copy is the signal to extract. Prefer the existing helper
   (`parse` in `src/lib/validation.ts`, `allow` in `src/lib/rate-limit.ts`, `recordAudit`,
   `recordActivity`, `withSecret`, the `Party` pattern in `src/lib/engagement/shared.ts`).
@@ -55,10 +56,8 @@ repository / query                      drizzle queries only, no rules
 - Next.js here has breaking changes from older versions: read `node_modules/next/dist/docs/` before
   using an API (see `AGENTS.md`).
 
-## Project brain (one write path, many readers)
+## One write path for activity
 
-Changes are recorded once (`recordActivity` writes the `project_changes` outbox) and consumed once
-(`src/lib/brain/process.ts`): memory journal, PRD check, document map. Readers use `getProjectBrain` and
-`get_changes` instead of scanning. A new feature that changes what agents read must go through
-`recordActivity` so it shows up here. See [ADR 0003](../adr/0003-project-brain.md).
-
+Every meaningful change to a project calls `recordActivity` inside the caller's transaction, so the
+activity feed and the project's "last updated" always match what was written. Billing, receipts,
+documents and signing all go through it.

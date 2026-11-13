@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import {
+  remindSignatureAction,
   setDocumentSharedAction,
   signDocumentAction,
 } from "@/app/[locale]/(app)/project/[slug]/documents/actions";
@@ -137,6 +138,21 @@ export function SigningPanel({
             onClick={() => run(() => setDocumentSharedAction(projectSlug, docSlug, true))}
           >
             {t("share")}
+          </Button>
+        </div>
+      ) : null}
+      {side === "team" &&
+      canAct &&
+      view.status === "approved" &&
+      view.clientVisible &&
+      !sig("client") ? (
+        <div className="mt-4">
+          <Button
+            variant="outline"
+            disabled={pending}
+            onClick={() => run(() => remindSignatureAction(projectSlug, docSlug))}
+          >
+            {t("remind")}
           </Button>
         </div>
       ) : null}

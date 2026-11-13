@@ -1,19 +1,20 @@
 import "server-only";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, notExists } from "drizzle-orm";
 import * as z from "zod";
 import { recordActivity } from "@/lib/activity/service";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess } from "@/lib/auth/permissions";
 import { todayIso } from "@/lib/billing/rules";
 import { db } from "@/lib/db/client";
-import { changeRequests, clientApprovals, invoices } from "@/lib/db/schema";
+import { documentSignatures, documents, invoices } from "@/lib/db/schema";
+import { SIGNABLE_KINDS } from "@/lib/documents/reference";
 import { AppError } from "@/lib/errors";
 import { formatMoney } from "@/lib/money";
 import { clientRecipients, deliver, notifyTx } from "@/lib/notifications/service";
 import { parse } from "@/lib/validation";
 
 const input = z.object({
-  entityType: z.enum(["invoice", "client_approval", "change_request"]),
+  entityType: z.enum(["invoice", "document"]),
   entityId: z.uuid(),
 });
 
@@ -46,43 +47,38 @@ export async function sendClientReminder(actor: Actor, slug: string, raw: unknow
         project: project.name,
       };
       path = `/invoices/${i.id}`;
-    } else if (entityType === "client_approval") {
-      const [a] = await tx
-        .select()
-        .from(clientApprovals)
-        .where(
-          and(
-            eq(clientApprovals.id, entityId),
-            eq(clientApprovals.projectId, project.id),
-            eq(clientApprovals.status, "pending"),
-          ),
-        );
-      if (!a) throw new AppError("NOT_FOUND");
-      params = { title: a.title, project: project.name };
-      path = "/approvals";
     } else {
-      const [c] = await tx
+      const [d] = await tx
         .select()
-        .from(changeRequests)
+        .from(documents)
         .where(
           and(
-            eq(changeRequests.id, entityId),
-            eq(changeRequests.projectId, project.id),
-            eq(changeRequests.status, "sent"),
+            eq(documents.id, entityId),
+            eq(documents.projectId, project.id),
+            eq(documents.status, "approved"),
+            eq(documents.clientVisible, true),
+            inArray(documents.type, [...SIGNABLE_KINDS]),
+            notExists(
+              tx
+                .select({ id: documentSignatures.id })
+                .from(documentSignatures)
+                .where(
+                  and(
+                    eq(documentSignatures.documentId, documents.id),
+                    eq(documentSignatures.party, "client"),
+                  ),
+                ),
+            ),
           ),
         );
-      if (!c) throw new AppError("NOT_FOUND");
-      params = {
-        number: `CR-${String(c.number).padStart(3, "0")}`,
-        title: c.title,
-        project: project.name,
-      };
-      path = "/changes";
+      if (!d) throw new AppError("NOT_FOUND");
+      params = { title: d.title, project: project.name };
+      path = `/documents/${d.slug}`;
     }
     const recipients = await clientRecipients(tx, project.id);
     if (recipients.length === 0)
       throw new AppError("CONFLICT", "No client portal users", {
-        portal: "engagement.noRecipients",
+        portal: "billing.noRecipients",
       });
     const out = await notifyTx(tx, {
       userIds: recipients,
@@ -95,7 +91,7 @@ export async function sendClientReminder(actor: Actor, slug: string, raw: unknow
     });
     if (out.ids.length === 0)
       throw new AppError("CONFLICT", "Already reminded today", {
-        entity: "engagement.remindedToday",
+        entity: "billing.remindedToday",
       });
     await recordActivity(tx, {
       projectId: project.id,
@@ -109,4 +105,15 @@ export async function sendClientReminder(actor: Actor, slug: string, raw: unknow
   });
   await deliver(pending);
   return { recipients: pending.ids.length };
+}
+
+/** The same reminder, found by the document's slug inside the project (what the screen knows). */
+export async function remindDocumentSignature(actor: Actor, slug: string, docSlug: string) {
+  const { project } = await loadProjectAccess(actor, { slug }, "project:update");
+  const [doc] = await db
+    .select({ id: documents.id })
+    .from(documents)
+    .where(and(eq(documents.projectId, project.id), eq(documents.slug, docSlug)));
+  if (!doc) throw new AppError("NOT_FOUND");
+  return sendClientReminder(actor, slug, { entityType: "document", entityId: doc.id });
 }

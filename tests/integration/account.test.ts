@@ -6,8 +6,8 @@ import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
 import { auditEvents, projectMembers, projects, users } from "@/lib/db/schema";
+import { createDocument } from "@/lib/documents/service";
 import { AppError } from "@/lib/errors";
-import { createMemory } from "@/lib/memory/service";
 import { createUser, resetDatabase } from "../helpers/db";
 import { project } from "../helpers/project";
 
@@ -33,25 +33,15 @@ beforeEach(async () => {
 
 describe("account export", () => {
   it("holds the person's own data and no secrets or other people's content", async () => {
-    const slug = await project(alice, "A web shop with login and payments for my bakery.");
-    await createMemory(alice, slug, {
-      title: "Mine",
-      content: "my note",
-      category: "product",
-      importance: "normal",
-    });
-    const slugB = await project(bob, "A recipe sharing app for home cooks and friends.");
-    await createMemory(bob, slugB, {
-      title: "Bobs private note",
-      content: "bob only",
-      category: "product",
-      importance: "normal",
-    });
+    const slug = await project(alice, "Bakery web shop");
+    await createDocument(alice, slug, { title: "Mine" });
+    const slugB = await project(bob, "Recipe sharing app");
+    await createDocument(bob, slugB, { title: "Bobs private note" });
 
     const out = await exportAccount(alice);
     const text = JSON.stringify(out);
     expect(out.profile.email).toBe(alice.email);
-    expect(out.authored.memories.map((m) => m.title)).toContain("Mine");
+    expect(out.authored.documents.map((d) => d.title)).toContain("Mine");
     expect(text).not.toContain("Bobs private note");
     expect(text).not.toContain(bob.email);
     expect(text).not.toMatch(/"(token|password|accessToken|secret|ciphertext)"/i);
@@ -76,7 +66,7 @@ describe("account deletion", () => {
   });
 
   it("blocks while a project is shared with others, and names it", async () => {
-    const slug = await project(alice, "A web shop with login and payments for my bakery.");
+    const slug = await project(alice, "Bakery web shop");
     const a = await loadProjectAccess(alice, { slug }, "project:read");
     await db
       .insert(projectMembers)
@@ -97,8 +87,8 @@ describe("account deletion", () => {
   });
 
   it("removes the account and solo projects, keeps other people's data, audits without PII", async () => {
-    await project(alice, "A web shop with login and payments for my bakery.");
-    const slugB = await project(bob, "A recipe sharing app for home cooks and friends.");
+    await project(alice, "Bakery web shop");
+    const slugB = await project(bob, "Recipe sharing app");
 
     await deleteAccount(alice, { confirmEmail: alice.email.toUpperCase() });
 

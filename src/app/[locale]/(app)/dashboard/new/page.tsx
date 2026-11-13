@@ -2,22 +2,18 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { NewProjectForm } from "@/components/app/new-project-form";
 import { requireActorPage } from "@/lib/auth/server";
-import { isGithubConnectEnabled } from "@/lib/github/config";
-import { getConnection } from "@/lib/github/connection";
+import { listClientOptions } from "@/lib/clients/service";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("app.newProject");
   return { title: t("metaTitle"), robots: { index: false } };
 }
 
-export default async function NewProjectPage({
-  searchParams,
-}: PageProps<"/[locale]/dashboard/new">) {
+export default async function NewProjectPage() {
   const actor = await requireActorPage("/dashboard/new");
-  const flag = (await searchParams).github;
-  const [t, connection] = await Promise.all([
+  const [t, clients] = await Promise.all([
     getTranslations("app.newProject"),
-    getConnection(actor),
+    listClientOptions(actor),
   ]);
   return (
     <div className="mx-auto max-w-2xl">
@@ -26,11 +22,10 @@ export default async function NewProjectPage({
       </h1>
       <p className="mt-2 mb-8 text-muted-foreground">{t("body")}</p>
       <NewProjectForm
-        github={{
-          enabled: isGithubConnectEnabled(),
-          login: connection?.login ?? null,
-          flag: typeof flag === "string" ? flag : null,
-        }}
+        clients={clients.map((c) => ({
+          id: c.id,
+          label: c.company ? `${c.name} · ${c.company}` : c.name,
+        }))}
       />
     </div>
   );

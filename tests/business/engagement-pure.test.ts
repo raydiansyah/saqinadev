@@ -3,7 +3,12 @@ import { renderBusinessDoc } from "@/lib/documents/business-templates";
 import { daysUntil, renewalPeriod, suggestClassification } from "@/lib/maintenance/classify";
 import { DEFAULT_RULES, pickRule, windowKey } from "@/lib/reminders/rules";
 
-const rules = DEFAULT_RULES.map((r, i) => ({ ...r, id: String(i), enabled: true }));
+const rules = DEFAULT_RULES.map((r, i) => ({
+  ...r,
+  id: String(i),
+  enabled: true,
+  whatsapp: false,
+}));
 
 describe("reminder timing", () => {
   it("fires the latest reached offset before a due date, and nothing after it", () => {
@@ -19,8 +24,10 @@ describe("reminder timing", () => {
     expect(pickRule(rules, "invoice_overdue", "2026-10-20", "2026-10-20")).toBeNull();
     expect(pickRule(rules, "invoice_overdue", "2026-10-20", "2026-10-21")?.offsetDays).toBe(1);
     expect(pickRule(rules, "invoice_overdue", "2026-10-20", "2026-11-30")?.offsetDays).toBe(7);
-    expect(pickRule(rules, "approval_pending", "2026-10-01", "2026-10-02")).toBeNull();
-    expect(pickRule(rules, "approval_pending", "2026-10-01", "2026-10-04")?.offsetDays).toBe(3);
+    expect(pickRule(rules, "document_signature_pending", "2026-10-01", "2026-10-02")).toBeNull();
+    expect(
+      pickRule(rules, "document_signature_pending", "2026-10-01", "2026-10-04")?.offsetDays,
+    ).toBe(3);
   });
 
   it("respects disabled rules and builds stable dedup keys", () => {

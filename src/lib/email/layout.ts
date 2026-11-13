@@ -1,4 +1,5 @@
 import type { Locale } from "@/i18n/locales";
+import { readableOn } from "@/lib/white-label/contrast";
 
 /**
  * Branded transactional email shell: table layout with inline styles (the only thing mail
@@ -88,19 +89,29 @@ const FALLBACK_LINK: Copy = {
   id: "Jika tombol tidak berfungsi, salin tautan ini:",
 };
 
-function button(b: EmailButton, lang: Locale) {
+function button(b: EmailButton, lang: Locale, accent: string, onAccent: string) {
   const label = pick(b.label, lang);
   const style = b.secondary
     ? `background:${COLORS.card};color:${COLORS.text};border:1px solid ${COLORS.text};`
-    : `background:${COLORS.brand};color:${COLORS.onBrand};border:1px solid ${COLORS.brand};`;
+    : `background:${accent};color:${onAccent};border:1px solid ${accent};`;
   return `<a href="${esc(safeUrl(b.url))}" style="display:inline-block;margin:0 8px 10px 0;padding:12px 22px;border-radius:8px;font-size:15px;font-weight:700;text-decoration:none;${style}">${esc(label)}</a>`;
+}
+
+/** The agency's identity on mail to its clients; absent means the Saqina look. */
+export interface EmailBrand {
+  name: string;
+  accent: string | null;
 }
 
 export function renderEmail(
   content: EmailContent,
   locale: Locale = "en",
   base = siteBase(),
+  brand: EmailBrand | null = null,
 ): { html: string; text: string } {
+  // A brand accent recolours the bar and the main button; the label colour is chosen for contrast.
+  const accent = brand?.accent ?? COLORS.brand;
+  const onAccent = brand?.accent ? readableOn(brand.accent) : COLORS.onBrand;
   const lang = locale;
   const detailRows = (content.details ?? [])
     .map((d) => {
@@ -133,17 +144,21 @@ export function renderEmail(
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:${COLORS.card};border:1px solid ${COLORS.border};border-radius:12px;overflow:hidden;font-family:${FONT};">
 <tr><td style="background:${COLORS.header};padding:20px 32px;">
 <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-<td style="padding-right:10px;vertical-align:middle;"><img src="${esc(base)}/brand/logo-mark-light.png" width="28" height="28" alt="" style="display:block;border:0;"></td>
-<td style="vertical-align:middle;font-size:20px;font-weight:700;letter-spacing:-.01em;color:#F5F2EE;font-family:${FONT};">saqina<span style="color:${COLORS.brand};">dev</span></td>
+${
+  brand
+    ? `<td style="vertical-align:middle;font-size:20px;font-weight:700;letter-spacing:-.01em;color:#F5F2EE;font-family:${FONT};">${esc(brand.name)}</td>`
+    : `<td style="padding-right:10px;vertical-align:middle;"><img src="${esc(base)}/brand/logo-mark-light.png" width="28" height="28" alt="" style="display:block;border:0;"></td>
+<td style="vertical-align:middle;font-size:20px;font-weight:700;letter-spacing:-.01em;color:#F5F2EE;font-family:${FONT};">saqina<span style="color:${COLORS.brand};">dev</span></td>`
+}
 </tr></table></td></tr>
-<tr><td style="height:4px;background:${COLORS.brand};font-size:0;line-height:0;">&nbsp;</td></tr>
+<tr><td style="height:4px;background:${accent};font-size:0;line-height:0;">&nbsp;</td></tr>
 ${content.greeting ? `<tr><td style="padding:24px 32px 0;"><p style="margin:0;font-size:15px;color:${COLORS.muted};">${esc(content.greeting[lang])}</p></td></tr>` : ""}
 ${contentBlock(title, content.body[lang])}
 ${detailRows ? `<tr><td style="padding:6px 32px 4px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid ${COLORS.border};border-bottom:1px solid ${COLORS.border};">${detailRows}</table></td></tr>` : ""}
-${buttons.length ? `<tr><td style="padding:22px 32px 6px;">${buttons.map((b) => button(b, lang)).join("")}</td></tr>` : ""}
+${buttons.length ? `<tr><td style="padding:22px 32px 6px;">${buttons.map((b) => button(b, lang, accent, onAccent)).join("")}</td></tr>` : ""}
 ${buttons.length ? `<tr><td style="padding:4px 32px 0;"><p style="margin:0;font-size:12px;line-height:1.6;color:${COLORS.muted};">${esc(FALLBACK_LINK[lang])}${links}</p></td></tr>` : ""}
 ${content.footnote ? `<tr><td style="padding:18px 32px 0;"><p style="margin:0;font-size:12px;line-height:1.6;color:${COLORS.muted};">${esc(content.footnote[lang])}</p></td></tr>` : ""}
-<tr><td style="padding:26px 32px 28px;"><p style="margin:0;padding-top:16px;border-top:1px solid ${COLORS.border};font-size:12px;color:${COLORS.muted};">Saqina Dev &middot; <a href="${esc(base)}" style="color:${COLORS.muted};">${esc(base.replace(/^https?:\/\//, ""))}</a></p></td></tr>
+<tr><td style="padding:26px 32px 28px;"><p style="margin:0;padding-top:16px;border-top:1px solid ${COLORS.border};font-size:12px;color:${COLORS.muted};">${brand ? `${esc(brand.name)} &middot; ${esc(lang === "id" ? "Didukung oleh" : "Powered by")} ` : ""}Saqina Dev &middot; <a href="${esc(base)}" style="color:${COLORS.muted};">${esc(base.replace(/^https?:\/\//, ""))}</a></p></td></tr>
 </table></td></tr></table>
 </body></html>`;
 
@@ -157,7 +172,7 @@ ${content.footnote ? `<tr><td style="padding:18px 32px 0;"><p style="margin:0;fo
     "",
     ...buttons.map((b) => `${pick(b.label, lang)}: ${b.url}`),
     content.footnote ? `\n${content.footnote[lang]}` : undefined,
-    `\nSaqina Dev - ${base}`,
+    `\n${brand ? `${brand.name} - ` : ""}Saqina Dev - ${base}`,
   ]
     .filter((line): line is string => line !== undefined)
     .join("\n");

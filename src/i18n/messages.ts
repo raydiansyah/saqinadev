@@ -12,7 +12,6 @@ const LOADERS: Record<Locale, () => Promise<Record<string, unknown>[]>> = {
       import("../../messages/app.en.json"),
       import("../../messages/project.en.json"),
       import("../../messages/workspace.en.json"),
-      import("../../messages/assistant.en.json"),
       import("../../messages/platform.en.json"),
       import("../../messages/billing.en.json"),
       import("../../messages/portal.en.json"),
@@ -20,11 +19,7 @@ const LOADERS: Record<Locale, () => Promise<Record<string, unknown>[]>> = {
       import("../../messages/engagement.en.json"),
       import("../../messages/portal-engagement.en.json"),
       import("../../messages/notify.en.json"),
-      import("../../messages/services.en.json"),
-      import("../../messages/services-admin.en.json"),
       import("../../messages/meetings.en.json"),
-      import("../../messages/memory-hub.en.json"),
-      import("../../messages/themes.en.json"),
     ]).then((files) => files.map((f) => f.default)),
   id: () =>
     Promise.all([
@@ -33,7 +28,6 @@ const LOADERS: Record<Locale, () => Promise<Record<string, unknown>[]>> = {
       import("../../messages/app.id.json"),
       import("../../messages/project.id.json"),
       import("../../messages/workspace.id.json"),
-      import("../../messages/assistant.id.json"),
       import("../../messages/platform.id.json"),
       import("../../messages/billing.id.json"),
       import("../../messages/portal.id.json"),
@@ -41,11 +35,7 @@ const LOADERS: Record<Locale, () => Promise<Record<string, unknown>[]>> = {
       import("../../messages/engagement.id.json"),
       import("../../messages/portal-engagement.id.json"),
       import("../../messages/notify.id.json"),
-      import("../../messages/services.id.json"),
-      import("../../messages/services-admin.id.json"),
       import("../../messages/meetings.id.json"),
-      import("../../messages/memory-hub.id.json"),
-      import("../../messages/themes.id.json"),
     ]).then((files) => files.map((f) => f.default)),
 };
 

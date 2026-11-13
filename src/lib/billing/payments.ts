@@ -9,8 +9,11 @@ import { db, type Tx } from "@/lib/db/client";
 import { invoices, payments } from "@/lib/db/schema";
 import { PAYMENT_METHODS } from "@/lib/domain/business";
 import { AppError } from "@/lib/errors";
+import { formatMoney } from "@/lib/money";
+import { clientRecipients, deliver, notifyTx, type Pending } from "@/lib/notifications/service";
 import { parse } from "@/lib/validation";
 import { lockInvoice } from "./invoices";
+import { issueReceiptTx, voidReceiptTx } from "./receipts";
 import { addDays, balanceDue, isOpen, statusAfterPayments, todayIso } from "./rules";
 
 export type Payment = typeof payments.$inferSelect;
@@ -55,7 +58,8 @@ export async function recordPayment(actor: Actor, slug: string, invoiceId: strin
     throw new AppError("VALIDATION_ERROR", "Payment date is in the future", {
       paidAt: "billing.futureDate",
     });
-  return db.transaction(async (tx) => {
+  let pending: Pending | null = null;
+  const result = await db.transaction(async (tx) => {
     const { project } = await loadProjectAccess(actor, { slug }, "billing:write", tx);
     const invoice = await lockInvoice(tx, project.id, invoiceId);
     if (!isOpen(invoice.status))
@@ -74,6 +78,21 @@ export async function recordPayment(actor: Actor, slug: string, invoiceId: strin
         recordedBy: actor.id,
       })
       .returning({ id: payments.id });
+    const receipt = await issueReceiptTx(tx, {
+      organizationId: invoice.organizationId,
+      projectId: project.id,
+      clientId: invoice.clientId ?? project.clientId,
+      invoiceId: invoice.id,
+      payment: {
+        id: payment.id,
+        amount: data.amount,
+        currency: invoice.currency,
+        paidAt: data.paidAt,
+        method: data.method,
+        reference: data.reference,
+      },
+      actorId: actor.id,
+    });
     await refreshInvoice(tx, invoice.id);
     await recordActivity(tx, {
       projectId: project.id,
@@ -83,8 +102,24 @@ export async function recordPayment(actor: Actor, slug: string, invoiceId: strin
       entityId: payment.id,
       metadata: { invoice: invoice.number, amount: data.amount, method: data.method },
     });
-    return { id: payment.id };
+    // The client gets the receipt on the portal and by email.
+    pending = await notifyTx(tx, {
+      userIds: await clientRecipients(tx, project.id),
+      projectId: project.id,
+      type: "receipt.issued",
+      params: {
+        number: receipt.number,
+        amount: formatMoney(data.amount, invoice.currency),
+        project: project.name,
+      },
+      href: `/portal/projects/${project.slug}/receipts/${receipt.id}`,
+      dedupKey: `receipt:${receipt.id}`,
+      email: true,
+    });
+    return { id: payment.id, receiptId: receipt.id, receiptNumber: receipt.number };
   });
+  if (pending) await deliver(pending);
+  return result;
 }
 
 /** Payments are never deleted. A mistaken entry is voided with a reason and audited. */
@@ -106,6 +141,7 @@ export async function voidPayment(actor: Actor, slug: string, paymentId: string,
       .update(payments)
       .set({ status: "void", voidedBy: actor.id, voidedAt: new Date(), voidReason: reason })
       .where(eq(payments.id, payment.id));
+    await voidReceiptTx(tx, payment.id);
     await refreshInvoice(tx, payment.invoiceId);
     await recordActivity(tx, {
       projectId: project.id,

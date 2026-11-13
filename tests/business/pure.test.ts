@@ -7,8 +7,6 @@ import {
   statusAfterPayments,
 } from "@/lib/billing/rules";
 import { formatMoney, parseMoneyText, splitByPercent, toMinor } from "@/lib/money";
-import { clientProgress } from "@/lib/portal/progress";
-import { checkScope } from "@/lib/scope/check";
 
 describe("money", () => {
   it.each([
@@ -99,60 +97,5 @@ describe("billing rules", () => {
   it("formats invoice numbers and adds days", () => {
     expect(invoiceNumber(2026, 7)).toBe("INV-2026-007");
     expect(addDays("2026-10-25", 14)).toBe("2026-11-08");
-  });
-});
-
-describe("scope check", () => {
-  const items = [
-    { id: "1", title: "Payment gateway", category: "excluded" as const },
-    { id: "2", title: "Product management", category: "included" as const },
-    { id: "3", title: "Mobile application", category: "future" as const },
-    { id: "4", title: "Discount voucher", category: "optional" as const },
-  ];
-
-  it("finds excluded items in Indonesian and English requests", () => {
-    expect(checkScope("Tambahkan payment gateway", items)).toMatchObject({
-      status: "excluded",
-      item: { id: "1" },
-    });
-    expect(checkScope("bisa tambah gateway pembayaran?", items).status).toBe("excluded");
-  });
-
-  it("reports included, future and optional items", () => {
-    expect(checkScope("Apakah product management termasuk?", items).status).toBe("included");
-    expect(checkScope("aplikasi mobile", items).status).toBe("future");
-    expect(checkScope("fitur voucher", items).status).toBe("optional");
-  });
-
-  it("says unknown when nothing matches", () => {
-    expect(checkScope("WhatsApp integration", items)).toEqual({ status: "unknown", item: null });
-  });
-});
-
-describe("client progress", () => {
-  const ms = [
-    { id: "a", title: "Requirement", clientTitle: null, clientVisible: true },
-    { id: "b", title: "Internal infra", clientTitle: null, clientVisible: false },
-    { id: "c", title: "Build core", clientTitle: "Development", clientVisible: true },
-    { id: "d", title: "Handover", clientTitle: null, clientVisible: true },
-  ];
-  const ts = [
-    { milestoneId: "a", status: "done" },
-    { milestoneId: "b", status: "done" },
-    { milestoneId: "c", status: "in_progress" },
-    { milestoneId: "c", status: "done" },
-    { milestoneId: "d", status: "todo" },
-  ];
-
-  it("lists visible stages with plain names and computes the percentage", () => {
-    const p = clientProgress(ms, ts);
-    expect(p.percent).toBe(60);
-    expect(p.stages).toEqual([
-      { title: "Requirement", state: "done" },
-      { title: "Development", state: "current" },
-      { title: "Handover", state: "upcoming" },
-    ]);
-    expect(p.current).toBe("Development");
-    expect(p.next).toBe("Handover");
   });
 });

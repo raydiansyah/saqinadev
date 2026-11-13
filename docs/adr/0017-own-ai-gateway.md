@@ -1,6 +1,6 @@
 # 17. A person's own AI gateway in the Studio chat
 
-Status: accepted (2026-10-29). Risk lane: Red (secrets, data leaving to a provider, provider access).
+Status: accepted (2026-10-29). Risk lane: Red (secrets, data leaving to a provider, provider access). Superseded by [ADR 0027](0027-v1-billing-focus.md): the feature was removed in v1.
 
 ## Context
 

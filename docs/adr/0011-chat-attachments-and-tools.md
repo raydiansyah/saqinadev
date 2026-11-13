@@ -1,6 +1,6 @@
 # 11. Chat attachments in S3, and connector tools from the chat
 
-Status: accepted (2026-10-29). Risk lane: Red (file uploads, data to models, outside tools).
+Status: accepted (2026-10-29). Risk lane: Red (file uploads, data to models, outside tools). Superseded by [ADR 0027](0027-v1-billing-focus.md): the feature was removed in v1.
 
 ## Context
 

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
+import { PdfLink } from "@/components/billing/pdf-link";
 import { formatDay } from "@/components/portal/format";
 import { InvoiceStatusBadge } from "@/components/portal/money";
 import { PrintButton } from "@/components/portal/print-button";
 import { Link } from "@/i18n/navigation";
 import { formatMoney } from "@/lib/money";
 import { clientInvoice } from "@/lib/portal/views";
+import { loadIssuer } from "@/lib/white-label/brand";
 import { orNotFound, portalPageAccess, portalProjectView } from "../../../../access";
 
 async function load(slug: string, id: string) {
@@ -24,9 +26,11 @@ export default async function PortalInvoicePage({
   params,
 }: PageProps<"/[locale]/portal/projects/[slug]/invoices/[id]">) {
   const { slug, id } = await params;
-  const [{ invoice, items }, view, t, locale] = await Promise.all([
+  const access = await portalPageAccess(slug);
+  const [{ invoice, items }, view, issuer, t, locale] = await Promise.all([
     load(slug, id),
     portalProjectView(slug),
+    loadIssuer(access.project.organizationId),
     getTranslations("portal.invoices"),
     getLocale(),
   ]);
@@ -43,7 +47,10 @@ export default async function PortalInvoicePage({
         >
           <span aria-hidden="true">←</span> {t("back")}
         </Link>
-        <PrintButton label={t("print")} />
+        <div className="flex flex-wrap gap-2">
+          <PdfLink kind="invoice" id={invoice.id} />
+          <PrintButton label={t("print")} />
+        </div>
       </div>
 
       <div className="rounded-lg border border-border bg-surface p-5 sm:p-8 print:border-0 print:bg-transparent print:p-0">
@@ -58,6 +65,18 @@ export default async function PortalInvoicePage({
         </header>
 
         <dl className="grid gap-4 py-6 text-sm sm:grid-cols-2">
+          <div className="min-w-0">
+            <dt className="text-muted-foreground">{t("from")}</dt>
+            <dd className="mt-0.5 break-words">
+              <span className="block font-medium">{issuer.name}</span>
+              {issuer.taxNumber ? (
+                <span className="block">{t("taxNumber", { value: issuer.taxNumber })}</span>
+              ) : null}
+              {issuer.address ? (
+                <span className="block whitespace-pre-line">{issuer.address}</span>
+              ) : null}
+            </dd>
+          </div>
           <div className="min-w-0">
             <dt className="text-muted-foreground">{t("billedTo")}</dt>
             <dd className="mt-0.5 break-words">{view.clientName}</dd>

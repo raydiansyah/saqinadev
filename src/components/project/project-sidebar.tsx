@@ -9,10 +9,6 @@ export interface SidebarProject {
   slug: string;
   name: string;
   statusLabel: string;
-  /** Proposals waiting for review; shown as a count next to Approvals. */
-  pendingApprovals?: number;
-  /** Simple hides the technical sections. */
-  mode?: "simple" | "advanced";
 }
 
 /** Project-aware navigation. The current page is marked with aria-current and a bar. */
@@ -43,7 +39,7 @@ export function ProjectSidebarNav({
         <p className="px-2 font-mono text-xs text-muted-foreground">{project.statusLabel}</p>
       </div>
       <div className="flex-1 overflow-y-auto px-3 py-3">
-        {PROJECT_NAV.filter((s) => !s.advanced || project.mode === "advanced").map((section, i) => (
+        {PROJECT_NAV.map((section, i) => (
           <div key={section.group ?? `top-${i}`} className={cn(i > 0 && "mt-4")}>
             {section.group ? (
               <p className="px-2 pb-1 font-mono text-[0.6875rem] tracking-wide text-subtle-foreground uppercase">
@@ -68,12 +64,6 @@ export function ProjectSidebarNav({
                       )}
                     >
                       {t(`items.${item.key}`)}
-                      {item.key === "approvals" && project.pendingApprovals ? (
-                        <span className="ml-auto rounded-md border border-warning/50 px-1.5 font-mono text-xs text-warning">
-                          {project.pendingApprovals}
-                          <span className="sr-only"> {t("pending")}</span>
-                        </span>
-                      ) : null}
                     </Link>
                   </li>
                 );

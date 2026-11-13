@@ -8,7 +8,13 @@ import { AppError } from "@/lib/errors";
 
 export type Organization = typeof organizations.$inferSelect;
 
-export const ORG_ACTIONS = ["org:read", "clients:manage", "billing:read", "billing:write"] as const;
+export const ORG_ACTIONS = [
+  "org:read",
+  "clients:manage",
+  "billing:read",
+  "billing:write",
+  "brand:write",
+] as const;
 export type OrgAction = (typeof ORG_ACTIONS)[number];
 
 const ORG_ROLE_ACTIONS: Record<OrgRole, readonly OrgAction[]> = {

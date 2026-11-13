@@ -23,29 +23,6 @@
       "title": "Project",
       "description": "Semua project yang dibagikan kepada Anda."
     },
-    "stage": {
-      "planning": "Perencanaan",
-      "development": "Dalam pengerjaan",
-      "review": "Dalam peninjauan",
-      "completed": "Selesai",
-      "paused": "Dijeda"
-    },
-    "progress": {
-      "label": "Progres",
-      "percent": "{percent}% selesai",
-      "current": "Tahap saat ini",
-      "next": "Tahap berikutnya",
-      "none": "Belum ditentukan",
-      "title": "Progres",
-      "description": "Tahapan project Anda dan posisi pekerjaan saat ini.",
-      "empty": "Tim belum menampilkan tahapan project.",
-      "listLabel": "Tahapan project",
-      "state": {
-        "done": "Selesai",
-        "current": "Sedang dikerjakan",
-        "upcoming": "Belum dimulai"
-      }
-    },
     "money": {
       "value": "Nilai project",
       "invoiced": "Sudah ditagih",
@@ -57,8 +34,6 @@
     "tabs": {
       "label": "Bagian project",
       "overview": "Ringkasan",
-      "progress": "Progres",
-      "features": "Fitur",
       "documents": "Dokumen",
       "invoices": "Tagihan",
       "payments": "Pembayaran"
@@ -74,30 +49,6 @@
         "invoice_issued": "Tagihan {label} diterbitkan",
         "payment_received": "Pembayaran diterima untuk {label}",
         "document_shared": "Dokumen dibagikan: {label}"
-      }
-    },
-    "features": {
-      "metaTitle": "Fitur",
-      "title": "Fitur",
-      "description": "Apa saja yang termasuk dalam project ini, dan apa yang tidak.",
-      "empty": "Daftar fitur belum dibagikan.",
-      "groups": {
-        "included": {
-          "title": "Termasuk",
-          "body": "Bagian dari lingkup dan harga yang disepakati."
-        },
-        "excluded": {
-          "title": "Tidak termasuk",
-          "body": "Di luar project ini. Tanyakan ke tim jika Anda membutuhkannya."
-        },
-        "optional": {
-          "title": "Opsional",
-          "body": "Bisa ditambahkan atas permintaan, biasanya dengan biaya tambahan."
-        },
-        "future": {
-          "title": "Nanti",
-          "body": "Ide untuk tahap berikutnya, belum masuk project ini."
-        }
       }
     },
     "documents": {
@@ -153,7 +104,9 @@
       },
       "total": "Total",
       "paid": "Sudah dibayar",
-      "balance": "Sisa tagihan"
+      "balance": "Sisa tagihan",
+      "taxNumber": "NPWP: {value}",
+      "from": "Dari"
     },
     "payments": {
       "metaTitle": "Pembayaran",
@@ -167,7 +120,8 @@
         "date": "Tanggal",
         "invoice": "Tagihan",
         "method": "Metode",
-        "amount": "Jumlah"
+        "amount": "Jumlah",
+        "receipt": "Kwitansi"
       },
       "method": {
         "bank_transfer": "Transfer bank",
@@ -188,6 +142,12 @@
       "clientsEmpty": "Anda belum terhubung ke perusahaan mana pun.",
       "language": "Bahasa",
       "signOut": "Keluar"
+    },
+    "footer": {
+      "poweredBy": "Didukung oleh Saqina Dev",
+      "saqina": "Saqina Dev",
+      "privacy": "Kebijakan Privasi",
+      "terms": "Syarat dan Ketentuan"
     }
   },
   "invite": {

@@ -1,5 +1,5 @@
 import { DEFAULT_LOCALE, isLocale, type Locale } from "@/i18n/locales";
-import { type Copy, type EmailContent, renderEmail, siteBase } from "./layout";
+import { type Copy, type EmailBrand, type EmailContent, renderEmail, siteBase } from "./layout";
 
 /**
  * One function per message. Each renders in the recipient's language only and returns
@@ -16,9 +16,14 @@ export interface Rendered {
 export const toLocale = (value: string | null | undefined): Locale =>
   value && isLocale(value) ? value : DEFAULT_LOCALE;
 
-const build = (subject: Copy, content: EmailContent, locale: Locale): Rendered => ({
+const build = (
+  subject: Copy,
+  content: EmailContent,
+  locale: Locale,
+  brand: EmailBrand | null = null,
+): Rendered => ({
   subject: subject[locale],
-  ...renderEmail(content, locale),
+  ...renderEmail(content, locale, undefined, brand),
 });
 
 const hi = (name: string): Copy => ({ en: `Hi ${name},`, id: `Halo ${name},` });
@@ -106,16 +111,14 @@ export function inviteEmailMessage(
 export const EVENT_TITLES: Record<string, Copy> = {
   "reminder.invoice_due": { en: "Invoice due soon", id: "Invoice segera jatuh tempo" },
   "reminder.invoice_overdue": { en: "Invoice overdue", id: "Invoice lewat jatuh tempo" },
-  "reminder.approval_pending": { en: "Approval waiting", id: "Menunggu persetujuan" },
-  "reminder.change_request_pending": {
-    en: "Change request waiting",
-    id: "Change request menunggu",
+  "reminder.document_signature_pending": {
+    en: "Signature still waiting",
+    id: "Tanda tangan masih menunggu",
   },
   "reminder.maintenance_renewal": {
     en: "Maintenance ends soon",
     id: "Maintenance segera berakhir",
   },
-  "approval.requested": { en: "Approval requested", id: "Permintaan persetujuan" },
   "document.signed": {
     en: "Document waiting for your signature",
     id: "Dokumen menunggu tanda tangan Anda",
@@ -125,9 +128,8 @@ export const EVENT_TITLES: Record<string, Copy> = {
     en: "Changes requested on a document",
     id: "Perubahan diminta pada dokumen",
   },
-  "change_request.sent": { en: "Change request to review", id: "Change request untuk ditinjau" },
   "invoice.issued": { en: "New invoice", id: "Invoice baru" },
-  "message.posted": { en: "New message", id: "Pesan baru" },
+  "receipt.issued": { en: "New receipt", id: "Kwitansi baru" },
   "meeting_note.shared": { en: "Meeting notes shared", id: "Catatan meeting dibagikan" },
   "meeting_note.accepted": { en: "Meeting note accepted", id: "Catatan meeting diterima" },
   "meeting_note.declined": { en: "Meeting note declined", id: "Catatan meeting ditolak" },
@@ -141,15 +143,17 @@ export function notificationEmailMessage(
   params: Record<string, string>,
   href: string | null,
   locale: Locale,
+  brand: EmailBrand | null = null,
 ): Rendered {
   const title = EVENT_TITLES[type] ?? FALLBACK_TITLE;
+  const sender = brand?.name ?? "Saqina Dev";
   const base = siteBase();
   // Params are free-form values from the event (project, title, amount): shown as rows.
   const details = Object.values(params)
     .filter(Boolean)
     .map((value) => ({ label: "", value }));
   return build(
-    { en: `Saqina Dev: ${title.en}`, id: `Saqina Dev: ${title.id}` },
+    { en: `${sender}: ${title.en}`, id: `${sender}: ${title.id}` },
     {
       preheader: title,
       title,
@@ -166,6 +170,7 @@ export function notificationEmailMessage(
       ],
     },
     locale,
+    brand,
   );
 }
 

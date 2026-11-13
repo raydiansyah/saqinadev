@@ -65,7 +65,8 @@
       "cancelBody": "Invoice tetap tersimpan di riwayat dengan status dibatalkan. Termin jadwalnya bisa ditagih ulang.",
       "cancelConfirm": "Batalkan invoice",
       "recordPayment": "Catat pembayaran",
-      "view": "Lihat"
+      "view": "Lihat",
+      "remind": "Ingatkan klien"
     },
     "statuses": {
       "draft": "Draf",
@@ -134,7 +135,9 @@
       "voidBody": "Pembayaran tetap ada di riwayat dengan coretan, dan sisa tagihan invoice dihitung ulang.",
       "reason": "Alasan",
       "reasonPlaceholder": "Tercatat dua kali karena salah input",
-      "voidConfirm": "Batalkan pembayaran"
+      "voidConfirm": "Batalkan pembayaran",
+      "receipt": "Kwitansi",
+      "issueReceipt": "Terbitkan kwitansi"
     },
     "errors": {
       "termsMismatch": "Total termin harus sama dengan nilai proyek.",
@@ -147,7 +150,9 @@
       "notOpen": "Pembayaran hanya bisa dicatat pada invoice yang sudah diterbitkan.",
       "overpay": "Nominal melebihi sisa tagihan.",
       "alreadyVoid": "Pembayaran ini sudah dibatalkan.",
-      "currencyLocked": "Mata uang tidak bisa diubah setelah proyek memiliki invoice."
+      "currencyLocked": "Mata uang tidak bisa diubah setelah proyek memiliki invoice.",
+      "noRecipients": "Klien belum punya pengguna portal untuk diingatkan.",
+      "remindedToday": "Klien sudah diingatkan tentang ini hari ini."
     },
     "detail": {
       "metaTitle": "Invoice",
@@ -170,7 +175,8 @@
       "paid": "Terbayar",
       "balance": "Sisa tagihan",
       "notes": "Catatan",
-      "draftNote": "Ini masih draf. Terbitkan dari halaman billing sebelum mengirimkannya ke klien."
+      "draftNote": "Ini masih draf. Terbitkan dari halaman billing sebelum mengirimkannya ke klien.",
+      "taxNumber": "NPWP: {value}"
     },
     "client": {
       "title": "Klien & billing",
@@ -189,121 +195,36 @@
       "label": "Bagikan ke klien",
       "hint": "Hanya dokumen yang sudah disetujui yang bisa dibagikan.",
       "shared": "Dibagikan"
+    },
+    "receipt": {
+      "metaTitle": "Kwitansi",
+      "title": "Kwitansi",
+      "back": "Kembali",
+      "print": "Cetak atau simpan sebagai PDF",
+      "voided": "Dibatalkan",
+      "receivedFrom": "Telah terima dari",
+      "amount": "Jumlah",
+      "inWords": "Terbilang",
+      "forPayment": "Untuk pembayaran",
+      "paidOn": "Dibayar pada",
+      "method": "Metode",
+      "reference": "Referensi",
+      "issuedOn": "Diterbitkan pada {date}",
+      "issuedBy": "Diterbitkan oleh"
+    },
+    "pdf": {
+      "poweredBy": "Didukung oleh Saqina Dev",
+      "page": "Halaman",
+      "contract": {
+        "signatures": "Tanda tangan",
+        "unsigned": "Belum ditandatangani",
+        "party": {
+          "team": "Penerbit",
+          "client": "Klien"
+        },
+        "signedOn": "{name}, ditandatangani {date}"
+      },
+      "download": "Unduh PDF"
     }
-  },
-  "scope": {
-    "title": "Fitur",
-    "metaTitle": "Fitur",
-    "description": "Apa yang termasuk dan tidak termasuk dalam lingkup yang disepakati. Jaga agar tetap terbaru supaya semua pihak sepakat tentang apa yang dibangun.",
-    "clientNote": "Klien hanya melihat item yang ditandai terlihat, di portal klien.",
-    "readOnly": "Anda dapat melihat lingkup. Editor dan pemilik dapat mengubahnya.",
-    "categories": {
-      "included": "Termasuk",
-      "excluded": "Tidak termasuk",
-      "optional": "Opsional",
-      "future": "Mendatang"
-    },
-    "categoryHints": {
-      "included": "Bagian dari pekerjaan yang disepakati.",
-      "excluded": "Secara tegas bukan bagian dari proyek ini.",
-      "optional": "Bisa ditambahkan jika disepakati terpisah.",
-      "future": "Ide untuk tahap berikutnya."
-    },
-    "emptyCategory": "Belum ada apa pun di sini.",
-    "add": "Tambah fitur",
-    "itemTitle": "Fitur",
-    "itemDescription": "Deskripsi (opsional)",
-    "placeholders": {
-      "title": "Dasbor pelanggan",
-      "description": "Ringkasan pesanan dan invoice untuk tiap pelanggan."
-    },
-    "category": "Kategori",
-    "visible": "Terlihat oleh klien",
-    "visibleBadge": "Terlihat klien",
-    "hiddenBadge": "Internal",
-    "edit": "Ubah",
-    "save": "Simpan",
-    "cancel": "Batal",
-    "delete": "Hapus",
-    "deleteTitle": "Hapus fitur ini?",
-    "deleteBody": "\"{title}\" akan dihapus dari lingkup. Tindakan ini tidak bisa dibatalkan.",
-    "generate": "Buat dari kebutuhan",
-    "generated": "{count, plural, =0 {Tidak ada fitur baru dari kebutuhan.} other {# fitur ditambahkan dari kebutuhan.}}"
-  },
-  "progress": {
-    "title": "Progres",
-    "metaTitle": "Progres",
-    "description": "Progres proyek seperti yang dilihat klien Anda, disusun dari milestone dan tugas.",
-    "percent": "{percent}% selesai",
-    "percentLabel": "Progres keseluruhan",
-    "stages": "Tahapan",
-    "empty": "Belum ada milestone. Buat rencana untuk menampilkan progres.",
-    "current": "Sekarang: {stage}",
-    "next": "Berikutnya: {stage}",
-    "states": {
-      "done": "Selesai",
-      "current": "Sedang berjalan",
-      "upcoming": "Akan datang"
-    },
-    "editor": {
-      "title": "Tampilan milestone untuk klien",
-      "hint": "Pilih milestone yang dilihat klien dan beri nama yang lebih mudah dipahami. Milestone yang disembunyikan tetap dihitung dalam persentase.",
-      "milestone": "Milestone",
-      "clientTitle": "Nama untuk klien",
-      "clientTitlePlaceholder": "Sama dengan milestone",
-      "visible": "Terlihat oleh klien",
-      "save": "Simpan",
-      "saved": "Tersimpan"
-    },
-    "release": {
-      "title": "Apakah sistem sudah siap?",
-      "hint": "Dijawab oleh tim. Setiap pertanyaan dijawab sendiri-sendiri: mengubah satu jawaban tidak mengubah jawaban lain. Setiap jawaban menampilkan siapa dan kapan menjawab, dan minta dikonfirmasi ulang bila task atau milestone berubah setelahnya.",
-      "build": {
-        "question": "Apakah sistem sudah selesai di-build?"
-      },
-      "review": {
-        "question": "Apakah sistem sudah di-review?"
-      },
-      "deploy": {
-        "question": "Apakah sistem sudah di-deploy?"
-      },
-      "unanswered": "Belum dijawab",
-      "yes": "Ya",
-      "no": "Belum",
-      "by": "oleh {name}",
-      "stale": "Task berubah sejak itu. Konfirmasi bahwa ini masih benar.",
-      "answerYes": "Ya",
-      "answerNo": "Belum",
-      "allCurrent": "Sudah di-build, di-review, dan di-deploy, serta sudah terbaru.",
-      "confirmAgain": "Ada perubahan setelah jawaban ini. Konfirmasi tiap jawaban lagi agar sudah terbaru.",
-      "notYet": "Belum selesai.",
-      "contradiction": "Ada jawaban yang saling bertentangan. Periksa catatan di bawah dan perbaiki jawaban yang keliru.",
-      "tasks": "Plan: {done} dari {total} task selesai",
-      "notes": {
-        "open_tasks": "Masih ada {count} task yang belum selesai di plan.",
-        "tasks_in_review": "Masih ada {count} task yang berstatus review.",
-        "needs_build_and_review": "Deploy dijawab Ya, tetapi build dan review belum sama-sama Ya.",
-        "needs_build": "Review dijawab Ya, tetapi build belum.",
-        "all_tasks_done": "Semua task di plan sudah selesai. Apakah sistem sudah selesai di-build?"
-      },
-      "awaiting": "Jawab dulu: sistem sudah sampai mana? Project ini berasal dari GitHub dan mungkin sudah di-build, sedang di-review, atau sudah berjalan.",
-      "adjust": {
-        "title": "Sesuaikan plan dengan jawaban ini?",
-        "cancel": "Batal",
-        "answerOnly": "Jawab saja",
-        "answerAndAdjust": "Jawab dan sesuaikan task",
-        "toDone": "{count} task akan ditandai selesai: pekerjaannya sudah di-review.",
-        "toReview": "{count} task yang masih terbuka akan dipindah ke review: pekerjaannya sudah di-build dan menunggu pengecekan.",
-        "note": "Task hanya bergerak maju. Setelah itu setiap task tetap bisa Anda ubah sendiri."
-      },
-      "evidence": {
-        "ci_green": "Check lulus di branch utama",
-        "pr_merged": "Pull request sudah digabung",
-        "deployed": "Deployment production berhasil",
-        "confirm": "Konfirmasi: Ya"
-      }
-    },
-    "noPrd": "PRD belum ditemukan di repository.",
-    "noPrdLink": "Pilih, unggah, atau tempel"
   }
 }

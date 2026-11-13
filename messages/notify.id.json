@@ -14,58 +14,7 @@
       "title": "Pembaruan project",
       "body": "Ada perubahan di {project}."
     },
-    "requestStatuses": {
-      "open": "terbuka",
-      "in_review": "sedang ditinjau",
-      "resolved": "selesai",
-      "declined": "ditolak",
-      "converted": "dijadikan change request"
-    },
     "types": {
-      "request": {
-        "created": {
-          "title": "Permintaan baru",
-          "body": "{title} di {project}"
-        },
-        "updated": {
-          "title": "Permintaan diperbarui",
-          "body": "{title} sekarang {status}"
-        }
-      },
-      "message": {
-        "posted": {
-          "title": "Pesan baru",
-          "body": "{author} menulis di {project}"
-        }
-      },
-      "approval": {
-        "requested": {
-          "title": "Permintaan persetujuan",
-          "body": "{title} di {project}"
-        },
-        "approved": {
-          "title": "Disetujui",
-          "body": "{title} di {project} sudah disetujui"
-        },
-        "changes_requested": {
-          "title": "Perlu perubahan",
-          "body": "{title} di {project} perlu diubah"
-        }
-      },
-      "change_request": {
-        "sent": {
-          "title": "Change request untuk ditinjau",
-          "body": "{number}: {title} di {project}"
-        },
-        "approved": {
-          "title": "Change request disetujui",
-          "body": "{number}: {title} di {project}"
-        },
-        "rejected": {
-          "title": "Change request ditolak",
-          "body": "{number}: {title} di {project}"
-        }
-      },
       "invoice": {
         "issued": {
           "title": "Invoice baru",
@@ -81,17 +30,13 @@
           "title": "Invoice lewat jatuh tempo",
           "body": "{number} sebesar {amount} jatuh tempo pada {due} ({project})"
         },
-        "approval_pending": {
-          "title": "Persetujuan masih menunggu",
-          "body": "{title} di {project} masih menunggu keputusan"
-        },
-        "change_request_pending": {
-          "title": "Change request masih menunggu",
-          "body": "{number}: {title} di {project} masih menunggu keputusan"
-        },
         "maintenance_renewal": {
           "title": "Maintenance segera berakhir",
           "body": "{name} untuk {project} berakhir pada {end}"
+        },
+        "document_signature_pending": {
+          "title": "Tanda tangan masih menunggu",
+          "body": "{title} di {project} menunggu tanda tangan"
         }
       },
       "client": {
@@ -100,13 +45,9 @@
             "title": "Pengingat pembayaran",
             "body": "{number} sebesar {amount} jatuh tempo pada {due} ({project})"
           },
-          "client_approval": {
-            "title": "Persetujuan Anda dibutuhkan",
+          "document": {
+            "title": "Tanda tangan Anda diperlukan",
             "body": "{title} di {project} menunggu Anda"
-          },
-          "change_request": {
-            "title": "Change request untuk ditinjau",
-            "body": "{number}: {title} di {project} menunggu Anda"
           }
         }
       },
@@ -145,40 +86,48 @@
           "title": "Perubahan diminta",
           "body": "{title} di {project} perlu diubah"
         }
+      },
+      "receipt": {
+        "issued": {
+          "title": "Kwitansi baru",
+          "body": "{number} sebesar {amount} di {project}"
+        }
       }
     }
   },
   "reminders": {
     "title": "Pengingat",
     "metaTitle": "Pengingat",
-    "description": "Pengingat otomatis untuk invoice, persetujuan, change request, dan paket maintenance.",
+    "description": "Pengingat otomatis untuk invoice yang belum dibayar, perjanjian yang menunggu tanda tangan, dan paket maintenance.",
     "how": {
       "title": "Cara kerja pengingat",
       "daily": "Pengingat berjalan sekali sehari lewat tugas terjadwal di /api/cron/reminders.",
       "once": "Pengingat yang sama tidak pernah dikirim dua kali untuk item yang sama.",
       "portal": "Klien hanya menerima pengingat jika portal mereka aktif untuk project tersebut.",
-      "email": "Pengingat juga dikirim lewat email jika penyedia email sudah dikonfigurasi. Jika belum, pengingat hanya muncul di notifikasi."
+      "email": "Pengingat juga dikirim lewat email jika penyedia email sudah dikonfigurasi. Jika belum, pengingat hanya muncul di notifikasi.",
+      "whatsapp": "Aturan bisa juga mengirim pengingat ke nomor telepon klien lewat WhatsApp. Klien tanpa nomor yang valid dilewati."
     },
     "rules": {
       "title": "Aturan",
       "enabled": "Aktif",
       "disabled": "Nonaktif",
       "toggleLabel": "Kirim pengingat: {rule}",
-      "readOnly": "Anda bisa melihat aturan ini. Minta owner atau admin untuk mengubahnya."
+      "readOnly": "Anda bisa melihat aturan ini. Minta owner atau admin untuk mengubahnya.",
+      "whatsappLabel": "Kirim juga lewat WhatsApp: {rule}",
+      "whatsappOn": "WhatsApp aktif",
+      "whatsappOff": "WhatsApp mati"
     },
     "kinds": {
       "invoice_due": "Invoice jatuh tempo",
       "invoice_overdue": "Invoice lewat jatuh tempo",
-      "approval_pending": "Persetujuan menunggu",
-      "change_request_pending": "Change request menunggu",
-      "maintenance_renewal": "Perpanjangan maintenance"
+      "maintenance_renewal": "Perpanjangan maintenance",
+      "document_signature_pending": "Tanda tangan menunggu"
     },
     "anchors": {
       "invoice_due": "tanggal jatuh tempo",
       "invoice_overdue": "tanggal jatuh tempo",
-      "approval_pending": "permintaan persetujuan",
-      "change_request_pending": "change request dikirim",
-      "maintenance_renewal": "tanggal berakhir paket"
+      "maintenance_renewal": "tanggal berakhir paket",
+      "document_signature_pending": "dokumen disetujui"
     },
     "timing": {
       "before": "{days} hari sebelum {anchor}",

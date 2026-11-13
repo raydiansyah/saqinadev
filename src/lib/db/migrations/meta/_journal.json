@@ -295,6 +295,34 @@
       "when": 1793879699263,
       "tag": "0041_execution_repair",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1794468084701,
+      "tag": "0042_receipts",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1794468362610,
+      "tag": "0043_org_brand",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1794469026357,
+      "tag": "0044_reminder_whatsapp",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1794527410646,
+      "tag": "0045_drop_removed_features",
+      "breakpoints": true
     }
   ]
 }

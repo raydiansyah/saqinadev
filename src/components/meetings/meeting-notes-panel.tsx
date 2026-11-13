@@ -1,9 +1,8 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import {
-  analyzeNoteAction,
   deleteNoteAction,
   reviewNoteAction,
 } from "@/app/[locale]/(app)/project/[slug]/meetings/actions";
@@ -13,14 +12,11 @@ import { EngagementError, useEngagementErrorText } from "@/components/engagement
 import { useRun } from "@/components/platform/use-run";
 import { LocalTime } from "@/components/primitives/local-time";
 import { Button } from "@/components/ui/button";
-import { Notice, TextArea } from "@/components/ui/form";
-import type { NoModelExplanation } from "@/lib/ai/diagnostics";
+import { TextArea } from "@/components/ui/form";
 import type { MeetingItemClass, MeetingNoteStatus, MeetingVisibility } from "@/lib/domain/business";
 import { NoteDialog, type NoteDraft } from "./note-dialog";
-import { type ItemView, NoteFindings } from "./note-findings";
 
 export interface NoteView extends NoteDraft {
-  items: ItemView[];
   side: "client" | "team";
   status: MeetingNoteStatus;
   reviewNote: string | null;
@@ -63,13 +59,10 @@ export function MeetingNotesPanel({
   canWrite: boolean;
 }) {
   const t = useTranslations("meetings");
-  const locale = useLocale();
   const [editing, setEditing] = useState<NoteView | null>(null);
   const [deleting, setDeleting] = useState<NoteView | null>(null);
   const [declining, setDeclining] = useState<NoteView | null>(null);
   const [reason, setReason] = useState("");
-  const [unavailable, setUnavailable] = useState<NoModelExplanation | null>(null);
-  const caps = useTranslations("platform.models.capabilityNames");
   const { pending, error, run, clear } = useRun();
   const errorText = useEngagementErrorText(error);
 
@@ -113,9 +106,6 @@ export function MeetingNotesPanel({
                 {n.reviewNote}
               </p>
             ) : null}
-            {n.status === "analyzed" ? (
-              <NoteFindings slug={slug} noteId={n.id} items={n.items} canWrite={canWrite} />
-            ) : null}
             {n.confirmed ? (
               <p className="mt-3 text-sm text-success">{t("confirmedByClient")}</p>
             ) : null}
@@ -138,24 +128,7 @@ export function MeetingNotesPanel({
                 </Button>
               </div>
             ) : null}
-            {canWrite && (n.status === "ready" || n.status === "approved_for_analysis") ? (
-              <div className="mt-4">
-                <Button
-                  size="sm"
-                  disabled={pending}
-                  onClick={() => {
-                    setUnavailable(null);
-                    run<{ available: boolean; problem: NoModelExplanation | null }>(
-                      () => analyzeNoteAction(slug, n.id, locale),
-                      (r) => setUnavailable(r.available ? null : r.problem),
-                    );
-                  }}
-                >
-                  {pending ? t("analyzing") : t("analyze")}
-                </Button>
-              </div>
-            ) : null}
-            {canWrite && n.status !== "analyzed" ? (
+            {canWrite ? (
               <div className="mt-4 flex gap-2">
                 <Button variant="outline" size="sm" onClick={() => setEditing(n)}>
                   {t("edit")}
@@ -172,15 +145,6 @@ export function MeetingNotesPanel({
         <NoteDialog slug={slug} open note={editing} onClose={() => setEditing(null)} />
       ) : null}
       {declining || deleting ? null : <EngagementError error={error} />}
-      {unavailable ? (
-        <Notice tone="warning">
-          {t(`unavailable.${unavailable.reason}`, {
-            model: unavailable.model ?? "",
-            missing: (unavailable.missing ?? []).map((c) => caps(c)).join(", "),
-            code: unavailable.code ?? "",
-          })}
-        </Notice>
-      ) : null}
       <ConfirmDialog
         open={declining !== null}
         title={t("declineTitle")}

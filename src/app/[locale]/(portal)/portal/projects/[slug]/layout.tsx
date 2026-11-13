@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { StageBadge } from "@/components/portal/progress";
 import { ProjectTabs } from "@/components/portal/project-tabs";
 import { portalProjectView } from "../../access";
 
@@ -23,7 +22,6 @@ export default async function PortalProjectLayout({
         <p className="text-sm break-words text-muted-foreground">{view.clientName}</p>
         <div className="mt-1 flex flex-wrap items-center gap-3">
           <h1 className="min-w-0 text-2xl font-semibold tracking-tight break-words">{view.name}</h1>
-          <StageBadge stage={view.stage} />
         </div>
       </div>
       <ProjectTabs slug={slug} />

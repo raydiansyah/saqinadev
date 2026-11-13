@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import {
   createInvoiceAction,
+  remindInvoiceAction,
   transitionInvoiceAction,
 } from "@/app/[locale]/(app)/project/[slug]/billing/actions";
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
@@ -174,6 +175,16 @@ export function InvoicesPanel({
                           }
                         >
                           {t("recordPayment")}
+                        </Button>
+                      ) : null}
+                      {canWrite && OPEN.includes(inv.status) ? (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          disabled={pending}
+                          onClick={() => run(() => remindInvoiceAction(slug, inv.id))}
+                        >
+                          {t("remind")}
                         </Button>
                       ) : null}
                       <Link

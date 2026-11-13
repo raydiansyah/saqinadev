@@ -8,14 +8,6 @@
     {
       "path": "/api/cron/maintenance",
       "schedule": "30 1 * * *"
-    },
-    {
-      "path": "/api/cron/doc-sync",
-      "schedule": "0 2 * * *"
-    },
-    {
-      "path": "/api/cron/executions",
-      "schedule": "15 2 * * *"
     }
   ],
   "git": {

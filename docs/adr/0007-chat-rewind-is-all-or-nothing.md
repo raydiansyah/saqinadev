@@ -1,6 +1,6 @@
 # 7. Chat rewind is all or nothing
 
-Status: accepted (2026-10-26). Risk lane: Red (it changes project data, including documents shown to clients).
+Status: accepted (2026-10-26). Risk lane: Red (it changes project data, including documents shown to clients). Superseded by [ADR 0027](0027-v1-billing-focus.md): the feature was removed in v1.
 
 ## Context
 

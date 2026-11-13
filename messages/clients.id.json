@@ -158,17 +158,5 @@
       "confirmed": "Terkonfirmasi",
       "void": "Dibatalkan"
     }
-  },
-  "workspaceMode": {
-    "title": "Mode workspace",
-    "description": "Pilih seberapa banyak bagian workspace yang Anda lihat. Anda bisa beralih kapan saja; tidak ada data yang dihapus.",
-    "legend": "Mode workspace",
-    "simple": "Sederhana",
-    "simpleBody": "Menampilkan klien, project, invoice dan pembayaran.",
-    "advanced": "Lanjutan",
-    "advancedBody": "Menambahkan aktivitas, model AI, agen, integrasi dan halaman teknis project.",
-    "save": "Simpan mode",
-    "saving": "Menyimpan...",
-    "saved": "Mode tersimpan."
   }
 }

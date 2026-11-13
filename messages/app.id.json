@@ -74,81 +74,18 @@
       "startNew": "Buat Project baru"
     },
     "newProject": {
-      "github": {
-        "tabs": "Cara memulai",
-        "tabIdea": "Dari sebuah ide",
-        "tabGithub": "Impor dari GitHub",
-        "title": "Impor proyek yang sudah ada",
-        "body": "Saqina membaca README, PRD, dan dokumen di repository Anda lalu mengisi interview untuk Anda. Anda cukup meninjau jawabannya, tidak mulai dari nol.",
-        "repoLabel": "Repository GitHub",
-        "repoPlaceholder": "acme/restaurant-pos atau https://github.com/acme/restaurant-pos",
-        "docsLabel": "Folder dokumentasi (opsional)",
-        "docsHint": "Semua isi folder ini dibaca dan ditampilkan di Saqina, dan klien Anda bisa membacanya. Kosongkan untuk docs. Isinya terus mengikuti GitHub.",
-        "repoHint": "Repository publik tidak memerlukan isian lain.",
-        "tokenLabel": "Token akses (hanya untuk repository privat)",
-        "tokenPlaceholder": "Tempel token read-only di sini",
-        "tokenHint": "Token fine-grained dengan akses baca ke Contents. Disimpan terenkripsi dan menghubungkan repository ke proyek.",
-        "aiLabel": "Izinkan AI membaca dokumen",
-        "aiHint": "Dokumen repository dikirim ke model AI yang Anda konfigurasi agar jawaban lebih akurat. Tanpa ini dipakai aturan sederhana dan tidak ada data yang keluar dari server ini.",
-        "submit": "Impor dan tinjau",
-        "pending": "Membaca repository…",
-        "errors": {
-          "docsPath": "Isi nama folder di dalam repository, misalnya docs atau documentation/product.",
-          "invalid": "Masukkan repository sebagai owner/nama atau URL GitHub.",
-          "auth_failed": "GitHub menolak akses. Periksa token dan izinnya.",
-          "not_found": "Repository tidak ditemukan. Untuk repository privat, tambahkan token.",
-          "rate_limited": "GitHub membatasi permintaan. Coba lagi beberapa menit lagi.",
-          "network": "GitHub tidak dapat dihubungi. Coba lagi.",
-          "provider_error": "GitHub mengembalikan error. Coba lagi nanti.",
-          "too_large": "Ada file di repository ini yang terlalu besar untuk dibaca.",
-          "unsupported": "Host repository ini belum didukung.",
-          "github_not_connected": "Hubungkan lagi akun GitHub Anda, atau tempel token."
-        },
-        "connectTitle": "Akun GitHub",
-        "connect": "Hubungkan dengan GitHub",
-        "connectHint": "Hubungkan akun GitHub Anda untuk memilih repositori dari daftar Anda, termasuk yang private. Tidak perlu menyalin token. Anda bisa memutuskan kapan saja.",
-        "connectedAs": "Terhubung sebagai @{login}",
-        "disconnect": "Putuskan",
-        "flags": {
-          "connected": "GitHub terhubung sebagai @{login}.",
-          "denied": "Akses GitHub tidak diberikan. Hubungkan lagi jika ingin memilih dari repositori Anda.",
-          "invalid_state": "Percobaan koneksi kedaluwarsa atau tidak cocok dengan browser ini. Coba hubungkan lagi.",
-          "exchange_failed": "GitHub tidak menyelesaikan koneksi. Coba lagi.",
-          "profile_failed": "Terhubung, tetapi GitHub tidak mengirim data akun Anda. Coba lagi.",
-          "not_configured": "Koneksi ke GitHub belum diatur di server ini.",
-          "rate_limited": "Terlalu banyak percobaan. Coba lagi nanti."
-        },
-        "picker": {
-          "label": "Repositori Anda",
-          "search": "Cari berdasarkan nama",
-          "loading": "Memuat repositori Anda…",
-          "empty": "Tidak ada repositori untuk akun ini.",
-          "noMatch": "Tidak ada repositori yang cocok.",
-          "private": "private",
-          "public": "publik",
-          "load_failed": "Tidak bisa memuat repositori Anda. Coba lagi.",
-          "rate_limited": "Terlalu banyak permintaan. Coba lagi beberapa menit lagi."
-        }
-      },
       "metaTitle": "Proyek baru",
-      "title": "Apa yang ingin Anda bangun?",
-      "body": "Jelaskan dengan kata-kata Anda sendiri. Semua bisa disempurnakan di interview.",
-      "label": "Ide Anda",
-      "placeholder": "Saya ingin membuat POS untuk restoran kecil dengan pesanan per meja dan laporan penjualan harian.",
-      "examples": "Contoh",
-      "exampleList": [
-        "POS untuk restoran kecil dengan pesanan per meja",
-        "Marketplace tempat pengrajin lokal berjualan ke pembeli",
-        "Sistem booking untuk klinik dokter gigi",
-        "Situs portofolio untuk studio arsitektur"
-      ],
-      "submit": "Mulai interview",
+      "title": "Proyek baru",
+      "body": "Satu proyek menampung invoice, kwitansi, kontrak, dan pengingat untuk satu klien.",
+      "nameLabel": "Nama proyek",
+      "namePlaceholder": "Website untuk Warung Sari",
+      "descriptionLabel": "Deskripsi (opsional)",
+      "descriptionHint": "Catatan untuk Anda sendiri. Klien tidak melihatnya kecuali Anda membagikannya.",
+      "clientLabel": "Klien",
+      "clientNone": "Belum ada klien",
+      "submit": "Buat proyek",
       "pending": "Membuat proyek…",
-      "tooShort": "Jelaskan ide minimal 10 karakter.",
-      "importTitle": "Lanjutkan dari preview",
-      "importBody": "Anda sudah memulai interview di preview publik. Impor jawaban itu ke proyek ini?",
-      "import": "Impor jawaban",
-      "skipImport": "Mulai dari awal"
+      "tooShort": "Isi nama minimal 2 karakter."
     },
     "activity": {
       "metaTitle": "Aktivitas",
@@ -269,8 +206,7 @@
           "name": "Nama portal",
           "logo": "Logo",
           "accent_colour": "Warna aksen",
-          "domain": "Domain sendiri, setelah kepemilikan dibuktikan",
-          "email_sender": "Nama dan logo pengirim pada email ke klien",
+          "email_sender": "Nama pengirim dan brand pada email ke klien",
           "issuer_details": "Kop, nama hukum, dan nomor pajak pada invoice dan dokumen"
         },
         "never": {
@@ -298,6 +234,44 @@
         "granted": "White label terbuka untuk organisasi ini.",
         "closeTitle": "Tutup white label",
         "revoke": "Tutup"
+      },
+      "brand": {
+        "title": "Brand",
+        "intro": "Nama, logo, dan warna Anda di portal klien, email ke klien, serta invoice, kwitansi, dan kontrak. Area tim selalu tetap Saqina.",
+        "locked": "Pengaturan brand terbuka saat white label dibuka untuk organisasi Anda.",
+        "logo": "Berkas logo",
+        "uploadLogo": "Unggah logo",
+        "removeLogo": "Hapus logo",
+        "logoHint": "PNG atau JPEG, maksimal {kb} KB, 32 sampai 1600 px. Logo tampil di atas latar terang.",
+        "brandName": "Nama brand",
+        "brandNameHint": "Ditampilkan ke klien sebagai ganti Saqina. Tidak boleh meniru platform.",
+        "legalName": "Nama badan hukum",
+        "legalNameHint": "Dicetak sebagai penerbit di invoice, kwitansi, dan kontrak. Kosongkan untuk memakai nama brand.",
+        "taxNumber": "NPWP",
+        "address": "Alamat",
+        "accent": "Warna aksen",
+        "accentPicker": "Pilih warna aksen",
+        "accentHint": "Dipakai untuk tombol dan cincin fokus di portal. Warna harus menonjol dari halaman gelap dan teks tombolnya terbaca.",
+        "emailFromName": "Nama pengirim email",
+        "emailFromNameHint": "Klien melihat ini sebagai pengirim. Alamatnya tetap alamat Saqina yang terverifikasi.",
+        "replyTo": "Alamat balasan",
+        "save": "Simpan brand",
+        "saved": "Brand tersimpan.",
+        "readOnly": "Hanya owner atau admin yang bisa mengubah brand.",
+        "errors": {
+          "generic": "Brand tidak bisa disimpan. Periksa isian lalu coba lagi.",
+          "imitation": "Nama brand tidak boleh memuat nama platform.",
+          "accent": {
+            "invalid": "Tulis warna sebagai #rrggbb.",
+            "lowOnPage": "Warna ini terlalu gelap untuk menonjol di portal. Pilih yang lebih terang.",
+            "lowText": "Tidak ada warna teks yang terbaca di atas warna ini. Pilih yang lebih terang atau lebih gelap."
+          },
+          "logo": {
+            "tooLarge": "Logo lebih besar dari 200 KB.",
+            "type": "Pakai berkas PNG atau JPEG.",
+            "dimensions": "Sisi logo harus 32 sampai 1600 px."
+          }
+        }
       }
     }
   }

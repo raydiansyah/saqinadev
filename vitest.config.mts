@@ -9,6 +9,8 @@ try {
 }
 
 export default defineConfig({
+  // Tests render PDF components (JSX) directly.
+  esbuild: { jsx: "automatic" },
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
@@ -24,7 +26,7 @@ export default defineConfig({
       provider: "v8",
       reporter: ["text-summary", "json-summary", "lcov"],
       include: ["src/lib/**/*.ts", "src/app/api/**/*.ts", "src/app/**/actions.ts"],
-      exclude: ["**/*.d.ts", "src/lib/db/migrations/**", "src/lib/interview/copy/**"],
+      exclude: ["**/*.d.ts", "src/lib/db/migrations/**"],
     },
     environment: "node",
     // Integration tests share one database; run files one at a time.
@@ -32,11 +34,7 @@ export default defineConfig({
     env: {
       // Service tests talk to the dedicated test database, never the dev one.
       DATABASE_URL: process.env.DATABASE_URL_TEST ?? "",
-      // Test-only encryption key (not a secret: it protects nothing outside the test database).
-      SAQINA_ENCRYPTION_KEY: "dGVzdC1vbmx5LWtleS1kby1ub3QtdXNlLWFueXdoZXI=",
-      ALLOW_LOCAL_GIT: "1",
       PLATFORM_OWNER_EMAILS: "",
-      ANTHROPIC_API_KEY: "",
     },
   },
 });

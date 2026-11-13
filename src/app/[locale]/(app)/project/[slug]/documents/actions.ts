@@ -3,11 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { DEFAULT_LOCALE, isLocale } from "@/i18n/locales";
 import { runAction } from "@/lib/actions";
-import { loadProjectAccess } from "@/lib/auth/permissions";
 import { requireActor } from "@/lib/auth/server";
-import { getConflictRemote } from "@/lib/docsync/config";
-import { pullFromGithub } from "@/lib/docsync/pull";
-import { scheduleDocSync } from "@/lib/docsync/schedule";
 import { generateBusinessDocument } from "@/lib/documents/business";
 import {
   createDocument,
@@ -16,6 +12,7 @@ import {
   setDocumentStatus,
 } from "@/lib/documents/service";
 import { signAsTeam } from "@/lib/documents/signing";
+import { remindDocumentSignature } from "@/lib/reminders/manual";
 
 const refresh = () => revalidatePath("/[locale]/project/[slug]", "layout");
 
@@ -25,13 +22,8 @@ export async function saveDocumentAction(
 ) {
   return runAction("document.save", { slug, doc: input.docSlug }, async () => {
     const actor = await requireActor();
-    // GitHub first: a project that follows GitHub reads it before the edit is saved, so a newer
-    // file there reaches the editor as a version conflict instead of being overwritten.
-    await loadProjectAccess(actor, { slug }, "content:write");
-    await pullFromGithub({ slug }, 30_000);
     const row = await saveDocument(actor, slug, input);
     refresh();
-    scheduleDocSync({ slug });
     return { version: row.version, updatedAt: row.updatedAt.toISOString() };
   });
 }
@@ -40,7 +32,6 @@ export async function setDocumentStatusAction(slug: string, docSlug: string, sta
   return runAction("document.status", { slug, doc: docSlug }, async () => {
     await setDocumentStatus(await requireActor(), slug, { docSlug, status });
     refresh();
-    scheduleDocSync({ slug });
   });
 }
 
@@ -48,7 +39,6 @@ export async function createDocumentAction(slug: string, title: string) {
   return runAction("document.create", { slug }, async () => {
     const result = await createDocument(await requireActor(), slug, { title });
     refresh();
-    scheduleDocSync({ slug });
     return result;
   });
 }
@@ -57,15 +47,7 @@ export async function setDocumentSharedAction(slug: string, docSlug: string, vis
   return runAction("document.share", { slug, doc: docSlug }, async () => {
     await setDocumentClientVisible(await requireActor(), slug, { docSlug, visible });
     refresh();
-    scheduleDocSync({ slug });
   });
-}
-
-/** The repository's side of a sync conflict, for the compare dialog. */
-export async function getDocConflictAction(slug: string, documentId: string) {
-  return runAction("document.conflict", { slug, documentId }, async () =>
-    getConflictRemote(await requireActor(), slug, documentId),
-  );
 }
 
 /** Proposal, agreement, handover or maintenance agreement drafted from the project records. */
@@ -90,4 +72,11 @@ export async function signDocumentAction(slug: string, docSlug: string) {
     refresh();
     return result;
   });
+}
+
+/** A reminder to the client now, for an agreement they have not signed. Once per day. */
+export async function remindSignatureAction(slug: string, docSlug: string) {
+  return runAction("document.remind", { slug, doc: docSlug }, async () =>
+    remindDocumentSignature(await requireActor(), slug, docSlug),
+  );
 }

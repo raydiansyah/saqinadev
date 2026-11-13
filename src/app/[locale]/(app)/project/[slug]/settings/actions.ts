@@ -6,34 +6,13 @@ import { redirect } from "@/i18n/navigation";
 import { runAction } from "@/lib/actions";
 import { requireActor } from "@/lib/auth/server";
 import { setProjectClient } from "@/lib/clients/service";
-import { createAgentToken, revokeAgentToken } from "@/lib/mcp/tokens";
-import {
-  deleteProject,
-  setProjectArchived,
-  updateApprovalPolicy,
-  updateProjectGeneral,
-  updateProjectSettings,
-} from "@/lib/projects/service";
+import { deleteProject, setProjectArchived, updateProjectGeneral } from "@/lib/projects/service";
 
 const refresh = () => revalidatePath("/[locale]/project/[slug]", "layout");
 
 export async function updateGeneralAction(slug: string, input: unknown) {
   return runAction("project.update", { slug }, async () => {
     await updateProjectGeneral(await requireActor(), slug, input);
-    refresh();
-  });
-}
-
-export async function updateSettingsAction(slug: string, input: unknown) {
-  return runAction("project.settings", { slug }, async () => {
-    await updateProjectSettings(await requireActor(), slug, input);
-    refresh();
-  });
-}
-
-export async function updateApprovalPolicyAction(slug: string, input: unknown) {
-  return runAction("project.approvalPolicy", { slug }, async () => {
-    await updateApprovalPolicy(await requireActor(), slug, input);
     refresh();
   });
 }
@@ -48,21 +27,6 @@ export async function setProjectClientAction(slug: string, input: unknown) {
 export async function setArchivedAction(slug: string, archived: boolean) {
   return runAction("project.archive", { slug, archived }, async () => {
     await setProjectArchived(await requireActor(), slug, archived);
-    refresh();
-  });
-}
-
-export async function createAgentTokenAction(slug: string, input: unknown) {
-  return runAction("mcp.token.create", { slug }, async () => {
-    const created = await createAgentToken(await requireActor(), slug, input);
-    refresh();
-    return created;
-  });
-}
-
-export async function revokeAgentTokenAction(slug: string, tokenId: string) {
-  return runAction("mcp.token.revoke", { slug }, async () => {
-    await revokeAgentToken(await requireActor(), slug, tokenId);
     refresh();
   });
 }

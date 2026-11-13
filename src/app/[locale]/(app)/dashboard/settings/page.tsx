@@ -9,10 +9,8 @@ import { planDeletion } from "@/lib/account/delete";
 import { requireActorPage } from "@/lib/auth/server";
 import { isPlatformOwner } from "@/lib/platform/roles";
 import { isRegistrationEnabled } from "@/lib/platform/settings";
-import { getUiMode } from "@/lib/users/preferences";
 import { AccountDataForm } from "./account-data-form";
 import { RegistrationForm } from "./registration-form";
-import { WorkspaceModeForm } from "./workspace-mode-form";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("app.settings");
@@ -21,12 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AccountSettingsPage() {
   const actor = await requireActorPage("/dashboard/settings");
-  const [t, tm, mode, owner] = await Promise.all([
-    getTranslations("app"),
-    getTranslations("workspaceMode"),
-    getUiMode(actor),
-    isPlatformOwner(actor),
-  ]);
+  const [t, owner] = await Promise.all([getTranslations("app"), isPlatformOwner(actor)]);
   const plan = await planDeletion(actor);
   const registrationOpen = owner ? await isRegistrationEnabled() : true;
   return (
@@ -49,13 +42,6 @@ export default async function AccountSettingsPage() {
             {t("settings.language")}
           </h2>
           <LanguageSwitcher className="mt-3" />
-        </section>
-        <section aria-labelledby="mode-heading" className="rounded-lg border border-border p-5">
-          <h2 id="mode-heading" className="font-medium">
-            {tm("title")}
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">{tm("description")}</p>
-          <WorkspaceModeForm mode={mode} />
         </section>
         <section aria-labelledby="wl-heading" className="rounded-lg border border-border p-5">
           <h2 id="wl-heading" className="font-medium">

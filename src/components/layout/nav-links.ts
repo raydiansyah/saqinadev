@@ -1,11 +1,5 @@
 /** Links shared by the navbar, mobile menu and footer. Labels come from messages. */
-export const NAV_LINKS = [
-  { key: "product", hash: "product" },
-  { key: "howItWorks", hash: "how-it-works" },
-  { key: "try", hash: "try" },
-  { key: "services", path: "/services" },
-  { key: "themes", path: "/themes" },
-] as const;
+export const NAV_LINKS = [{ key: "features", hash: "features" }] as const;
 
 export type NavKey = (typeof NAV_LINKS)[number]["key"];
 
@@ -16,5 +10,5 @@ export interface ResolvedNavLink {
 
 /** Section links point at the landing page hash; path links at their own localized page. */
 export function navHref(link: (typeof NAV_LINKS)[number], locale: string): string {
-  return "path" in link ? `/${locale}${link.path}` : `/${locale}#${link.hash}`;
+  return `/${locale}#${link.hash}`;
 }

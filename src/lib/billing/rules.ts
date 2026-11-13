@@ -79,6 +79,10 @@ export function resolveTermAmounts(
   return diff === 0 ? amounts : null;
 }
 
+/** "KWT-2026-007" */
+export const receiptNumber = (year: number, n: number) =>
+  `KWT-${year}-${String(n).padStart(3, "0")}`;
+
 /** "INV-2026-007" */
 export const invoiceNumber = (year: number, n: number) =>
   `INV-${year}-${String(n).padStart(3, "0")}`;

@@ -1,13 +1,13 @@
 import "server-only";
-import { and, asc, desc, eq, inArray, isNotNull, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNotNull, isNull, notExists } from "drizzle-orm";
 import * as z from "zod";
 import { recordActivity } from "@/lib/activity/service";
 import type { Actor } from "@/lib/auth/actor";
 import { todayIso } from "@/lib/billing/rules";
 import { db, type Tx } from "@/lib/db/client";
 import {
-  changeRequests,
-  clientApprovals,
+  documentSignatures,
+  documents,
   invoices,
   maintenancePlans,
   organizations,
@@ -15,6 +15,7 @@ import {
   reminderLog,
   reminderRules,
 } from "@/lib/db/schema";
+import { SIGNABLE_KINDS } from "@/lib/documents/reference";
 import type { ReminderKind } from "@/lib/domain/business";
 import { AppError } from "@/lib/errors";
 import { formatMoney } from "@/lib/money";
@@ -29,23 +30,26 @@ import { requireOrg } from "@/lib/organizations/service";
 import { parse } from "@/lib/validation";
 import { DEFAULT_RULES, pickRule, type RuleLike, windowKey } from "./rules";
 
-/** Rules for an organization; the defaults are created the first time they are read. */
+/**
+ * Rules for an organization. Any default rule it does not have yet is created, so a new kind of
+ * reminder reaches organizations that already have rules. Existing rules are never touched.
+ */
 export async function orgRules(organizationId: string, executor: Tx | typeof db = db) {
-  const rows = await executor
-    .select()
-    .from(reminderRules)
-    .where(eq(reminderRules.organizationId, organizationId))
-    .orderBy(asc(reminderRules.kind), asc(reminderRules.offsetDays));
-  if (rows.length > 0) return rows;
+  const read = () =>
+    executor
+      .select()
+      .from(reminderRules)
+      .where(eq(reminderRules.organizationId, organizationId))
+      .orderBy(asc(reminderRules.kind), asc(reminderRules.offsetDays));
+  const rows = await read();
+  const have = new Set(rows.map((r) => `${r.kind}:${r.offsetDays}`));
+  const missing = DEFAULT_RULES.filter((r) => !have.has(`${r.kind}:${r.offsetDays}`));
+  if (missing.length === 0) return rows;
   await executor
     .insert(reminderRules)
-    .values(DEFAULT_RULES.map((r) => ({ ...r, organizationId })))
+    .values(missing.map((r) => ({ ...r, organizationId })))
     .onConflictDoNothing();
-  return executor
-    .select()
-    .from(reminderRules)
-    .where(eq(reminderRules.organizationId, organizationId))
-    .orderBy(asc(reminderRules.kind), asc(reminderRules.offsetDays));
+  return read();
 }
 
 export async function setRuleEnabled(actor: Actor, input: unknown) {
@@ -54,6 +58,18 @@ export async function setRuleEnabled(actor: Actor, input: unknown) {
   const [row] = await db
     .update(reminderRules)
     .set({ enabled })
+    .where(and(eq(reminderRules.id, id), eq(reminderRules.organizationId, org.id)))
+    .returning({ id: reminderRules.id });
+  if (!row) throw new AppError("NOT_FOUND");
+}
+
+/** Also send a rule's client reminders by WhatsApp, or stop doing so. */
+export async function setRuleWhatsapp(actor: Actor, input: unknown) {
+  const { id, whatsapp } = parse(z.object({ id: z.uuid(), whatsapp: z.boolean() }), input);
+  const { org } = await requireOrg(actor, "billing:write");
+  const [row] = await db
+    .update(reminderRules)
+    .set({ whatsapp })
     .where(and(eq(reminderRules.id, id), eq(reminderRules.organizationId, org.id)))
     .returning({ id: reminderRules.id });
   if (!row) throw new AppError("NOT_FOUND");
@@ -77,7 +93,7 @@ const dateOf = (d: Date) => d.toISOString().slice(0, 10);
 
 async function candidates(organizationId: string): Promise<Candidate[]> {
   const live = and(eq(projects.organizationId, organizationId), isNull(projects.archivedAt));
-  const [inv, approvals, crs, plans] = await Promise.all([
+  const [inv, unsigned, plans] = await Promise.all([
     db
       .select({ i: invoices, slug: projects.slug, name: projects.name })
       .from(invoices)
@@ -90,15 +106,28 @@ async function candidates(organizationId: string): Promise<Candidate[]> {
         ),
       ),
     db
-      .select({ a: clientApprovals, slug: projects.slug, name: projects.name })
-      .from(clientApprovals)
-      .innerJoin(projects, eq(projects.id, clientApprovals.projectId))
-      .where(and(live, eq(clientApprovals.status, "pending"))),
-    db
-      .select({ c: changeRequests, slug: projects.slug, name: projects.name })
-      .from(changeRequests)
-      .innerJoin(projects, eq(projects.id, changeRequests.projectId))
-      .where(and(live, eq(changeRequests.status, "sent"), isNotNull(changeRequests.sentAt))),
+      .select({ d: documents, slug: projects.slug, name: projects.name })
+      .from(documents)
+      .innerJoin(projects, eq(projects.id, documents.projectId))
+      .where(
+        and(
+          live,
+          eq(documents.status, "approved"),
+          eq(documents.clientVisible, true),
+          inArray(documents.type, [...SIGNABLE_KINDS]),
+          notExists(
+            db
+              .select({ id: documentSignatures.id })
+              .from(documentSignatures)
+              .where(
+                and(
+                  eq(documentSignatures.documentId, documents.id),
+                  eq(documentSignatures.party, "client"),
+                ),
+              ),
+          ),
+        ),
+      ),
     db
       .select({ m: maintenancePlans, slug: projects.slug, name: projects.name })
       .from(maintenancePlans)
@@ -132,25 +161,15 @@ async function candidates(organizationId: string): Promise<Candidate[]> {
         { ...shared, kind: "invoice_overdue" as const },
       ];
     }),
-    ...approvals.map(({ a, slug, name }) => ({
-      ...base(a.projectId, slug, name),
-      kind: "approval_pending" as const,
-      entityType: "client_approval",
-      entityId: a.id,
-      anchor: dateOf(a.createdAt),
-      params: { title: a.title, project: name },
-      teamPath: "/client-approvals",
-      clientPath: "/approvals",
-    })),
-    ...crs.map(({ c, slug, name }) => ({
-      ...base(c.projectId, slug, name),
-      kind: "change_request_pending" as const,
-      entityType: "change_request",
-      entityId: c.id,
-      anchor: dateOf(c.sentAt as Date),
-      params: { number: `CR-${String(c.number).padStart(3, "0")}`, title: c.title, project: name },
-      teamPath: "/changes",
-      clientPath: "/changes",
+    ...unsigned.map(({ d, slug, name }) => ({
+      ...base(d.projectId, slug, name),
+      kind: "document_signature_pending" as const,
+      entityType: "document",
+      entityId: d.id,
+      anchor: dateOf(d.updatedAt),
+      params: { title: d.title, project: name },
+      teamPath: `/documents/${d.slug}`,
+      clientPath: `/documents/${d.slug}`,
     })),
     ...plans.map(({ m, slug, name }) => ({
       ...base(m.projectId, slug, name),
@@ -216,6 +235,7 @@ async function runForOrg(organizationId: string, today: string): Promise<[number
             href: `/portal/projects/${c.projectSlug}${c.clientPath}`,
             dedupKey: `reminder:${claimed.id}`,
             email: true,
+            whatsapp: rule.whatsapp,
           }),
         );
       const recipients = out.reduce((a, p) => a + p.ids.length, 0);

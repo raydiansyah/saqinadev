@@ -14,58 +14,7 @@
       "title": "Project update",
       "body": "Something changed in {project}."
     },
-    "requestStatuses": {
-      "open": "open",
-      "in_review": "in review",
-      "resolved": "resolved",
-      "declined": "declined",
-      "converted": "converted to a change request"
-    },
     "types": {
-      "request": {
-        "created": {
-          "title": "New request",
-          "body": "{title} in {project}"
-        },
-        "updated": {
-          "title": "Request updated",
-          "body": "{title} is now {status}"
-        }
-      },
-      "message": {
-        "posted": {
-          "title": "New message",
-          "body": "{author} wrote in {project}"
-        }
-      },
-      "approval": {
-        "requested": {
-          "title": "Approval requested",
-          "body": "{title} in {project}"
-        },
-        "approved": {
-          "title": "Approved",
-          "body": "{title} in {project} was approved"
-        },
-        "changes_requested": {
-          "title": "Changes requested",
-          "body": "{title} in {project} needs changes"
-        }
-      },
-      "change_request": {
-        "sent": {
-          "title": "Change request to review",
-          "body": "{number}: {title} in {project}"
-        },
-        "approved": {
-          "title": "Change request approved",
-          "body": "{number}: {title} in {project}"
-        },
-        "rejected": {
-          "title": "Change request declined",
-          "body": "{number}: {title} in {project}"
-        }
-      },
       "invoice": {
         "issued": {
           "title": "New invoice",
@@ -81,17 +30,13 @@
           "title": "Invoice overdue",
           "body": "{number} for {amount} was due on {due} ({project})"
         },
-        "approval_pending": {
-          "title": "Approval still waiting",
-          "body": "{title} in {project} is waiting for a decision"
-        },
-        "change_request_pending": {
-          "title": "Change request still waiting",
-          "body": "{number}: {title} in {project} is waiting for a decision"
-        },
         "maintenance_renewal": {
           "title": "Maintenance ends soon",
           "body": "{name} for {project} ends on {end}"
+        },
+        "document_signature_pending": {
+          "title": "Signature still waiting",
+          "body": "{title} in {project} is waiting for a signature"
         }
       },
       "client": {
@@ -100,13 +45,9 @@
             "title": "Payment reminder",
             "body": "{number} for {amount} is due on {due} ({project})"
           },
-          "client_approval": {
-            "title": "Your approval is needed",
+          "document": {
+            "title": "Your signature is needed",
             "body": "{title} in {project} is waiting for you"
-          },
-          "change_request": {
-            "title": "Change request to review",
-            "body": "{number}: {title} in {project} is waiting for you"
           }
         }
       },
@@ -145,40 +86,48 @@
           "title": "Changes requested",
           "body": "{title} in {project} needs changes"
         }
+      },
+      "receipt": {
+        "issued": {
+          "title": "New receipt",
+          "body": "{number} for {amount} in {project}"
+        }
       }
     }
   },
   "reminders": {
     "title": "Reminders",
     "metaTitle": "Reminders",
-    "description": "Automatic reminders for invoices, approvals, change requests and maintenance plans.",
+    "description": "Automatic reminders for unpaid invoices, agreements waiting for a signature and maintenance plans.",
     "how": {
       "title": "How reminders work",
       "daily": "Reminders run once a day through the scheduled job at /api/cron/reminders.",
       "once": "The same reminder is never sent twice for the same item.",
       "portal": "Clients only receive reminders when their portal is enabled for the project.",
-      "email": "Reminders also go out by email when an email provider is configured. Otherwise they appear in notifications only."
+      "email": "Reminders also go out by email when an email provider is configured. Otherwise they appear in notifications only.",
+      "whatsapp": "A rule can also send its client reminder to the client's phone number by WhatsApp. A client without a valid number is skipped."
     },
     "rules": {
       "title": "Rules",
       "enabled": "On",
       "disabled": "Off",
       "toggleLabel": "Send reminder: {rule}",
-      "readOnly": "You can view these rules. Ask an owner or admin to change them."
+      "readOnly": "You can view these rules. Ask an owner or admin to change them.",
+      "whatsappLabel": "Also send by WhatsApp: {rule}",
+      "whatsappOn": "WhatsApp on",
+      "whatsappOff": "WhatsApp off"
     },
     "kinds": {
       "invoice_due": "Invoice due",
       "invoice_overdue": "Invoice overdue",
-      "approval_pending": "Approval waiting",
-      "change_request_pending": "Change request waiting",
-      "maintenance_renewal": "Maintenance renewal"
+      "maintenance_renewal": "Maintenance renewal",
+      "document_signature_pending": "Signature waiting"
     },
     "anchors": {
       "invoice_due": "the due date",
       "invoice_overdue": "the due date",
-      "approval_pending": "the approval request",
-      "change_request_pending": "the change request was sent",
-      "maintenance_renewal": "the plan end date"
+      "maintenance_renewal": "the plan end date",
+      "document_signature_pending": "the document was approved"
     },
     "timing": {
       "before": "{days, plural, one {# day} other {# days}} before {anchor}",

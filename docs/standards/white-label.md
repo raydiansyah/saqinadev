@@ -4,8 +4,9 @@ This is an engineering standard, not legal advice. The company's lawyer approves
 
 White label means an agency or studio that uses Saqina presents the **client portal** under its own
 name, logo and colours. It never changes who is responsible for the data, and it never hides what a
-client needs to trust the portal. Status: **Planned** (no brand settings exist yet; the rules below
-bind the work that adds them and every change to portal-facing screens).
+client needs to trust the portal. Status: **Built** for the brand name, logo, accent colour, email sender
+and issuer details ([ADR 0028](../adr/0028-brand-in-the-database-and-the-letterhead.md)); a custom domain
+and the abuse contact are **Planned**. The rules below bind every change to portal-facing screens.
 
 ## The lock
 
@@ -17,8 +18,8 @@ brand setting must pass. It locks again when the plan or agreement ends or is br
 the day after its end date. Locking deletes nothing: the portal shows the default Saqina brand.
 
 The organization sees the state and its reason under Settings > White label; the same rules are in the
-in-app owner guide ("White label policy"). Every document carries the default Saqina logo as its letterhead
-whatever the state.
+in-app owner guide ("White label policy"). While it is locked, every document carries the Saqina mark as its
+letterhead. While it is open, the agency leads the letterhead and a small "powered by Saqina Dev" line stays.
 
 Basis in common practice (search summaries, not legal advice): a narrow, revocable trademark licence given
 by agreement or plan, "powered by" only by mutual agreement, provider marks removed on termination
@@ -33,9 +34,9 @@ by agreement or plan, "powered by" only by mutual agreement, provider marks remo
 | Surface | May use the agency's brand | Rule |
 |---|---|---|
 | Portal name, logo, accent colour | Yes | Set per organization by an owner or admin, never by a client |
-| Portal domain | Yes, a custom domain the organization proves it owns | Verified by DNS before it serves anything; no wildcard or shared cookies across domains |
-| Emails sent to the client (invoices, reminders, approvals) | Sender name and logo | Sent from the platform's verified sender domain unless the organization verified its own (SPF and DKIM) |
-| Invoices and documents shown to the client | Header, logo, legal name and tax number of the **agency** | The agency is the issuer; Saqina is never named as the seller |
+| Portal domain | Planned: a custom domain the organization proves it owns | Verified by DNS before it serves anything; no wildcard or shared cookies across domains |
+| Emails sent to the client (invoices, receipts, reminders, signatures) | Brand name, accent colour, sender display name, reply-to | Sent from the platform's verified sender address; the logo is not placed in mail because it is not a public file |
+| Invoices, receipts, contracts and their PDF files | Letterhead, logo, legal name, tax number and address of the **agency** | The agency is the issuer; Saqina is never named as the seller, and a small "powered by Saqina Dev" line stays |
 | Staff area (dashboard, project workspace) | No | Always Saqina: this is the tool, not the client's view |
 
 ## What is never hidden or changed
@@ -46,19 +47,21 @@ by agreement or plan, "powered by" only by mutual agreement, provider marks remo
   the processor, with the processors listed in [compliance.md](compliance.md).
 - **No misleading identity.** An organization cannot present itself as another company, and the
   display name is checked against the legal name on the organization.
-- **AI disclosure stays.** Text or answers produced by an AI remain marked as such in the portal.
-- **Reporting a problem stays reachable**: an abuse and security contact is always visible.
+- **AI disclosure stays.** Text produced by an AI, if the product ever shows any, remains marked as such.
+- **Reporting a problem stays reachable**: an abuse and security contact is always visible (Planned; the
+  portal footer shows the privacy and terms links today).
 
 ## Isolation
 
 - Branding is data of one organization. A portal reads only its own organization's brand; a request for
   another organization's brand or assets is NOT_FOUND, with a test that a stranger gets nothing.
-- Uploaded logos are validated on the server: type (PNG, JPEG, SVG sanitised or rasterised), size,
-  dimensions. An SVG is never inlined as HTML; it is shown as an image.
+- Uploaded logos are validated on the server: the type is read from the bytes and only PNG and JPEG pass
+  (an SVG can carry script, so it is refused), at most 200 KB and 32 to 1600 px. The logo is served by an
+  authenticated route to the organization's people and its clients only, with `nosniff` and a sandbox CSP.
 - Colours are validated and contrast-checked (WCAG 2.1 AA) before they are saved, so a brand cannot
   make the portal unreadable. See [ui-ux.md](ui-ux.md).
-- Custom domains are listed in one place and removed with the organization; a freed domain stops
-  serving at once.
+- Custom domains (Planned) will be listed in one place and removed with the organization; a freed domain
+  stops serving at once.
 
 ## Who decides
 
@@ -75,5 +78,5 @@ by agreement or plan, "powered by" only by mutual agreement, provider marks remo
 - [ ] A stranger and a client of another organization cannot read this organization's brand or assets.
 - [ ] Contrast checked for the brand colours; works at 320, 768 and 1280 px.
 - [ ] Privacy, terms, abuse contact and the AI marker are still shown.
-- [ ] Emails and invoices name the agency as the issuer.
+- [ ] Emails, invoices, receipts and contracts name the agency as the issuer.
 - [ ] Logo and domain inputs are validated on the server; the change is audited.

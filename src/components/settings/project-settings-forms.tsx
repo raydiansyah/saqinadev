@@ -6,28 +6,17 @@ import {
   deleteProjectAction,
   setArchivedAction,
   updateGeneralAction,
-  updateSettingsAction,
 } from "@/app/[locale]/(app)/project/[slug]/settings/actions";
 import { ConfirmDialog } from "@/components/app/confirm-dialog";
 import { SaveIndicator, type SaveState } from "@/components/app/save-indicator";
 import { Button } from "@/components/ui/button";
-import { Field, Select, TextArea } from "@/components/ui/form";
+import { Field, TextArea } from "@/components/ui/form";
 import { onSubmitData } from "@/components/ui/form-submit";
-import { BUILD_STRATEGIES, DEPLOY_PROVIDERS, REPO_PROVIDERS } from "@/lib/domain/enums";
 import type { ActionResult, FieldErrors } from "@/lib/errors";
 
 export interface SettingsValues {
   name: string;
   description: string;
-  buildStrategy: (typeof BUILD_STRATEGIES)[number];
-  repoProvider: string;
-  repoUrl: string;
-  defaultBranch: string;
-  deployProvider: string;
-  environment: string;
-  domain: string;
-  aiProvider: string;
-  aiModel: string;
 }
 
 function Section({
@@ -128,141 +117,6 @@ export function GeneralForm({
         ) : null}
       </form>
     </Section>
-  );
-}
-
-export function TechnicalForm({
-  slug,
-  values,
-  canEdit,
-}: {
-  slug: string;
-  values: SettingsValues;
-  canEdit: boolean;
-}) {
-  const t = useTranslations("project.settings");
-  const states = useTranslations("app.states");
-  const id = useId();
-  const save = useSave();
-  const [strategy, setStrategy] = useState(values.buildStrategy);
-  // Building with Saqina always deploys to <slug>.saqina.dev: nothing to configure.
-  const managedDeploy = strategy === "saqina";
-  const text = (name: keyof SettingsValues, label: string, placeholder: string, error?: string) => (
-    <Field
-      id={`${id}-${name}`}
-      name={name}
-      label={label}
-      defaultValue={values[name]}
-      placeholder={placeholder}
-      disabled={!canEdit}
-      error={error}
-    />
-  );
-  return (
-    <form
-      className="space-y-6"
-      onSubmit={onSubmitData((form) =>
-        save.run(() =>
-          updateSettingsAction(slug, {
-            buildStrategy: form.get("buildStrategy"),
-            repoProvider: form.get("repoProvider") || null,
-            repoUrl: form.get("repoUrl") ?? "",
-            defaultBranch: form.get("defaultBranch") ?? "",
-            // Hidden deploy fields keep their stored values instead of being cleared.
-            deployProvider: managedDeploy
-              ? values.deployProvider || null
-              : form.get("deployProvider") || null,
-            environment: managedDeploy ? values.environment : (form.get("environment") ?? ""),
-            domain: managedDeploy ? values.domain : (form.get("domain") ?? ""),
-            // Not editable here: keep what is stored instead of clearing it.
-            aiProvider: values.aiProvider,
-            aiModel: values.aiModel,
-          }),
-        ),
-      )}
-    >
-      <Section id={`${id}-build`} title={t("buildStrategy")}>
-        <Select
-          id={`${id}-strategy`}
-          name="buildStrategy"
-          label={t("buildStrategy")}
-          value={strategy}
-          onChange={(e) => setStrategy(e.target.value as typeof strategy)}
-          disabled={!canEdit}
-        >
-          {BUILD_STRATEGIES.map((s) => (
-            <option key={s} value={s}>
-              {t(`strategies.${s}`)}
-            </option>
-          ))}
-        </Select>
-      </Section>
-      <Section id={`${id}-technical`} title={t("technical")} hint={t("technicalHint")}>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Select
-            id={`${id}-repoProvider`}
-            name="repoProvider"
-            label={t("repoProvider")}
-            defaultValue={values.repoProvider}
-            disabled={!canEdit}
-          >
-            <option value="">{t("notSet")}</option>
-            {REPO_PROVIDERS.map((p) => (
-              <option key={p} value={p}>
-                {p === "custom" ? "Custom Git" : p[0].toUpperCase() + p.slice(1)}
-              </option>
-            ))}
-          </Select>
-          {text(
-            "repoUrl",
-            t("repoUrl"),
-            t("repoUrlPlaceholder"),
-            save.fields.repoUrl ? t("invalidUrl") : undefined,
-          )}
-          {text("defaultBranch", t("defaultBranch"), t("defaultBranchPlaceholder"))}
-          {managedDeploy ? (
-            <div className="sm:col-span-2">
-              <p className="text-sm font-medium">{t("deployProvider")}</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {t("managedDeploy", { domain: `${slug}.saqina.dev` })}
-              </p>
-            </div>
-          ) : (
-            <>
-              <Select
-                id={`${id}-deployProvider`}
-                name="deployProvider"
-                label={t("deployProvider")}
-                defaultValue={values.deployProvider}
-                disabled={!canEdit}
-              >
-                <option value="">{t("notSet")}</option>
-                {DEPLOY_PROVIDERS.map((p) => (
-                  <option key={p} value={p}>
-                    {p === "vercel" ? "Vercel" : p === "self-hosted" ? "Self-hosted" : "Other"}
-                  </option>
-                ))}
-              </Select>
-              {text("environment", t("environment"), t("environmentPlaceholder"))}
-              {text(
-                "domain",
-                t("domain"),
-                t("domainPlaceholder"),
-                save.fields.domain ? t("invalidDomain") : undefined,
-              )}
-            </>
-          )}
-        </div>
-      </Section>
-      {canEdit ? (
-        <div className="flex items-center justify-between gap-3">
-          <SaveIndicator state={save.state} />
-          <Button type="submit" size="sm" disabled={save.pending}>
-            {states("save")}
-          </Button>
-        </div>
-      ) : null}
-    </form>
   );
 }
 

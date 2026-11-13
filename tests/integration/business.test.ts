@@ -17,7 +17,11 @@ import {
   organizations,
   projects,
 } from "@/lib/db/schema";
-import { setDocumentClientVisible, setDocumentStatus } from "@/lib/documents/service";
+import {
+  createDocument,
+  setDocumentClientVisible,
+  setDocumentStatus,
+} from "@/lib/documents/service";
 import { AppError } from "@/lib/errors";
 import { activeOrg } from "@/lib/organizations/service";
 import { loadClientProjectAccess, portalProjects } from "@/lib/portal/access";
@@ -28,9 +32,7 @@ import {
   clientInvoices,
   clientPayments,
   clientProjectView,
-  clientScope,
 } from "@/lib/portal/views";
-import { createScopeItem, listScope } from "@/lib/scope/service";
 import { createUser, resetDatabase } from "../helpers/db";
 import { project } from "../helpers/project";
 
@@ -230,26 +232,20 @@ describe("client portal isolation", () => {
       "NOT_FOUND",
     );
 
-    // Scope: hidden items stay hidden. Documents: only approved and shared.
-    await createScopeItem(a.owner, a.slug, { title: "Payment gateway", category: "excluded" });
-    await createScopeItem(a.owner, a.slug, {
-      title: "Internal admin tooling",
-      category: "included",
-      clientVisible: false,
-    });
+    // Documents: only approved and shared.
+    await createDocument(a.owner, a.slug, { title: "Scope notes" });
     const access = await loadClientProjectAccess(a.portalUser, a.slug);
-    expect((await clientScope(access)).map((s) => s.title)).toEqual(["Payment gateway"]);
-    expect(await listScope(access.project.id)).toHaveLength(2);
-
     expect(
-      await code(setDocumentClientVisible(a.owner, a.slug, { docSlug: "prd", visible: true })),
+      await code(
+        setDocumentClientVisible(a.owner, a.slug, { docSlug: "scope-notes", visible: true }),
+      ),
     ).toBe("VALIDATION_ERROR");
-    await setDocumentStatus(a.owner, a.slug, { docSlug: "prd", status: "approved" });
-    await setDocumentClientVisible(a.owner, a.slug, { docSlug: "prd", visible: true });
-    expect((await clientDocuments(access)).map((d) => d.slug)).toEqual(["prd"]);
-    await setDocumentStatus(a.owner, a.slug, { docSlug: "prd", status: "review" });
+    await setDocumentStatus(a.owner, a.slug, { docSlug: "scope-notes", status: "approved" });
+    await setDocumentClientVisible(a.owner, a.slug, { docSlug: "scope-notes", visible: true });
+    expect((await clientDocuments(access)).map((d) => d.slug)).toEqual(["scope-notes"]);
+    await setDocumentStatus(a.owner, a.slug, { docSlug: "scope-notes", status: "review" });
     expect(await clientDocuments(access)).toHaveLength(0);
-    const [prd] = await db.select().from(documents).where(eq(documents.slug, "prd"));
+    const [prd] = await db.select().from(documents).where(eq(documents.slug, "scope-notes"));
     expect(prd).toBeDefined();
 
     // Invoices: drafts are internal; issued ones and confirmed payments are visible.
@@ -279,7 +275,6 @@ describe("client portal isolation", () => {
     // Whitelisted views carry no internal fields.
     const serialized = JSON.stringify([
       await clientProjectView(access),
-      await clientScope(access),
       await clientInvoices(access),
       await clientPayments(access),
       await clientActivity(access),

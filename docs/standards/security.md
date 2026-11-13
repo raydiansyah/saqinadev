@@ -20,37 +20,25 @@
 | XSS | React escapes; **no `dangerouslySetInnerHTML` with user data** (JSON-LD is the single exception and escapes `<`). User text is plain text; model output is data. |
 | CSRF | Server actions and Better Auth origin checks; cookies `httpOnly`, `sameSite=lax`, `secure` in production. State parameters for OAuth (`src/lib/github/oauth.ts`). |
 | Broken access control | Server checks above; RLS as a second layer (below). |
-| SSRF | Outbound endpoints are validated with `assertSafeEndpoint` (`src/lib/net/endpoint-guard.ts`). |
-| Cryptographic failures | Secrets sealed with AES-GCM (`src/lib/secrets`); tokens compared in constant time; webhook signatures verified. |
+| Server-side request forgery | The server fetches no URL a person supplied. |
+| Cryptographic failures | Passwords are hashed by the auth library; tokens are compared in constant time; secrets live only in the hosting environment. |
 | Vulnerable components | SCA in CI (see [delivery.md](delivery.md)). |
 | Logging failures | Audit sensitive actions; never log secrets or personal data. |
 
-## Prompt injection (AI features)
+## Files and uploads
 
-Text from users, repositories, notes and web pages is **untrusted data**. It goes into `external` prompt
-segments, never into the system prompt; model output is validated against a zod schema; anything a
-model proposes changes nothing until a person with the right permission approves it.
-
-Exception, narrow and enforced in `tools/policy.ts`: an agent in an execution may commit to that
-execution's own work branch (`saqina/exec-*`) without approval, using only the tools frozen in its
-definition snapshot. Main, pull requests, merges and deployments stay proposals. Messages between
-agents reach the next agent as `external` data, and the execution event stream (SSE) requires
-`project:read` and returns NOT_FOUND to non-members. See ADR 0020 and 0021.
-
-## Running local programs (local CLI provider)
-
-The only place Saqina starts an outside program for the model is `src/lib/ai/cli`. Rules: off by default,
-switched on by the Owner (audited); Owner only; a fixed list of binaries with commands built in code, no shell, nothing
-from a person or project in the arguments; a new empty directory per run; an environment cut to the home,
-search path and proxy settings; a time limit and an output cap; a failure code and never the output
-leaves the module. Tests: `tests/integration/local-cli.test.ts`. See ADR 0023.
+A logo is read from its bytes: only PNG and JPEG pass, at most 200 KB and 32 to 1600 px. SVG is refused
+because it can carry script. The logo is served only to the organization's people and its clients, with
+`nosniff` and a sandbox CSP, and not at all while white label is closed. PDF files are built from stored
+records on request, behind the same access check as the page they mirror, with a rate limit per person.
+Tests: `tests/integration/brand.test.ts`, `tests/integration/pdf-delivery.test.ts`.
 
 ## Row Level Security (Planned: defense in depth, in stages)
 
 Application authorization stays the primary control. RLS is added underneath for tables with personal
 or client data: the connection sets the acting user per transaction, policies filter by it, and the
 application role has no `BYPASSRLS`. A test must show a query with no actor returns nothing. The first
-tables are clients, client users, service inquiries, meeting notes and credentials; project tables follow.
+tables are clients, client users and meeting notes; project tables follow.
 Record the design as an ADR.
 
 ## Secrets (Enforced partly)

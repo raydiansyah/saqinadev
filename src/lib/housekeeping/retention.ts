@@ -1,23 +1,12 @@
 /**
  * How long each kind of data is kept. The privacy policy and docs/standards/compliance.md quote
  * these numbers; change them here and in those documents in the same pull request.
- * Inquiries have no default: they stay until INQUIRY_RETENTION_DAYS is set (see service.ts).
  */
 export const RETENTION_DAYS = {
   /** Read notifications. Unread ones stay until read. */
   notificationsRead: 90,
-  /** GitHub redelivers within hours; a week of ids is plenty to catch a replay. */
-  webhookDeliveries: 7,
-  /** Per-request AI usage detail (13 months, enough for year-over-year cost review). */
-  aiUsage: 395,
   /** Infrastructure audit trail (24 months). */
   auditEvents: 730,
-  /** Memory retrieval telemetry: hashes and counts only, no text. */
-  memoryRetrievals: 90,
-  /** Finished memory jobs (ready, cancelled or failed for good). */
-  memoryJobs: 30,
-  /** How skills were used and how it went (13 months, enough to judge a skill over a year). */
-  skillUsages: 395,
 } as const;
 
 const DAY_MS = 24 * 60 * 60 * 1000;

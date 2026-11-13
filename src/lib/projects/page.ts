@@ -1,13 +1,10 @@
 import "server-only";
 import { notFound } from "next/navigation";
 import { getLocale } from "next-intl/server";
-import { cache } from "react";
 import { redirect } from "@/i18n/navigation";
 import type { ProjectAccess, ProjectAction } from "@/lib/auth/permissions";
 import { requireProjectAccess } from "@/lib/auth/server";
-import { db } from "@/lib/db/client";
 import { isAppError } from "@/lib/errors";
-import { loadSnapshot } from "./repository";
 
 /**
  * Page-level access: missing or foreign projects render the 404 page (existence is never
@@ -35,9 +32,3 @@ export async function projectPageAccess(
     throw error;
   }
 }
-
-/** Snapshot for the header and overview, read once per request. */
-export const projectSnapshot = cache(async (slug: string) => {
-  const { project } = await projectPageAccess(slug);
-  return loadSnapshot(db, project);
-});

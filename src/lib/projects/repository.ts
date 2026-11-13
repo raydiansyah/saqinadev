@@ -1,20 +1,7 @@
 import "server-only";
-import { and, count, desc, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import type { Executor } from "@/lib/db/client";
-import {
-  agentRuns,
-  documents,
-  interviews,
-  projectMembers,
-  projectSettings,
-  projects,
-  proposals,
-  requirements,
-  tasks,
-} from "@/lib/db/schema";
-import { loadDeliverySummaries } from "@/lib/delivery/summary";
-import type { TaskStatus } from "@/lib/domain/enums";
-import { EMPTY_TASK_COUNTS, NO_ATTENTION, type ProjectSnapshot } from "./progress";
+import { projectMembers, projectSettings, projects } from "@/lib/db/schema";
 
 export type ProjectRow = typeof projects.$inferSelect;
 export type ProjectSettingsRow = typeof projectSettings.$inferSelect;
@@ -37,120 +24,6 @@ export async function listMemberProjects(
     .then((rows) => rows.map((r) => r.project));
 }
 
-/** Snapshots for many projects in four grouped queries instead of four per project. */
-export async function loadSnapshots(
-  executor: Executor,
-  list: Pick<ProjectRow, "id" | "slug" | "status">[],
-): Promise<Map<string, ProjectSnapshot>> {
-  const ids = list.map((p) => p.id);
-  const result = new Map<string, ProjectSnapshot>();
-  if (ids.length === 0) return result;
-
-  // The delivery summary is asked in the same round as the rest: it does not depend on them.
-  const [interviewRows, reqRows, prdRows, taskRows, proposalRows, runRows, deliveries] =
-    await Promise.all([
-      executor
-        .selectDistinctOn([interviews.projectId], {
-          projectId: interviews.projectId,
-          status: interviews.status,
-        })
-        .from(interviews)
-        .where(inArray(interviews.projectId, ids))
-        .orderBy(interviews.projectId, desc(interviews.startedAt)),
-      executor
-        .select({ projectId: requirements.projectId, status: requirements.status, n: count() })
-        .from(requirements)
-        .where(
-          and(
-            inArray(requirements.projectId, ids),
-            inArray(requirements.status, ["unknown", "conflicting"]),
-          ),
-        )
-        .groupBy(requirements.projectId, requirements.status),
-      executor
-        .select({ projectId: documents.projectId, status: documents.status })
-        .from(documents)
-        .where(and(inArray(documents.projectId, ids), eq(documents.type, "prd"))),
-      executor
-        .select({ projectId: tasks.projectId, status: tasks.status, n: count() })
-        .from(tasks)
-        .where(inArray(tasks.projectId, ids))
-        .groupBy(tasks.projectId, tasks.status),
-      executor
-        .select({ projectId: proposals.projectId, n: count() })
-        .from(proposals)
-        .where(and(inArray(proposals.projectId, ids), eq(proposals.status, "pending")))
-        .groupBy(proposals.projectId),
-      executor
-        .select({ projectId: agentRuns.projectId, status: agentRuns.status, n: count() })
-        .from(agentRuns)
-        .where(
-          and(
-            inArray(agentRuns.projectId, ids),
-            // Failed runs count only until someone retries or cancels them.
-            inArray(agentRuns.status, ["queued", "running", "waiting", "paused", "failed"]),
-          ),
-        )
-        .groupBy(agentRuns.projectId, agentRuns.status),
-      loadDeliverySummaries(executor, ids),
-    ]);
-
-  for (const p of list) {
-    result.set(p.id, {
-      slug: p.slug,
-      status: p.status,
-      interviewStatus: null,
-      unknownRequirements: 0,
-      conflictingRequirements: 0,
-      prdStatus: null,
-      tasks: { ...EMPTY_TASK_COUNTS },
-      attention: { ...NO_ATTENTION },
-    });
-  }
-  for (const r of proposalRows) {
-    const a = result.get(r.projectId)?.attention;
-    if (a) a.pendingProposals = r.n;
-  }
-  for (const r of runRows) {
-    const a = result.get(r.projectId)?.attention;
-    if (!a) continue;
-    if (r.status === "failed") a.failedRuns += r.n;
-    else if (r.status === "waiting") a.waitingRuns += r.n;
-    else a.activeRuns += r.n;
-  }
-  for (const r of interviewRows) {
-    const s = result.get(r.projectId);
-    if (s) s.interviewStatus = r.status;
-  }
-  for (const r of reqRows) {
-    const s = result.get(r.projectId);
-    if (!s) continue;
-    if (r.status === "unknown") s.unknownRequirements = r.n;
-    else s.conflictingRequirements = r.n;
-  }
-  for (const r of prdRows) {
-    const s = result.get(r.projectId);
-    if (s) s.prdStatus = r.status;
-  }
-  for (const r of taskRows) {
-    const s = result.get(r.projectId);
-    if (s) s.tasks[r.status as TaskStatus] = r.n;
-  }
-  for (const [id, delivery] of deliveries) {
-    const s = result.get(id);
-    if (s) s.delivery = delivery;
-  }
-  return result;
-}
-
-export async function loadSnapshot(
-  executor: Executor,
-  project: ProjectRow,
-): Promise<ProjectSnapshot> {
-  const map = await loadSnapshots(executor, [project]);
-  return map.get(project.id) as ProjectSnapshot;
-}
-
 export async function slugExists(executor: Executor, slug: string): Promise<boolean> {
   const [row] = await executor
     .select({ id: projects.id })
@@ -168,28 +41,5 @@ export async function getSettings(
     .select()
     .from(projectSettings)
     .where(eq(projectSettings.projectId, projectId));
-  return row;
-}
-
-/** Counts used by the overview's context map. */
-export async function contextCounts(executor: Executor, projectId: string) {
-  const [row] = await executor
-    .execute<{
-      requirements: number;
-      tasks: number;
-      memories: number;
-      decisions: number;
-      documents: number;
-      milestones: number;
-    }>(sql`
-    select
-      (select count(*)::int from requirements where project_id = ${projectId}) as requirements,
-      (select count(*)::int from tasks where project_id = ${projectId}) as tasks,
-      (select count(*)::int from memories m join memory_assets a on a.id = m.asset_id where m.project_id = ${projectId} and a.status = 'approved' and a.visibility = 'project') as memories,
-      (select count(*)::int from decisions where project_id = ${projectId}) as decisions,
-      (select count(*)::int from documents where project_id = ${projectId}) as documents,
-      (select count(*)::int from milestones where project_id = ${projectId}) as milestones
-  `)
-    .then((r) => r.rows);
   return row;
 }

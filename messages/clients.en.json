@@ -158,17 +158,5 @@
       "confirmed": "Confirmed",
       "void": "Void"
     }
-  },
-  "workspaceMode": {
-    "title": "Workspace mode",
-    "description": "Choose how much of the workspace you see. You can switch at any time; nothing is deleted.",
-    "legend": "Workspace mode",
-    "simple": "Simple",
-    "simpleBody": "Shows clients, projects, invoices and payments.",
-    "advanced": "Advanced",
-    "advancedBody": "Adds activity, AI models, agents, integrations and technical project pages.",
-    "save": "Save mode",
-    "saving": "Saving...",
-    "saved": "Mode saved."
   }
 }

@@ -1,6 +1,6 @@
 # 9. Platform skills and connectors
 
-Status: accepted (2026-10-29). Risk lane: Red (secrets, outside tools, prompts, every project).
+Status: accepted (2026-10-29). Risk lane: Red (secrets, outside tools, prompts, every project). Superseded by [ADR 0027](0027-v1-billing-focus.md): the feature was removed in v1.
 
 ## Context
 

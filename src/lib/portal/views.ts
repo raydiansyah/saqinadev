@@ -1,5 +1,6 @@
 import "server-only";
-import { and, asc, desc, eq, inArray, ne } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, ne } from "drizzle-orm";
+import { loadReceipt } from "@/lib/billing/receipts";
 import { todayIso } from "@/lib/billing/rules";
 import { type BillingTotals, toInvoiceRow, totalsOf } from "@/lib/billing/summary";
 import { db } from "@/lib/db/client";
@@ -8,22 +9,13 @@ import {
   documents,
   invoiceItems,
   invoices,
-  milestones,
   payments,
   projects,
-  scopeItems,
-  tasks,
+  receipts,
 } from "@/lib/db/schema";
-import type {
-  Currency,
-  EffectiveInvoiceStatus,
-  PaymentMethod,
-  ScopeCategory,
-} from "@/lib/domain/business";
-import type { ProjectStatus } from "@/lib/domain/enums";
+import type { Currency, EffectiveInvoiceStatus, PaymentMethod } from "@/lib/domain/business";
 import { AppError } from "@/lib/errors";
 import type { ClientProjectAccess } from "./access";
-import { type ClientProgress, clientProgress } from "./progress";
 
 /**
  * Portal read models. Every function returns an explicit whitelist of fields; raw rows never
@@ -33,57 +25,11 @@ import { type ClientProgress, clientProgress } from "./progress";
 
 type Project = typeof projects.$inferSelect;
 
-export type ClientStageKey = "planning" | "development" | "review" | "completed" | "paused";
-
-const STAGE: Record<ProjectStatus, ClientStageKey> = {
-  draft: "planning",
-  interview: "planning",
-  planning: "planning",
-  ready: "development",
-  building: "development",
-  review: "review",
-  paused: "paused",
-  completed: "completed",
-  archived: "completed",
-};
-
 export interface ClientProjectSummary {
   slug: string;
   name: string;
-  stage: ClientStageKey;
-  progress: ClientProgress;
   currency: Currency;
   totals: BillingTotals;
-}
-
-async function progressFor(projectIds: string[]) {
-  if (projectIds.length === 0) return new Map<string, ClientProgress>();
-  const [ms, ts] = await Promise.all([
-    db
-      .select({
-        id: milestones.id,
-        projectId: milestones.projectId,
-        title: milestones.title,
-        clientTitle: milestones.clientTitle,
-        clientVisible: milestones.clientVisible,
-      })
-      .from(milestones)
-      .where(inArray(milestones.projectId, projectIds))
-      .orderBy(asc(milestones.position)),
-    db
-      .select({ projectId: tasks.projectId, milestoneId: tasks.milestoneId, status: tasks.status })
-      .from(tasks)
-      .where(inArray(tasks.projectId, projectIds)),
-  ]);
-  return new Map(
-    projectIds.map((id) => [
-      id,
-      clientProgress(
-        ms.filter((m) => m.projectId === id),
-        ts.filter((t) => t.projectId === id),
-      ),
-    ]),
-  );
 }
 
 async function totalsFor(list: Project[]) {
@@ -113,13 +59,10 @@ async function totalsFor(list: Project[]) {
 }
 
 export async function clientProjectSummaries(list: Project[]): Promise<ClientProjectSummary[]> {
-  const ids = list.map((p) => p.id);
-  const [progress, totals] = await Promise.all([progressFor(ids), totalsFor(list)]);
+  const totals = await totalsFor(list);
   return list.map((p) => ({
     slug: p.slug,
     name: p.name,
-    stage: STAGE[p.status],
-    progress: progress.get(p.id) ?? clientProgress([], []),
     currency: p.currency,
     totals: totals.get(p.id) ?? totalsOf([], p.value),
   }));
@@ -133,24 +76,6 @@ export interface ClientProjectView extends ClientProjectSummary {
 export async function clientProjectView(access: ClientProjectAccess): Promise<ClientProjectView> {
   const [summary] = await clientProjectSummaries([access.project]);
   return { ...summary, description: access.project.description, clientName: access.client.name };
-}
-
-export interface ClientScopeItem {
-  title: string;
-  description: string;
-  category: ScopeCategory;
-}
-
-export async function clientScope(access: ClientProjectAccess): Promise<ClientScopeItem[]> {
-  return db
-    .select({
-      title: scopeItems.title,
-      description: scopeItems.description,
-      category: scopeItems.category,
-    })
-    .from(scopeItems)
-    .where(and(eq(scopeItems.projectId, access.project.id), eq(scopeItems.clientVisible, true)))
-    .orderBy(asc(scopeItems.category), asc(scopeItems.position));
 }
 
 const sharedDocs = (projectId: string) =>
@@ -274,22 +199,31 @@ export interface ClientPayment {
   currency: Currency;
   method: PaymentMethod;
   invoiceNumber: string | null;
+  /** The receipt of this payment, when one was issued. */
+  receipt: { id: string; number: string } | null;
 }
 
 /** Confirmed payments only; voided corrections are internal bookkeeping. */
 export async function clientPayments(access: ClientProjectAccess): Promise<ClientPayment[]> {
-  return db
+  const rows = await db
     .select({
       paidAt: payments.paidAt,
       amount: payments.amount,
       currency: payments.currency,
       method: payments.method,
       invoiceNumber: invoices.number,
+      receiptId: receipts.id,
+      receiptNumber: receipts.number,
     })
     .from(payments)
     .innerJoin(invoices, eq(invoices.id, payments.invoiceId))
+    .leftJoin(receipts, and(eq(receipts.paymentId, payments.id), isNull(receipts.voidedAt)))
     .where(and(eq(payments.projectId, access.project.id), eq(payments.status, "confirmed")))
     .orderBy(desc(payments.paidAt));
+  return rows.map(({ receiptId, receiptNumber, ...p }) => ({
+    ...p,
+    receipt: receiptId && receiptNumber ? { id: receiptId, number: receiptNumber } : null,
+  }));
 }
 
 export type ClientActivityKind = "invoice_issued" | "payment_received" | "document_shared";
@@ -351,4 +285,9 @@ export async function clientActivity(access: ClientProjectAccess): Promise<Clien
     }
   }
   return out.slice(0, 30);
+}
+
+/** One receipt the client may read: its own project's, never a voided one. */
+export async function clientReceipt(access: ClientProjectAccess, receiptId: string) {
+  return loadReceipt(access.project.id, receiptId, false);
 }

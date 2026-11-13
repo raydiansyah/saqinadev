@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { EmptyState } from "@/components/app/states";
 import { formatDay } from "@/components/portal/format";
+import { Link } from "@/i18n/navigation";
 import { formatMoney } from "@/lib/money";
 import { clientPayments } from "@/lib/portal/views";
 import { portalPageAccess, portalProjectView } from "../../../access";
@@ -58,7 +59,7 @@ export default async function PortalPaymentsPage({
             ) : null}
           </dl>
           <div className="relative overflow-x-auto rounded-lg border border-border">
-            <table className="w-full min-w-[30rem] text-sm">
+            <table className="w-full min-w-[36rem] text-sm">
               <caption className="sr-only">{t("payments.tableLabel")}</caption>
               <thead className="border-b border-border">
                 <tr>
@@ -70,6 +71,9 @@ export default async function PortalPaymentsPage({
                   </th>
                   <th scope="col" className={th}>
                     {t("payments.columns.method")}
+                  </th>
+                  <th scope="col" className={th}>
+                    {t("payments.columns.receipt")}
                   </th>
                   <th scope="col" className={`${th} text-right`}>
                     {t("payments.columns.amount")}
@@ -85,6 +89,18 @@ export default async function PortalPaymentsPage({
                       {p.invoiceNumber ?? t("invoices.pendingNumber")}
                     </td>
                     <td className="px-4 py-3">{t(`payments.method.${p.method}`)}</td>
+                    <td className="px-4 py-3 font-mono text-xs">
+                      {p.receipt ? (
+                        <Link
+                          href={`/portal/projects/${slug}/receipts/${p.receipt.id}`}
+                          className="underline-offset-4 hover:underline"
+                        >
+                          {p.receipt.number}
+                        </Link>
+                      ) : (
+                        "-"
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-right font-mono whitespace-nowrap">
                       {formatMoney(p.amount, p.currency, locale)}
                     </td>

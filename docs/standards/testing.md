@@ -12,8 +12,8 @@ The test database needs the `vector` extension available (Homebrew `pgvector`; C
 | Unit (pure functions) | Every pure module has a test file; branches covered | Enforced by review |
 | Coverage | Baseline never drops; **new and changed files ≥ 85%** (AI-written code is held to the higher bar) | Planned (CI ratchet) |
 | Integration | Every service function and every route handler with its database interaction | Enforced by review |
-| E2E | Core journey: sign in → create or import a project → requirements, PRD, tasks → sign out, at 320, 768 and 1280 px | Present for the Studio Build flow (`pnpm e2e`, `e2e/`, needs `DATABASE_URL_E2E`); not yet in CI |
-| Security | IDOR matrix across project-scoped services (`tests/integration/security-idor.test.ts`), hostile text (SQL-injection strings, XSS payloads, NUL) stored and searched as data; auth bypass on actions | Enforced for the services covered; extend the matrix with every new id-taking service |
+| E2E | Core journey: sign in → create a project and a client → invoice, payment, receipt → contract signed by both sides → client portal, at 320, 768 and 1280 px | Planned (no browser test runs in CI; v1 was checked by hand in a browser) |
+| Security | IDOR matrix across project-scoped services (`tests/integration/security-idor.test.ts`), hostile text (SQL-injection strings, XSS payloads, NUL) stored as data; auth bypass on actions | Enforced for the services covered; extend the matrix with every new id-taking service |
 | Failure path | Empty list, null/missing field, provider timeout or 401, concurrent writers | Enforced by review |
 | Adversarial review | A separate prompt or reviewer whose only job is to find bugs in the generated change; mandatory for Red lane | Manual |
 

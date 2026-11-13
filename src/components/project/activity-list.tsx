@@ -35,7 +35,7 @@ export async function ActivityList({
           title: String(meta.title ?? ""),
           number: String(meta.number ?? "").padStart(3, "0"),
           file: `${String(meta.slug ?? "doc").toUpperCase()}.md`,
-          agent: String(meta.agent ?? ""),
+          invoice: String(meta.invoice ?? ""),
         });
         // Changes made through chat or an agent say so, so nobody mistakes them for manual edits.
         const via =

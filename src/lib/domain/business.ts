@@ -76,8 +76,7 @@ export type MaintenanceStatus = (typeof MAINTENANCE_STATUSES)[number];
 export const REMINDER_KINDS = [
   "invoice_due",
   "invoice_overdue",
-  "approval_pending",
-  "change_request_pending",
+  "document_signature_pending",
   "maintenance_renewal",
 ] as const;
 export type ReminderKind = (typeof REMINDER_KINDS)[number];
@@ -85,7 +84,7 @@ export type ReminderKind = (typeof REMINDER_KINDS)[number];
 export const REMINDER_AUDIENCES = ["team", "client", "both"] as const;
 export type ReminderAudience = (typeof REMINDER_AUDIENCES)[number];
 
-export const NOTIFICATION_CHANNELS = ["in_app", "email"] as const;
+export const NOTIFICATION_CHANNELS = ["in_app", "email", "whatsapp"] as const;
 export type NotificationChannel = (typeof NOTIFICATION_CHANNELS)[number];
 
 // ── Meeting notes ───────────────────────────────────────────────────────────────────────

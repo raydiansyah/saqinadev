@@ -7,7 +7,12 @@ import { createClient, setProjectClient } from "@/lib/clients/service";
 import { db } from "@/lib/db/client";
 import { documentSignatures, documents, notifications, projectMembers } from "@/lib/db/schema";
 import { generateBusinessDocument } from "@/lib/documents/business";
-import { saveDocument, setDocumentClientVisible, setDocumentStatus } from "@/lib/documents/service";
+import {
+  createDocument,
+  saveDocument,
+  setDocumentClientVisible,
+  setDocumentStatus,
+} from "@/lib/documents/service";
 import {
   getSigningState,
   requestChangesAsClient,
@@ -177,6 +182,7 @@ describe("two-party signing", () => {
   });
 
   it("only signs the documents two parties sign", async () => {
-    expect(await code(signAsTeam(owner, slug, "prd"))).toBe("VALIDATION_ERROR");
+    await createDocument(owner, slug, { title: "Meeting minutes" });
+    expect(await code(signAsTeam(owner, slug, "meeting-minutes"))).toBe("VALIDATION_ERROR");
   });
 });

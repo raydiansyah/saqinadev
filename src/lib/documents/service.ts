@@ -8,8 +8,7 @@ import { db, type Tx } from "@/lib/db/client";
 import { documents, documentVersions } from "@/lib/db/schema";
 import { DOCUMENT_STATUSES, type VersionSource } from "@/lib/domain/enums";
 import { AppError } from "@/lib/errors";
-import { type Trace, traceMetadata } from "@/lib/events/types";
-import { slugify } from "@/lib/interview/rules/profile";
+import { slugify } from "@/lib/slug";
 import { parse } from "@/lib/validation";
 import { isSignable } from "./reference";
 import { clearSignatures } from "./signing";
@@ -126,7 +125,6 @@ export interface SaveDocumentTxInput {
   /** Version the writer started from; a mismatch means someone else saved in between. */
   baseVersion: number;
   source: VersionSource;
-  trace?: Trace;
   /** Do not withdraw the approval of a shared document (a pull from GitHub in a pull-only project). */
   keepSharing?: boolean;
 }
@@ -165,7 +163,6 @@ export async function saveDocumentTx(tx: Tx, access: ProjectAccess, input: SaveD
       version: row.version,
       source: input.source,
       ...(row.demoted ? { approvalWithdrawn: true } : {}),
-      ...(input.trace ? traceMetadata(input.trace) : {}),
     },
   });
   return { ...row, changed: true };
@@ -184,80 +181,6 @@ export async function saveDocument(actor: Actor, slug: string, input: unknown) {
     });
     return { version, updatedAt };
   });
-}
-
-/**
- * Appends a markdown section as a new version. Used for approved assistant and agent changes:
- * appending never overwrites what a person wrote, so it is safe even if the document moved on
- * since the proposal was made.
- */
-export async function appendDocumentSectionTx(
-  tx: Tx,
-  access: ProjectAccess,
-  input: { docSlug: string; heading: string; body: string },
-  trace: Trace,
-): Promise<{ version: number }> {
-  const { project, actor } = access;
-  const [doc] = await tx
-    .select()
-    .from(documents)
-    .where(and(eq(documents.projectId, project.id), eq(documents.slug, input.docSlug)))
-    .for("update");
-  if (!doc) throw new AppError("NOT_FOUND");
-  assertEditable(doc);
-  const content = `${doc.content.trimEnd()}\n\n## ${input.heading}\n\n${input.body.trim()}\n`;
-  if (content.length > MAX_CONTENT) throw new AppError("VALIDATION_ERROR", "Document too long");
-  const row = await writeVersion(tx, doc, content, actor.id, "assistant");
-  await recordActivity(tx, {
-    projectId: project.id,
-    actorId: actor.id,
-    type: "document.updated",
-    entityType: "document",
-    entityId: doc.id,
-    metadata: { slug: doc.slug, version: row.version, ...traceMetadata(trace) },
-  });
-  return { version: row.version };
-}
-
-/** A new document that came from a file in the repository (sync). Version 1, source "sync". */
-export async function insertSyncedDocumentTx(
-  tx: Tx,
-  access: ProjectAccess,
-  input: { slug: string; title: string; content: string; shared?: boolean },
-): Promise<{ id: string }> {
-  const { project, actor } = access;
-  if (input.content.length > MAX_CONTENT)
-    throw new AppError("VALIDATION_ERROR", "Document too long");
-  const [doc] = await tx
-    .insert(documents)
-    .values({
-      projectId: project.id,
-      type: "custom",
-      title: input.title,
-      slug: input.slug,
-      content: input.content,
-      // Read from GitHub and shown to the client: GitHub is the review.
-      ...(input.shared ? { status: "approved" as const, clientVisible: true } : {}),
-      createdBy: actor.id,
-      updatedBy: actor.id,
-    })
-    .returning({ id: documents.id });
-  await tx.insert(documentVersions).values({
-    documentId: doc.id,
-    version: 1,
-    content: input.content,
-    source: "sync",
-    createdBy: actor.id,
-  });
-  await recordActivity(tx, {
-    projectId: project.id,
-    actorId: actor.id,
-    type: "document.created",
-    entityType: "document",
-    entityId: doc.id,
-    metadata: { slug: input.slug, source: "sync" },
-  });
-  return doc;
 }
 
 export async function setDocumentStatus(actor: Actor, slug: string, input: unknown) {

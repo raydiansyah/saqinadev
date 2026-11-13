@@ -2,7 +2,7 @@
   "meetings": {
     "metaTitle": "Catatan meeting",
     "title": "Catatan meeting",
-    "description": "Tulis apa yang disepakati. Nanti Saqina bisa membaca catatan dan menyarankan apa yang masuk ke rencana; tidak ada yang berubah tanpa persetujuan Anda.",
+    "description": "Tulis apa yang disepakati dalam rapat. Catatan bisa dibagikan ke klien.",
     "add": "Tambah catatan",
     "addTitle": "Tambah catatan meeting",
     "editTitle": "Ubah catatan meeting",
@@ -27,9 +27,9 @@
     "status": {
       "ready": "Tersimpan",
       "pending_review": "Menunggu review tim",
-      "approved_for_analysis": "Disetujui untuk dianalisis",
+      "approved_for_analysis": "Diterima",
       "declined": "Ditolak",
-      "analyzed": "Sudah dianalisis"
+      "analyzed": "Diterima"
     },
     "side": {
       "team": "Tim",
@@ -45,43 +45,12 @@
     "deleteTitle": "Hapus catatan ini?",
     "deleteBody": "“{title}” akan dihapus. Tindakan ini tidak bisa dibatalkan.",
     "deleteConfirm": "Hapus catatan",
-    "approve": "Setujui untuk analisis",
+    "approve": "Terima",
     "decline": "Tolak",
     "declineTitle": "Tolak catatan ini?",
-    "declineBody": "“{title}” tidak akan dianalisis. Klien akan melihat alasan Anda.",
+    "declineBody": "“{title}” tidak akan diterima. Klien akan melihat alasan Anda.",
     "declineReason": "Alasan (minimal 5 karakter)",
     "reviewNote": "Catatan review",
-    "confirmedByClient": "Klien mengonfirmasi catatan ini sudah benar.",
-    "analyze": "Analisis catatan",
-    "analyzing": "Menganalisis…",
-    "itemsTitle": "Temuan Saqina",
-    "noItems": "Tidak ada isi catatan yang perlu mengubah rencana.",
-    "confidence": "Keyakinan {value}%",
-    "quote": "Dari catatan",
-    "classes": {
-      "new_in_scope": "Baru, dalam scope",
-      "revision": "Merevisi yang ada",
-      "out_of_scope": "Di luar scope",
-      "duplicate": "Sudah direncanakan",
-      "conflict": "Konflik",
-      "info": "Informasi",
-      "unclear": "Belum jelas"
-    },
-    "select": "Pilih “{text}”",
-    "createProposal": "Buat proposal dari yang dipilih",
-    "creatingProposal": "Membuat…",
-    "proposalCreated": "Proposal dibuat. Tinjau di Persetujuan.",
-    "viewApprovals": "Buka persetujuan",
-    "dismiss": "Abaikan yang dipilih",
-    "inProposal": "Sudah di proposal",
-    "dismissed": "Diabaikan",
-    "notActionable": "Tidak ada perubahan untuk diusulkan",
-    "findingsHint": "Pilih temuan yang dijadikan proposal. Tidak ada yang berubah sampai Anda menyetujuinya.",
-    "unavailable": {
-      "no_model": "Belum ada model AI yang dipilih. Minta owner platform memilih model default di AI & Models → Models.",
-      "capability_missing": "“{model}” belum ditandai mampu memberi jawaban terstruktur (kurang: {missing}). Minta owner platform mengaktifkannya di AI & Models → Models.",
-      "model_unavailable": "“{model}” belum bisa dipakai: model atau providernya nonaktif, atau koneksi provider gagal diuji. Periksa AI & Models.",
-      "provider_failed": "“{model}” tidak menjawab ({code}). Periksa kunci provider dan id model di AI & Models."
-    }
+    "confirmedByClient": "Klien mengonfirmasi catatan ini sudah benar."
   }
 }

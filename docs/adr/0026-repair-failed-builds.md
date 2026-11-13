@@ -1,6 +1,6 @@
 # 26. A failed build or check on finished work is repaired once more, in a bounded way
 
-Status: accepted (2026-11-06). Risk lane: Red (starts agent work without a person pressing a button; migration 0041).
+Status: accepted (2026-11-06). Risk lane: Red (starts agent work without a person pressing a button; migration 0041). Superseded by [ADR 0027](0027-v1-billing-focus.md): the feature was removed in v1.
 
 ## Context
 

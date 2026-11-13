@@ -27,23 +27,16 @@ Placeholders (`[COMPANY NAME]`, `[CONTACT EMAIL]`) must be filled before launch.
 |---|---|---|
 | Rate-limit rows | days | delete (already) |
 | Notifications read | 90 days | delete |
-| Public inquiries not converted | until `INQUIRY_RETENTION_DAYS` is set (owner decides) | delete |
-| AI usage records | 13 months | delete detail |
-| Webhook deliveries | 7 days | delete |
 | Audit events | 24 months | delete |
-| Memory retrieval telemetry (hashes and counts, no text) | 90 days | delete |
-| Finished memory jobs | 30 days | delete |
-| Skill usage records (agent, run, outcome, short note) | 13 months | delete |
 | Deleted account | immediate (no grace period) | erase; audit keeps a pseudonymous subject |
 
 The owner confirms these durations; the job reads them from one config so the policy and the code agree.
 
-## AI disclosure (EU AI Act Art. 50 and good practice)
+## AI disclosure
 
-Output produced by a model is labelled as AI-generated wherever a person could mistake it for human
-work: AI review of the interview, note analysis, requirements read by AI, summaries, chat replies,
-proposals from agents. One shared component renders the label so it is consistent in both languages.
-Content a person approved stays labelled in its history (`source`).
+v1 contains no AI feature. If a feature that produces text with a model is added, its output is labelled
+as AI-generated wherever a person could mistake it for human work, and a decision record says what data
+leaves the system.
 
 ## AI usage policy
 

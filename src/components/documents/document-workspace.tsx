@@ -8,18 +8,16 @@ import {
   setDocumentStatusAction,
 } from "@/app/[locale]/(app)/project/[slug]/documents/actions";
 import { SaveIndicator, type SaveState } from "@/components/app/save-indicator";
-import { AskSaqinaButton } from "@/components/assistant/command-center";
 import { LocalTime } from "@/components/primitives/local-time";
-import { StartBuildingButton } from "@/components/studio/start-building-button";
 import { Button } from "@/components/ui/button";
 import { FIELD_CLASS, Notice } from "@/components/ui/form";
 import { useRouter } from "@/i18n/navigation";
 import type { SigningView } from "@/lib/documents/signing";
 import type { DocumentStatus } from "@/lib/domain/enums";
 import { cn } from "@/lib/utils";
+import type { IssuerView } from "@/lib/white-label/brand";
 import { Letterhead } from "./letterhead";
 import { SigningPanel } from "./signing-panel";
-import { type DocSyncInfo, SyncBadge } from "./sync-badge";
 
 // The Markdown renderer only loads when a document is actually shown.
 const MarkdownPreview = dynamic(() => import("./markdown-preview"), {
@@ -45,29 +43,23 @@ export interface DocumentData {
 
 type Mode = "preview" | "source" | "edit";
 
-/** Developer-style document: PRD.md header, Edit / Preview / Copy, versioned saves. */
+/** A document with Edit / Preview / Copy, versioned saves and two-party signing. */
 export function DocumentWorkspace({
   projectSlug,
   doc,
   canEdit,
-  sync,
   signing,
   canSign = false,
-  issuer = "",
-  startBuilding = false,
+  issuer,
 }: {
   projectSlug: string;
   doc: DocumentData;
   canEdit: boolean;
-  /** Repository sync state; absent for documents that do not sync. */
-  sync?: DocSyncInfo | null;
   /** Two-party signing state; only meaningful for proposals, agreements and the like. */
   signing?: SigningView;
   canSign?: boolean;
   /** Name of the organization that owns the document, for the letterhead. */
-  issuer?: string;
-  /** Show "Start building", which opens the Studio (and starts agents when Saqina builds). */
-  startBuilding?: boolean;
+  issuer: IssuerView;
 }) {
   const t = useTranslations("documents");
   const errors = useTranslations("app.errors");
@@ -174,24 +166,8 @@ export function DocumentWorkspace({
             >
               {t(`statuses.${doc.status}`)}
             </span>
-            {sync ? (
-              <SyncBadge
-                projectSlug={projectSlug}
-                docSlug={doc.slug}
-                sync={sync}
-                saqinaText={base.content}
-                canResolve={canEdit}
-              />
-            ) : null}
           </div>
           <div className="flex flex-wrap items-center gap-1">
-            <AskSaqinaButton
-              context={{
-                type: doc.slug === "prd" ? "prd" : "document",
-                id: doc.slug,
-                label: file,
-              }}
-            />
             <div
               role="group"
               aria-label={file}
@@ -324,9 +300,6 @@ export function DocumentWorkspace({
                   {t("approve")}
                 </Button>
               )
-            ) : null}
-            {startBuilding && mode !== "edit" ? (
-              <StartBuildingButton slug={projectSlug} size="sm" />
             ) : null}
           </div>
         </footer>

@@ -2,25 +2,14 @@
 title: Create business documents and sign them
 description: Proposal, agreement, handover and maintenance agreement: drafted from project data, edited, approved, signed by both parties, then issued with a reference number.
 order: 2
-updated: 2026-10-23
+updated: 2026-11-12
 ---
 
 Four documents are drafted from the project records and signed by **two parties**: the **Proposal**, the **Agreement**, the **Handover** and the **Maintenance agreement**. A document is **only issued with a reference number once the team and the client have both signed the same version**. Until then it is a draft you can edit.
 
-```mermaid
-flowchart LR
-  A[Create a draft] --> B[Edit]
-  B --> C[Team approves the text]
-  C --> D[Share with the client]
-  D --> E{Client agrees?}
-  E -- Asks for changes --> B
-  E -- Signs --> F[Team and client sign]
-  F --> G[Issued with a reference number]
-```
-
 ## Step 1. Create a draft
 
-Open **Documents** in the project and choose one of the buttons under **Create business document**. The text is drafted from the scope, schedule, milestones, client and value of the project. Parts without data are marked `[PLACEHOLDER]` or `[TERM]` so you complete them. A draft is not legal advice: have it reviewed before it is signed.
+Open **Documents** in the project and choose one of the buttons under **Create business document**. The text is drafted from the client, payment terms, maintenance plan and value of the project. Scope and milestones are not stored in the project, so write them into the draft. Parts without data are marked `[PLACEHOLDER]` or `[TERM]` so you complete them. A draft is not legal advice: have it reviewed before it is signed.
 
 ![A draft agreement with its title, parties and the Preview, Markdown and Edit tabs](/api/docs/assets/owner/business-01-draft.png)
 
@@ -72,4 +61,5 @@ A number is only created once both parties have signed. A draft, or a document w
 - An issued document **cannot be edited or regenerated**. For a change, create a new document or archive the old one.
 - There is no "mark as signed" button for these four documents: a signature always comes from each party.
 - Each signature records the signer's name and a hash of the text that was signed, so it can be matched to its version.
-- Other documents (PRD, plan, ordinary documents) keep the ordinary statuses, without two-party signing.
+- Other documents (meeting minutes, notes) keep the ordinary statuses, without two-party signing.
+- Use **Download PDF** on a document to get it with its signatures and their dates.

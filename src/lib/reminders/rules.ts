@@ -1,7 +1,7 @@
 import type { ReminderAudience, ReminderKind } from "@/lib/domain/business";
 
 /**
- * Reminder timing (pure). Each kind has an anchor date (invoice due date, approval request,
+ * Reminder timing (pure). Each kind has an anchor date (invoice due date, the day a document was approved,
  * plan end) and offsets in days around it. A run fires at most the latest offset that has been
  * reached, so a cron that was down for a week sends one reminder, not a burst.
  */
@@ -12,6 +12,7 @@ export interface RuleLike {
   offsetDays: number;
   audience: ReminderAudience;
   enabled: boolean;
+  whatsapp: boolean;
 }
 
 export const DEFAULT_RULES: {
@@ -24,8 +25,8 @@ export const DEFAULT_RULES: {
   { kind: "invoice_due", offsetDays: 0, audience: "both" },
   { kind: "invoice_overdue", offsetDays: 1, audience: "both" },
   { kind: "invoice_overdue", offsetDays: 7, audience: "both" },
-  { kind: "approval_pending", offsetDays: 3, audience: "client" },
-  { kind: "change_request_pending", offsetDays: 3, audience: "client" },
+  { kind: "document_signature_pending", offsetDays: 3, audience: "client" },
+  { kind: "document_signature_pending", offsetDays: 7, audience: "both" },
   { kind: "maintenance_renewal", offsetDays: -30, audience: "team" },
   { kind: "maintenance_renewal", offsetDays: -14, audience: "both" },
 ];

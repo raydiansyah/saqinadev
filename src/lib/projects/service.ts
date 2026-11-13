@@ -5,28 +5,14 @@ import type { Locale } from "@/i18n/locales";
 import { recordActivity } from "@/lib/activity/service";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess } from "@/lib/auth/permissions";
-import { db, type Tx } from "@/lib/db/client";
-import { activities, projectMembers, projectSettings, projects } from "@/lib/db/schema";
-import {
-  APPROVAL_POLICIES,
-  BUILD_STRATEGIES,
-  DEPLOY_PROVIDERS,
-  PROJECT_STATUSES,
-  type ProjectStatus,
-  REPO_PROVIDERS,
-} from "@/lib/domain/enums";
+import { db } from "@/lib/db/client";
+import { activities, clients, projectMembers, projectSettings, projects } from "@/lib/db/schema";
+import { PROJECT_STATUSES, type ProjectStatus } from "@/lib/domain/enums";
 import { AppError } from "@/lib/errors";
-import { classify } from "@/lib/interview/classify";
-import { getEngineCopy } from "@/lib/interview/copy";
-import { slugify } from "@/lib/interview/rules/profile";
-import { projectName } from "@/lib/interview/rules/recommend";
-import { EMPTY_ANSWERS } from "@/lib/interview/types";
-import { insertInterview, writeAnswers } from "@/lib/interviews/repository";
-import { importedAnswersInput } from "@/lib/interviews/validators";
 import { activeOrg } from "@/lib/organizations/service";
+import { slugify } from "@/lib/slug";
 import { parse } from "@/lib/validation";
-import { getNextProjectAction, type NextAction, type ProjectSnapshot } from "./progress";
-import { listMemberProjects, loadSnapshots, type ProjectRow, slugExists } from "./repository";
+import { listMemberProjects, type ProjectRow, slugExists } from "./repository";
 
 const SLUG_ALPHABET = "abcdefghijkmnpqrstuvwxyz23456789";
 
@@ -45,47 +31,29 @@ async function uniqueSlug(name: string, executor = db): Promise<string> {
   throw new AppError("CONFLICT", "Could not allocate a project slug");
 }
 
-const startInput = z.object({
-  idea: z.string().trim().min(10).max(2000),
-  imported: importedAnswersInput.optional(),
+const createInput = z.object({
+  name: z.string().trim().min(2).max(80),
+  description: z.string().trim().max(2000).default(""),
+  clientId: z.uuid().nullable().default(null),
 });
 
-/**
- * Creates a draft project with its interview. Words in the idea are read by the classifier;
- * what it finds is stored as inferred, never as confirmed.
- */
-export interface StartOptions {
-  isDemo?: boolean;
-  /** Use this name instead of deriving one from the idea (an imported repository's name). */
-  name?: string;
-  /** Imported descriptions are provisional, so they are stored as imported, not as the user's words. */
-  ideaSource?: "user" | "imported";
-  /** Runs in the creation transaction: extra writes succeed or fail together with the project. */
-  afterCreate?: (tx: Tx, created: { projectId: string; interviewId: string }) => Promise<void>;
-}
-
-export async function startProject(
+/** A project is a plain container for one client's invoices, receipts, contracts and reminders. */
+export async function createProject(
   actor: Actor,
   input: unknown,
   locale: Locale,
-  options: StartOptions = {},
 ): Promise<{ slug: string }> {
-  const { idea, imported } = parse(startInput, input);
-  const found = classify(idea);
-  const answers = { ...EMPTY_ANSWERS, projectDescription: idea, projectType: found.projectType };
-  // The name comes from the plan already made: the preview answers carried over, when there are
-  // any, name it the same way the preview plan did. Nobody types a title.
-  const carried = Object.fromEntries(
-    Object.entries(imported ?? {}).filter(([, v]) => v !== null && v !== undefined),
-  ) as Partial<typeof answers>;
-  const planned = { ...answers, ...carried, projectDescription: idea };
-  const name =
-    options.name ??
-    projectName(planned, getEngineCopy(locale)) ??
-    idea.split(/\s+/).slice(0, 4).join(" ");
-
+  const { name, description, clientId } = parse(createInput, input);
   return db.transaction(async (tx) => {
     const { org } = await activeOrg(actor, tx);
+    if (clientId) {
+      const [client] = await tx
+        .select({ id: clients.id })
+        .from(clients)
+        .where(and(eq(clients.id, clientId), eq(clients.organizationId, org.id)));
+      // A client of another organization looks the same as one that does not exist.
+      if (!client) throw new AppError("NOT_FOUND");
+    }
     const slug = await uniqueSlug(name, tx);
     const [project] = await tx
       .insert(projects)
@@ -93,51 +61,19 @@ export async function startProject(
         slug,
         ownerId: actor.id,
         organizationId: org.id,
+        clientId,
         currency: org.defaultCurrency,
         name,
-        nameSource: options.name ? "repository" : "auto",
-        description: idea,
-        type: found.projectType ?? null,
-        status: "interview",
+        nameSource: "user",
+        description,
+        status: "planning",
         locale,
-        isDemo: options.isDemo ?? false,
       })
       .returning();
     await tx
       .insert(projectMembers)
       .values({ projectId: project.id, userId: actor.id, role: "owner" });
     await tx.insert(projectSettings).values({ projectId: project.id });
-
-    const interview = await insertInterview(tx, project.id);
-    await writeAnswers(
-      tx,
-      interview.id,
-      { projectDescription: idea },
-      options.ideaSource === "imported" ? "imported" : "user",
-    );
-    await writeAnswers(
-      tx,
-      interview.id,
-      {
-        projectType: found.projectType,
-        features: found.features.length > 0 ? found.features : undefined,
-        audience: found.audience.length > 0 ? found.audience : undefined,
-      },
-      "inferred",
-    );
-
-    // Answers from the public preview: kept, but marked as imported rather than confirmed.
-    if (imported) {
-      const { projectDescription: _ignored, ...rest } = imported;
-      await writeAnswers(tx, interview.id, rest, "imported");
-      if (rest.projectType) {
-        await tx
-          .update(projects)
-          .set({ type: rest.projectType })
-          .where(eq(projects.id, project.id));
-      }
-    }
-
     await recordActivity(tx, {
       projectId: project.id,
       actorId: actor.id,
@@ -146,14 +82,6 @@ export async function startProject(
       entityId: project.id,
       metadata: { name },
     });
-    await recordActivity(tx, {
-      projectId: project.id,
-      actorId: actor.id,
-      type: "interview.started",
-      entityType: "interview",
-      entityId: interview.id,
-    });
-    await options.afterCreate?.(tx, { projectId: project.id, interviewId: interview.id });
     return { slug };
   });
 }
@@ -163,11 +91,8 @@ export interface ProjectSummary {
   name: string;
   description: string;
   status: ProjectRow["status"];
-  isDemo: boolean;
   archived: boolean;
   updatedAt: Date;
-  snapshot: ProjectSnapshot;
-  nextAction: NextAction;
 }
 
 export async function listProjects(
@@ -175,21 +100,14 @@ export async function listProjects(
   options: { archived?: boolean } = {},
 ): Promise<ProjectSummary[]> {
   const rows = await listMemberProjects(db, actor.id, options);
-  const snapshots = await loadSnapshots(db, rows);
-  return rows.map((p) => {
-    const snapshot = snapshots.get(p.id) as ProjectSnapshot;
-    return {
-      slug: p.slug,
-      name: p.name,
-      description: p.description,
-      status: p.status,
-      isDemo: p.isDemo,
-      archived: p.archivedAt !== null,
-      updatedAt: p.updatedAt,
-      snapshot,
-      nextAction: getNextProjectAction(snapshot),
-    };
-  });
+  return rows.map((p) => ({
+    slug: p.slug,
+    name: p.name,
+    description: p.description,
+    status: p.status,
+    archived: p.archivedAt !== null,
+    updatedAt: p.updatedAt,
+  }));
 }
 
 const generalInput = z.object({
@@ -214,73 +132,6 @@ export async function updateProjectGeneral(actor: Actor, slug: string, input: un
       entityType: "project",
       entityId: project.id,
       metadata: { fields: "name,description" },
-    });
-  });
-}
-
-const optionalText = (max: number) =>
-  z
-    .string()
-    .trim()
-    .max(max)
-    .transform((v) => v || null);
-
-const settingsInput = z.object({
-  buildStrategy: z.enum(BUILD_STRATEGIES),
-  repoProvider: z.enum(REPO_PROVIDERS).nullable(),
-  repoUrl: optionalText(300)
-    // "github.com/acme/site" is what people type: take it as https.
-    .transform((v) => (v && !/^[a-z][a-z0-9+.-]*:\/\//i.test(v) ? `https://${v}` : v))
-    .refine((v) => v === null || /^https?:\/\/\S+$/.test(v), "url"),
-  defaultBranch: optionalText(100),
-  deployProvider: z.enum(DEPLOY_PROVIDERS).nullable(),
-  environment: optionalText(60),
-  domain: optionalText(253).refine(
-    (v) => v === null || /^[a-z0-9.-]+\.[a-z]{2,}$/i.test(v),
-    "domain",
-  ),
-  aiProvider: optionalText(60),
-  aiModel: optionalText(100),
-});
-
-/** Preferences for future integrations; stored only, nothing connects to an outside service. */
-export async function updateProjectSettings(actor: Actor, slug: string, input: unknown) {
-  const { buildStrategy, ...settings } = parse(settingsInput, input);
-  await db.transaction(async (tx) => {
-    const { project } = await loadProjectAccess(actor, { slug }, "project:update", tx);
-    await tx.update(projects).set({ buildStrategy }).where(eq(projects.id, project.id));
-    await tx
-      .insert(projectSettings)
-      .values({ projectId: project.id, ...settings })
-      .onConflictDoUpdate({ target: projectSettings.projectId, set: settings });
-    await recordActivity(tx, {
-      projectId: project.id,
-      actorId: actor.id,
-      type: "settings.updated",
-      entityType: "project",
-      entityId: project.id,
-    });
-  });
-}
-
-const approvalInput = z.object({ approvalPolicy: z.enum(APPROVAL_POLICIES) });
-
-/** Whether Saqina may apply low-risk changes right away or must always ask first. */
-export async function updateApprovalPolicy(actor: Actor, slug: string, input: unknown) {
-  const { approvalPolicy } = parse(approvalInput, input);
-  await db.transaction(async (tx) => {
-    const { project } = await loadProjectAccess(actor, { slug }, "project:update", tx);
-    await tx
-      .insert(projectSettings)
-      .values({ projectId: project.id, approvalPolicy })
-      .onConflictDoUpdate({ target: projectSettings.projectId, set: { approvalPolicy } });
-    await recordActivity(tx, {
-      projectId: project.id,
-      actorId: actor.id,
-      type: "settings.updated",
-      entityType: "project",
-      entityId: project.id,
-      metadata: { approvalPolicy },
     });
   });
 }

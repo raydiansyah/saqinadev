@@ -23,29 +23,6 @@
       "title": "Projects",
       "description": "Every project shared with you."
     },
-    "stage": {
-      "planning": "Planning",
-      "development": "In development",
-      "review": "In review",
-      "completed": "Completed",
-      "paused": "Paused"
-    },
-    "progress": {
-      "label": "Progress",
-      "percent": "{percent}% complete",
-      "current": "Current stage",
-      "next": "Next stage",
-      "none": "Not set yet",
-      "title": "Progress",
-      "description": "The stages of your project and where the work is right now.",
-      "empty": "The team has not published the project stages yet.",
-      "listLabel": "Project stages",
-      "state": {
-        "done": "Done",
-        "current": "In progress",
-        "upcoming": "Upcoming"
-      }
-    },
     "money": {
       "value": "Project value",
       "invoiced": "Invoiced",
@@ -57,8 +34,6 @@
     "tabs": {
       "label": "Project sections",
       "overview": "Overview",
-      "progress": "Progress",
-      "features": "Features",
       "documents": "Documents",
       "invoices": "Invoices",
       "payments": "Payments"
@@ -74,30 +49,6 @@
         "invoice_issued": "Invoice {label} issued",
         "payment_received": "Payment received for {label}",
         "document_shared": "Document shared: {label}"
-      }
-    },
-    "features": {
-      "metaTitle": "Features",
-      "title": "Features",
-      "description": "What this project covers, and what it does not.",
-      "empty": "The feature list has not been shared yet.",
-      "groups": {
-        "included": {
-          "title": "Included",
-          "body": "Part of the agreed scope and the price."
-        },
-        "excluded": {
-          "title": "Not included",
-          "body": "Outside this project. Ask the team if you need any of these."
-        },
-        "optional": {
-          "title": "Optional",
-          "body": "Available on request, usually at extra cost."
-        },
-        "future": {
-          "title": "Later",
-          "body": "Ideas for a future phase, not part of this project yet."
-        }
       }
     },
     "documents": {
@@ -153,7 +104,9 @@
       },
       "total": "Total",
       "paid": "Paid",
-      "balance": "Balance due"
+      "balance": "Balance due",
+      "taxNumber": "Tax number: {value}",
+      "from": "From"
     },
     "payments": {
       "metaTitle": "Payments",
@@ -167,7 +120,8 @@
         "date": "Date",
         "invoice": "Invoice",
         "method": "Method",
-        "amount": "Amount"
+        "amount": "Amount",
+        "receipt": "Receipt"
       },
       "method": {
         "bank_transfer": "Bank transfer",
@@ -188,6 +142,12 @@
       "clientsEmpty": "You are not linked to a company yet.",
       "language": "Language",
       "signOut": "Sign out"
+    },
+    "footer": {
+      "poweredBy": "Powered by Saqina Dev",
+      "saqina": "Saqina Dev",
+      "privacy": "Privacy Policy",
+      "terms": "Terms and Conditions"
     }
   },
   "invite": {

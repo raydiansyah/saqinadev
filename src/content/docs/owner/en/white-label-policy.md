@@ -2,7 +2,7 @@
 title: White label policy
 description: What may carry your own brand on the client portal, what is never hidden, and who decides.
 order: 3
-updated: 2026-10-23
+updated: 2026-11-12
 kind: policy
 ---
 
@@ -33,10 +33,12 @@ While it is locked, every document still carries the default Saqina logo as its 
 
 ## What may carry your brand
 
-- **Portal name, logo and accent colour.** Set per organization by an owner or admin, never by a client.
-- **Portal domain.** A domain the organization owns may be used once ownership is proven through DNS. No wildcard domains, and cookies are not shared across domains.
-- **Email to clients** (invoices, reminders, approvals): the sender's name and logo. Mail still goes out from the platform's sender domain unless the organization verifies its own (SPF and DKIM).
-- **Invoices and documents for clients:** the **agency's** letterhead, logo, legal name and tax number. The agency is the issuer. Saqina is never named as the seller.
+You set these under Settings > White label, once white label is open. Only an owner or admin can change them, never a client.
+
+- Portal name, logo and accent colour. The logo is a PNG or JPEG of at most 200 KB, shown on a light background. The accent colour is checked: it must stand out from the dark portal and carry readable button text.
+- Email to clients (invoices, receipts, reminders, signature requests): the brand name, the accent colour, the sender's display name and a reply-to address. Mail still goes out from the platform's verified address.
+- Invoices, receipts, contracts and their PDF files: your logo, legal name, tax number and address lead the letterhead. You are the issuer, and Saqina is never named as the seller. A small "powered by Saqina Dev" line stays on every branded document.
+- A custom domain for the portal is not available yet.
 
 ## What is never hidden or changed
 

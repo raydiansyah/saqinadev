@@ -1,74 +1,73 @@
 ---
 title: Follow your project on the portal
-description: How to see progress, read the documents the team shared, and know what needs your answer.
+description: See what you owe and what you paid, download invoices and receipts, read and sign agreements, and know what needs your answer.
 order: 1
-updated: 2026-10-23
+updated: 2026-11-12
 ---
 
-The client portal is where you follow a project the team is working on: how far the work is, which documents have been shared, and what is waiting for your answer. The portal is **for reading and answering only**. You do not edit documents here, and you only see projects that were shared with you.
+The client portal is where you follow the paperwork of a project: invoices, payments and receipts, the documents your team shared, and what waits for your signature. You read and sign here. You do not edit anything, and you only see projects that were shared with you.
 
 ## Sign in and open the dashboard
 
-Sign in with the account you created from the team's invitation. The first page is the **Dashboard**.
+Sign in with the account you created from the invitation. The first page is the **Dashboard**.
 
-![The portal dashboard with the Needs your action box and project cards with their progress](/api/docs/assets/client/portal-01-dashboard.png)
+![The portal dashboard with the Needs your attention box listing an agreement to sign and an overdue invoice](/api/docs/assets/client/portal-01-dashboard.png)
 
-- **Needs your action** gathers everything that waits for your answer: approvals and change requests.
-- Each **project card** shows the status, the progress percentage, the current stage, the next stage, and the amount still unpaid.
-- The menu at the top has **Dashboard**, **Project**, **Guides** (this page) and **Profile**. The **EN** and **ID** buttons switch the language.
+- **Needs your attention** lists agreements waiting for your signature and invoices past their due date.
+- Each project card shows what is still unpaid.
+- The menu at the top has **Dashboard**, **Projects**, **Guides** (this page) and **Profile**. The **EN** and **ID** buttons switch the language. If your team set up its own brand, you see its name and colour here instead of Saqina's.
 
-## Open a project
+## Invoices
 
-Choose a project card. The overview shows what waits for you, what the project is about, and its progress. The tabs under the title lead to Progress, Features, Documents, Billing, Payments, Requests, Messages, Meeting notes, Approvals and Changes.
+Open a project and choose **Invoices**. You see every invoice your team issued, with its number, due date, amount and what is left to pay. Open one to read the lines. Use **Download PDF** to save it, or **Print or save as PDF** to print it. You also get each new invoice by email with the PDF attached.
 
-![The project overview: actions waiting, about this project, and progress](/api/docs/assets/client/portal-02-project-overview.png)
+## Payments and receipts
 
-## Read the progress
+The **Payments** tab lists the payments the team confirmed. Every payment has a receipt with its own number, such as `KWT-2026-001`.
 
-The **Progress** tab shows the project's stages and where the work stands now. The percentage is calculated from the work that is done. The stages shown are the ones the team chose for you, with names that are easy to follow.
+![The payments page with the amount paid, the amount outstanding and a receipt number for each payment](/api/docs/assets/client/portal-02-payments.png)
 
-![The Progress page with three stages: in progress and not started](/api/docs/assets/client/portal-03-progress.png)
+Open a receipt to read it, with the amount in words and the invoice it pays. You can download it as a PDF. It also arrives by email when the payment is recorded.
 
-On the team's side the system is judged by three questions: built, reviewed and deployed. When the team brings its tasks in line with those answers, the stages and percentage here change too.
+![A receipt showing the issuer, the amount in words, the invoice it pays, the date and the method](/api/docs/assets/client/portal-03-receipt.png)
+
+If the team corrects a payment, its receipt disappears from your list.
 
 ## Read the shared documents
 
-The **Documents** tab holds the documents the team shared with you, with their version and last update. You can only read them.
+The **Documents** tab holds the documents the team shared with you, with their version and last update.
 
 ![The list of documents the team shared, each with a version and update date](/api/docs/assets/client/portal-04-documents.png)
 
-Open a document to read it. Tables, lists, code and diagrams appear as the team wrote them.
+Open a document to read it, or download it as a PDF.
 
 ![An open document with its title, version, update date and content](/api/docs/assets/client/portal-05-document.png)
 
-Good to know:
-
-- Documents that come from the team's GitHub repository are updated automatically. What you read is the latest version.
-- Only documents the team approved appear here. A draft is not visible.
-- If a document changes after it was shared and needs approving again, it can leave the list until the team approves it again.
+Only documents the team approved appear here. If a document changes after it was shared and needs approving again, it leaves the list until the team approves it.
 
 ## Sign a document
 
-The proposal, agreement, handover and maintenance agreement are signed by both parties. Under the document there is an **Approval and signatures** panel. You can **sign this document** when you agree, or **ask for changes** with a note about what should change.
+The proposal, agreement, handover and maintenance agreement are signed by both sides. Under the document there is an **Approval and signatures** panel. You can **sign this document** when you agree, or **ask for changes** with a note about what should change.
 
 ![The signing panel on the portal: the team has signed; the client gets Sign this document and Ask for changes](/api/docs/assets/client/portal-06-sign.png)
 
 - You can only sign a document the team approved and shared with you.
-- Once the team and you have both signed, the document is **issued**, gets a reference number, and can no longer be changed.
-- If you ask for changes, the document goes back to the team and existing signatures are removed. You will get the updated document to read again.
+- Once the team and you have both signed, the document is **issued**, gets a reference number, and can no longer be changed. The PDF then shows both signatures and their dates.
+- If you ask for changes, the document goes back to the team and existing signatures are removed. You read the updated document again before signing.
 
 ![An issued document with reference number AGR-2026-001, signed by the team and the client](/api/docs/assets/client/portal-07-issued.png)
 
-## Answer what waits for you
+## Maintenance and meeting notes
 
-- **Approvals** shows what needs your decision: approve, or ask for a change.
-- **Changes** holds scope change requests that wait for your decision.
-- **Requests** and **Messages** are how you ask the team a question and see the reply.
+**Maintenance** shows the warranty end date and the care plans of the project, with their scope and what is not included. **Meeting notes** holds the notes the team shared. You can add a note of your own for the team to review.
 
-Notifications (the bell icon) tell you when something new arrives.
+## Reminders
+
+When an invoice is almost due or overdue, or an agreement waits for your signature, you get a notification and an email. The team can also reach you by WhatsApp if it has your phone number. The bell icon lists everything new.
 
 ## If something does not show
 
-- **A project does not appear.** A project only shows once the team has shared it and your account is linked to your company. Contact the team.
-- **A document you expect is missing.** The team has not approved or shared it yet.
-- **You cannot edit a document.** That is on purpose: the portal is read-only. Send a note through Messages or Requests.
+- A project does not appear: it shows once the team shared it and your account is linked to your company. Contact the team.
+- A document you expect is missing: the team has not approved or shared it yet.
+- A receipt is missing for a payment: ask the team to issue it.
+- You cannot edit a document: the portal is read-only on purpose. Contact the team.

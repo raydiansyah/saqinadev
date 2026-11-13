@@ -5,10 +5,11 @@ import { recordActivity } from "@/lib/activity/service";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess, type ProjectAccess } from "@/lib/auth/permissions";
 import { db, type Tx } from "@/lib/db/client";
-import { invoiceItems, invoices, orgCounters, payments, paymentTerms } from "@/lib/db/schema";
+import { invoiceItems, invoices, payments, paymentTerms } from "@/lib/db/schema";
 import { AppError } from "@/lib/errors";
 import { clientRecipients, deliver, notifyTx, type Pending } from "@/lib/notifications/service";
 import { parse } from "@/lib/validation";
+import { nextSequence } from "./numbering";
 import { addDays, invoiceNumber, todayIso } from "./rules";
 
 export type Invoice = typeof invoices.$inferSelect;
@@ -134,17 +135,8 @@ export async function lockInvoice(tx: Tx, projectId: string, invoiceId: string):
 }
 
 /** Next number for the organization and year; atomic under concurrent issues. */
-async function allocateNumber(tx: Tx, organizationId: string, year: number): Promise<string> {
-  const [row] = await tx
-    .insert(orgCounters)
-    .values({ organizationId, kind: "invoice", year, next: 2 })
-    .onConflictDoUpdate({
-      target: [orgCounters.organizationId, orgCounters.kind, orgCounters.year],
-      set: { next: sql`${orgCounters.next} + 1` },
-    })
-    .returning({ next: orgCounters.next });
-  return invoiceNumber(year, row.next - 1);
-}
+const allocateNumber = async (tx: Tx, organizationId: string, year: number) =>
+  invoiceNumber(year, await nextSequence(tx, organizationId, "invoice", year));
 
 type InvoiceAction = "issue" | "send" | "cancel";
 

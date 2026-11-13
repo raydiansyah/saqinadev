@@ -8,7 +8,6 @@ import { loadProjectAccess } from "@/lib/auth/permissions";
 import { db, type Executor, type Tx } from "@/lib/db/client";
 import { documentSignatures, documents, orgCounters } from "@/lib/db/schema";
 import type { DocumentStatus } from "@/lib/domain/enums";
-import { clientParty, portalHref, teamHref } from "@/lib/engagement/shared";
 import { AppError } from "@/lib/errors";
 import {
   clientRecipients,
@@ -17,6 +16,7 @@ import {
   type Pending,
   teamRecipients,
 } from "@/lib/notifications/service";
+import { clientParty, portalHref, teamHref } from "@/lib/portal/party";
 import { parse } from "@/lib/validation";
 import { documentReference, isSignable, referenceCounter, type SignableKind } from "./reference";
 

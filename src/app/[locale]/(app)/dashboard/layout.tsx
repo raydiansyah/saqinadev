@@ -1,20 +1,13 @@
 import { AppHeader } from "@/components/app/app-header";
 import { DashboardNav } from "@/components/app/dashboard-nav";
-import type { Locale } from "@/i18n/locales";
 import { requireActorPage } from "@/lib/auth/server";
-import { isPlatformOwner } from "@/lib/platform/roles";
-import { getUiMode } from "@/lib/users/preferences";
 
-export default async function DashboardLayout({
-  children,
-  params,
-}: LayoutProps<"/[locale]/dashboard">) {
-  const locale = (await params).locale as Locale;
+export default async function DashboardLayout({ children }: LayoutProps<"/[locale]/dashboard">) {
   const actor = await requireActorPage("/dashboard");
   return (
     <>
-      <AppHeader actor={actor} locale={locale} />
-      <DashboardNav isOwner={await isPlatformOwner(actor)} mode={await getUiMode(actor)} />
+      <AppHeader actor={actor} />
+      <DashboardNav />
       <main id="main" className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6 sm:py-10">
         {children}
       </main>

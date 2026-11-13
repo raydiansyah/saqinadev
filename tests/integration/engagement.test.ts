@@ -5,43 +5,20 @@ import { loadProjectAccess } from "@/lib/auth/permissions";
 import { createInvoice, transitionInvoice } from "@/lib/billing/invoices";
 import { addDays, todayIso } from "@/lib/billing/rules";
 import { listTerms, setPaymentSchedule } from "@/lib/billing/terms";
-import {
-  clientDecideChangeRequest,
-  createChangeRequest,
-  sendChangeRequest,
-  teamRecordDecision,
-} from "@/lib/change-requests/service";
 import { acceptInvitation, createInvitation } from "@/lib/clients/invitations";
 import { createClient, setProjectClient } from "@/lib/clients/service";
 import { db } from "@/lib/db/client";
-import {
-  changeRequests,
-  documents,
-  notifications,
-  projects,
-  reminderLog,
-  scopeItems,
-  tasks,
-} from "@/lib/db/schema";
+import { documents, notifications, reminderLog } from "@/lib/db/schema";
 import { generateBusinessDocument } from "@/lib/documents/business";
 import { setDocumentClientVisible, setDocumentStatus } from "@/lib/documents/service";
 import { signAsClient, signAsTeam } from "@/lib/documents/signing";
-import { clientRespondApproval, requestApproval } from "@/lib/engagement/approvals";
-import { clientPostMessage, teamPostMessage } from "@/lib/engagement/messages";
-import { clientCreateRequest, listRequests, updateRequest } from "@/lib/engagement/requests";
 import { AppError } from "@/lib/errors";
 import { createPlan, renewPlan, setWarranty } from "@/lib/maintenance/service";
-import { listNotifications, markRead, unreadCount } from "@/lib/notifications/service";
+import { listNotifications } from "@/lib/notifications/service";
 import { loadClientProjectAccess } from "@/lib/portal/access";
-import {
-  clientApprovalList,
-  clientChangeRequestList,
-  clientMaintenance,
-  clientRequestList,
-} from "@/lib/portal/engagement-views";
+import { clientMaintenance } from "@/lib/portal/engagement-views";
 import { sendClientReminder } from "@/lib/reminders/manual";
 import { runReminders } from "@/lib/reminders/service";
-import { createScopeItem } from "@/lib/scope/service";
 import { createUser, resetDatabase } from "../helpers/db";
 import { project } from "../helpers/project";
 
@@ -60,7 +37,7 @@ let slug: string;
 
 async function setup(email = "client@abc.test") {
   owner = await createUser("Owner");
-  slug = await project(owner, "A restaurant point of sale app for my cafe with stock.");
+  slug = await project(owner, "Cafe point of sale");
   const c = await createClient(owner, { name: "PT ABC", email });
   await setProjectClient(owner, slug, { clientId: c.id, portalEnabled: true, currency: "IDR" });
   const { url } = await createInvitation(owner, c.id, { email });
@@ -69,115 +46,11 @@ async function setup(email = "client@abc.test") {
   return (await loadProjectAccess(owner, { slug }, "project:read")).project;
 }
 
-describe("client engagement", () => {
-  beforeEach(resetDatabase);
-
-  it("routes requests, messages and approvals between client and team", async () => {
-    const p = await setup();
-    await createScopeItem(owner, slug, { title: "Payment gateway", category: "excluded" });
-
-    await clientCreateRequest(client, slug, {
-      kind: "feature",
-      title: "Add payment gateway",
-      body: "Customers want to pay online.",
-    });
-    const [req] = await listRequests(p.id);
-    expect(req).toMatchObject({ side: "client", scopeStatus: "out_of_scope", status: "open" });
-    expect(await unreadCount(owner)).toBe(1);
-
-    await updateRequest(owner, slug, req.id, { status: "in_review" });
-    const access = await loadClientProjectAccess(client, slug);
-    expect((await clientRequestList(access))[0]).toMatchObject({ status: "in_review" });
-
-    await teamPostMessage(owner, slug, { body: "We will send a change request." });
-    await clientPostMessage(client, slug, { body: "Thanks!" });
-    expect((await listNotifications(client)).map((n) => n.type)).toContain("message.posted");
-
-    // Approvals: only for approved documents, and changes need a note.
-    expect(await code(requestApproval(owner, slug, { title: "Review PRD", docSlug: "prd" }))).toBe(
-      "VALIDATION_ERROR",
-    );
-    await setDocumentStatus(owner, slug, { docSlug: "prd", status: "approved" });
-    const { id } = await requestApproval(owner, slug, { title: "Review PRD", docSlug: "prd" });
-    expect((await clientApprovalList(access))[0]).toMatchObject({ documentSlug: "prd" });
-    expect(
-      await code(clientRespondApproval(client, slug, id, { decision: "changes_requested" })),
-    ).toBe("VALIDATION_ERROR");
-    await clientRespondApproval(client, slug, id, { decision: "approved" });
-    expect(await code(clientRespondApproval(client, slug, id, { decision: "approved" }))).toBe(
-      "NOT_FOUND",
-    );
-
-    await markRead(owner);
-    expect(await unreadCount(owner)).toBe(0);
-  });
-
-  it("applies an approved change request to scope, tasks and billing exactly once", async () => {
-    const p = await setup();
-    await setPaymentSchedule(owner, slug, {
-      value: 20_000_000,
-      terms: [
-        { label: "DP", percentBp: 5000 },
-        { label: "Final", percentBp: 5000 },
-      ],
-    });
-    const { id } = await createChangeRequest(owner, slug, {
-      title: "WhatsApp integration",
-      additionalCost: 1_500_000,
-      additionalDays: 3,
-    });
-    const access = await loadClientProjectAccess(client, slug);
-    // Drafts are internal.
-    expect(await clientChangeRequestList(access)).toHaveLength(0);
-    expect(await code(clientDecideChangeRequest(client, slug, id, { decision: "approved" }))).toBe(
-      "CONFLICT",
-    );
-    await sendChangeRequest(owner, slug, id);
-    expect((await clientChangeRequestList(access))[0]).toMatchObject({ additionalCost: 1_500_000 });
-
-    // The team can only record a client's decision with evidence.
-    expect(await code(teamRecordDecision(owner, slug, id, { decision: "approved" }))).toBe(
-      "VALIDATION_ERROR",
-    );
-    await clientDecideChangeRequest(client, slug, id, { decision: "approved" });
-    expect(await code(clientDecideChangeRequest(client, slug, id, { decision: "approved" }))).toBe(
-      "CONFLICT",
-    );
-
-    const [cr] = await db.select().from(changeRequests).where(eq(changeRequests.id, id));
-    expect(cr.status).toBe("approved");
-    const terms = await listTerms(p.id);
-    expect(terms.at(-1)).toMatchObject({ label: "CR-001", amount: 1_500_000 });
-    const [after] = await db.select().from(projects).where(eq(projects.id, p.id));
-    expect(after.value).toBe(21_500_000);
-    expect(
-      (await db.select().from(scopeItems).where(eq(scopeItems.projectId, p.id))).map(
-        (s) => s.title,
-      ),
-    ).toContain("WhatsApp integration");
-    expect((await db.select().from(tasks)).some((t) => t.title.startsWith("CR-001"))).toBe(true);
-  });
-
-  it("keeps another client out of engagement data", async () => {
-    await setup("a@abc.test");
-    const aSlug = slug;
-    const aClient = client;
-    await setup("b@xyz.test");
-    expect(await code(clientCreateRequest(aClient, slug, { kind: "bug", title: "Broken" }))).toBe(
-      "NOT_FOUND",
-    );
-    expect(await code(clientPostMessage(aClient, slug, { body: "hi" }))).toBe("NOT_FOUND");
-    expect(await code(clientCreateRequest(client, aSlug, { kind: "bug", title: "Broken" }))).toBe(
-      "NOT_FOUND",
-    );
-  });
-});
-
 describe("maintenance and reminders", () => {
   beforeEach(resetDatabase);
 
-  it("classifies requests, renews plans and shows them on the portal", async () => {
-    const p = await setup();
+  it("renews plans and shows them on the portal", async () => {
+    await setup();
     const today = todayIso();
     await setWarranty(owner, slug, { warrantyUntil: addDays(today, 30) });
     const plan = await createPlan(owner, slug, {
@@ -187,11 +60,6 @@ describe("maintenance and reminders", () => {
       fee: 1_500_000,
       cycle: "monthly",
     });
-    await clientCreateRequest(client, slug, { kind: "bug", title: "Logo broken on homepage" });
-    const [req] = await listRequests(p.id);
-    expect(req.suggestedClassification).toBe("warranty");
-    expect(req.classification).toBe("unclassified");
-
     await renewPlan(owner, slug, plan.id);
     const view = await clientMaintenance(await loadClientProjectAccess(client, slug));
     expect(view.plans.map((x) => x.status)).toEqual(["ended", "active"]);
@@ -228,6 +96,32 @@ describe("maintenance and reminders", () => {
       await code(sendClientReminder(owner, slug, { entityType: "invoice", entityId: id })),
     ).toBe("CONFLICT");
     expect(await db.select().from(notifications)).not.toHaveLength(0);
+  });
+
+  it("reminds about an agreement the client has not signed, once, until it is signed", async () => {
+    await setup();
+    await generateBusinessDocument(owner, slug, { kind: "agreement" }, "en");
+    await setDocumentStatus(owner, slug, { docSlug: "agreement", status: "approved" });
+    await setDocumentClientVisible(owner, slug, { docSlug: "agreement", visible: true });
+    await signAsTeam(owner, slug, "agreement");
+
+    // Just approved: nothing is due yet.
+    expect((await runReminders()).sent).toBe(0);
+
+    const old = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000);
+    await db.update(documents).set({ updatedAt: old }).where(eq(documents.slug, "agreement"));
+    expect((await runReminders()).sent).toBe(1);
+    expect((await runReminders()).sent).toBe(0);
+    expect((await listNotifications(client)).map((n) => n.type)).toContain(
+      "reminder.document_signature_pending",
+    );
+
+    await signAsClient(client, slug, "agreement");
+    await db
+      .update(documents)
+      .set({ updatedAt: new Date(0) })
+      .where(eq(documents.slug, "agreement"));
+    expect((await runReminders()).sent).toBe(0);
   });
 });
 

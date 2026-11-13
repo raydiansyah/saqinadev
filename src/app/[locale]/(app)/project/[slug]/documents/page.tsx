@@ -3,15 +3,10 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { EmptyState, PageHeading } from "@/components/app/states";
 import { NewDocumentButton } from "@/components/documents/new-document-button";
 import { ShareToggle } from "@/components/documents/share-toggle";
-import { SyncBadge } from "@/components/documents/sync-badge";
 import { BusinessDocs } from "@/components/engagement/business-docs";
 import { Link } from "@/i18n/navigation";
 import { can } from "@/lib/auth/permissions";
-import { db } from "@/lib/db/client";
-import { listDocMap } from "@/lib/docmap/index-docs";
-import { listDocLinkStates } from "@/lib/docsync/config";
-import { schedulePullIfStale } from "@/lib/docsync/schedule";
-import { fileName, getDocument, listDocuments } from "@/lib/documents/service";
+import { fileName, listDocuments } from "@/lib/documents/service";
 import { formatRelative } from "@/lib/format";
 import { projectPageAccess } from "@/lib/projects/page";
 
@@ -26,24 +21,10 @@ export default async function DocumentsPage({
   const { slug } = await params;
   const access = await projectPageAccess(slug);
   const docs = await listDocuments(access);
-  schedulePullIfStale(access.project.id);
   const t = await getTranslations("documents");
   const share = await getTranslations("billing.share");
   const canShare = can(access.role, "project:update");
   const locale = await getLocale();
-  const canWrite = can(access.role, "content:write");
-  const docMap = await listDocMap(db, access.project.id);
-  const syncByDoc = new Map(
-    (await listDocLinkStates(access.project.id)).map((s) => [s.documentId, s]),
-  );
-  // The compare dialog needs the Saqina text, so it is loaded only for conflicting documents.
-  const conflictText = new Map<string, string>();
-  if (canWrite) {
-    for (const d of docs) {
-      if (syncByDoc.get(d.id)?.state !== "conflict") continue;
-      conflictText.set(d.id, (await getDocument(access, d.slug))?.content ?? "");
-    }
-  }
 
   return (
     <>
@@ -53,32 +34,6 @@ export default async function DocumentsPage({
         actions={can(access.role, "content:write") ? <NewDocumentButton slug={slug} /> : undefined}
       />
       {canShare ? <BusinessDocs slug={slug} /> : null}
-      {docMap.length > 0 ? (
-        <details className="mb-6 rounded-lg border border-border p-4 text-sm">
-          <summary className="cursor-pointer font-medium">
-            {t("map.title", { count: docMap.length })}
-          </summary>
-          <p className="mt-2 text-xs text-muted-foreground">{t("map.hint")}</p>
-          <dl className="mt-3 space-y-3">
-            {[...new Set(docMap.map((r) => r.role))].map((role) => (
-              <div key={role}>
-                <dt className="font-medium">{t(`map.roles.${role}` as never)}</dt>
-                <dd>
-                  <ul className="mt-1 space-y-0.5 text-muted-foreground">
-                    {docMap
-                      .filter((r) => r.role === role)
-                      .map((r) => (
-                        <li key={r.path} className="break-all">
-                          {r.path}
-                        </li>
-                      ))}
-                  </ul>
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </details>
-      ) : null}
       {docs.length === 0 ? (
         <EmptyState title={t("title")} body={t("empty")} />
       ) : (
@@ -86,9 +41,7 @@ export default async function DocumentsPage({
           {docs.map((d) => (
             <li key={d.id} className="flex flex-col sm:flex-row sm:items-center">
               <Link
-                href={
-                  d.slug === "prd" ? `/project/${slug}/prd` : `/project/${slug}/documents/${d.slug}`
-                }
+                href={`/project/${slug}/documents/${d.slug}`}
                 className="flex min-h-14 min-w-0 flex-1 flex-col justify-center gap-1 px-4 py-3 hover:bg-surface sm:flex-row sm:items-center sm:justify-between"
               >
                 <span>
@@ -107,18 +60,6 @@ export default async function DocumentsPage({
                   <span>{t("updated", { time: formatRelative(d.updatedAt, locale) })}</span>
                 </span>
               </Link>
-              {syncByDoc.get(d.id) ? (
-                <div className="px-4 pb-3 sm:pb-0">
-                  <SyncBadge
-                    projectSlug={slug}
-                    docSlug={d.slug}
-                    // biome-ignore lint/style/noNonNullAssertion: guarded by the condition above
-                    sync={syncByDoc.get(d.id)!}
-                    saqinaText={conflictText.get(d.id) ?? ""}
-                    canResolve={canWrite}
-                  />
-                </div>
-              ) : null}
               {canShare ? (
                 <div className="px-4 pb-3 sm:pb-0">
                   <ShareToggle

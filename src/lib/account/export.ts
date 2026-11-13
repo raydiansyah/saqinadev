@@ -1,22 +1,18 @@
 import "server-only";
-import { desc, eq, sql } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { recordAudit } from "@/lib/audit/service";
 import type { Actor } from "@/lib/auth/actor";
 import { db } from "@/lib/db/client";
 import {
   auditEvents,
-  clientRequests,
-  credentials,
-  decisions,
   documents,
+  invoices,
   meetingNotes,
-  memories,
   organizationMembers,
   organizations,
+  payments,
   projectMembers,
-  projectMessages,
   projects,
-  serviceInquiries,
   sessions,
   users,
 } from "@/lib/db/schema";
@@ -35,22 +31,17 @@ export interface AccountExport {
     email: string;
     emailVerified: boolean;
     locale: string | null;
-    workspaceMode: string;
     platformRole: string;
     createdAt: string;
   };
   projects: { slug: string; name: string; role: string; since: string }[];
   organizations: { name: string; role: string; personal: boolean; since: string }[];
   authored: {
-    memories: { title: string; content: string; category: string; createdAt: string }[];
+    invoices: { number: string | null; title: string; total: number; createdAt: string }[];
+    payments: { amount: number; paidAt: string; method: string; createdAt: string }[];
     meetingNotes: { title: string; meetingDate: string; body: string; createdAt: string }[];
-    requests: { title: string; body: string; kind: string; createdAt: string }[];
-    messages: { body: string; createdAt: string }[];
-    decisions: { question: string; selected: string; createdAt: string }[];
     documents: { slug: string; title: string; createdAt: string }[];
   };
-  inquiries: { message: string; status: string; consent: boolean; createdAt: string }[];
-  connections: { provider: string; account: string; connectedAt: string }[];
   sessions: { device: string | null; createdAt: string; expiresAt: string }[];
   activity: { type: string; entityType: string; at: string }[];
   /** What is deliberately not in the file, so nobody mistakes the gap for a bug. */
@@ -70,20 +61,7 @@ export async function exportAccount(actor: Actor): Promise<AccountExport> {
   const [me] = await db.select().from(users).where(eq(users.id, actor.id));
   if (!me) throw new AppError("NOT_FOUND");
 
-  const [
-    memberProjects,
-    memberOrgs,
-    memos,
-    notes,
-    requests,
-    messages,
-    decs,
-    docs,
-    inquiries,
-    git,
-    sess,
-    audit,
-  ] = await Promise.all([
+  const [memberProjects, memberOrgs, bills, paid, notes, docs, sess, audit] = await Promise.all([
     db
       .select({
         slug: projects.slug,
@@ -108,14 +86,25 @@ export async function exportAccount(actor: Actor): Promise<AccountExport> {
       .limit(CAP),
     db
       .select({
-        title: memories.title,
-        content: memories.content,
-        category: memories.category,
-        createdAt: memories.createdAt,
+        number: invoices.number,
+        title: invoices.title,
+        total: invoices.total,
+        createdAt: invoices.createdAt,
       })
-      .from(memories)
-      .where(eq(memories.createdBy, actor.id))
-      .orderBy(desc(memories.createdAt))
+      .from(invoices)
+      .where(eq(invoices.createdBy, actor.id))
+      .orderBy(desc(invoices.createdAt))
+      .limit(CAP),
+    db
+      .select({
+        amount: payments.amount,
+        paidAt: payments.paidAt,
+        method: payments.method,
+        createdAt: payments.createdAt,
+      })
+      .from(payments)
+      .where(eq(payments.recordedBy, actor.id))
+      .orderBy(desc(payments.createdAt))
       .limit(CAP),
     db
       .select({
@@ -129,55 +118,11 @@ export async function exportAccount(actor: Actor): Promise<AccountExport> {
       .orderBy(desc(meetingNotes.createdAt))
       .limit(CAP),
     db
-      .select({
-        title: clientRequests.title,
-        body: clientRequests.body,
-        kind: clientRequests.kind,
-        createdAt: clientRequests.createdAt,
-      })
-      .from(clientRequests)
-      .where(eq(clientRequests.authorId, actor.id))
-      .orderBy(desc(clientRequests.createdAt))
-      .limit(CAP),
-    db
-      .select({ body: projectMessages.body, createdAt: projectMessages.createdAt })
-      .from(projectMessages)
-      .where(eq(projectMessages.authorId, actor.id))
-      .orderBy(desc(projectMessages.createdAt))
-      .limit(CAP),
-    db
-      .select({
-        question: decisions.question,
-        selected: decisions.selected,
-        createdAt: decisions.createdAt,
-      })
-      .from(decisions)
-      .where(eq(decisions.createdBy, actor.id))
-      .orderBy(desc(decisions.createdAt))
-      .limit(CAP),
-    db
       .select({ slug: documents.slug, title: documents.title, createdAt: documents.createdAt })
       .from(documents)
       .where(eq(documents.createdBy, actor.id))
       .orderBy(desc(documents.createdAt))
       .limit(CAP),
-    db
-      .select({
-        message: serviceInquiries.message,
-        status: serviceInquiries.status,
-        consent: serviceInquiries.consent,
-        createdAt: serviceInquiries.createdAt,
-      })
-      .from(serviceInquiries)
-      .where(sql`lower(${serviceInquiries.email}) = ${me.email.toLowerCase()}`)
-      .orderBy(desc(serviceInquiries.createdAt))
-      .limit(CAP),
-    // Only the label ("github:login"), never the sealed token.
-    db
-      .select({ label: credentials.label, createdAt: credentials.createdAt })
-      .from(credentials)
-      .where(sql`${credentials.userId} = ${actor.id} and ${credentials.revokedAt} is null`)
-      .limit(50),
     db
       .select({
         device: sessions.userAgent,
@@ -207,7 +152,7 @@ export async function exportAccount(actor: Actor): Promise<AccountExport> {
       type: "account.exported",
       entityType: "user",
       entityId: null,
-      metadata: { rows: memos.length + notes.length + requests.length + messages.length },
+      metadata: { rows: bills.length + paid.length + notes.length + docs.length },
     });
   });
 
@@ -220,28 +165,17 @@ export async function exportAccount(actor: Actor): Promise<AccountExport> {
       email: me.email,
       emailVerified: me.emailVerified,
       locale: me.locale,
-      workspaceMode: me.uiMode,
       platformRole: me.platformRole,
       createdAt: iso(me.createdAt),
     },
     projects: memberProjects.map((p) => ({ ...p, since: iso(p.since) })),
     organizations: memberOrgs.map((o) => ({ ...o, since: iso(o.since) })),
     authored: {
-      memories: memos.map((m) => ({ ...m, createdAt: iso(m.createdAt) })),
+      invoices: bills.map((i) => ({ ...i, createdAt: iso(i.createdAt) })),
+      payments: paid.map((p) => ({ ...p, createdAt: iso(p.createdAt) })),
       meetingNotes: notes.map((n) => ({ ...n, createdAt: iso(n.createdAt) })),
-      requests: requests.map((r) => ({ ...r, createdAt: iso(r.createdAt) })),
-      messages: messages.map((m) => ({ ...m, createdAt: iso(m.createdAt) })),
-      decisions: decs.map((d) => ({ ...d, createdAt: iso(d.createdAt) })),
       documents: docs.map((d) => ({ ...d, createdAt: iso(d.createdAt) })),
     },
-    inquiries: inquiries.map((i) => ({ ...i, createdAt: iso(i.createdAt) })),
-    connections: git
-      .filter((c) => c.label.includes(":"))
-      .map((c) => ({
-        provider: c.label.split(":")[0],
-        account: c.label.split(":").slice(1).join(":"),
-        connectedAt: iso(c.createdAt),
-      })),
     sessions: sess.map((s) => ({
       device: s.device,
       createdAt: iso(s.createdAt),
@@ -250,9 +184,8 @@ export async function exportAccount(actor: Actor): Promise<AccountExport> {
     activity: audit.map((a) => ({ type: a.type, entityType: a.entityType, at: iso(a.at) })),
     notIncluded: [
       "Passwords and session tokens",
-      "Provider keys and access tokens (stored encrypted, never exported)",
       "Other people's data, including the content of projects you only belong to",
-      "Project documents, requirements and tasks (ask the project owner for a project export)",
+      "The full text of documents and invoice lines (ask the project owner for a project export)",
     ],
   };
 }

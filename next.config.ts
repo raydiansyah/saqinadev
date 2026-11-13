@@ -22,14 +22,7 @@ const nextConfig: NextConfig = {
     ];
     // Locale-prefixed public pages. The matcher is explicit so no private path can ever match:
     // dashboard, project, portal, auth, invite and /api are absent by construction.
-    const publicSources = [
-      "/:locale(en|id)",
-      "/:locale(en|id)/themes",
-      "/:locale(en|id)/services",
-      "/:locale(en|id)/services/:slug*",
-      "/:locale(en|id)/privacy",
-      "/:locale(en|id)/terms",
-    ];
+    const publicSources = ["/:locale(en|id)", "/:locale(en|id)/privacy", "/:locale(en|id)/terms"];
     return [
       { source: "/:path*", headers: securityHeaders(process.env.NODE_ENV !== "production") },
       ...publicSources.map((source) => ({ source, headers: publicCache })),

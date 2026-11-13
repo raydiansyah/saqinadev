@@ -59,8 +59,9 @@ describe("the guides that ship with the product", () => {
     }
   });
 
-  it("starts the team's guides with the import guide", () => {
-    for (const locale of LOCALES) expect(listDocs("owner", locale)[0].slug).toBe("import-project");
+  it("starts the team's guides with the invoices guide", () => {
+    for (const locale of LOCALES)
+      expect(listDocs("owner", locale)[0].slug).toBe("invoices-and-receipts");
   });
 
   it("keeps the audiences apart: the clients' guides never show the team's screenshots", () => {

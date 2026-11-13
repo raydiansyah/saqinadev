@@ -2,13 +2,14 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { signOutAction } from "@/app/[locale]/(app)/actions";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { NotificationBell } from "@/components/notifications/notification-bell";
-import { Logo } from "@/components/primitives/logo";
+import { BrandMark } from "@/components/primitives/brand-mark";
 import { Link } from "@/i18n/navigation";
 import type { Actor } from "@/lib/auth/actor";
+import type { BrandView } from "@/lib/white-label/brand";
 import { PortalNav } from "./portal-nav";
 
 /** Client portal top bar. Links only to portal pages; never to the internal workspace. */
-export async function PortalHeader({ actor }: { actor: Actor }) {
+export async function PortalHeader({ actor, brand }: { actor: Actor; brand: BrandView | null }) {
   const t = await getTranslations("portal.nav");
   const locale = await getLocale();
   return (
@@ -19,7 +20,7 @@ export async function PortalHeader({ actor }: { actor: Actor }) {
           className="inline-flex min-h-11 items-center rounded-sm"
           aria-label={t("brandHome")}
         >
-          <Logo />
+          <BrandMark brand={brand} />
         </Link>
         <div className="ml-auto hidden md:block">
           <PortalNav />

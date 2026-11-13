@@ -1,7 +1,7 @@
 import "server-only";
 import { and, desc, eq, gte, inArray, ne } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { invoices, payments, projects } from "@/lib/db/schema";
+import { invoices, payments, projects, receipts } from "@/lib/db/schema";
 import type { Currency, EffectiveInvoiceStatus, PaymentMethod } from "@/lib/domain/business";
 import { balanceDue, effectiveStatus, isOpen, todayIso } from "./rules";
 import { listTerms } from "./terms";
@@ -36,6 +36,8 @@ export interface LedgerEntry {
   reference: string;
   status: "confirmed" | "void";
   voidReason: string | null;
+  receiptId: string | null;
+  receiptNumber: string | null;
 }
 
 export interface BillingTotals {
@@ -104,9 +106,12 @@ export async function projectBilling(project: {
         reference: payments.reference,
         status: payments.status,
         voidReason: payments.voidReason,
+        receiptId: receipts.id,
+        receiptNumber: receipts.number,
       })
       .from(payments)
       .innerJoin(invoices, eq(invoices.id, payments.invoiceId))
+      .leftJoin(receipts, eq(receipts.paymentId, payments.id))
       .where(eq(payments.projectId, project.id))
       .orderBy(desc(payments.paidAt), desc(payments.createdAt)),
   ]);

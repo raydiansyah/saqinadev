@@ -6,7 +6,9 @@ import { runAction } from "@/lib/actions";
 import { requireActor } from "@/lib/auth/server";
 import { createInvoice, transitionInvoice } from "@/lib/billing/invoices";
 import { recordPayment, voidPayment } from "@/lib/billing/payments";
+import { issueReceiptForPayment } from "@/lib/billing/receipts";
 import { setPaymentSchedule } from "@/lib/billing/terms";
+import { sendClientReminder } from "@/lib/reminders/manual";
 import { parse } from "@/lib/validation";
 
 const refresh = () => revalidatePath("/[locale]/project/[slug]", "layout");
@@ -48,5 +50,24 @@ export async function voidPaymentAction(slug: string, paymentId: string, input: 
   return runAction("payment.void", { slug, paymentId }, async () => {
     await voidPayment(await requireActor(), slug, paymentId, input);
     refresh();
+  });
+}
+
+/** For a payment recorded before receipts existed. */
+export async function issueReceiptAction(slug: string, paymentId: string) {
+  return runAction("receipt.issue", { slug, paymentId }, async () => {
+    const result = await issueReceiptForPayment(await requireActor(), slug, paymentId);
+    refresh();
+    return result;
+  });
+}
+
+/** A reminder to the client now, for one open invoice. At most one per invoice per day. */
+export async function remindInvoiceAction(slug: string, invoiceId: string) {
+  return runAction("invoice.remind", { slug, invoiceId }, async () => {
+    return sendClientReminder(await requireActor(), slug, {
+      entityType: "invoice",
+      entityId: invoiceId,
+    });
   });
 }

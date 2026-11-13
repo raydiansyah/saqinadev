@@ -16,12 +16,17 @@ export function ReminderRuleToggle({
   label,
   disabled,
   toggle,
+  onText,
+  offText,
 }: {
   id: string;
   enabled: boolean;
   label: string;
   disabled: boolean;
   toggle: (id: string, enabled: boolean) => Promise<ActionResult<void>>;
+  /** Visible words next to the switch; the rule's own on/off by default. */
+  onText?: string;
+  offText?: string;
 }) {
   const t = useTranslations("reminders.rules");
   const { pending, error, run } = useRun();
@@ -51,7 +56,7 @@ export function ReminderRuleToggle({
           />
         </span>
         <span aria-hidden="true" className="w-12 text-left">
-          {enabled ? t("enabled") : t("disabled")}
+          {enabled ? (onText ?? t("enabled")) : (offText ?? t("disabled"))}
         </span>
       </button>
       <FormError error={error} />

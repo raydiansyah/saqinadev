@@ -1,6 +1,6 @@
 # 23. A CLI logged in on the server can be an AI provider, managed only by the Owner
 
-Status: accepted (2026-10-31). Risk lane: Red (runs a process, provider credentials, `src/lib/ai`).
+Status: accepted (2026-10-31). Risk lane: Red (runs a process, provider credentials, `src/lib/ai`). Superseded by [ADR 0027](0027-v1-billing-focus.md): the feature was removed in v1.
 
 ## Context
 

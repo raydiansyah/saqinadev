@@ -8,7 +8,7 @@
 | ADRs | `docs/adr/NNNN-title.md` | Context, decision, consequences, status (MADR format); one per significant decision | Planned |
 | Runbook | `docs/runbook.md` | Deploy, migrate, rollback, incident response, rotate a secret, restore a database branch, contacts | Planned |
 | Incident reviews | `docs/incidents/` | Template plus one file per incident | Planned |
-| API docs | `docs/api/openapi.yaml` | The `/api/*` routes that have outside callers: health, MCP, webhooks, cron | Planned |
+| API docs | `docs/api/openapi.yaml` | The `/api/*` routes that have outside callers: health, cron, PDF files, the brand logo | Planned |
 | User guides | `src/content/docs/<owner\|client>/<en\|id>/*.md`, screenshots in `src/content/docs/assets/` | Step-by-step guides for the team and for clients, with real screenshots taken from the running product; signed-in readers only, per audience | Present |
 | Context file | `AGENTS.md`, `CLAUDE.md` | Points to the standards and the repository facts a tool needs; updated when conventions change | Present |
 

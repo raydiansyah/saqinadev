@@ -132,39 +132,3 @@ export const projectSettings = pgTable("project_settings", {
   semanticSearchEnabled: boolean("semantic_search_enabled").notNull().default(false),
   updatedAt: updatedAt(),
 });
-
-export const interviews = pgTable(
-  "interviews",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    projectId: uuid("project_id")
-      .notNull()
-      .references(() => projects.id, { onDelete: "cascade" }),
-    status: text("status").$type<InterviewStatus>().notNull().default("in_progress"),
-    currentStep: text("current_step").notNull().default("project"),
-    completedSteps: text("completed_steps").array().notNull().default(sql`'{}'::text[]`),
-    startedAt: timestamp("started_at", { withTimezone: true }).defaultNow().notNull(),
-    completedAt: timestamp("completed_at", { withTimezone: true }),
-    lastSavedAt: timestamp("last_saved_at", { withTimezone: true }).defaultNow().notNull(),
-  },
-  (t) => [index("interviews_project_idx").on(t.projectId)],
-);
-
-export const interviewAnswers = pgTable(
-  "interview_answers",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    interviewId: uuid("interview_id")
-      .notNull()
-      .references(() => interviews.id, { onDelete: "cascade" }),
-    /** Key of the answer field (projectType, features, details, ...). */
-    questionKey: text("question_key").notNull(),
-    answer: jsonb("answer").notNull(),
-    answerType: text("answer_type").$type<"text" | "choice" | "multi" | "object">().notNull(),
-    confidence: text("confidence").$type<"high" | "medium" | "low">().notNull().default("high"),
-    source: text("source").$type<AnswerSource>().notNull().default("user"),
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
-  },
-  (t) => [uniqueIndex("answers_interview_key_idx").on(t.interviewId, t.questionKey)],
-);

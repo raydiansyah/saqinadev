@@ -1,6 +1,6 @@
 # 22. Agents are defined once for the platform by an Owner, frozen per execution
 
-Status: accepted (2026-10-30). Risk lane: Red (permissions, schema, `src/lib/agents`).
+Status: accepted (2026-10-30). Risk lane: Red (permissions, schema, `src/lib/agents`). Superseded by [ADR 0027](0027-v1-billing-focus.md): the feature was removed in v1.
 
 ## Context
 

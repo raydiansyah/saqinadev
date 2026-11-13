@@ -36,45 +36,11 @@ export const ANSWER_SOURCES = [
 ] as const;
 export type AnswerSource = (typeof ANSWER_SOURCES)[number];
 
-export const REQUIREMENT_GROUPS = [
-  "overview",
-  "users_roles",
-  "features",
-  "business_rules",
-  "integrations",
-  "authentication",
-  "data",
-  "ux",
-  "infrastructure",
-  "constraints",
-  "open_questions",
-  "assumptions",
-] as const;
-export type RequirementGroup = (typeof REQUIREMENT_GROUPS)[number];
-
 export const REQUIREMENT_STATUSES = ["confirmed", "inferred", "unknown", "conflicting"] as const;
 export type RequirementStatus = (typeof REQUIREMENT_STATUSES)[number];
 
 export const PRIORITIES = ["critical", "high", "medium", "low"] as const;
 export type Priority = (typeof PRIORITIES)[number];
-
-export const CONFIDENCES = ["high", "medium", "low"] as const;
-export type Confidence = (typeof CONFIDENCES)[number];
-
-export const RECOMMENDATION_KEYS = [
-  "application",
-  "database",
-  "deployment",
-  "authentication",
-  "architecture",
-  "build_strategy",
-  "landing",
-  "theme",
-] as const;
-export type RecommendationKey = (typeof RECOMMENDATION_KEYS)[number];
-
-export const RECOMMENDATION_SOURCES = ["recommended", "user"] as const;
-export type RecommendationSource = (typeof RECOMMENDATION_SOURCES)[number];
 
 export const DOCUMENT_TYPES = [
   "prd",
@@ -94,19 +60,6 @@ export type DocumentType = (typeof DOCUMENT_TYPES)[number];
 export const DOCUMENT_STATUSES = ["draft", "review", "approved", "signed", "archived"] as const;
 export type DocumentStatus = (typeof DOCUMENT_STATUSES)[number];
 
-export const TASK_STATUSES = [
-  "backlog",
-  "todo",
-  "in_progress",
-  "review",
-  "done",
-  "blocked",
-] as const;
-export type TaskStatus = (typeof TASK_STATUSES)[number];
-
-export const TASK_SOURCES = ["plan", "user", "agent", "assistant", "imported"] as const;
-export type TaskSource = (typeof TASK_SOURCES)[number];
-
 export const MEMORY_CATEGORIES = [
   "architecture",
   "product",
@@ -120,21 +73,6 @@ export const MEMORY_CATEGORIES = [
 ] as const;
 export type MemoryCategory = (typeof MEMORY_CATEGORIES)[number];
 
-export const MEMORY_SOURCES = [
-  "interview",
-  "recommendation",
-  "user",
-  "agent",
-  "assistant",
-  // Written by the memory journal from what changed in the project, or read from imported docs.
-  "system",
-  "imported",
-] as const;
-export type MemorySource = (typeof MEMORY_SOURCES)[number];
-
-export const DECISION_STATUSES = ["proposed", "accepted", "superseded"] as const;
-export type DecisionStatus = (typeof DECISION_STATUSES)[number];
-
 export const AGENT_TYPES = [
   "saqina",
   "claude",
@@ -147,25 +85,6 @@ export const AGENT_TYPES = [
   "custom",
 ] as const;
 export type AgentType = (typeof AGENT_TYPES)[number];
-
-export const AGENT_STATUSES = [
-  "available",
-  "connected",
-  "disconnected",
-  "pending",
-  "disabled",
-] as const;
-export type AgentStatus = (typeof AGENT_STATUSES)[number];
-
-export const PROPOSAL_STATUSES = [
-  "pending",
-  "approved",
-  "rejected",
-  "revision_requested",
-  "cancelled",
-  "expired",
-] as const;
-export type ProposalStatus = (typeof PROPOSAL_STATUSES)[number];
 
 /** Meaningful project events only; UI clicks belong to analytics, not here. */
 export const ACTIVITY_TYPES = [
@@ -241,6 +160,7 @@ export const ACTIVITY_TYPES = [
   "invoice.cancelled",
   "payment.recorded",
   "payment.voided",
+  "receipt.issued",
   // Phase 6: client engagement and maintenance
   "request.created",
   "request.updated",
@@ -273,270 +193,28 @@ export type DeployProvider = (typeof DEPLOY_PROVIDERS)[number];
 // ── Phase 3: assistant, proposals and agent orchestration ──────────────────────────────
 
 /** What a conversation is anchored to. `project` means no specific entity. */
-export const CONVERSATION_CONTEXTS = [
-  "project",
-  "task",
-  "requirement",
-  "decision",
-  "document",
-  "prd",
-  "memory",
-] as const;
-export type ConversationContext = (typeof CONVERSATION_CONTEXTS)[number];
-
-export const MESSAGE_ROLES = ["user", "assistant", "system", "tool"] as const;
-export type MessageRole = (typeof MESSAGE_ROLES)[number];
-
-export const MESSAGE_STATUSES = [
-  "queued",
-  "processing",
-  "completed",
-  "failed",
-  "cancelled",
-] as const;
-export type MessageStatus = (typeof MESSAGE_STATUSES)[number];
-
 /** READ never mutates; DESTRUCTIVE, EXTERNAL and AGENT always need a human approval. */
-export const ACTION_CATEGORIES = ["read", "write", "destructive", "external", "agent"] as const;
-export type ActionCategory = (typeof ACTION_CATEGORIES)[number];
-
-export const RISK_LEVELS = ["low", "medium", "high"] as const;
-export type RiskLevel = (typeof RISK_LEVELS)[number];
-
 export const APPROVAL_POLICIES = ["auto_low_risk", "always"] as const;
 export type ApprovalPolicy = (typeof APPROVAL_POLICIES)[number];
 
-export const ASSIGNMENT_STATUSES = [
-  "queued",
-  "assigned",
-  "running",
-  "waiting",
-  "blocked",
-  "paused",
-  "completed",
-  "failed",
-  "cancelled",
-] as const;
-export type AssignmentStatus = (typeof ASSIGNMENT_STATUSES)[number];
-
-export const RUN_STATUSES = [
-  "queued",
-  "running",
-  "waiting",
-  "blocked",
-  "paused",
-  "completed",
-  "failed",
-  "cancelled",
-] as const;
-export type RunStatus = (typeof RUN_STATUSES)[number];
-
 /** What an agent can do (skills). Never implies it is allowed to do it. */
-export const AGENT_CAPABILITIES = [
-  "planning",
-  "research",
-  "frontend",
-  "backend",
-  "database",
-  "testing",
-  "security",
-  "documentation",
-  "code_review",
-  "browser",
-  "filesystem",
-  "git",
-] as const;
-export type AgentCapability = (typeof AGENT_CAPABILITIES)[number];
-
 /** What an agent is allowed to touch in this project. Separate from capabilities. */
-export const AGENT_PERMISSIONS = [
-  "read_project",
-  "read_prd",
-  "read_tasks",
-  "read_memory",
-  "write_tasks",
-  "write_memory",
-  "write_documents",
-  "write_requirements",
-  "read_repository",
-  "write_branch",
-  "use_mcp_tools",
-  "git_push",
-  "deploy",
-  "delete_project",
-] as const;
-export type AgentPermission = (typeof AGENT_PERMISSIONS)[number];
-
 /** Default role agents every project gets (provider saqina, simulated execution in Phase 3). */
-export const AGENT_ROLES = [
-  "general",
-  "planner",
-  "frontend",
-  "backend",
-  "qa",
-  "docs",
-  "architect",
-  "database",
-  "reviewer",
-  "devops",
-  "custom",
-] as const;
-export type AgentRole = (typeof AGENT_ROLES)[number];
-
 // ── Phase 4: control plane, tools, MCP, external agents and Git ─────────────────────────
 
 export const PLATFORM_ROLES = ["user", "owner"] as const;
 export type PlatformRole = (typeof PLATFORM_ROLES)[number];
 
-export const CREDENTIAL_SCOPES = ["platform", "project", "user"] as const;
-export type CredentialScope = (typeof CREDENTIAL_SCOPES)[number];
-
-export const CREDENTIAL_KINDS = [
-  "ai_provider",
-  "git",
-  "git_webhook",
-  "mcp",
-  "agent",
-  "deploy",
-  "service",
-  /** The values of one environment variable of a project's app. */
-  "env",
-] as const;
-export type CredentialKind = (typeof CREDENTIAL_KINDS)[number];
-
-export const CONNECTION_STATUSES = [
-  "connected",
-  "disconnected",
-  "error",
-  "unauthorized",
-  "expired",
-  "disabled",
-  "untested",
-] as const;
-export type ConnectionStatus = (typeof CONNECTION_STATUSES)[number];
-
-export const PROVIDER_TYPES = ["managed", "custom", "gateway"] as const;
-export type ProviderType = (typeof PROVIDER_TYPES)[number];
-
 /** Which adapter talks to the provider. New providers add an adapter, not a code path. */
-export const PROVIDER_ADAPTERS = [
-  "anthropic",
-  "anthropic_compatible",
-  "openai",
-  "openai_compatible",
-  "gemini",
-  "vercel_gateway",
-  /** A CLI logged in on the server's own machine; no key. See `ai/cli`. */
-  "local_cli",
-] as const;
-export type ProviderAdapterId = (typeof PROVIDER_ADAPTERS)[number];
-
-export const MODEL_STATUSES = [
-  "available",
-  "disabled",
-  "unavailable",
-  "configuration_error",
-] as const;
-export type ModelStatus = (typeof MODEL_STATUSES)[number];
-
 /** Declared by the Owner per model; never guessed from the model name. */
-export const MODEL_CAPABILITIES = [
-  "text",
-  "reasoning",
-  "vision",
-  "structured_output",
-  "tool_calling",
-  "streaming",
-  "coding",
-  "long_context",
-  "embeddings",
-] as const;
-export type ModelCapability = (typeof MODEL_CAPABILITIES)[number];
-
-export const MODEL_SOURCES = [
-  "user_choice",
-  "agent_override",
-  "project_override",
-  "platform_default",
-  "fallback",
-] as const;
-export type ModelSource = (typeof MODEL_SOURCES)[number];
-
-export const AI_OPERATIONS = [
-  "conversation",
-  "intent",
-  "structured_analysis",
-  "document_generation",
-  "agent_run",
-  "tool_call",
-  "context_generation",
-  "connection_test",
-  "embedding",
-] as const;
-export type AiOperation = (typeof AI_OPERATIONS)[number];
-
-export const TOOL_RISKS = ["low", "medium", "high", "critical"] as const;
-export type ToolRisk = (typeof TOOL_RISKS)[number];
-
-export const TOOL_SOURCES = ["internal", "mcp", "git"] as const;
-export type ToolSource = (typeof TOOL_SOURCES)[number];
-
 /** New tools start as discovered and do nothing until someone enables them. */
-export const TOOL_TRUST = ["discovered", "enabled", "disabled"] as const;
-export type ToolTrust = (typeof TOOL_TRUST)[number];
-
-export const TOOL_EXECUTION_STATUSES = [
-  "pending_approval",
-  "running",
-  "succeeded",
-  "failed",
-  "denied",
-] as const;
-export type ToolExecutionStatus = (typeof TOOL_EXECUTION_STATUSES)[number];
-
 /** Where a project's name came from; only an `auto` name is renamed from the plan. */
 export const PROJECT_NAME_SOURCES = ["auto", "user", "repository"] as const;
 export type ProjectNameSource = (typeof PROJECT_NAME_SOURCES)[number];
 
 /** A connection belongs to one project, or to the platform and serves every project. */
-export const MCP_SCOPES = ["project", "platform"] as const;
-export type McpScope = (typeof MCP_SCOPES)[number];
-
-export const PLATFORM_SKILL_SOURCES = ["builtin", "paste", "github"] as const;
-export type PlatformSkillSource = (typeof PLATFORM_SKILL_SOURCES)[number];
-
 /** Where an installed skill is offered to a model. */
-export const SKILL_USES = ["agent_run", "assistant", "prd_generation", "plan_generation"] as const;
-export type SkillUse = (typeof SKILL_USES)[number];
-
-export const MCP_SERVER_TYPES = ["remote", "local_dev", "custom", "managed"] as const;
-export type McpServerType = (typeof MCP_SERVER_TYPES)[number];
-
 /** `url_key`: the secret is part of the endpoint URL (`{apiKey}`), filled in only at call time. */
-export const MCP_AUTH_TYPES = ["none", "bearer", "header", "url_key"] as const;
-export type McpAuthType = (typeof MCP_AUTH_TYPES)[number];
-
-export const AGENT_STRATEGIES = ["handoff", "manual", "webhook", "api", "cli", "mcp"] as const;
-export type AgentStrategy = (typeof AGENT_STRATEGIES)[number];
-
-export const HANDOFF_STATUSES = [
-  "pending_approval",
-  "generated",
-  "sent",
-  "acknowledged",
-  "result_imported",
-  "completed",
-  "failed",
-  "cancelled",
-] as const;
-export type HandoffStatus = (typeof HANDOFF_STATUSES)[number];
-
-export const HANDOFF_FORMATS = ["markdown", "json", "prompt"] as const;
-export type HandoffFormat = (typeof HANDOFF_FORMATS)[number];
-
-export const GIT_PROVIDERS = ["github", "gitlab", "bitbucket", "custom_local"] as const;
-export type GitProvider = (typeof GIT_PROVIDERS)[number];
-
 export const STACK_KEYS = [
   "frontend",
   "backend",
@@ -555,48 +233,9 @@ export type StackSource = (typeof STACK_SOURCES)[number];
 export const VERSION_SOURCES = ["user", "import", "sync", "mcp", "assistant"] as const;
 export type VersionSource = (typeof VERSION_SOURCES)[number];
 
-export const DOC_LINK_STATES = [
-  "synced",
-  "pending_pr",
-  "conflict",
-  "remote_missing",
-  "excluded",
-] as const;
-export type DocLinkState = (typeof DOC_LINK_STATES)[number];
-
 // ── Sync: Git events, CI, deployments ──────────────────────────────────────────────────
 
-export const TASK_LINK_KINDS = ["branch", "pr", "commit"] as const;
-export type TaskLinkKind = (typeof TASK_LINK_KINDS)[number];
-
 /** Where a linked pull request stands. */
-export const TASK_LINK_STATES = ["open", "merged", "closed"] as const;
-export type TaskLinkState = (typeof TASK_LINK_STATES)[number];
-
-export const CI_STATUSES = ["queued", "in_progress", "completed"] as const;
-export type CiStatus = (typeof CI_STATUSES)[number];
-
-export const DEPLOY_ENVIRONMENTS = ["production", "preview"] as const;
-export type DeployEnvironment = (typeof DEPLOY_ENVIRONMENTS)[number];
-
-export const DEPLOYMENT_STATES = ["pending", "success", "failure", "inactive"] as const;
-export type DeploymentState = (typeof DEPLOYMENT_STATES)[number];
-
 /** Whose Vercel account hosts the project: Saqina's team (default) or the client's own. */
 /** A database or sign-in service the project's own app uses, always the user's own account. */
-export const SERVICE_KINDS = ["database", "auth"] as const;
-export type ServiceKind = (typeof SERVICE_KINDS)[number];
-export const SERVICE_PROVIDERS = ["neon", "supabase", "clerk", "postgres", "custom"] as const;
-export type ServiceProvider = (typeof SERVICE_PROVIDERS)[number];
 /** Where an environment variable came from. */
-export const ENV_VAR_SOURCES = ["manual", "import", "repository"] as const;
-export type EnvVarSource = (typeof ENV_VAR_SOURCES)[number];
-
-export const SERVICE_STATUSES = ["incomplete", "ready"] as const;
-export type ServiceStatus = (typeof SERVICE_STATUSES)[number];
-
-export const DEPLOY_OWNERS = ["saqina", "client"] as const;
-export type DeployOwner = (typeof DEPLOY_OWNERS)[number];
-
-export const DEPLOY_TARGET_STATUSES = ["pending", "ready", "error"] as const;
-export type DeployTargetStatus = (typeof DEPLOY_TARGET_STATUSES)[number];

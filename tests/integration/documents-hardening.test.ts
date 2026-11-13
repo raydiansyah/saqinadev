@@ -3,15 +3,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { Actor } from "@/lib/auth/actor";
 import { loadProjectAccess } from "@/lib/auth/permissions";
 import { db } from "@/lib/db/client";
+import { documents, documentVersions, projects } from "@/lib/db/schema";
 import {
-  documents,
-  documentVersions,
-  projectSyncRequests,
-  projects,
-  repositoryConnections,
-} from "@/lib/db/schema";
-import {
-  appendDocumentSectionTx,
   createDocument,
   saveDocument,
   saveDocumentTx,
@@ -32,7 +25,8 @@ describe("document writes", () => {
   beforeEach(async () => {
     await resetDatabase();
     owner = await createUser("Owner", "owner@example.test");
-    slug = await project(owner, "A point of sale for a small restaurant with table orders.");
+    slug = await project(owner, "Restaurant point of sale");
+    await createDocument(owner, slug, { title: "Notes" });
   });
 
   const prd = async () => {
@@ -40,28 +34,16 @@ describe("document writes", () => {
     const [d] = await db
       .select()
       .from(documents)
-      .where(and(eq(documents.projectId, p.id), eq(documents.slug, "prd")));
+      .where(and(eq(documents.projectId, p.id), eq(documents.slug, "notes")));
     return d;
   };
 
-  it("refuses edits to signed and archived documents, including appended sections", async () => {
+  it("refuses edits to signed and archived documents", async () => {
     const doc = await prd();
     for (const status of ["signed", "archived"] as const) {
-      await setDocumentStatus(owner, slug, { docSlug: "prd", status });
+      await setDocumentStatus(owner, slug, { docSlug: "notes", status });
       await expectCode(
-        saveDocument(owner, slug, { docSlug: "prd", content: "new", baseVersion: doc.version }),
-        "CONFLICT",
-      );
-      await expectCode(
-        db.transaction(async (tx) => {
-          const access = await loadProjectAccess(owner, { slug }, "content:write", tx);
-          return appendDocumentSectionTx(
-            tx,
-            access,
-            { docSlug: "prd", heading: "Extra", body: "text" },
-            { via: "assistant" } as never,
-          );
-        }),
+        saveDocument(owner, slug, { docSlug: "notes", content: "new", baseVersion: doc.version }),
         "CONFLICT",
       );
     }
@@ -70,10 +52,10 @@ describe("document writes", () => {
 
   it("withdraws approval and the client share when shared content changes", async () => {
     const doc = await prd();
-    await setDocumentStatus(owner, slug, { docSlug: "prd", status: "approved" });
-    await setDocumentClientVisible(owner, slug, { docSlug: "prd", visible: true });
+    await setDocumentStatus(owner, slug, { docSlug: "notes", status: "approved" });
+    await setDocumentClientVisible(owner, slug, { docSlug: "notes", visible: true });
     await saveDocument(owner, slug, {
-      docSlug: "prd",
+      docSlug: "notes",
       content: `${doc.content}\n\nA new requirement.`,
       baseVersion: doc.version,
     });
@@ -85,9 +67,9 @@ describe("document writes", () => {
 
   it("keeps an approved document that was never shared approved", async () => {
     const doc = await prd();
-    await setDocumentStatus(owner, slug, { docSlug: "prd", status: "approved" });
+    await setDocumentStatus(owner, slug, { docSlug: "notes", status: "approved" });
     await saveDocument(owner, slug, {
-      docSlug: "prd",
+      docSlug: "notes",
       content: "edited",
       baseVersion: doc.version,
     });
@@ -99,7 +81,12 @@ describe("document writes", () => {
     const run = (content: string, baseVersion: number) =>
       db.transaction(async (tx) => {
         const access = await loadProjectAccess(owner, { slug }, "content:write", tx);
-        return saveDocumentTx(tx, access, { docSlug: "prd", content, baseVersion, source: "sync" });
+        return saveDocumentTx(tx, access, {
+          docSlug: "notes",
+          content,
+          baseVersion,
+          source: "sync",
+        });
       });
     const first = await run("from the repository", doc.version);
     expect(first).toMatchObject({ changed: true, version: doc.version + 1 });
@@ -113,71 +100,5 @@ describe("document writes", () => {
       );
     expect(row.source).toBe("sync");
     await expectCode(run("late", doc.version), "CONFLICT");
-  });
-});
-
-describe("sync dirty flag trigger", () => {
-  let owner: Actor;
-  let slug: string;
-  let projectId: string;
-  beforeEach(async () => {
-    await resetDatabase();
-    owner = await createUser("Owner", "owner@example.test");
-    slug = await project(owner, "A booking system for a dental clinic with reminders.");
-    const [p] = await db.select().from(projects).where(eq(projects.slug, slug));
-    projectId = p.id;
-    await db.delete(projectSyncRequests);
-  });
-
-  const connect = (enabled: boolean) =>
-    db.insert(repositoryConnections).values({
-      projectId,
-      provider: "github",
-      fullName: "acme/clinic",
-      docSyncEnabled: enabled,
-    });
-  const flagged = async () =>
-    (
-      await db
-        .select()
-        .from(projectSyncRequests)
-        .where(eq(projectSyncRequests.projectId, projectId))
-    ).length;
-
-  it("flags the project when a synced project's document changes in any way", async () => {
-    await connect(true);
-    const [doc] = await db.select().from(documents).where(eq(documents.projectId, projectId));
-    await saveDocument(owner, slug, {
-      docSlug: doc.slug,
-      content: "changed",
-      baseVersion: doc.version,
-    });
-    expect(await flagged()).toBe(1);
-
-    await db.delete(projectSyncRequests);
-    await setDocumentStatus(owner, slug, { docSlug: doc.slug, status: "review" });
-    expect(await flagged()).toBe(1);
-
-    await db.delete(projectSyncRequests);
-    await createDocument(owner, slug, { title: "Runbook" });
-    expect(await flagged()).toBe(1);
-  });
-
-  it("stays quiet when sync is off or there is no repository", async () => {
-    const [doc] = await db.select().from(documents).where(eq(documents.projectId, projectId));
-    await saveDocument(owner, slug, {
-      docSlug: doc.slug,
-      content: "no repo",
-      baseVersion: doc.version,
-    });
-    expect(await flagged()).toBe(0);
-    await connect(false);
-    const [fresh] = await db.select().from(documents).where(eq(documents.id, doc.id));
-    await saveDocument(owner, slug, {
-      docSlug: doc.slug,
-      content: "sync off",
-      baseVersion: fresh.version,
-    });
-    expect(await flagged()).toBe(0);
   });
 });

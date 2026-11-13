@@ -5,8 +5,10 @@ import { Link } from "@/i18n/navigation";
 import { requireActorPage } from "@/lib/auth/server";
 import { formatLongDate } from "@/lib/format";
 import { isPlatformOwner } from "@/lib/platform/roles";
+import { getBrandSettings } from "@/lib/white-label/brand";
 import { WHITE_LABEL_MAY, WHITE_LABEL_NEVER } from "@/lib/white-label/policy";
 import { listWhiteLabel } from "@/lib/white-label/service";
+import { BrandForm } from "./brand-form";
 import { WhiteLabelAdmin } from "./white-label-admin";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -17,11 +19,12 @@ export async function generateMetadata(): Promise<Metadata> {
 /** What the white-label policy says, and whether it is open for each of your organizations. */
 export default async function WhiteLabelPage() {
   const actor = await requireActorPage("/dashboard/settings/white-label");
-  const [t, locale, owner, orgs] = await Promise.all([
+  const [t, locale, owner, orgs, brand] = await Promise.all([
     getTranslations("app.whiteLabel"),
     getLocale(),
     isPlatformOwner(actor),
     listWhiteLabel(actor),
+    getBrandSettings(actor),
   ]);
 
   return (
@@ -77,6 +80,32 @@ export default async function WhiteLabelPage() {
             <p className="text-sm text-muted-foreground">{t("status.none")}</p>
           ) : null}
         </section>
+
+        {brand.unlocked ? (
+          <BrandForm
+            canEdit={brand.canEdit}
+            values={{
+              name: brand.settings?.name ?? "",
+              legalName: brand.settings?.legalName ?? "",
+              taxNumber: brand.settings?.taxNumber ?? "",
+              address: brand.settings?.address ?? "",
+              accentColor: brand.settings?.accentColor ?? "",
+              emailFromName: brand.settings?.emailFromName ?? "",
+              replyTo: brand.settings?.replyTo ?? "",
+              logoUrl: brand.settings?.logoUrl ?? null,
+            }}
+          />
+        ) : (
+          <section
+            aria-labelledby="wl-brand-locked"
+            className="rounded-lg border border-border p-5"
+          >
+            <h2 id="wl-brand-locked" className="font-medium">
+              {t("brand.title")}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">{t("brand.locked")}</p>
+          </section>
+        )}
 
         <section aria-labelledby="wl-rules" className="rounded-lg border border-border p-5">
           <h2 id="wl-rules" className="font-medium">

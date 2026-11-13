@@ -2,7 +2,7 @@
 title: Kebijakan white label
 description: Apa yang boleh diberi merek sendiri di portal client, apa yang tidak pernah disembunyikan, dan siapa yang memutuskan.
 order: 3
-updated: 2026-10-23
+updated: 2026-11-12
 kind: policy
 ---
 
@@ -33,10 +33,12 @@ Selama terkunci, setiap dokumen tetap membawa logo Saqina bawaan sebagai kop dan
 
 ## Yang boleh diberi merek
 
-- **Nama, logo, dan warna aksen portal.** Diatur per organisasi oleh owner atau admin, bukan oleh client.
-- **Domain portal.** Boleh memakai domain milik organisasi setelah kepemilikannya dibuktikan lewat DNS. Tidak ada domain wildcard, dan cookie tidak dibagi antar domain.
-- **Email ke client** (invoice, pengingat, persetujuan): nama dan logo pengirim. Email tetap dikirim dari domain pengirim platform kecuali organisasi memverifikasi domainnya sendiri (SPF dan DKIM).
-- **Invoice dan dokumen untuk client:** kop, logo, nama hukum, dan nomor pajak **agensi**. Agensi adalah penerbitnya. Saqina tidak pernah disebut sebagai penjual.
+Anda mengaturnya di Pengaturan > White label, setelah white label terbuka. Hanya owner atau admin yang bisa mengubahnya, tidak pernah klien.
+
+- Nama portal, logo, dan warna aksen. Logo berupa PNG atau JPEG maksimal 200 KB, ditampilkan di atas latar terang. Warna aksen diperiksa: harus menonjol dari portal yang gelap dan teks tombolnya terbaca.
+- Email ke klien (invoice, kwitansi, pengingat, permintaan tanda tangan): nama brand, warna aksen, nama pengirim yang tampil, dan alamat balasan. Email tetap dikirim dari alamat terverifikasi milik platform.
+- Invoice, kwitansi, kontrak, dan berkas PDF-nya: logo, nama hukum, NPWP, dan alamat Anda memimpin kop. Anda adalah penerbitnya, dan Saqina tidak pernah disebut sebagai penjual. Baris kecil "didukung oleh Saqina Dev" tetap ada di setiap dokumen ber-brand.
+- Domain sendiri untuk portal belum tersedia.
 
 ## Yang tidak pernah disembunyikan atau diubah
 

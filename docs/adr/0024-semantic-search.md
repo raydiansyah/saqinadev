@@ -1,6 +1,6 @@
 # 24. Semantic search: one vector per eligible text, kept by a reconcile job, searched exactly per project
 
-Status: accepted (2026-11-05). Risk lane: Red (migration, provider credentials, project text sent to a provider).
+Status: accepted (2026-11-05). Risk lane: Red (migration, provider credentials, project text sent to a provider). Superseded by [ADR 0027](0027-v1-billing-focus.md): the feature was removed in v1.
 
 ## Context
 

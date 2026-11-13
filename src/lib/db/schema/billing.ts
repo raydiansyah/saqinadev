@@ -11,17 +11,10 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import type {
-  Currency,
-  InvoiceStatus,
-  PaymentMethod,
-  PaymentStatus,
-  ScopeCategory,
-} from "@/lib/domain/business";
+import type { Currency, InvoiceStatus, PaymentMethod, PaymentStatus } from "@/lib/domain/business";
 import { users } from "./auth";
 import { clients, organizations } from "./organizations";
 import { projects } from "./projects";
-import { requirements } from "./workspace";
 
 const createdAt = () => timestamp("created_at", { withTimezone: true }).defaultNow().notNull();
 const updatedAt = () =>
@@ -36,27 +29,6 @@ const projectRef = () =>
 const userRef = (name: string) => text(name).references(() => users.id, { onDelete: "set null" });
 /** Money is always an integer in the currency's minor unit (IDR has none, USD has cents). */
 const money = (name: string) => bigint(name, { mode: "number" }).notNull().default(0);
-
-/** Features and the agreed scope: included, excluded, optional or future. */
-export const scopeItems = pgTable(
-  "scope_items",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    projectId: projectRef(),
-    title: text("title").notNull(),
-    description: text("description").notNull().default(""),
-    category: text("category").$type<ScopeCategory>().notNull(),
-    requirementId: uuid("requirement_id").references(() => requirements.id, {
-      onDelete: "set null",
-    }),
-    clientVisible: boolean("client_visible").notNull().default(true),
-    position: integer("position").notNull().default(0),
-    createdBy: userRef("created_by"),
-    createdAt: createdAt(),
-    updatedAt: updatedAt(),
-  },
-  (t) => [index("scope_items_project_idx").on(t.projectId, t.category, t.position)],
-);
 
 /** Payment schedule (DP, milestones, final). A term is locked once invoiced. */
 export const paymentTerms = pgTable(
@@ -153,6 +125,44 @@ export const payments = pgTable(
   (t) => [
     index("payments_invoice_idx").on(t.invoiceId),
     index("payments_project_idx").on(t.projectId, t.paidAt),
+  ],
+);
+
+/**
+ * One receipt (kwitansi) per payment, created in the same transaction as the payment. The
+ * figures are copied from the payment so the receipt reads the same even if the invoice changes
+ * later. Voiding the payment voids its receipt; the number is never reused.
+ */
+export const receipts = pgTable(
+  "receipts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    projectId: projectRef(),
+    clientId: uuid("client_id").references(() => clients.id, { onDelete: "set null" }),
+    invoiceId: uuid("invoice_id")
+      .notNull()
+      .references(() => invoices.id, { onDelete: "restrict" }),
+    paymentId: uuid("payment_id")
+      .notNull()
+      .references(() => payments.id, { onDelete: "restrict" }),
+    /** KWT-2026-001, unique per organization. */
+    number: text("number").notNull(),
+    amount: money("amount"),
+    currency: text("currency").$type<Currency>().notNull(),
+    paidAt: date("paid_at", { mode: "string" }).notNull(),
+    method: text("method").$type<PaymentMethod>().notNull(),
+    reference: text("reference").notNull().default(""),
+    issuedAt: timestamp("issued_at", { withTimezone: true }).defaultNow().notNull(),
+    voidedAt: timestamp("voided_at", { withTimezone: true }),
+    createdBy: userRef("created_by"),
+  },
+  (t) => [
+    uniqueIndex("receipts_org_number_idx").on(t.organizationId, t.number),
+    uniqueIndex("receipts_payment_idx").on(t.paymentId),
+    index("receipts_project_idx").on(t.projectId, t.issuedAt.desc()),
   ],
 );
 

@@ -65,7 +65,8 @@
       "cancelBody": "The invoice stays in the history as cancelled. Its schedule term can be invoiced again.",
       "cancelConfirm": "Cancel invoice",
       "recordPayment": "Record payment",
-      "view": "View"
+      "view": "View",
+      "remind": "Remind client"
     },
     "statuses": {
       "draft": "Draft",
@@ -134,7 +135,9 @@
       "voidBody": "The payment stays in the history, struck through, and the invoice balance is recalculated.",
       "reason": "Reason",
       "reasonPlaceholder": "Entered twice by mistake",
-      "voidConfirm": "Void payment"
+      "voidConfirm": "Void payment",
+      "receipt": "Receipt",
+      "issueReceipt": "Issue receipt"
     },
     "errors": {
       "termsMismatch": "The terms must add up to the project value.",
@@ -147,7 +150,9 @@
       "notOpen": "Payments can only be recorded on issued invoices.",
       "overpay": "The amount is more than the balance due.",
       "alreadyVoid": "This payment is already void.",
-      "currencyLocked": "The currency cannot change once the project has invoices."
+      "currencyLocked": "The currency cannot change once the project has invoices.",
+      "noRecipients": "The client has no portal user to remind.",
+      "remindedToday": "The client was already reminded about this today."
     },
     "detail": {
       "metaTitle": "Invoice",
@@ -170,7 +175,8 @@
       "paid": "Paid",
       "balance": "Balance due",
       "notes": "Notes",
-      "draftNote": "This is a draft. Issue it from the billing page before sending it to the client."
+      "draftNote": "This is a draft. Issue it from the billing page before sending it to the client.",
+      "taxNumber": "Tax number: {value}"
     },
     "client": {
       "title": "Client & billing",
@@ -189,121 +195,36 @@
       "label": "Share with client",
       "hint": "Only approved documents can be shared.",
       "shared": "Shared"
+    },
+    "receipt": {
+      "metaTitle": "Receipt",
+      "title": "Receipt",
+      "back": "Back",
+      "print": "Print or save as PDF",
+      "voided": "Void",
+      "receivedFrom": "Received from",
+      "amount": "Amount",
+      "inWords": "In words",
+      "forPayment": "For payment of",
+      "paidOn": "Paid on",
+      "method": "Method",
+      "reference": "Reference",
+      "issuedOn": "Issued on {date}",
+      "issuedBy": "Issued by"
+    },
+    "pdf": {
+      "poweredBy": "Powered by Saqina Dev",
+      "page": "Page",
+      "contract": {
+        "signatures": "Signatures",
+        "unsigned": "Not signed yet",
+        "party": {
+          "team": "Issuer",
+          "client": "Client"
+        },
+        "signedOn": "{name}, signed {date}"
+      },
+      "download": "Download PDF"
     }
-  },
-  "scope": {
-    "title": "Features",
-    "metaTitle": "Features",
-    "description": "What is in and out of the agreed scope. Keep it current so everyone agrees on what is being built.",
-    "clientNote": "Clients see only the items marked visible, in the client portal.",
-    "readOnly": "You can view the scope. Editors and owners can change it.",
-    "categories": {
-      "included": "Included",
-      "excluded": "Excluded",
-      "optional": "Optional",
-      "future": "Future"
-    },
-    "categoryHints": {
-      "included": "Part of the agreed work.",
-      "excluded": "Explicitly not part of this project.",
-      "optional": "Can be added if agreed separately.",
-      "future": "Ideas for a later phase."
-    },
-    "emptyCategory": "Nothing here yet.",
-    "add": "Add feature",
-    "itemTitle": "Feature",
-    "itemDescription": "Description (optional)",
-    "placeholders": {
-      "title": "Customer dashboard",
-      "description": "Overview of orders and invoices for each customer."
-    },
-    "category": "Category",
-    "visible": "Visible to the client",
-    "visibleBadge": "Client visible",
-    "hiddenBadge": "Internal",
-    "edit": "Edit",
-    "save": "Save",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "deleteTitle": "Delete this feature?",
-    "deleteBody": "\"{title}\" is removed from the scope. This cannot be undone.",
-    "generate": "Generate from requirements",
-    "generated": "{count, plural, =0 {No new features found in the requirements.} one {# feature added from the requirements.} other {# features added from the requirements.}}"
-  },
-  "progress": {
-    "title": "Progress",
-    "metaTitle": "Progress",
-    "description": "The project progress as your client sees it, built from milestones and tasks.",
-    "percent": "{percent}% complete",
-    "percentLabel": "Overall progress",
-    "stages": "Stages",
-    "empty": "No milestones yet. Create a plan to show progress.",
-    "current": "Now: {stage}",
-    "next": "Next: {stage}",
-    "states": {
-      "done": "Done",
-      "current": "In progress",
-      "upcoming": "Upcoming"
-    },
-    "editor": {
-      "title": "Client view of milestones",
-      "hint": "Choose which milestones the client sees and give them a plainer name. Hidden milestones still count toward the percentage.",
-      "milestone": "Milestone",
-      "clientTitle": "Name for the client",
-      "clientTitlePlaceholder": "Same as the milestone",
-      "visible": "Visible to the client",
-      "save": "Save",
-      "saved": "Saved"
-    },
-    "release": {
-      "title": "Is the system ready?",
-      "hint": "Answer for the team. Each question is answered on its own: changing one never changes another. Each answer shows who gave it and when, and asks to be confirmed again when tasks or milestones change afterwards.",
-      "build": {
-        "question": "Has the system finished building?"
-      },
-      "review": {
-        "question": "Has the system been reviewed?"
-      },
-      "deploy": {
-        "question": "Has the system been deployed?"
-      },
-      "unanswered": "Not answered yet",
-      "yes": "Yes",
-      "no": "Not yet",
-      "by": "by {name}",
-      "stale": "Tasks changed since. Confirm it is still true.",
-      "answerYes": "Yes",
-      "answerNo": "Not yet",
-      "allCurrent": "Built, reviewed and deployed, and up to date.",
-      "confirmAgain": "Something changed after these answers. Confirm each one again so it is up to date.",
-      "notYet": "Not finished yet.",
-      "contradiction": "Some answers disagree with each other. Check the notes below and correct the answer that is wrong.",
-      "tasks": "Plan: {done} of {total} tasks done",
-      "notes": {
-        "open_tasks": "{count, plural, one {# task is still open} other {# tasks are still open}} in the plan.",
-        "tasks_in_review": "{count, plural, one {# task is} other {# tasks are}} still in review.",
-        "needs_build_and_review": "Deploy is answered yes, but build and review are not both yes.",
-        "needs_build": "Review is answered yes, but build is not.",
-        "all_tasks_done": "Every task in the plan is done. Has the system finished building?"
-      },
-      "awaiting": "Answer first: how far is the system? This project came from GitHub and may already be built, in review or live.",
-      "adjust": {
-        "title": "Adjust the plan to match?",
-        "cancel": "Cancel",
-        "answerOnly": "Answer only",
-        "answerAndAdjust": "Answer and adjust tasks",
-        "toDone": "{count, plural, one {# task} other {# tasks}} will be marked done: the work was reviewed.",
-        "toReview": "{count, plural, one {# open task} other {# open tasks}} will move to review: the work is built and waits for a check.",
-        "note": "Tasks only move forward. You can change any task by hand afterwards."
-      },
-      "evidence": {
-        "ci_green": "Checks passed on the main branch",
-        "pr_merged": "A pull request was merged",
-        "deployed": "A production deployment succeeded",
-        "confirm": "Confirm: Yes"
-      }
-    },
-    "noPrd": "No PRD was found in the repository.",
-    "noPrdLink": "Choose, upload or paste one"
   }
 }

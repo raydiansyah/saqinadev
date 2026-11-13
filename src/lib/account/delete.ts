@@ -11,7 +11,6 @@ import {
   organizations,
   projectMembers,
   projects,
-  serviceInquiries,
   users,
 } from "@/lib/db/schema";
 import { AppError } from "@/lib/errors";
@@ -116,10 +115,7 @@ export async function deleteAccount(actor: Actor, raw: unknown): Promise<void> {
     });
 
   await db.transaction(async (tx) => {
-    // Their own public inquiries and unaccepted invitations are personal data keyed by email.
-    await tx
-      .delete(serviceInquiries)
-      .where(sql`lower(${serviceInquiries.email}) = ${me.email.toLowerCase()}`);
+    // Their unaccepted invitations are personal data keyed by email.
     await tx
       .delete(clientInvitations)
       .where(

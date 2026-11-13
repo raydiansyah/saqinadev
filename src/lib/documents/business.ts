@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import * as z from "zod";
 import type { Locale } from "@/i18n/locales";
 import { recordActivity } from "@/lib/activity/service";
@@ -12,14 +12,10 @@ import {
   clients,
   documents,
   documentVersions,
-  interviewAnswers,
-  interviews,
   maintenancePlans,
-  milestones,
   organizations,
 } from "@/lib/db/schema";
 import { AppError } from "@/lib/errors";
-import { listScope } from "@/lib/scope/service";
 import { parse } from "@/lib/validation";
 import {
   BUSINESS_DOC_SLUGS,
@@ -44,20 +40,8 @@ async function inputFor(tx: Tx, project: Project, locale: Locale): Promise<Busin
         .from(clients)
         .where(eq(clients.id, project.clientId))
     : [];
-  const [objective] = await tx
-    .select({ answer: interviewAnswers.answer })
-    .from(interviewAnswers)
-    .innerJoin(interviews, eq(interviews.id, interviewAnswers.interviewId))
-    .where(and(eq(interviews.projectId, project.id), eq(interviewAnswers.questionKey, "objective")))
-    .limit(1);
-  const [scope, terms, ms, plans] = await Promise.all([
-    listScope(project.id, tx),
+  const [terms, plans] = await Promise.all([
     listTerms(project.id, tx),
-    tx
-      .select({ title: milestones.title, goal: milestones.goal })
-      .from(milestones)
-      .where(eq(milestones.projectId, project.id))
-      .orderBy(asc(milestones.position)),
     tx
       .select()
       .from(maintenancePlans)
@@ -78,13 +62,14 @@ async function inputFor(tx: Tx, project: Project, locale: Locale): Promise<Busin
     project: {
       name: project.name,
       description: project.description,
-      objective: typeof objective?.answer === "string" ? objective.answer : null,
+      objective: null,
     },
     currency: project.currency,
     value: project.value,
-    scope: scope.map((s) => ({ title: s.title, description: s.description, category: s.category })),
+    // Scope and milestones are written into the draft by hand; the template leaves a marker.
+    scope: [],
     terms: terms.map((t) => ({ label: t.label, amount: t.amount, dueDate: t.dueDate })),
-    milestones: ms,
+    milestones: [],
     warrantyUntil: project.warrantyUntil,
     plan: plans[0]
       ? {

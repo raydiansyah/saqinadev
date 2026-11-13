@@ -19,8 +19,8 @@ Every pull request states one lane, chosen by the **riskiest path it touches**. 
 | Lane | Paths | Review |
 |---|---|---|
 | **Green** | `src/components/**`, `messages/**`, `src/content/**`, `docs/**`, `tests/**` (alone), styles | One reviewer or the author after the pipeline is green; AI may write freely |
-| **Yellow** | Business logic: `src/lib/**` services (documents, projects, tasks, requirements, meetings, imports, docsync, ai/gateway), server actions, `src/app/**` pages | Human review of logic and tests; coverage ratchet |
-| **Red** | Authentication and sessions (`src/lib/auth`, `src/proxy.ts`), authorization (`permissions`, `platform/roles`, portal access), billing and payments (`src/lib/billing`, money), personal data and clients, secrets and crypto (`src/lib/secrets`), providers and credentials (`ai/control-plane`, `github`), MCP/tools/agent permissions (`src/lib/mcp`, `tools`, `agents/capabilities`, `executions`, `agent-definitions`), security headers, migrations (`src/lib/db/migrations`, schema), cron and webhooks (`src/app/api/**`) | **A person reads and verifies every line or rewrites it.** Written or assisted by AI: a separate adversarial review ("find the bugs, assume the author is wrong") is attached to the PR. Two-person review when the owner is the author. |
+| **Yellow** | Business logic: `src/lib/**` services (documents, projects, meetings, maintenance, reminders, pdf), server actions, `src/app/**` pages | Human review of logic and tests; coverage ratchet |
+| **Red** | Authentication and sessions (`src/lib/auth`, `src/proxy.ts`), authorization (`permissions`, `platform/roles`, portal access), billing, receipts and payments (`src/lib/billing`, money), document signing and numbering (`src/lib/documents`), white label and brand (`src/lib/white-label`), personal data and clients, notification channels and the mail sender (`src/lib/notifications`, `src/lib/auth/email.ts`), security headers, migrations (`src/lib/db/migrations`, schema), cron and webhooks (`src/app/api/**`) | **A person reads and verifies every line or rewrites it.** Written or assisted by AI: a separate adversarial review ("find the bugs, assume the author is wrong") is attached to the PR. Two-person review when the owner is the author. |
 
 When unsure, take the higher lane.
 
@@ -36,9 +36,8 @@ metrics in [observability.md](observability.md).
 - Not allowed: sending secrets, credentials, production data or another client's data to a model or into
   a prompt; letting a model merge, deploy, change permissions or touch production data without a person;
   adding dependencies or licences unreviewed.
-- Model output is untrusted until validated and reviewed. Agents and MCP tools act only inside the
-  permission they were granted and everything they do is audited.
-- Customer documents go to a model only with the consent recorded for that action.
+- Model output is untrusted until validated and reviewed. v1 has no model in the product; a feature that
+  adds one needs a decision record and the consent rules in [compliance](compliance.md).
 
 ## Decisions and reviews
 

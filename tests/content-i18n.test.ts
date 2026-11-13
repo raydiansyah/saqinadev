@@ -5,8 +5,6 @@ import { en as siteEn } from "@/content/site/en";
 import { id as siteId } from "@/content/site/id";
 import appEn from "../messages/app.en.json";
 import appId from "../messages/app.id.json";
-import assistantEn from "../messages/assistant.en.json";
-import assistantId from "../messages/assistant.id.json";
 import authEn from "../messages/auth.en.json";
 import authId from "../messages/auth.id.json";
 import billingEn from "../messages/billing.en.json";
@@ -29,12 +27,6 @@ import portalEngagementEn from "../messages/portal-engagement.en.json";
 import portalEngagementId from "../messages/portal-engagement.id.json";
 import projectEn from "../messages/project.en.json";
 import projectId from "../messages/project.id.json";
-import servicesEn from "../messages/services.en.json";
-import servicesId from "../messages/services.id.json";
-import servicesAdminEn from "../messages/services-admin.en.json";
-import servicesAdminId from "../messages/services-admin.id.json";
-import themesEn from "../messages/themes.en.json";
-import themesId from "../messages/themes.id.json";
 import workspaceEn from "../messages/workspace.en.json";
 import workspaceId from "../messages/workspace.id.json";
 
@@ -61,7 +53,6 @@ describe.each([
   ["app messages", appEn, appId],
   ["project messages", projectEn, projectId],
   ["workspace messages", workspaceEn, workspaceId],
-  ["assistant messages", assistantEn, assistantId],
   ["platform messages", platformEn, platformId],
   ["billing messages", billingEn, billingId],
   ["portal messages", portalEn, portalId],
@@ -69,10 +60,7 @@ describe.each([
   ["engagement messages", engagementEn, engagementId],
   ["portal engagement messages", portalEngagementEn, portalEngagementId],
   ["notify messages", notifyEn, notifyId],
-  ["services messages", servicesEn, servicesId],
-  ["services admin messages", servicesAdminEn, servicesAdminId],
   ["meetings messages", meetingsEn, meetingsId],
-  ["themes messages", themesEn, themesId],
   ["site content", siteEn, siteId],
   ["legal documents", legalEn, legalId],
 ])("%s", (_, en, id) => {
@@ -104,7 +92,6 @@ describe("message files", () => {
       appEn,
       projectEn,
       workspaceEn,
-      assistantEn,
       platformEn,
       billingEn,
       portalEn,
@@ -112,9 +99,6 @@ describe("message files", () => {
       engagementEn,
       portalEngagementEn,
       notifyEn,
-      servicesEn,
-      servicesAdminEn,
-      themesEn,
     ].flatMap((m) => Object.keys(m));
     expect(new Set(names).size).toBe(names.length);
   });
@@ -125,11 +109,6 @@ describe("Indonesian content", () => {
     expect(siteId.hero.title).not.toBe(siteEn.hero.title);
     expect(idMessages.common.startProject).not.toBe(enMessages.common.startProject);
     expect(legalId.privacy.intro).not.toBe(legalEn.privacy.intro);
-  });
-
-  it("uses demo examples the Indonesian keywords recognise", async () => {
-    const { findProfile } = await import("@/lib/interview/profiles");
-    for (const example of siteId.demo.examples) expect(findProfile(example), example).toBeDefined();
   });
 });
 

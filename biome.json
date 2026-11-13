@@ -8,6 +8,7 @@
       "!**/.next",
       "!**/node_modules",
       "!**/graphify-out",
+      "!**/video",
       "!**/src/lib/db/migrations/meta",
       "!**/next-env.d.ts",
       "!**/*.md",

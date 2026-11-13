@@ -11,7 +11,7 @@
 | API/route p95 | < 500 ms for reads, < 1 s for writes (excluding AI calls) |
 
 A change that breaks a budget is fixed or the budget change is argued in an ADR; it is not waved through.
-Key pages: landing, `/services`, sign-in, dashboard, project overview, requirements, tasks, memory.
+Key pages: landing, sign-in, dashboard, project overview, billing, documents, portal overview.
 
 ## Database
 

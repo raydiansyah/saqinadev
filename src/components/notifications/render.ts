@@ -40,8 +40,6 @@ export function renderNotification(
   const values: Record<string, string> = { ...EMPTY, ...n.params, project };
   for (const key of ["due", "end"] as const)
     if (ISO_DAY.test(values[key])) values[key] = formatDay(values[key], locale);
-  if (values.status && t.has(`requestStatuses.${values.status}`))
-    values.status = t(`requestStatuses.${values.status}`);
 
   const base = `types.${n.type}`;
   if (/^[a-z_]+(\.[a-z_]+)*$/.test(n.type) && t.has(`${base}.title`) && t.has(`${base}.body`))

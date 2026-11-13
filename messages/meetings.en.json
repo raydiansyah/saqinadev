@@ -2,7 +2,7 @@
   "meetings": {
     "metaTitle": "Meeting notes",
     "title": "Meeting notes",
-    "description": "Write down what was agreed. Saqina can later read a note and suggest what belongs in the plan; nothing changes without your approval.",
+    "description": "Write down what was agreed in a meeting. You can share a note with the client.",
     "add": "Add note",
     "addTitle": "Add meeting note",
     "editTitle": "Edit meeting note",
@@ -27,9 +27,9 @@
     "status": {
       "ready": "Saved",
       "pending_review": "Waiting for team review",
-      "approved_for_analysis": "Approved for analysis",
+      "approved_for_analysis": "Accepted",
       "declined": "Declined",
-      "analyzed": "Analyzed"
+      "analyzed": "Accepted"
     },
     "side": {
       "team": "Team",
@@ -45,43 +45,12 @@
     "deleteTitle": "Delete this note?",
     "deleteBody": "“{title}” will be removed. This cannot be undone.",
     "deleteConfirm": "Delete note",
-    "approve": "Approve for analysis",
+    "approve": "Accept",
     "decline": "Decline",
     "declineTitle": "Decline this note?",
-    "declineBody": "“{title}” will not be analyzed. The client will see your reason.",
+    "declineBody": "“{title}” will not be accepted. The client will see your reason.",
     "declineReason": "Reason (at least 5 characters)",
     "reviewNote": "Review note",
-    "confirmedByClient": "The client confirmed this note is accurate.",
-    "analyze": "Analyze note",
-    "analyzing": "Analyzing…",
-    "itemsTitle": "What Saqina found",
-    "noItems": "Nothing in this note needed a plan change.",
-    "confidence": "Confidence {value}%",
-    "quote": "From the note",
-    "classes": {
-      "new_in_scope": "New, in scope",
-      "revision": "Revises existing",
-      "out_of_scope": "Out of scope",
-      "duplicate": "Already planned",
-      "conflict": "Conflict",
-      "info": "Information",
-      "unclear": "Unclear"
-    },
-    "select": "Select “{text}”",
-    "createProposal": "Create proposal from selected",
-    "creatingProposal": "Creating…",
-    "proposalCreated": "Proposal created. Review it under Approvals.",
-    "viewApprovals": "Open approvals",
-    "dismiss": "Dismiss selected",
-    "inProposal": "In a proposal",
-    "dismissed": "Dismissed",
-    "notActionable": "No change to propose",
-    "findingsHint": "Pick the findings to turn into a proposal. Nothing changes until you approve it.",
-    "unavailable": {
-      "no_model": "No AI model is chosen yet. Ask the platform owner to pick a default model under AI & Models → Models.",
-      "capability_missing": "“{model}” is not marked as able to return structured answers (missing: {missing}). Ask the platform owner to enable it under AI & Models → Models.",
-      "model_unavailable": "“{model}” cannot be used right now: the model or its provider is disabled, or the provider connection failed its test. Check AI & Models.",
-      "provider_failed": "“{model}” did not answer ({code}). Check the provider key and the model id under AI & Models."
-    }
+    "confirmedByClient": "The client confirmed this note is accurate."
   }
 }
